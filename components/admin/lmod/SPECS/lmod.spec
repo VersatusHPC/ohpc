@@ -45,6 +45,7 @@ BuildRequires: lua53-devel
 BuildRequires: procps
 Requires: lua53-luafilesystem
 Requires: lua53-luaposix
+Requires: (lua-lmod-apparmor-abstractions%{PROJ_DELIM} if apparmor-abstractions)
 Conflicts: Modules
 %endif
 
@@ -57,6 +58,18 @@ Patch2: lmod.site.patch
 %description
 Lmod: An Environment Module System based on Lua, Reads TCL Modules,
 Supports a Software Hierarchy
+
+%if 0%{?sle_version}
+%package apparmor-abstractions%{PROJ_DELIM}
+Summary:        Apparmor bash Abstraction for Lmod
+BuildRequires:  apparmor-abstractions
+BuildRequires:  apparmor-rpm-macros
+Requires:       apparmor-abstractions
+BuildArch:      noarch
+
+%description apparmor-abstractions%{PROJ_DELIM}
+Profile for shell source scripts for lua-lmod
+%endif
 
 %prep
 %setup -q -n Lmod-%{version}
@@ -172,6 +185,16 @@ EOF
 
 %{__ln_s} %{OHPC_ADMIN}/lmod/lmod/libexec/lmod %{buildroot}/%{_bindir}/modulecmd
 
+%if 0%{?sle_version}
+install -d -m755 %{buildroot}%{_sysconfdir}/apparmor.d/abstractions/bash.d
+cat <<EOF > %{buildroot}%{_sysconfdir}/apparmor.d/abstractions/bash.d/lmod
+   abi <abi/3.0>,
+
+   %_datadir/lmod/%{version}/init/*    r,
+   %_datadir/lmod/%{version}/libexec/addto ix,
+EOF
+%endif
+
 %files
 %dir %{OHPC_HOME}
 %dir %{OHPC_ADMIN}
@@ -181,3 +204,9 @@ EOF
 %{OHPC_PUB}
 %doc License README.md README_lua_modulefiles.txt INSTALL
 %{_bindir}/modulecmd
+
+%if 0%{?sle_version}
+%files  apparmor-abstractions%{PROJ_DELIM}
+%dir %{_sysconfdir}/apparmor.d/abstractions/bash.d
+%{_sysconfdir}/apparmor.d/abstractions/bash.d/lmod
+%endif
