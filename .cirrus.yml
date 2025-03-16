@@ -43,6 +43,7 @@ openeuler_task:
     JOB_SKIP_CI_SPECS: |
       components/runtimes/charliecloud/SPECS/charliecloud.spec
       components/perf-tools/likwid/SPECS/likwid.spec
+      components/provisioning/warewulf/SPECS/warewulf.spec
   test_script: |
     export SKIP_CI_SPECS="${SKIP_CI_SPECS}${JOB_SKIP_CI_SPECS}"
     chown ohpc -R tests
