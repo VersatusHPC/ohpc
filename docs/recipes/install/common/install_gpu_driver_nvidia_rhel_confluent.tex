@@ -13,7 +13,9 @@ GPU driver and the corresponding toolkit needs to be installed:
 # Install the GPU driver
 [sms](*\#*) nodeshell compute dnf -y module install nvidia-driver:latest-dkms
 # Install the toolkit
-[sms](*\#*) nodeshell compute dnf -y install cuda-toolkit
+[sms](*\#*) (*\chrootinstall*) cuda-toolkit
+# Enable DKMS service to automatically rebuild driver
+[sms](*\#*) nodeshell compute systemctl enable dkms
 \end{lstlisting}
 % ohpc_indent 0
 % ohpc_command fi

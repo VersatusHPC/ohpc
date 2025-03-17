@@ -18,13 +18,13 @@ nodes to use it, but it has  also enabled online OS repositories.
 % begin_ohpc_run
 % ohpc_comment_header Setup nodes repositories and Install OHPC components \ref{sec:add_components}
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
-# Add OpenHPC repo 
+# Add OpenHPC repo
 [sms](*\#*) (*\chrootinstall*) http://repos.openhpc.community/OpenHPC/3/EL_9/x86_64/ohpc-release-3-1.el9.x86_64.rpm
 \end{lstlisting}
 % end_ohpc_run
 
 The {\em compute} nodes also need access to the EPEL repository, a required
-dependency for \OHPC{} packages. 
+dependency for \OHPC{} packages.
 
 % begin_ohpc_run
 % ohpc_comment_header Configure access to EPEL repo
@@ -55,7 +55,7 @@ and disable the firewall on the compute nodes:
 % ohpc_comment_header Add OpenHPC base components to compute image
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
 # Install compute node base meta-package
-[sms](*\#*) (*\chrootinstall*) ohpc-base-compute
+[sms](*\#*) (*\chrootinstall*) ohpc-base-compute git
 # Disable firewall for computes
 [sms](*\#*) nodeshell compute systemctl disable --now firewalld
 \end{lstlisting}

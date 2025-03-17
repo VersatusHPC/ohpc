@@ -23,7 +23,6 @@ that will be hosted by the {\em master} host in this  example configuration.
         "\""${sms_ip}:/home /home nfs nfsvers=3,nodev,nosuid 0 0"\"" \>\> /etc/fstab
 [sms](*\#*) nodeshell compute echo \
         "\""${sms_ip}:/opt/ohpc/pub /opt/ohpc/pub nfs nfsvers=3,nodev 0 0"\"" \>\> /etc/fstab
-[sms](*\#*) nodeshell compute systemctl restart nfs
 
 # Mount NFS shares
 [sms](*\#*) nodeshell compute mount /home
