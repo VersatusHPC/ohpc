@@ -49,7 +49,6 @@ Conflicts: warewulf-provision
 Conflicts: warewulf-ipmi
 
 %if 0%{?suse_version} || 0%{?sle_version}
-BuildRequires: distribution-release
 BuildRequires: systemd-rpm-macros
 BuildRequires: go > 1.20
 BuildRequires: firewall-macros
@@ -62,7 +61,6 @@ Requires: firewalld
 Requires: ipxe-bootimgs
 %else
 # Assume Red Hat/Fedora build
-BuildRequires: system-release
 BuildRequires: systemd
 BuildRequires: golang > 1.20
 BuildRequires: firewalld-filesystem
