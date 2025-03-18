@@ -51,8 +51,8 @@ compiler_dependent = ["!openmpi", "!mpich", "!mvapich2", "!openblas", "!R", "lik
                       "!pdtoolkit", "!gsl", "!metis", "!superlu", "!scotch",
                       "numpy", "!plasma", "!hdf5"]
 
-standalone = ["!docs", "!test-suite", "!warewulf", "!gnu-compilers", "!ohpc-filesystem",
-	      "!impi-devel", "!meta-packages", "!easybuild", "!spack", "!hwloc", "!ucx",
+standalone = ["docs", "test-suite", "warewulf", "!gnu-compilers", "!ohpc-filesystem",
+	      "!impi-devel", "meta-packages", "!easybuild", "!spack", "!hwloc", "!ucx",
 	      "lmod", "!genders", "!hpc-workspace", "!valgrind", "!slurm"]
 #mpi_dependent = ["cubew", "otf2", "cubelib", "opari2", "sionlib", "fftw", "scalapack",
 #		 "scorep", "scalasca", "scipy", "phdf5", "netcdf", "netcdf-fortran",
@@ -60,7 +60,8 @@ standalone = ["!docs", "!test-suite", "!warewulf", "!gnu-compilers", "!ohpc-file
 #		 "ptscotch", "boost", "pnetcdf", "tau", "extrae", "imb",
 #		 "opencoarrays", "hypre", "mpi4py", "dimemas", "adios2",
 #		 "trilinos", "petsc", "slepc", "superlu_dist", "mfem"]
-skip_on_distro_openEuler_22.03 = ["-arm1","-intel","-impi","impi-devel","intel-compilers-devel","arm-compilers-devel"]
+skip_on_distro_openEuler_22.03 = ["-arm1","-intel","-impi","impi-devel","intel-compilers-devel",
+				  "arm-compilers-devel","warewulf"]
 openblas_compiler=["gnu14"]
 R_compiler=["gnu14"]
 opencoarrays_compiler=["gnu14"]
