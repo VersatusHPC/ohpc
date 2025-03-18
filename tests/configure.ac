@@ -271,7 +271,7 @@ AM_CONDITIONAL(EASYBUILD_ENABLED,test "x$enable_easybuild" = "xyes" )
 #------------------------------------------------------------------------------------------
 # cuda
 AC_ARG_ENABLE([cuda],
-   [AS_HELP_STRING([--enable-cuda],[Enable cuda tests (default=yes)])],[],
+   [AS_HELP_STRING([--enable-cuda],[Enable cuda tests (default=no)])],[],
    [AX_OPTION_DEFAULT(type=long,enable_cuda,no)])
 AM_CONDITIONAL(CUDA_ENABLED,test "x$enable_cuda" = "xyes" )
 #------------------------------------------------------------------------------------------
