@@ -47,6 +47,7 @@ my $remove             = "";
 my $addrepo            = "";
 my $chrootaddrepo      = "";
 my $beegfsrepo         = "";
+my $cudarepo           = "";
 my $verlong            = "";
 my $OSTree             = "";
 my $image              = "";
@@ -69,6 +70,10 @@ while( my $line = <IN> ) {
         $beegfsrepo = $1;
 	# undo latex escape for underscore
 	$beegfsrepo =~ s/\\_/_/;
+    } elsif( $line =~ /\\newcommand\{\\cudarepo\}\{(.+)\}/ ) {
+        $cudarepo = $1;
+	# undo latex escape for underscore
+	$cudarepo =~ s/\\_/_/;
     } elsif( $line =~ /\\newcommand\{\\VERLONG\}\{(.+)\}/ ) {
         $verlong = $1;
     } elsif( $line =~ /\\newcommand\{\\OSTree\}\{(.+)\}/ ) {
@@ -297,6 +302,7 @@ sub update_cmd {
     $cmd =~ s/\(\*\\addrepo\*\)/$addrepo/;
     $cmd =~ s/\(\*\\chrootaddrepo\*\)/$chrootaddrepo/;
     $cmd =~ s/\(\*\\beegfsrepo\*\)/$beegfsrepo/;
+    $cmd =~ s/\(\*\\cudarepo\*\)/$cudarepo/;
     $cmd =~ s/BOSVER/$BaseOS/;
     $cmd =~ s/OSIMAGE/$OSimage/;
     $cmd =~ s/BOSSHORT/$BaseOSshort/;
