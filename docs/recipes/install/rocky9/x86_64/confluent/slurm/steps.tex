@@ -21,8 +21,8 @@
 
 % Define package manager commands
 \newcommand{\pkgmgr}{dnf}
-\newcommand{\addrepo}{wget -P /etc/yum.repos.d}
-\newcommand{\chrootaddrepo}{wget -P \$CHROOT/etc/yum.repos.d}
+\newcommand{\addrepo}{dnf -y config-manager --add-repo}
+\newcommand{\chrootaddrepo}{nodeshell compute dnf -y config-manager --add-repo}
 \newcommand{\clean}{dnf clean expire-cache}
 \newcommand{\chrootclean}{dnf --installroot=\$CHROOT clean expire-cache}
 \newcommand{\install}{dnf -y install}
@@ -34,6 +34,7 @@
 \newcommand{\chrootupgrade}{dnf -y --installroot=\$CHROOT upgrade}
 \newcommand{\tftppkg}{syslinux-tftpboot}
 \newcommand{\beegfsrepo}{https://www.beegfs.io/release/beegfs\_7.2.1/dists/beegfs-rhel8.repo}
+\newcommand{\cudarepo}{https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo}
 
 % boolean for os-specific formatting
 \toggletrue{isCentOS}
