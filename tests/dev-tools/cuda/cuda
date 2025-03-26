@@ -23,12 +23,12 @@ teardown() {
 @test "[dev-tools/cuda] check for nvcc" {
 	module load cuda nvhpc
 	run_serial_binary nvcc --version
-	module unload cuda
+	module unload cuda nvhpc
 }
 
 @test "[dev-tools/cuda] build cuda example and run it" {
-	module load cuda
+	module load cuda nvhpc
 	nvcc add.cu -o add_cuda
 	run_serial_binary ./add_cuda
-	module unload cuda
+	module unload cuda nvhpc
 }
