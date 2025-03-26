@@ -28,8 +28,10 @@ Source2:   https://developer.download.nvidia.com/compute/cuda/repos/opensuse15/x
 # These repositories are needed for the toolkit. nvhpc install the cuda toolkit
 # in /opt in contrast to the normal cuda-toolkit which is installed in /usr/local.
 # /opt is easier to manage for NFS exports. nvhpc also comes with modulefiles.
-Source3:   https://developer.download.nvidia.com/hpc-sdk/rhel/nvhpc.repo
-Source4:   https://developer.download.nvidia.com/hpc-sdk/sles/nvhpc.repo
+# https://developer.download.nvidia.com/hpc-sdk/rhel/nvhpc.repo
+Source3:   nvhpc-rhel.repo
+# https://developer.download.nvidia.com/hpc-sdk/sles/nvhpc.repo
+Source4:   nvhpc-sles.repo
 
 #!BuildIgnore: post-build-checks
 
