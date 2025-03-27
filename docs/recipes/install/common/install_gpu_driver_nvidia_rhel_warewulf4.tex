@@ -30,36 +30,3 @@ EOF
 % ohpc_indent 0
 % ohpc_command fi
 % \end_ohpc_run
-
-\begin{center}
-\begin{tcolorbox}[]
-As noted in \S\ref{sec:master_customization}, the default installation path for
-\OHPC{} (\texttt{/opt/ohpc/pub}) is exported over NFS from the {\em master} to the
-compute nodes, but the NVIDIA toolkit packages install to a top-level path of
-\texttt{/usr/local/cuda-VERSION}. To make the NVIDIA compiler available to the compute
-nodes one must add an additional NFS export
-for \texttt{/usr/local/cuda-VERSION} that is mounted on desired compute nodes.
-\end{tcolorbox}
-\end{center}
-
-% begin_ohpc_run
-% ohpc_validation_newline
-% ohpc_command if [[ ${enable_nvidia_gpu_driver} -eq 1 ]];then
-% ohpc_indent 5
-\begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
-
-[sms](*\#*) CUDA_VERSION=$(rpm -q --queryformat='%{version}' cuda-devel-ohpc)
-[sms](*\#*) yq ".nfs.[\"export paths\"] \
-    += [{\"path\": \"/usr/local/cuda-${CUDA_VERSION}\", \
-    \"export options\": \"ro,no_subtree_check\"}]" \
-    -i /etc/warewulf/warewulf.conf
-[sms](*\#*) yq ".nodeprofiles.nodes.resources.fstab \
-    +=[{\"file\": \"/usr/local/cuda-${CUDA_VERSION}\", \
-    \"mntops\" : \"defaults\", \
-    \"spec\": \"warewulf:/usr/local/cuda-${CUDA_VERSION}\", \
-    \"vfstype\": \"nfs\"}]" -i /etc/warewulf/nodes.conf
-
-\end{lstlisting}
-% ohpc_indent 0
-% ohpc_command fi
-% \end_ohpc_run
