@@ -334,6 +334,16 @@ class ohpc_obs_tool(object):
             components['with_ucx'] = self.checkForDisabledComponents(
                 components['with_ucx'])
 
+        if self.buildConfig.has_option(self.vip, 'with_pmix'):
+            components['with_pmix'] = ast.literal_eval(
+                self.buildConfig.get(self.vip, "with_pmix"))
+            logging.info(
+                "--> [         with_pmix]: %s" %
+                components['with_pmix'])
+
+            components['with_pmix'] = self.checkForDisabledComponents(
+                components['with_pmix'])
+
         numComponents = 0
         if 'standalone' not in components:
             components['standalone'] = []
@@ -345,13 +355,16 @@ class ohpc_obs_tool(object):
             components['mpi_dep_to_non_mpi'] = []
         if 'with_ucx' not in components:
             components['with_ucx'] = []
+        if 'with_pmix' not in components:
+            components['with_pmix'] = []
 
         numComponents = (
             len(components['standalone']) +
             len(components['comp_dep']) +
             len(components['mpi_dep']) +
             len(components['mpi_dep_to_non_mpi']) +
-            len(components['with_ucx'])
+            len(components['with_ucx']) +
+            len(components['with_pmix'])
         )
 
         logging.info("# of requested components = %i\n" % numComponents)
@@ -1031,6 +1044,24 @@ def main():
                         compiler=compiler,
                         parentName=parent,
                         replace='<topadd>%define with_ucx 1</topadd>')
+
+            if package in components['with_pmix']:
+                child = package + '-pmix-' + compiler
+                if child in obsPackages:
+                    logging.info(
+                        "%34s (%13s): present in OBS" %
+                        (child, ptype))
+                else:
+                    logging.info(
+                        "%34s (%13s): *not* present in OBS, need to add" %
+                        (child, ptype))
+                    obs.addPackage(
+                        child,
+                        parent=False,
+                        isCompilerDep=True,
+                        compiler=compiler,
+                        parentName=parent,
+                        replace='<topadd>%define RMS_DELIM -pmix</topadd>')
 
     # (3) MPI dependent packages
     for package in components['mpi_dep']:

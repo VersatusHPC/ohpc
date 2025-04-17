@@ -47,13 +47,14 @@ skip_x86  = ["-arm1"]
 #compiler_families=["gnu14","intel","arm1"]
 compiler_families=["gnu14", "intel"]
 mpi_families=["openmpi5","mpich","mvapich2","impi"]
-compiler_dependent = ["!openmpi", "!mpich", "!mvapich2", "!openblas", "!R", "likwid",
+compiler_dependent = ["openmpi", "!mpich", "!mvapich2", "!openblas", "!R", "likwid",
                       "!pdtoolkit", "!gsl", "!metis", "!superlu", "!scotch",
                       "numpy", "!plasma", "!hdf5"]
 
 standalone = ["docs", "test-suite", "warewulf", "!gnu-compilers", "!ohpc-filesystem",
-	      "!impi-devel", "meta-packages", "!easybuild", "!spack", "!hwloc", "!ucx",
-	      "lmod", "!genders", "!hpc-workspace", "!valgrind", "!slurm", "cuda-devel"]
+	      "cmake", "pdsh",
+	      "!impi-devel", "meta-packages", "easybuild", "spack", "hwloc", "ucx",
+	      "lmod", "genders", "!hpc-workspace", "valgrind", "slurm", "cuda-devel"]
 #mpi_dependent = ["cubew", "otf2", "cubelib", "opari2", "sionlib", "fftw", "scalapack",
 #		 "scorep", "scalasca", "scipy", "phdf5", "netcdf", "netcdf-fortran",
 #		 "netcdf-cxx", "lmod-defaults", "geopm", "mumps", "omb",
@@ -68,6 +69,7 @@ opencoarrays_compiler=["gnu14"]
 scipy_compiler=["gnu14"]
 mpi_dependent_to_non_mpi=["netcdf","netcdf-fortran","netcdf-cxx"]
 with_ucx=["mpich"]
+with_pmix=["openmpi"]
 
 
 [3.2.1]
