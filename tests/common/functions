@@ -221,7 +221,8 @@ run_serial_binary() {
 	EXE="$1"
 	shift
 
-	check_exe "${EXE}"
+	# shellcheck disable=SC2086
+	check_exe ${EXE}
 
 	if [ -z "${scalasca}" ]; then
 		exec_prefix=""
@@ -331,7 +332,8 @@ run_mpi_binary() {
 	NNODES="$3"
 	NTASKS="$4"
 
-	check_exe "${EXE}"
+	# shellcheck disable=SC2086
+	check_exe ${EXE}
 
 	if [ -z "${RESOURCE_MANAGER}" ]; then
 		ERROR_RETURN "Resource manager is not defined - please set via RESOURCE_MANAGER variable"
