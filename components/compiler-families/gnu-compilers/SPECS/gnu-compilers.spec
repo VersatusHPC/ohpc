@@ -25,6 +25,11 @@
 %global gnu14_mpc_version 1.3.1
 %global gnu14_mpfr_version 4.2.1
 
+%global gnu15_version 15.1.0
+%global gnu15_gmp_version 6.3.0
+%global gnu15_mpc_version 1.3.1
+%global gnu15_mpfr_version 4.2.2
+
 %if "%{compiler_family}" == "gnu12"
 %global gnu_major_ver gnu12
 %global gnu_version %{gnu12_version}
@@ -36,6 +41,10 @@
 %if "%{compiler_family}" == "gnu14"
 %global gnu_major_ver gnu14
 %global gnu_version %{gnu14_version}
+%endif
+%if "%{compiler_family}" == "gnu15"
+%global gnu_major_ver gnu15
+%global gnu_version %{gnu15_version}
 %endif
 
 Source0:   https://ftp.gnu.org/gnu/gcc/gcc-%{gnu12_version}/gcc-%{gnu12_version}.tar.xz
@@ -52,6 +61,11 @@ Source8:   https://ftp.gnu.org/gnu/gcc/gcc-%{gnu14_version}/gcc-%{gnu14_version}
 Source9:   https://ftp.gnu.org/gnu/gmp/gmp-%{gnu14_gmp_version}.tar.bz2
 Source10:   https://ftp.gnu.org/gnu/mpc/mpc-%{gnu14_mpc_version}.tar.gz
 Source11:   https://ftp.gnu.org/gnu/mpfr/mpfr-%{gnu14_mpfr_version}.tar.gz
+
+Source12:   https://ftp.gnu.org/gnu/gcc/gcc-%{gnu15_version}/gcc-%{gnu15_version}.tar.xz
+Source13:   https://ftp.gnu.org/gnu/gmp/gmp-%{gnu15_gmp_version}.tar.bz2
+Source14:   https://ftp.gnu.org/gnu/mpc/mpc-%{gnu15_mpc_version}.tar.gz
+Source15:   https://ftp.gnu.org/gnu/mpfr/mpfr-%{gnu15_mpfr_version}.tar.gz
 
 %global pname %{gnu_major_ver}-compilers
 
@@ -115,6 +129,14 @@ ln -s mpfr-%{gnu13_mpfr_version} mpfr
 ln -s gmp-%{gnu14_gmp_version} gmp
 ln -s mpc-%{gnu14_mpc_version} mpc
 ln -s mpfr-%{gnu14_mpfr_version} mpfr
+%endif
+
+%if "%{compiler_family}" == "gnu15"
+%setup -T -q -n gcc-%{version} -b12 -a13 -a14 -a15
+
+ln -s gmp-%{gnu15_gmp_version} gmp
+ln -s mpc-%{gnu15_mpc_version} mpc
+ln -s mpfr-%{gnu15_mpfr_version} mpfr
 %endif
 
 %build

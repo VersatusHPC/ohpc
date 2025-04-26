@@ -165,6 +165,10 @@ check_compiler_family() {
 		myCC="gcc"
 		myCXX="g++"
 		myFC="gfortran"
+	elif [ "${LMOD_FAMILY_COMPILER}" == "gnu15" ]; then
+		myCC="gcc"
+		myCXX="g++"
+		myFC="gfortran"
 	elif [ "${LMOD_FAMILY_COMPILER}" == "gnu13" ]; then
 		myCC="gcc"
 		myCXX="g++"
