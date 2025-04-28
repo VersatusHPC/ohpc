@@ -80,7 +80,7 @@ export FFLAGS="${FCFLAGS}"
 %{__cat} SLmake.inc
 export CFLAGS="${CFLAGS} -fsimdmath"
 %endif
-%if "%{compiler_family}" == "gnu14"
+%if "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 module load openblas
 # configure fails with:
 #   The Fortran compiler gfortran does not accept programs that
@@ -89,6 +89,9 @@ module load openblas
 #   Rerun configure with FFLAGS=-fallow-argument-mismatch
 # This seems to fix the build.
 export GNU14FCFLAGS=-fallow-argument-mismatch
+%endif
+%if "%{compiler_family}" == "gnu15"
+export CFLAGS="${CFLAGS} -std=gnu89"
 %endif
 make lib
 
