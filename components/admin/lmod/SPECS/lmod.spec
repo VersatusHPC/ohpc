@@ -116,7 +116,7 @@ if [ -z "\${MANPATH:-}" ]; then
     export MANPATH=":"
 fi
 # Initialize MANPATH if unset, then safely append Lmod's man directory using addto helper
-export MANPATH=\$(${OHPC_ADMIN}/lmod/lmod/libexec/addto MANPATH ${OHPC_ADMIN}/lmod/lmod/share/man)
+export MANPATH=\$(%{OHPC_ADMIN}/lmod/lmod/libexec/addto MANPATH %{OHPC_ADMIN}/lmod/lmod/share/man)
 
 # Set BASH_ENV for environment
 export BASH_ENV=%{OHPC_ADMIN}/lmod/lmod/init/bash
@@ -162,7 +162,7 @@ if ( ! $?MANPATH ) then
     setenv MANPATH ":"
 endif
 # Initialize MANPATH if unset, then safely append Lmod's man directory using addto helper
-setenv MANPATH `${OHPC_ADMIN}/lmod/lmod/libexec/addto MANPATH ${OHPC_ADMIN}/lmod/lmod/share/man`
+setenv MANPATH `%{OHPC_ADMIN}/lmod/lmod/libexec/addto MANPATH %{OHPC_ADMIN}/lmod/lmod/share/man`
 
 # Initialize modules system
 source %{OHPC_ADMIN}/lmod/lmod/init/csh >/dev/null
