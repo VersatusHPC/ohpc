@@ -99,6 +99,9 @@ export FFLAGS=-fallow-argument-mismatch
 %if "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 export CFLAGS="${CFLAGS} -Wno-incompatible-pointer-types"
 %endif
+%if "%{compiler_family}" == "gnu15"
+export CFLAGS="${CFLAGS} -std=gnu17"
+%endif
 %endif
 %if "%{compiler_family}" == "intel"
 export CFLAGS="${CFLAGS} -Wno-incompatible-function-pointer-types"
