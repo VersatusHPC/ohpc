@@ -110,7 +110,7 @@ module load ucx
 module load libfabric
 %endif
 
-%if "%{compiler_family}" == "gnu12" || "%{compiler_family}" == "gnu13" || "%{compiler_family}" == "gnu14"
+%if "%{compiler_family}" == "gnu12" || "%{compiler_family}" == "gnu13" || "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 # configure fails with:
 #   The Fortran compiler gfortran does not accept programs that
 #   call the same routine with arguments of different types without

@@ -88,7 +88,7 @@ across multiple networks.
 
 %build
 %ohpc_setup_compiler
-%if "%{compiler_family}" == "gnu12" || "%{compiler_family}" == "gnu13" || "%{compiler_family}" == "gnu14"
+%if "%{compiler_family}" == "gnu12" || "%{compiler_family}" == "gnu13" || "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 # configure fails with:
 #   The Fortran compiler gfortran does not accept programs that
 #   call the same routine with arguments of different types without
@@ -96,7 +96,7 @@ across multiple networks.
 #   Rerun configure with FFLAGS=-fallow-argument-mismatch
 # This seems to fix the build.
 export FFLAGS=-fallow-argument-mismatch
-%if "%{compiler_family}" == "gnu14"
+%if "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 export CFLAGS="${CFLAGS} -Wno-incompatible-pointer-types"
 %endif
 %endif
