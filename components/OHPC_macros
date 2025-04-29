@@ -251,7 +251,7 @@ Requires:      %{python_prefix}
 
 # Handle different package names accross distributions.
 
-%if 0%{?sles_version}
+%if 0%{?sle_version}
 %global procps procps
 %else
 %global procps procps-ng
