@@ -255,4 +255,4 @@ Requires:      %{python_prefix}
 %global procps procps
 %else
 %global procps procps-ng
-%fi
+%endif
