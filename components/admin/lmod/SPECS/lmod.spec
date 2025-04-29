@@ -26,13 +26,13 @@ Source0:   https://github.com/TACC/Lmod/archive/%{version}.tar.gz#$/%{pname}-%{v
 BuildRequires: rsync
 BuildRequires: tcl-devel
 BuildRequires: gcc make bc
+BuildRequires: %{procps}
 
 %if 0%{?rhel} || 0%{?openEuler}
 BuildRequires: lua-devel
 BuildRequires: lua-libs
 BuildRequires: lua-filesystem
 BuildRequires: lua-posix
-BuildRequires: procps-ng
 Requires: lua-filesystem
 Requires: lua-posix
 Provides: environment(modules)
@@ -42,7 +42,6 @@ Obsoletes: environment-modules
 BuildRequires: lua53-luafilesystem
 BuildRequires: lua53-luaposix
 BuildRequires: lua53-devel
-BuildRequires: procps
 Requires: lua53-luafilesystem
 Requires: lua53-luaposix
 Requires: (lmod-apparmor-abstractions%{PROJ_DELIM} if apparmor-abstractions)
