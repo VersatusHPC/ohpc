@@ -248,11 +248,7 @@ run_serial_binary() {
 		return "$?"
 	elif [ "${RESOURCE_MANAGER}" = "openpbs" ]; then
 
-		# pbs presently won't search PATH and doesn't run out of cwd;cull out full path to $EXE
 		echo "EXE = ${EXE}"
-		local MY_PATH
-		MY_PATH=$(command -v "${EXE}")
-		MY_PATH=$(readlink -f "${MY_PATH}")
 
 		# Generate script with commands so we can execute out of submission directory
 		jobScript=".job.${RANDOM}"
@@ -272,7 +268,6 @@ run_serial_binary() {
 		else
 			qsub -k n -W block=true -l select=1 -l walltime="${timeout}" -- "$(readlink -f "${jobScript}")"
 
-			local RC
 			RC="$?"
 			rm -f "${jobScript}"
 			return "${RC}"

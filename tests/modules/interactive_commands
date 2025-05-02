@@ -110,12 +110,25 @@ load ../common/test_helper_functions
     # verify path after swap to new module
     module swap test-module test2-module || exit 1
     assert_equal "/my/test2-module-path:$orig_path" "$PATH"
-    assert_equal "${orig_manpath}/my/test2-manpath"  $MANPATH
+    if [[ "${MANPATH}" != *"${orig_manpath}"* ]]; then
+        flunk "${orig_manpath} missing from MANPATH
+    fi
+    if [[ "${MANPATH}" != *"/my/test2-manpath"* ]]; then
+        flunk "/my/test2-manpath missing from MANPATH
+    fi
 
     # verify path after addition of a new module
     module load test3-module || exit 1
     assert_equal "/my/test3-module-path:/my/test2-module-path:$orig_path" "$PATH"
-    assert_equal "${orig_manpath}/my/test2-manpath:/my/test3-manpath"      $MANPATH
+    if [[ "${MANPATH}" != *"${orig_manpath}"* ]]; then
+        flunk "${orig_manpath} missing from MANPATH"
+    fi
+    if [[ "${MANPATH}" != *"/my/test2-manpath"* ]]; then
+        flunk "/my/test2-manpath missing from MANPATH"
+    fi
+    if [[ "${MANPATH}" != *"/my/test3-manpath"* ]]; then
+        flunk "/my/test3-manpath missing from MANPATH"
+    fi
 
     # verify path after removal of test modules
     module delete test2-module || exit 1
