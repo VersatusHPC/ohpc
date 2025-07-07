@@ -81,6 +81,8 @@ class ohpc_obs_tool(object):
         projectName = "OpenHPC"
         if self.branchVer.startswith('3.'):
             projectName += "3"
+        elif self.branchVer.startswith('4.'):
+            projectName += "4"
         projectName += ":"
 
         if self.microVer == '0':
@@ -731,6 +733,8 @@ class ohpc_obs_tool(object):
             contents = contents.replace('!GROUP!', group)
             contents = contents.replace('!PACKAGE!', pname)
             if self.branchVer.startswith('3.'):
+                contents = contents.replace('!VERSION!', "3.x")
+            elif self.branchVer.startswith('4.'):
                 contents = contents.replace('!VERSION!', "3.x")
             else:
                 contents = contents.replace('!VERSION!', "2.x")
