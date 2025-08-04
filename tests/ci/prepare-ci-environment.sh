@@ -62,7 +62,7 @@ fi
 . /etc/os-release
 
 PKG_MANAGER=zypper
-COMMON_PKGS="wget python3 jq man"
+COMMON_PKGS="wget python3 jq man ccache"
 UNAME_M=$(uname -m)
 YES="-n"
 
@@ -204,4 +204,10 @@ else
 	fi
 	loop_command "${PKG_MANAGER}" "${YES}" --no-gpg-checks install lmod-ohpc "${ENABLE_ONEAPI}"
 	useradd -m ohpc
+fi
+
+# Source ccache profile if available
+if [ -f /etc/profile.d/ccache.sh ]; then
+	# shellcheck disable=SC1091
+	. /etc/profile.d/ccache.sh
 fi
