@@ -66,6 +66,11 @@ BuildRequires: ohpc-buildroot
 
 # Disable warning during build concerning source_date_epoch_from_changelog
 %if 0%{?rhel} >= 10
+# This is necessary so that the RPM linker flags do not leak into
+# the packages. Without this some wrappers like mpicc are re-using
+# the RPM flags and then they require certain RPM environment variables
+# to bet set. Without those variables builds starts to fail.
+%undefine _package_note_flags
 %undefine source_date_epoch_from_changelog
 %global __brp_check_rpaths %{nil}
 %endif
