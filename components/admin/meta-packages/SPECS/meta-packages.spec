@@ -204,8 +204,6 @@ Requires:  mumps-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  slepc-%{compiler_family}-mpich%{PROJ_DELIM}
@@ -223,7 +221,6 @@ Requires:  hypre-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  mfem-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  slepc-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  ptscotch-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -241,7 +238,6 @@ Requires:  hypre-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  mfem-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  slepc-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  ptscotch-%{compiler_family}-mpich%{PROJ_DELIM}
@@ -258,7 +254,6 @@ Requires:  hypre-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  mfem-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  slepc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  ptscotch-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
@@ -527,7 +522,6 @@ Requires:  hypre-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  mfem-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  slepc-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  ptscotch-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -546,7 +540,6 @@ Requires:  mfem-%{compiler_family}-impi%{PROJ_DELIM}
 Requires:  mfem-intel-impi%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-impi%{PROJ_DELIM}
 Requires:  mumps-intel-impi%{PROJ_DELIM}
-Requires:  opencoarrays-%{compiler_family}-impi%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-impi%{PROJ_DELIM}
 Requires:  petsc-intel-impi%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-impi%{PROJ_DELIM}

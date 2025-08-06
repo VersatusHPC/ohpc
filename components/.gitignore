@@ -63,7 +63,7 @@ parallel-libs/fftw/SOURCES/fftw-*.tar.gz
 parallel-libs/hypre/SOURCES/hypre-*.tar.gz
 parallel-libs/mfem/SOURCES/mfem-*.tar
 parallel-libs/mumps/SOURCES/MUMPS*.tar.gz
-parallel-libs/opencoarrays/SOURCES/OpenCoarrays-*.tar.gz
+parallel-libs/opencoarrays/SOURCES/*.tar.gz
 parallel-libs/petsc/SOURCES/petsc-*.tar.gz
 parallel-libs/ptscotch/SOURCES/scotch*.tar.gz
 parallel-libs/ptscotch/SOURCES/scotch*.bz2
