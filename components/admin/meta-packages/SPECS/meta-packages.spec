@@ -86,6 +86,7 @@ Summary:   OpenHPC compute node base
 Requires:  binutils
 Requires:  libicu
 Requires:  libunwind
+Requires:  libfabric
 Requires:  numactl
 Requires:  python3
 Requires:  %{python_prefix}
