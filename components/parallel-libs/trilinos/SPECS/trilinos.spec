@@ -251,5 +251,5 @@ EOF
 
 %files
 %{OHPC_PUB}
-%doc INSTALL README RELEASE_NOTES
+%doc README.md RELEASE_NOTES
 %license Copyright.txt LICENSE
