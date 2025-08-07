@@ -44,6 +44,7 @@ BuildRequires:  zlib-devel
 BuildRequires:  boost-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  phdf5-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  netcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+BuildRequires:  pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  python3
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm1"
