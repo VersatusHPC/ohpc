@@ -140,12 +140,12 @@ if [ "${PRE_RELEASE}" != "yes" ]; then
 		# release RPM. As long as there is no release RPM only the OBS repository
 		# is used directly.
 		if [ "${ID}" = "openEuler" ]; then
-			OHPC_RELEASE="${REPOSITORY_URL}openEuler_22.03/${UNAME_M}/ohpc-release-3-1.oe2203.${UNAME_M}.rpm"
+			OHPC_RELEASE="${REPOSITORY_URL}openEuler_22.03/${UNAME_M}/ohpc-release-4-1.oe2203.${UNAME_M}.rpm"
 		else
-			OHPC_RELEASE="${REPOSITORY_URL}EL_10/${UNAME_M}/ohpc-release-3-1.el10.${UNAME_M}.rpm"
+			OHPC_RELEASE="${REPOSITORY_URL}EL_10/${UNAME_M}/ohpc-release-4-1.el10.${UNAME_M}.rpm"
 		fi
 	else
-		OHPC_RELEASE="${REPOSITORY_URL}Leap_15/${UNAME_M}/ohpc-release-3-1.leap15.${UNAME_M}.rpm"
+		OHPC_RELEASE="${REPOSITORY_URL}Leap_15/${UNAME_M}/ohpc-release-4-1.leap15.${UNAME_M}.rpm"
 	fi
 fi
 

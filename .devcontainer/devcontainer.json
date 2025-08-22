@@ -1,8 +1,8 @@
 {
   "name": "OpenHPC Development",
-  "image": "registry.docker.com/library/rockylinux:9",
+  "image": "registry.docker.com/rockylinux/rockylinux:10",
   "remoteUser": "vscode",
-  "postCreateCommand": "sudo ./tests/ci/prepare-ci-environment.sh",
+  "postCreateCommand": "sudo ./tests/ci/prepare-ci-environment.sh --pre-release",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},
     "ghcr.io/devcontainers/features/git:1": {}

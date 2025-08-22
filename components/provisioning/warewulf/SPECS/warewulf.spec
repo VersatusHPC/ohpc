@@ -38,7 +38,7 @@
 
 Name:    %{pname}%{PROJ_DELIM}
 Summary: A provisioning system for large clusters of bare metal and/or virtual systems
-Version: 4.6.2
+Version: 4.6.3
 Release: 1%{?dist}
 License: BSD-3-Clause
 Group:   %{PROJ_NAME}/provisioning
@@ -84,11 +84,15 @@ Requires: ipxe-bootimgs-aarch64
 %endif
 %endif
 
-%if 0%{?rhel} >= 8 || 0%{?suse_version} || 0%{?fedora}
+%if 0%{?rhel} >= 10 || 0%{?suse_version} || 0%{?fedora}
+Requires: dnsmasq
+%else
+%if 0%{?rhel} >= 8
 Requires: dhcp-server
 %else
 # rhel < 8
 Requires: dhcp
+%endif
 %endif
 
 BuildRequires: git
@@ -106,7 +110,7 @@ system for large clusters of bare metal and/or virtual systems.
 
 
 %prep
-%setup -q -n %{pname}-%{version} -b0 %if %{?with_offline:-a2}
+%setup -q -n %{pname}-%{version} -b0
 %patch -P 0 -p1
 
 
