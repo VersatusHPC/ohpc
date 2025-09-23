@@ -31,6 +31,7 @@ AutoReq: no
 %if 0%{?rhel} || 0%{?openEuler}
 BuildRequires:  bzip2-devel
 BuildRequires:  yaml-cpp-devel
+Requires: yaml-cpp
 %endif
 %if 0%{?suse_version}
 BuildRequires:  libbz2-devel
