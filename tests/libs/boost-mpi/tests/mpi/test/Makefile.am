@@ -1,6 +1,8 @@
 TESTS_ENVIRONMENT          = BATS_NO_SUMMARY=1
 AM_CXXFLAGS                = -I$(BOOST_INC)
-AM_LDFLAGS                 = -L$(BOOST_LIB) -lboost_mpi -lboost_serialization
+AM_LDFLAGS                 = -L$(BOOST_LIB)
+
+LDADD                      = -lboost_mpi -lboost_serialization
 
 # Test compilations/execution
 

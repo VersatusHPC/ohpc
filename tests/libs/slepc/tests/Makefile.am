@@ -1,5 +1,7 @@
 TESTS_ENVIRONMENT = BATS_NO_SUMMARY=1
 
+LDADD                   = -lslepc -lpetsc
+
 TESTS                   = test4f
 check_PROGRAMS          = test4f
 test4f_SOURCES          = test4f.F
