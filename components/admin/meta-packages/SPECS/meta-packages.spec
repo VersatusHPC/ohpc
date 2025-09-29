@@ -91,6 +91,7 @@ Requires:  numactl
 Requires:  python3
 Requires:  %{python_prefix}
 %if 0%{?rhel} || 0%{?openEuler}
+Requires:  hostname
 Requires:  yaml-cpp
 Requires:  cairo-devel
 Requires:  libpciaccess
