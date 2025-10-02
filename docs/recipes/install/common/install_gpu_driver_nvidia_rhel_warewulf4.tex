@@ -20,7 +20,7 @@ the NVIDIA HPC SDK within the standard \OHPC{} user environment.
 # Install NVIDIA repository and GPU driver in the compute image
 [sms](*\#*) wwctl image exec --build=false BOSVER -- /bin/bash -ex <<- EOF
   dnf -y install cuda-repo-ohpc
-  dnf -y kmod-nvidia-latest-dkms nvidia-driver-cuda
+  dnf -y install kmod-nvidia-latest-dkms nvidia-driver-cuda
   KVER=$(rpm -q --queryformat='%{version}-%{release}.%{arch}\n' \
          kernel-core | sort -r | head -1)
   dkms autoinstall --verbose -k \${KVER}
