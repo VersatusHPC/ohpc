@@ -46,8 +46,9 @@ jobs:
         chmod +x misc/check_for_package_updates.sh
 
         # Run the script and capture output and exit code
+        # Redirect stderr to avoid terminal control characters in GitHub issues
         set +e
-        OUTPUT=$(misc/check_for_package_updates.sh -o markdown --no-glow 2>&1)
+        OUTPUT=$(misc/check_for_package_updates.sh -o markdown --no-glow 2>/dev/null)
         EXIT_CODE=$?
         set -e
 
@@ -88,7 +89,7 @@ jobs:
           // Handle unexpected exit codes
           if (exitCode !== 0 && exitCode !== 1) {
             console.log(`Unexpected exit code ${exitCode}, treating as error condition`);
-            markdownOutput = `⚠️ Package update checker encountered an error (exit code: ${exitCode})\\n\\n${markdownOutput}`;
+            markdownOutput = `⚠️ Package update checker encountered an error (exit code: ${exitCode})\n\n${markdownOutput}`;
           }
 
           // Search for existing open issues with package upgrade title pattern
@@ -120,7 +121,7 @@ jobs:
             '---',
             '',
             '*This issue is automatically managed by the Package Update Checker workflow.*'
-          ].join('\\n');
+          ].join('\n');
 
           if (exitCode === 0) {
             // No updates available
