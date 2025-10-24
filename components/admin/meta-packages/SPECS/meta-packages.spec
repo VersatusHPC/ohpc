@@ -120,14 +120,6 @@ Requires:  libpsm2-2
 %description -n %{PROJ_NAME}-base-compute
 Collection of compute node base packages
 
-%package -n %{PROJ_NAME}-%{compiler_family}-geopm
-Summary:   OpenHPC GEOPM power management for GNU
-Requires:  geopm-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  geopm-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  geopm-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-%description -n %{PROJ_NAME}-%{compiler_family}-geopm
-Global Extensible Open Power Manager for use with GNU compiler toolchain
-
 %package -n %{PROJ_NAME}-%{compiler_family}-io-libs
 Summary:   OpenHPC IO libraries for GNU
 Requires:  adios2-%{compiler_family}-mpich%{PROJ_DELIM}
@@ -352,11 +344,8 @@ Summary:   OpenHPC python3 libraries for GNU
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  %{python_prefix}-numpy-%{compiler_family}%{PROJ_DELIM}
-Requires:  %{python_prefix}-scipy-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  %{python_prefix}-scipy-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 %ifnarch aarch64
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  %{python_prefix}-scipy-%{compiler_family}-mvapich2%{PROJ_DELIM}
 %endif
 %description -n %{PROJ_NAME}-%{compiler_family}-python3-libs
 Collection of python3 related library builds for use with GNU compiler toolchain
@@ -429,15 +418,6 @@ Collection of base packages for Warewulf provisioning
 %if !0%{?openEuler}
 # x86_64 specific groups
 %ifnarch aarch64
-%package -n %{PROJ_NAME}-intel-geopm
-Summary:   OpenHPC GEOPM power management for Intel(R) oneAPI Toolkit
-Requires:  geopm-%{compiler_family}-impi%{PROJ_DELIM}
-Requires:  geopm-intel-impi%{PROJ_DELIM}
-Requires:  geopm-intel-mpich%{PROJ_DELIM}
-Requires:  geopm-intel-mvapich2%{PROJ_DELIM}
-Requires:  geopm-intel-%{mpi_family}%{PROJ_DELIM}
-%description -n %{PROJ_NAME}-intel-geopm
-Global Extensible Open Power Manager for use with Intel(R) oneAPI Toolkit
 
 %package -n %{PROJ_NAME}-intel-io-libs
 Summary:   OpenHPC IO libraries for Intel(R) oneAPI Toolkit
@@ -834,7 +814,6 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-autotools
 %files -n %{PROJ_NAME}-base
 %files -n %{PROJ_NAME}-base-compute
-%files -n %{PROJ_NAME}-%{compiler_family}-geopm
 %files -n %{PROJ_NAME}-%{compiler_family}-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-mpich-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-io-libs
@@ -857,7 +836,6 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
-%files -n %{PROJ_NAME}-intel-geopm
 %files -n %{PROJ_NAME}-intel-io-libs
 %files -n %{PROJ_NAME}-intel-impi-io-libs
 %files -n %{PROJ_NAME}-intel-mpich-io-libs
