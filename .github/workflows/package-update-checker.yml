@@ -155,13 +155,6 @@ jobs:
                 title: issueTitle,
                 body: issueBody
               });
-
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existingIssue.number,
-                body: `🔄 Updated package status as of ${currentDate}`
-              });
             } else {
               console.log('Creating new issue for package updates');
               const { data: newIssue } = await github.rest.issues.create({

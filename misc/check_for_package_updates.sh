@@ -278,6 +278,34 @@ get_latest_gnu_version() {
 	echo "${latest_version}"
 }
 
+# Helper function to check a single GNU component
+check_gnu_component() {
+	local component_name="$1"   # e.g., "gnu15-compilers"
+	local component_suffix="$2" # e.g., "gcc", "gmp", "mpc", "mpfr"
+	local current_version="$3"  # current version from spec file
+	local gnu_project_name="$4" # project name for get_latest_gnu_version
+
+	local latest_version
+	latest_version="$(get_latest_gnu_version "${gnu_project_name}")" || {
+		echo "${component_name}-${component_suffix}|${current_version}|ERROR|Failed to fetch ${gnu_project_name^^} releases|gnu.org/${gnu_project_name}" >>"${RESULTS_FILE}"
+		return 1
+	}
+
+	local comparison
+	comparison="$(compare_versions "${current_version}" "${latest_version}")"
+
+	local status
+	case "${comparison}" in
+	"older") status="UPDATE_AVAILABLE" ;;
+	"same") status="UP_TO_DATE" ;;
+	"newer") status="AHEAD" ;;
+	*) status="UNKNOWN" ;;
+	esac
+
+	echo "${component_name}-${component_suffix}|${current_version}|${latest_version}|${status}|gnu.org/${gnu_project_name}" >>"${RESULTS_FILE}"
+	return 0
+}
+
 # Check for GNU compilers updates
 check_gnu_compilers() {
 	local spec_file="$1"
@@ -323,68 +351,16 @@ check_gnu_compilers() {
 		local component_name="gnu${gnu_ver}-compilers"
 
 		# Check GCC
-		local latest_gcc
-		latest_gcc="$(get_latest_gnu_version "gcc")" || {
-			echo "${component_name}|${gcc_version}|ERROR|Failed to fetch GCC releases|gnu.org/gcc" >>"${RESULTS_FILE}"
-			return 0
-		}
-
-		local gcc_comparison
-		gcc_comparison="$(compare_versions "${gcc_version}" "${latest_gcc}")"
-
-		if [[ "${gcc_comparison}" == "older" ]]; then
-			echo "${component_name}-gcc|${gcc_version}|${latest_gcc}|UPDATE_AVAILABLE|gnu.org/gcc" >>"${RESULTS_FILE}"
-		else
-			echo "${component_name}-gcc|${gcc_version}|${latest_gcc}|${gcc_comparison^^}|gnu.org/gcc" >>"${RESULTS_FILE}"
-		fi
+		check_gnu_component "${component_name}" "gcc" "${gcc_version}" "gcc" || return 0
 
 		# Check GMP
-		local latest_gmp
-		latest_gmp="$(get_latest_gnu_version "gmp")" || {
-			echo "${component_name}-gmp|${gmp_version}|ERROR|Failed to fetch GMP releases|gnu.org/gmp" >>"${RESULTS_FILE}"
-			return 0
-		}
-
-		local gmp_comparison
-		gmp_comparison="$(compare_versions "${gmp_version}" "${latest_gmp}")"
-
-		if [[ "${gmp_comparison}" == "older" ]]; then
-			echo "${component_name}-gmp|${gmp_version}|${latest_gmp}|UPDATE_AVAILABLE|gnu.org/gmp" >>"${RESULTS_FILE}"
-		else
-			echo "${component_name}-gmp|${gmp_version}|${latest_gmp}|${gmp_comparison^^}|gnu.org/gmp" >>"${RESULTS_FILE}"
-		fi
+		check_gnu_component "${component_name}" "gmp" "${gmp_version}" "gmp" || return 0
 
 		# Check MPC
-		local latest_mpc
-		latest_mpc="$(get_latest_gnu_version "mpc")" || {
-			echo "${component_name}-mpc|${mpc_version}|ERROR|Failed to fetch MPC releases|gnu.org/mpc" >>"${RESULTS_FILE}"
-			return 0
-		}
-
-		local mpc_comparison
-		mpc_comparison="$(compare_versions "${mpc_version}" "${latest_mpc}")"
-
-		if [[ "${mpc_comparison}" == "older" ]]; then
-			echo "${component_name}-mpc|${mpc_version}|${latest_mpc}|UPDATE_AVAILABLE|gnu.org/mpc" >>"${RESULTS_FILE}"
-		else
-			echo "${component_name}-mpc|${mpc_version}|${latest_mpc}|${mpc_comparison^^}|gnu.org/mpc" >>"${RESULTS_FILE}"
-		fi
+		check_gnu_component "${component_name}" "mpc" "${mpc_version}" "mpc" || return 0
 
 		# Check MPFR
-		local latest_mpfr
-		latest_mpfr="$(get_latest_gnu_version "mpfr")" || {
-			echo "${component_name}-mpfr|${mpfr_version}|ERROR|Failed to fetch MPFR releases|gnu.org/mpfr" >>"${RESULTS_FILE}"
-			return 0
-		}
-
-		local mpfr_comparison
-		mpfr_comparison="$(compare_versions "${mpfr_version}" "${latest_mpfr}")"
-
-		if [[ "${mpfr_comparison}" == "older" ]]; then
-			echo "${component_name}-mpfr|${mpfr_version}|${latest_mpfr}|UPDATE_AVAILABLE|gnu.org/mpfr" >>"${RESULTS_FILE}"
-		else
-			echo "${component_name}-mpfr|${mpfr_version}|${latest_mpfr}|${mpfr_comparison^^}|gnu.org/mpfr" >>"${RESULTS_FILE}"
-		fi
+		check_gnu_component "${component_name}" "mpfr" "${mpfr_version}" "mpfr" || return 0
 
 		debug_info "GNU ${gnu_ver} (default) check completed"
 	}
