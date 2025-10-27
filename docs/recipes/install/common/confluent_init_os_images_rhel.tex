@@ -21,7 +21,7 @@ For first time setup, run osdeploy initialize interactively to be walked through
 % ohpc_comment_header Initialize OS images for use with Confluent \ref{sec:assemble_bos}
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true,keepspaces,literate={BOSVER}{\baseos{}}1]
 [sms](*\#*) osdeploy initialize -${initialize_options}
-[sms](*\#*) osdeploy import ${iso_path}
+[sms](*\#*) osdeploy import ${iso_path} -n (*\confluentprofile*)
 
 \end{lstlisting}
 % end_ohpc_run
