@@ -240,13 +240,13 @@ parse_github_repo() {
 # Get latest version from GNU FTP directory listing
 get_latest_gnu_version() {
 	local project="$1" # e.g., "gcc", "gmp", "mpc", "mpfr"
-	local base_url="https://ftp.gnu.org/gnu/${project}/"
+	local base_url="https://ftpmirror.gnu.org/gnu/${project}/"
 
 	debug_info "Checking GNU ${project} directory listing at ${base_url}"
 
 	# Fetch directory listing
 	local listing
-	listing="$(curl -s "${base_url}" 2>/dev/null)" || {
+	listing="$(curl -sL "${base_url}" 2>/dev/null)" || {
 		debug_warn "Failed to fetch directory listing for GNU ${project}"
 		return 1
 	}
