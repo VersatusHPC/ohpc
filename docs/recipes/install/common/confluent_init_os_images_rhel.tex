@@ -50,7 +50,8 @@ should be run.
 % ohpc_validation_newline
 % ohpc_validation_comment Sync the hosts file in cluster
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true,keepspaces,literate={BOSVER}{\baseos{}}1]
-  [sms](*\#*) echo "/etc/hosts -> /etc/hosts" >> /var/lib/confluent/public/os/(*\confluentprofile*)/syncfiles
+  [sms](*\#*) echo "/etc/hosts -> /etc/hosts" \
+  >> /var/lib/confluent/public/os/(*\confluentprofile*)-default/syncfiles
 
 \end{lstlisting}
 % end_ohpc_run

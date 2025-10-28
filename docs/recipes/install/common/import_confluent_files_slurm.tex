@@ -9,7 +9,8 @@ pool, issue the following:
 
 % begin_ohpc_run
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
-[sms](*\#*) echo "/etc/munge/munge.key -> /etc/munge/munge.key" >> /var/lib/confluent/public/os/(*\confluentprofile*)
+[sms](*\#*) echo "/etc/munge/munge.key -> /etc/munge/munge.key" \
+ >> /var/lib/confluent/public/os/(*\confluentprofile*)-default/syncfiles
 \end{lstlisting}
 % \end_ohpc_run
 
