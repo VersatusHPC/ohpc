@@ -14,7 +14,7 @@
 %define spack_packages_version 2025.07.0
 
 Name:		%{pname}%{PROJ_DELIM}
-Version:	1.0.1
+Version:	1.0.2
 Release:	%{?dist}.1
 Summary:	HPC software package management
 
