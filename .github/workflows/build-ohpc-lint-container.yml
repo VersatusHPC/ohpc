@@ -37,8 +37,6 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
-            type=raw,value={{date 'YYYY-MM-DD'}}
-            type=sha,prefix={{branch}}-
 
       - name: Build and push container
         uses: docker/build-push-action@v6
