@@ -44,23 +44,11 @@ jobs:
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete old package versions (keep recent tagged)
-        id: cleanup-old
-        continue-on-error: true
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: ${{ github.event.repository.name }}
-          package-type: container
-          min-versions-to-keep: 10
-          num-old-versions-to-delete: 30
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Report cleanup results
         run: |
           echo "Cleanup Results:"
           echo "Main container cleanup: ${{ steps.cleanup-main.outcome }}"
           echo "Lint container cleanup: ${{ steps.cleanup-lint.outcome }}"
-          echo "Old versions cleanup: ${{ steps.cleanup-old.outcome }}"
 
           if [[ "${{ steps.cleanup-main.outcome }}" == "failure" ]]; then
             echo "⚠️ Main container cleanup failed - package may not exist yet"
@@ -70,6 +58,4 @@ jobs:
             echo "⚠️ Lint container cleanup failed - package may not exist yet"
           fi
 
-          if [[ "${{ steps.cleanup-old.outcome }}" == "failure" ]]; then
-            echo "⚠️ Old versions cleanup failed - package may not exist yet"
-          fi
+          echo "✅ Cleanup workflow completed"
