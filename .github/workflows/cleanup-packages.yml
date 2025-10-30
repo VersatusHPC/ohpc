@@ -22,20 +22,31 @@ jobs:
       contents: read
       packages: write
     steps:
-      - name: Delete untagged container images
+      - name: Debug package information
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Repository owner: ${{ github.repository_owner }}"
+          echo "Repository name: ${{ github.event.repository.name }}"
+          echo "Dry run: ${{ github.event.inputs.dry_run }}"
+
+      - name: Delete untagged main container images
+        id: cleanup-main
+        continue-on-error: true
         uses: actions/delete-package-versions@v5
         with:
-          package-name: ${{ github.repository }}
+          package-name: ${{ github.event.repository.name }}
           package-type: container
           min-versions-to-keep: 5
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
           dry-run: ${{ github.event.inputs.dry_run == 'true' }}
 
-      - name: Delete old ohpc-lint images
+      - name: Delete untagged ohpc-lint images
+        id: cleanup-lint
+        continue-on-error: true
         uses: actions/delete-package-versions@v5
         with:
-          package-name: openhpc/ohpc-lint
+          package-name: ohpc-lint
           package-type: container
           min-versions-to-keep: 3
           delete-only-untagged-versions: true
@@ -43,11 +54,32 @@ jobs:
           dry-run: ${{ github.event.inputs.dry_run == 'true' }}
 
       - name: Delete old package versions (keep recent tagged)
+        id: cleanup-old
+        continue-on-error: true
         uses: actions/delete-package-versions@v5
         with:
-          package-name: ${{ github.repository }}
+          package-name: ${{ github.event.repository.name }}
           package-type: container
           min-versions-to-keep: 10
           oldest-to-delete: 30 # Delete versions older than 30 days
           token: ${{ secrets.GITHUB_TOKEN }}
           dry-run: ${{ github.event.inputs.dry_run == 'true' }}
+
+      - name: Report cleanup results
+        run: |
+          echo "Cleanup Results:"
+          echo "Main container cleanup: ${{ steps.cleanup-main.outcome }}"
+          echo "Lint container cleanup: ${{ steps.cleanup-lint.outcome }}"
+          echo "Old versions cleanup: ${{ steps.cleanup-old.outcome }}"
+
+          if [[ "${{ steps.cleanup-main.outcome }}" == "failure" ]]; then
+            echo "⚠️ Main container cleanup failed - package may not exist yet"
+          fi
+
+          if [[ "${{ steps.cleanup-lint.outcome }}" == "failure" ]]; then
+            echo "⚠️ Lint container cleanup failed - package may not exist yet"
+          fi
+
+          if [[ "${{ steps.cleanup-old.outcome }}" == "failure" ]]; then
+            echo "⚠️ Old versions cleanup failed - package may not exist yet"
+          fi
