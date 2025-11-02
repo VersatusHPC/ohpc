@@ -3,7 +3,7 @@
 # Exit on any error, undefined variables, and pipe failures
 set -euo pipefail
 
-# Script to check for newer GitHub releases of OpenHPC packages
+# Script to check for newer GitHub and GitLab releases of OpenHPC packages
 SCRIPT_NAME="$(basename "$0")"
 readonly SCRIPT_NAME
 TEMP_DIR="$(mktemp -d)"
@@ -72,11 +72,11 @@ usage() {
 	cat <<EOF
 Usage: ${SCRIPT_NAME} [OPTIONS]
 
-Check for newer GitHub releases of OpenHPC packages by analyzing spec files.
+Check for newer GitHub and GitLab releases of OpenHPC packages by analyzing spec files.
 
 OPTIONS:
     -v, --verbose           Enable verbose output
-    -p, --prereleases       Include pre-releases in version checks
+    -p, --prereleases       Include pre-releases in version checks (GitHub only)
     -o, --output FORMAT     Output format: table, json, markdown (default: table)
     -t, --token TOKEN       GitHub API token (or set GITHUB_TOKEN env var)
     --no-glow               Disable glow formatting for markdown output
@@ -92,9 +92,11 @@ EXAMPLES:
 
 NOTES:
     - Requires rpmspec and rpmdev-vercmp tools
+    - Supports GitHub (github.com) and GitLab (any GitLab instance) repositories
     - GitHub API rate limits apply (60 requests/hour without token)
     - Use GITHUB_TOKEN environment variable for higher rate limits (5000 requests/hour)
     - Get a token at: https://github.com/settings/tokens (no special permissions needed)
+    - GitLab repositories use public API endpoints (no authentication required)
 
 EOF
 }
@@ -237,6 +239,108 @@ parse_github_repo() {
 	return 1
 }
 
+# Parse GitLab repository from URL
+parse_gitlab_repo() {
+	local url="$1"
+
+	# Match various GitLab URL patterns
+	# Examples:
+	# https://gitlab.com/charliecloud/charliecloud/-/package_files/...
+	# https://gitlab.inria.fr/scotch/scotch/-/archive/...
+	if [[ "${url}" =~ https://([^/]+)/([^/]+)/([^/]+)/- ]]; then
+		local hostname="${BASH_REMATCH[1]}"
+		local owner="${BASH_REMATCH[2]}"
+		local repo="${BASH_REMATCH[3]}"
+		echo "${hostname}|${owner}/${repo}"
+		return 0
+	fi
+
+	return 1
+}
+
+# Get GitLab project ID from hostname and path
+get_gitlab_project_id() {
+	local hostname="$1"
+	local project_path="$2" # format: owner/repo
+	local search_name="${project_path##*/}" # extract repo name
+
+	debug_info "Searching for GitLab project ID for ${project_path} on ${hostname}"
+
+	local search_url="https://${hostname}/api/v4/projects?search=${search_name}"
+	local projects
+
+	projects="$(curl -s "${search_url}" 2>/dev/null)" || {
+		debug_warn "Failed to search for GitLab project ${project_path} on ${hostname}"
+		return 1
+	}
+
+	# Check if we got an error
+	if echo "${projects}" | jq -e '.message' &>/dev/null; then
+		local message
+		message="$(echo "${projects}" | jq -r '.message')"
+		debug_warn "GitLab API error for ${project_path}: ${message}"
+		return 1
+	fi
+
+	# Filter by path_with_namespace to match the organization/project pattern
+	local project_id
+	project_id="$(echo "${projects}" | jq -r ".[] | select(.path_with_namespace == \"${project_path}\") | .id" | head -1)" || {
+		debug_warn "Failed to parse GitLab project search results for ${project_path}"
+		return 1
+	}
+
+	if [[ -z "${project_id}" || "${project_id}" == "null" ]]; then
+		debug_warn "No GitLab project found for ${project_path} on ${hostname}"
+		return 1
+	fi
+
+	echo "${project_id}"
+}
+
+# Get latest release from GitLab API
+get_latest_gitlab_release() {
+	local hostname="$1"
+	local project_id="$2"
+	local api_url="https://${hostname}/api/v4/projects/${project_id}/repository/tags"
+
+	debug_info "Fetching GitLab tags from ${api_url}"
+
+	# Get tags (no authentication needed for public repos)
+	local tags
+	tags="$(curl -s "${api_url}" 2>/dev/null)" || {
+		debug_warn "Failed to fetch tags for GitLab project ${project_id} on ${hostname}"
+		return 1
+	}
+
+	# Check if we got an error
+	if echo "${tags}" | jq -e '.message' &>/dev/null; then
+		local message
+		message="$(echo "${tags}" | jq -r '.message')"
+		debug_warn "GitLab API error for project ${project_id}: ${message}"
+		return 1
+	fi
+
+	# Check if tags list is empty
+	if echo "${tags}" | jq -e 'length == 0' &>/dev/null; then
+		debug_info "No tags found for GitLab project ${project_id} on ${hostname}"
+		return 1
+	fi
+
+	# Get the latest tag (first in the list, as GitLab returns them sorted by creation date desc)
+	local latest_tag
+	latest_tag="$(echo "${tags}" | jq -r '.[0].name' 2>/dev/null)" || {
+		debug_warn "Failed to parse tags for GitLab project ${project_id}"
+		return 1
+	}
+
+	if [[ "${latest_tag}" == "null" || -z "${latest_tag}" ]]; then
+		debug_warn "No suitable tags found for GitLab project ${project_id}"
+		return 1
+	fi
+
+	echo "${latest_tag}"
+}
+
 # Get latest version from GNU FTP directory listing
 get_latest_gnu_version() {
 	local project="$1" # e.g., "gcc", "gmp", "mpc", "mpfr"
@@ -286,13 +390,22 @@ check_gnu_component() {
 	local gnu_project_name="$4" # project name for get_latest_gnu_version
 
 	local latest_version
-	latest_version="$(get_latest_gnu_version "${gnu_project_name}")" || {
+	# Temporarily disable exit-on-error for command substitution
+	set +e
+	latest_version="$(get_latest_gnu_version "${gnu_project_name}")"
+	local gnu_result=$?
+	set -e
+
+	if [[ ${gnu_result} -ne 0 ]]; then
 		echo "${component_name}-${component_suffix}|${current_version}|ERROR|Failed to fetch ${gnu_project_name^^} releases|gnu.org/${gnu_project_name}" >>"${RESULTS_FILE}"
 		return 1
-	}
+	fi
 
 	local comparison
+	# Temporarily disable exit-on-error for command substitution
+	set +e
 	comparison="$(compare_versions "${current_version}" "${latest_version}")"
+	set -e
 
 	local status
 	case "${comparison}" in
@@ -521,50 +634,126 @@ process_spec_file() {
 	IFS='|' read -r name current_version source0 <<<"${pkg_info}"
 
 	# Check if source is from GitHub
-	local github_repo
-	github_repo="$(parse_github_repo "${source0}")" || {
-		debug_info "Skipping ${name}: not a GitHub source"
-		return 0
-	}
-
-	debug_info "Checking GitHub repo: ${github_repo}"
-
-	# Get latest release
-	local latest_tag result_code
+	local github_repo gitlab_info github_result
 
 	# Temporarily disable exit-on-error for command substitution
 	set +e
-	latest_tag="$(get_latest_github_release "${github_repo}")"
-	result_code=$?
+	github_repo="$(parse_github_repo "${source0}")"
+	github_result=$?
 	set -e
 
-	if [[ ${result_code} -eq 2 ]]; then
-		# Rate limited - stop processing more packages to avoid further rate limiting
-		echo "${name}|${current_version}|RATE_LIMITED|GitHub API rate limit exceeded|${github_repo}" >>"${RESULTS_FILE}"
-		log_warn "Rate limit reached. Stopping further GitHub API requests."
-		return 2 # Signal to stop processing
-	elif [[ ${result_code} -ne 0 ]]; then
-		echo "${name}|${current_version}|ERROR|Failed to fetch releases|${github_repo}" >>"${RESULTS_FILE}"
+	if [[ ${github_result} -eq 0 ]]; then
+		debug_info "Checking GitHub repo: ${github_repo}"
+
+		# Get latest release
+		local latest_tag result_code
+
+		# Temporarily disable exit-on-error for command substitution
+		set +e
+		latest_tag="$(get_latest_github_release "${github_repo}")"
+		result_code=$?
+		set -e
+
+		if [[ ${result_code} -eq 2 ]]; then
+			# Rate limited - stop processing more packages to avoid further rate limiting
+			echo "${name}|${current_version}|RATE_LIMITED|GitHub API rate limit exceeded|${github_repo}" >>"${RESULTS_FILE}"
+			log_warn "Rate limit reached. Stopping further GitHub API requests."
+			return 2 # Signal to stop processing
+		elif [[ ${result_code} -ne 0 ]]; then
+			echo "${name}|${current_version}|ERROR|Failed to fetch releases|${github_repo}" >>"${RESULTS_FILE}"
+			return 0
+		fi
+
+		# Compare versions
+		local comparison
+		# Temporarily disable exit-on-error for command substitution
+		set +e
+		comparison="$(compare_versions "${current_version}" "${latest_tag}")"
+		set -e
+
+		# Determine status
+		local status
+		case "${comparison}" in
+		"older") status="UPDATE_AVAILABLE" ;;
+		"same") status="UP_TO_DATE" ;;
+		"newer") status="AHEAD" ;;
+		*) status="UNKNOWN" ;;
+		esac
+
+		# Write result
+		echo "${name}|${current_version}|${latest_tag}|${status}|${github_repo}" >>"${RESULTS_FILE}"
+
+		debug_info "Result: ${name} ${current_version} -> ${latest_tag} (${status})"
 		return 0
 	fi
 
-	# Compare versions
-	local comparison
-	comparison="$(compare_versions "${current_version}" "${latest_tag}")"
+	# Check if source is from GitLab
+	local gitlab_result
 
-	# Determine status
-	local status
-	case "${comparison}" in
-	"older") status="UPDATE_AVAILABLE" ;;
-	"same") status="UP_TO_DATE" ;;
-	"newer") status="AHEAD" ;;
-	*) status="UNKNOWN" ;;
-	esac
+	# Temporarily disable exit-on-error for command substitution
+	set +e
+	gitlab_info="$(parse_gitlab_repo "${source0}")"
+	gitlab_result=$?
+	set -e
 
-	# Write result
-	echo "${name}|${current_version}|${latest_tag}|${status}|${github_repo}" >>"${RESULTS_FILE}"
+	if [[ ${gitlab_result} -eq 0 ]]; then
+		IFS='|' read -r hostname project_path <<<"${gitlab_info}"
+		debug_info "Checking GitLab repo: ${project_path} on ${hostname}"
 
-	debug_info "Result: ${name} ${current_version} -> ${latest_tag} (${status})"
+		# Get project ID
+		local project_id project_id_result
+		# Temporarily disable exit-on-error for command substitution
+		set +e
+		project_id="$(get_gitlab_project_id "${hostname}" "${project_path}")"
+		project_id_result=$?
+		set -e
+
+		if [[ ${project_id_result} -ne 0 ]]; then
+			echo "${name}|${current_version}|ERROR|Failed to get GitLab project ID|${hostname}/${project_path}" >>"${RESULTS_FILE}"
+			return 0
+		fi
+
+		debug_info "Found GitLab project ID: ${project_id}"
+
+		# Get latest tag
+		local latest_tag tag_result
+		# Temporarily disable exit-on-error for command substitution
+		set +e
+		latest_tag="$(get_latest_gitlab_release "${hostname}" "${project_id}")"
+		tag_result=$?
+		set -e
+
+		if [[ ${tag_result} -ne 0 ]]; then
+			echo "${name}|${current_version}|ERROR|Failed to fetch GitLab tags|${hostname}/${project_path}" >>"${RESULTS_FILE}"
+			return 0
+		fi
+
+		# Compare versions
+		local comparison
+		# Temporarily disable exit-on-error for command substitution
+		set +e
+		comparison="$(compare_versions "${current_version}" "${latest_tag}")"
+		set -e
+
+		# Determine status
+		local status
+		case "${comparison}" in
+		"older") status="UPDATE_AVAILABLE" ;;
+		"same") status="UP_TO_DATE" ;;
+		"newer") status="AHEAD" ;;
+		*) status="UNKNOWN" ;;
+		esac
+
+		# Write result
+		echo "${name}|${current_version}|${latest_tag}|${status}|${hostname}/${project_path}" >>"${RESULTS_FILE}"
+
+		debug_info "Result: ${name} ${current_version} -> ${latest_tag} (${status})"
+		return 0
+	fi
+
+	# Not a GitHub or GitLab source
+	debug_info "Skipping ${name}: not a GitHub or GitLab source"
+	return 0
 }
 
 # Format and display results
@@ -755,7 +944,7 @@ main() {
 	check_dependencies
 	setup_rpm_environment
 
-	log_info "Scanning for OpenHPC packages with GitHub sources..."
+	log_info "Scanning for OpenHPC packages with GitHub and GitLab sources..."
 	debug_info "Using temporary directory: ${TEMP_DIR}"
 
 	# Find and process all spec files
