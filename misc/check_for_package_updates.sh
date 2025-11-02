@@ -261,7 +261,7 @@ parse_gitlab_repo() {
 # Get GitLab project ID from hostname and path
 get_gitlab_project_id() {
 	local hostname="$1"
-	local project_path="$2" # format: owner/repo
+	local project_path="$2"                 # format: owner/repo
 	local search_name="${project_path##*/}" # extract repo name
 
 	debug_info "Searching for GitLab project ID for ${project_path} on ${hostname}"
