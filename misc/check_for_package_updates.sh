@@ -759,9 +759,16 @@ process_spec_file() {
 # Format and display results
 display_results() {
 	if [[ ! -s "${RESULTS_FILE}" ]]; then
-		log_info "No GitHub-sourced packages found"
+		log_info "No GitHub or GitLab sourced packages found"
 		return 0
 	fi
+
+	# Sort results alphabetically by package name
+	local sorted_results
+	sorted_results="$(mktemp)"
+	sort -t'|' -k1,1 "${RESULTS_FILE}" >"${sorted_results}"
+	cp "${sorted_results}" "${RESULTS_FILE}"
+	rm -f "${sorted_results}"
 
 	case "${OUTPUT_FORMAT}" in
 	"table")
