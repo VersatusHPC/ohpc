@@ -14,21 +14,11 @@ jobs:
   check-updates:
     runs-on: ubuntu-latest
     container:
-      image: registry.access.redhat.com/ubi10:latest
+      image: ghcr.io/openhpc/ohpc-analysis:latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        # Update package cache and install required packages
-        dnf update -y
-        dnf install -y rpm-build rpmdevtools curl jq git python3
-
-        # Verify essential tools are available
-        which rpmspec rpmdev-vercmp curl jq
-        rpm --version
 
     - name: Run package update checker
       id: check_updates
