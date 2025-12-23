@@ -1,0 +1,17 @@
+FROM docker.io/openeuler/openeuler:24.03-lts-sp2
+
+# Switch to Huawei Cloud mirror
+RUN sed -i "s@repo.openeuler.org@repo.huaweicloud.com/openeuler@g" /etc/yum.repos.d/openEuler.repo
+
+# Install git first (required for cloning/checkout)
+RUN dnf -y install git
+
+# Update all packages
+RUN dnf -y update
+
+# Copy the prepare script
+COPY tests/ci/prepare-ci-environment.sh /tmp/prepare-ci-environment.sh
+RUN chmod +x /tmp/prepare-ci-environment.sh
+
+# Run prepare-ci-environment.sh
+RUN /tmp/prepare-ci-environment.sh
