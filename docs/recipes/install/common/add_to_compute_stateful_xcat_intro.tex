@@ -20,13 +20,13 @@ To avoid this, we disable the online repositories:
 # Install dnf-plugins-core to have dnf config-manager available
 [sms](*\#*) psh compute dnf --setopt=\*.skip_if_unavailable=1 -y install dnf-plugins-core perl
 
-# Enable CentOS-PowerTools repository
-[sms](*\#*) psh compute dnf config-manager --enable crb
+# Enable CRB repository
+[sms](*\#*) psh compute dnf config-manager --set-enabled crb
 \end{lstlisting}
 % end_ohpc_run
 
 \noindent Next, the nodes are configured to use the local \OHPC{} repository
-setup in on the SMS in \S\ref{sec:enable_repo}
+setup on the SMS in \S\ref{sec:enable_repo}
 
 % begin_ohpc_run
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
@@ -41,8 +41,8 @@ setup in on the SMS in \S\ref{sec:enable_repo}
 The {\em compute} nodes also need access to the EPEL repository, a required
 dependency for \OHPC{} packages. A straightforward way to accomplish this is to
 host a local mirror on the {\em master} host. However, the repository is very
-large ($>$10 GB) containing thousands of packages, while only 3 (\texttt{fping,
-libconfuse, and libunwind}) are required for packages installed this guide.  Therefore,
+large ($>$10 GB) containing thousands of packages, while only a few
+are required for packages installed in this guide. Therefore,
 here we only download the required packages and put them into a repository
 accessible to the nodes.  Users wanting to mirror the entire EPEL repository
 instead can take advantage of the \texttt{reposync} utility and should expect a
@@ -54,11 +54,11 @@ of EPEL mirror.
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
 # Create directory holding EPEL packages
 [sms](*\#*) mkdir -p $epel_repo_dir
-[sms](*\#*) (*\install*) dnf-plugins-core createrepo
+[sms](*\#*) (*\install*) dnf-plugins-core createrepo_c
 # Download required EPEL packages
 [sms](*\#*) dnf download --destdir $epel_repo_dir fping libconfuse libunwind
 # Create a repository from the downloaded packages
-[sms](*\#*) createrepo $epel_repo_dir
+[sms](*\#*) createrepo_c $epel_repo_dir
 
 # Setup access to the repo from the compute hosts
 [sms](*\#*) psh compute dnf config-manager --add-repo=http://$sms_ip/$epel_repo_dir

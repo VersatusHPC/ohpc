@@ -1,7 +1,7 @@
 Prior to assembling the image, it is advantageous to perform any additional
 customization within the chroot environment created for the desired {\em
- compute} instance. The following steps document the process identify the
-resource manager server, configure NTP for compute resources, and enable \NFS{}
+ compute} instance. The following steps document the process to configure time
+synchronization for compute resources and enable \NFS{}
 mounting of a \$HOME file system and the public \OHPC{} install path
 (\texttt{/opt/ohpc/pub}) that will be hosted by the {\em master} host in this
 example configuration.
@@ -11,8 +11,8 @@ example configuration.
 % ohpc_comment_header Customize system configuration \ref{sec:master_customization}
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
 # Add NFS client mounts of /home and /opt/ohpc/pub to base image
-[sms](*\#*) echo "${sms_ip}:/home /home nfs nfsvers=3,nodev,nosuid 0 0" >> $CHROOT/etc/fstab
-[sms](*\#*) echo "${sms_ip}:/opt/ohpc/pub /opt/ohpc/pub nfs nfsvers=3,nodev 0 0" >> $CHROOT/etc/fstab
+[sms](*\#*) echo "${sms_ip}:/home /home nfs nfsvers=4,nodev,nosuid 0 0" >> $CHROOT/etc/fstab
+[sms](*\#*) echo "${sms_ip}:/opt/ohpc/pub /opt/ohpc/pub nfs nfsvers=4,nodev 0 0" >> $CHROOT/etc/fstab
 
 # Disable /tftpboot and /install export entries
 [sms](*\#*) perl -pi -e "s|/tftpboot|#/tftpboot|" /etc/exports
@@ -25,10 +25,9 @@ example configuration.
 [sms](*\#*) systemctl restart nfs-server
 [sms](*\#*) systemctl enable nfs-server
 
-# Enable NTP time service on computes and identify master host as local NTP server
-[sms](*\#*) chroot $CHROOT systemctl enable ntpd
-[sms](*\#*) echo "server ${sms_ip}" >> $CHROOT/etc/ntp.conf
+# Enable chrony time service on computes and identify master host as local NTP server
+[sms](*\#*) chroot $CHROOT systemctl enable chronyd
+[sms](*\#*) echo "server ${sms_ip} iburst" >> $CHROOT/etc/chrony.conf
 
 \end{lstlisting}
 % end_ohpc_run
-

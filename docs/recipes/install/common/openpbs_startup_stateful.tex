@@ -1,0 +1,52 @@
+% begin_ohpc_run
+% ohpc_comment_header Allow for optional sleep to wait for provisioning to complete
+% ohpc_command sleep ${provision_wait}
+% end_ohpc_run
+
+In section \S\ref{sec:basic_install}, the \rms{} workload manager was installed
+on the {\em master} host. With the cluster nodes up and functional, we can now startup the
+resource manager services on the {\em master} host in preparation for running
+user jobs. The PBS configuration also needs to be distributed to the {\em compute}
+nodes.
+
+The following commands distribute the PBS configuration and start the necessary
+services to support resource management under \rms{}.
+
+% begin_ohpc_run
+% ohpc_comment_header Resource Manager Startup \ref{sec:rms_startup}
+\begin{lstlisting}[language=bash,keywords={}]
+# Distribute PBS configuration to compute nodes
+[sms](*\#*) xdcp compute /etc/pbs.conf /etc/pbs.conf
+[sms](*\#*) xdcp compute /var/spool/pbs/mom_priv/config /var/spool/pbs/mom_priv/config
+
+# start PBS daemons on master host
+[sms](*\#*) systemctl enable pbs
+[sms](*\#*) systemctl start pbs
+
+# Start PBS on compute hosts
+[sms](*\#*) psh compute systemctl enable pbs
+[sms](*\#*) psh compute systemctl start pbs
+\end{lstlisting}
+% end_ohpc_run
+
+In the default configuration, the {\em compute} hosts have not been added to
+the \rms{} resource manager. To add the {\em compute} hosts, execute the
+following to register each host and apply several key global configuration
+options.
+
+% begin_ohpc_run
+\begin{lstlisting}[language=bash,keywords={}]
+# initialize PBS path
+[sms](*\#*) . /etc/profile.d/pbs.sh
+# enable user environment propagation (needed for modules support)
+[sms](*\#*) qmgr -c "set server default_qsub_arguments= -V"
+# enable uniform multi-node MPI task distribution
+[sms](*\#*) qmgr -c "set server resources_default.place=scatter"
+# enable support for job accounting
+[sms](*\#*) qmgr -c "set server job_history_enable=True"
+# register compute hosts with PBS
+[sms](*\#*) for host in "${c_name[@]}"; do
+           qmgr -c "create node $host"
+        done
+\end{lstlisting}
+% end_ohpc_run
