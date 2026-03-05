@@ -10,8 +10,8 @@ RUN dnf -y update
 COPY tests/ci/prepare-ci-environment.sh /tmp/prepare-ci-environment.sh
 RUN chmod +x /tmp/prepare-ci-environment.sh
 
-# From EPEL
-RUN dnf -y install gh
-
 # Run prepare-ci-environment.sh
 RUN /tmp/prepare-ci-environment.sh
+
+# From EPEL
+RUN dnf -y install gh
