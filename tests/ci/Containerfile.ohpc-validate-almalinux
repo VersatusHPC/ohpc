@@ -1,7 +1,7 @@
 FROM docker.io/library/almalinux:10
 
 # Install git first (required for cloning/checkout)
-RUN dnf -y install git
+RUN dnf -y install git gh
 
 # Update all packages
 RUN dnf -y update
