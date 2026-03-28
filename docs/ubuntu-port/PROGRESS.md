@@ -1,8 +1,8 @@
 # OpenHPC Ubuntu Port — Progress Tracker
 
-Last updated: 2026-03-27
+Last updated: 2026-03-28
 
-## Overall Status: Phase 6 — DONE, Phase 7 next
+## Overall Status: 46 packages built, 63 packaged. Phases 0-8 in progress.
 
 ---
 

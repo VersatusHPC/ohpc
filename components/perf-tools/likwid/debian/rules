@@ -38,6 +38,9 @@ override_dh_auto_install:
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
 
+override_dh_missing:
+	dh_missing --list-missing
+
 override_dh_auto_clean:
 	rm -rf $(SRCDIR)
 

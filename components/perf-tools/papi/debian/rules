@@ -19,7 +19,7 @@ override_dh_auto_configure:
 		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
 			https://github.com/icl-utk-edu/papi/releases/download/papi-7-2-0-t/papi-$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
-	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	tar --no-same-owner -xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 	cd $(SRCDIR)/src && ./configure --prefix=$(INSTALL_PATH)
 
 override_dh_auto_build:

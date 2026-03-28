@@ -12,7 +12,7 @@ SRCDIR       := $(CURDIR)/charliecloud-$(CH_VERSION)
 override_dh_auto_configure:
 	test -s SOURCES/charliecloud-$(CH_VERSION).tar.gz || \
 		wget -q -O SOURCES/charliecloud-$(CH_VERSION).tar.gz \
-			https://github.com/hpc/charliecloud/releases/download/v$(CH_VERSION)/charliecloud-$(CH_VERSION).tar.gz
+			"https://gitlab.com/charliecloud/charliecloud/-/package_files/256549905/download#/charliecloud-$(CH_VERSION).tar.gz"
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/charliecloud-$(CH_VERSION).tar.gz
 	cd $(SRCDIR) && \

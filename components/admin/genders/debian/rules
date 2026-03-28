@@ -19,7 +19,7 @@ override_dh_auto_configure:
 			https://github.com/chaos/genders/archive/genders-1-32-1.tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
-	cd $(SRCDIR) && autoreconf -fi && \
+	cd $(SRCDIR) && ./autogen.sh && \
 		./configure \
 			--prefix=/usr \
 			--with-perl-extensions \
