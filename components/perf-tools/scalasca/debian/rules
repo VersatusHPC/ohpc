@@ -12,8 +12,7 @@ VERSION         := 2.6.2
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
-ENV             := bash /build/devel/build-mpi.sh
-OHPC_MODULES    := cubew cubelib otf2 scorep
+ENV             := OHPC_MODULES="cubew cubelib otf2 scorep" bash /build/devel/build-mpi.sh
 
 %:
 	dh $@
@@ -27,7 +26,6 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		for mod in $(OHPC_MODULES); do module load $$mod; done && \
 		./configure --prefix=$(INSTALL_PATH) \
 			--with-cube=$$CUBELIB_DIR \
 			--with-otf2=$$OTF2_DIR \
@@ -36,7 +34,6 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		for mod in $(OHPC_MODULES); do module load $$mod; done && \
 		make DESTDIR=$(PKG) install'
 	find $(PKG) -name '*.la' -delete
 	# Install modulefile

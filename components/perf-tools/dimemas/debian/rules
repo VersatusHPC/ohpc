@@ -12,8 +12,7 @@ VERSION         := 5.5.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
-ENV             := bash /build/devel/build-mpi.sh
-OHPC_MODULES    := boost
+ENV             := OHPC_MODULES="boost" bash /build/devel/build-mpi.sh
 
 %:
 	dh $@
@@ -27,14 +26,12 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		for mod in $(OHPC_MODULES); do module load $$mod; done && \
 		./configure --prefix=$(INSTALL_PATH) \
 			--with-boost=$$BOOST_ROOT && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		for mod in $(OHPC_MODULES); do module load $$mod; done && \
 		make DESTDIR=$(PKG) install'
 	find $(PKG) -name '*.la' -delete
 	# Install modulefile

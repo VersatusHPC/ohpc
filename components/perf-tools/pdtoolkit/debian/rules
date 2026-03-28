@@ -29,10 +29,20 @@ override_dh_auto_build:
 		make -j$$(nproc) install'
 
 override_dh_auto_install:
-	# PDToolkit installs during make (prefix=DESTDIR+path), clean up
+	# PDToolkit installs to prefix (which includes PKG) during make
+	# Clean up unneeded platform dirs
 	rm -f $(PKG)$(INSTALL_PATH)/craycnl $(PKG)$(INSTALL_PATH)/mic_linux \
 		$(PKG)$(INSTALL_PATH)/sparc64fx $(PKG)$(INSTALL_PATH)/xt3
+	rm -f $(PKG)$(INSTALL_PATH)/.all_configs $(PKG)$(INSTALL_PATH)/.last_config
 	find $(PKG) -name '*.la' -delete || true
+	# Strip buildroot prefix from embedded paths in scripts
+	find $(PKG)$(INSTALL_PATH) -type f -exec grep -l "$(PKG)" {} \; 2>/dev/null | \
+		while read f; do sed -i 's|$(PKG)||g' "$$f"; done || true
+	# Create shared library from static archive
+	cd $(PKG)$(INSTALL_PATH)/x86_64/lib && \
+		ar x libpdb.a && \
+		$(ENV) sh -c '$$CXX -z muldefs -shared -o libpdb.so *.o' && \
+		rm -f libpdb.a *.o || true
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
