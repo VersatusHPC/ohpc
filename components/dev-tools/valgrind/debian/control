@@ -1,0 +1,20 @@
+Source: valgrind-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               g++,
+               make
+Standards-Version: 4.6.2
+Homepage: https://valgrind.org/
+
+Package: valgrind-ohpc
+Architecture: any
+Depends: ohpc-filesystem, ${shlibs:Depends}, ${misc:Depends}
+Description: An instrumentation framework for building dynamic analysis tools (OpenHPC)
+ Valgrind is a GPL'd system for debugging and profiling Linux programs. With
+ Valgrind's tool suite you can automatically detect many memory management
+ and threading bugs.
+ .
+ This package is part of the OpenHPC project.

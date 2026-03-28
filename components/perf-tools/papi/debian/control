@@ -1,0 +1,21 @@
+Source: papi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               libncurses-dev,
+               gfortran,
+               linux-headers-generic
+Standards-Version: 4.6.2
+Homepage: https://icl.utk.edu/papi/
+
+Package: papi-ohpc
+Architecture: any
+Depends: ohpc-filesystem, ${shlibs:Depends}, ${misc:Depends}
+Description: Performance Application Programming Interface (OpenHPC)
+ PAPI provides the tool designer and application engineer with a consistent
+ interface and methodology for use of the performance counter hardware found
+ in most major microprocessors.
+ .
+ This package is part of the OpenHPC project.

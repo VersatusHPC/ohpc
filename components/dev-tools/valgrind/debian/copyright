@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Valgrind
+Upstream-Contact: https://valgrind.org/
+
+Files: *
+Copyright: 2000-2026 Julian Seward et al.
+License: GPL-2+

@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: LosF
+Upstream-Contact: https://github.com/hpcsi/losf
+
+Files: *
+Copyright: 2010-2026 Karl W. Schulz
+License: GPL-2+

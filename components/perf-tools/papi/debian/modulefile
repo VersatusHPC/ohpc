@@ -1,0 +1,24 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the PAPI library"
+puts stderr "\nVersion 7.2.0\n"
+
+}
+module-whatis "Name: PAPI"
+module-whatis "Version: 7.2.0"
+module-whatis "Category: performance tool"
+module-whatis "Description: Performance Application Programming Interface"
+module-whatis "URL: https://icl.utk.edu/papi/"
+
+set     version             7.2.0
+
+prepend-path    PATH                /opt/ohpc/pub/libs/papi/7.2.0/bin
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/papi/7.2.0/lib
+prepend-path    MANPATH             /opt/ohpc/pub/libs/papi/7.2.0/share/man
+
+setenv          PAPI_DIR            /opt/ohpc/pub/libs/papi/7.2.0
+setenv          PAPI_LIB            /opt/ohpc/pub/libs/papi/7.2.0/lib
+setenv          PAPI_INC            /opt/ohpc/pub/libs/papi/7.2.0/include

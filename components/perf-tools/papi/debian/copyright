@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PAPI
+Upstream-Contact: https://icl.utk.edu/papi/
+
+Files: *
+Copyright: 1999-2026 University of Tennessee
+License: BSD-3-Clause

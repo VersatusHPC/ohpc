@@ -1,0 +1,18 @@
+Source: losf-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot
+Standards-Version: 4.6.2
+Homepage: https://github.com/hpcsi/losf
+
+Package: losf-ohpc
+Architecture: all
+Depends: ${misc:Depends}
+Description: A Linux operating system framework for managing HPC clusters (OpenHPC)
+ LosF is a lightweight HPC cluster configuration management tool designed
+ to provide a centralized mechanism for defining and synchronizing local
+ cluster configuration files.
+ .
+ This package is part of the OpenHPC project.
