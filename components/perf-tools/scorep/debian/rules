@@ -32,6 +32,7 @@ override_dh_auto_build:
 			--with-opari2=$$OPARI2_DIR \
 			--with-otf2=$$OTF2_DIR \
 			--with-papi=$$PAPI_DIR \
+			--with-libgotcha=$$GOTCHA_DIR \
 			--enable-shared --disable-static \
 			--without-shmem && \
 		make -j$$(nproc)'

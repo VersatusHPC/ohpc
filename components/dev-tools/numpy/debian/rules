@@ -29,8 +29,8 @@ override_dh_auto_build:
 		export NPY_BLAS_ORDER=openblas && \
 		export NPY_LAPACK_ORDER=openblas && \
 		export PKG_CONFIG_PATH="$${OPENBLAS_LIB}/pkgconfig:$${PKG_CONFIG_PATH}" && \
-		pip3 install meson-python meson cython && \
-		pip3 install --prefix=$(INSTALL_PATH) --root=$(PKG) --no-build-isolation . 2>&1'
+		pip3 install --break-system-packages meson-python meson cython && \
+		pip3 install --break-system-packages --prefix=$(INSTALL_PATH) --root=$(PKG) --no-build-isolation . 2>&1'
 
 override_dh_auto_install:
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
