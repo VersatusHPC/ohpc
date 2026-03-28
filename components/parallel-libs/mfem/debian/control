@@ -12,7 +12,7 @@ Build-Depends: debhelper-compat (= 13),
                netcdf-gnu15-openmpi5-ohpc,
                petsc-gnu15-openmpi5-ohpc,
                ptscotch-gnu15-openmpi5-ohpc,
-               superlu_dist-gnu15-openmpi5-ohpc,
+               superlu-dist-gnu15-openmpi5-ohpc,
                hwloc-ohpc,
                ucx-ohpc,
                pmix-ohpc,
@@ -22,7 +22,7 @@ Homepage: http://mfem.org
 
 Package: mfem-gnu15-openmpi5-ohpc
 Architecture: any
-Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, hypre-gnu15-openmpi5-ohpc, metis-gnu15-ohpc, netcdf-gnu15-openmpi5-ohpc, petsc-gnu15-openmpi5-ohpc (>= 3.12.0), ptscotch-gnu15-openmpi5-ohpc, superlu_dist-gnu15-openmpi5-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, hypre-gnu15-openmpi5-ohpc, metis-gnu15-ohpc, netcdf-gnu15-openmpi5-ohpc, petsc-gnu15-openmpi5-ohpc (>= 3.12.0), ptscotch-gnu15-openmpi5-ohpc, superlu-dist-gnu15-openmpi5-ohpc, ${shlibs:Depends}, ${misc:Depends}
 Description: Lightweight, general, scalable C++ library for finite element methods (gnu15 + openmpi5, OpenHPC)
  MFEM is a modular parallel C++ library for finite element methods. Its goal is
  to enable the research and development of scalable finite element discretization
