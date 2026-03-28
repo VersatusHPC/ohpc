@@ -1,0 +1,26 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads Magpie scripts"
+        puts stderr "\nVersion 3.2\n"
+}
+
+module-whatis "Name: Magpie"
+module-whatis "Version: 3.2"
+module-whatis "Category: Resource Managers"
+module-whatis "Description: Scripts for running Big Data in HPC environments"
+module-whatis "URL: https://github.com/LLNL/magpie"
+
+# JAVA_HOME must be set; locate "javac" in PATH and confirm it's the correct version
+set     java_check                  [exec which javac]
+if { [catch {exec $java_check -version 2> /dev/null}] } {
+   puts stderr "ERROR: Java not available."
+} else {
+   setenv          JAVA_HOME           [file dirname [file dirname [exec readlink -f $java_check]]]
+}
+
+set     version                     3.2
+setenv          MAGPIE_PATH         /opt/ohpc/pub/libs/magpie/3.2
+setenv          MAGPIE_SCRIPTS_HOME /opt/ohpc/pub/libs/magpie/3.2
+setenv          MAGPIE_DIR          /opt/ohpc/pub/libs/magpie/3.2

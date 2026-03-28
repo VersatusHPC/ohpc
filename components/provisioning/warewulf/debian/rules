@@ -1,0 +1,76 @@
+#!/usr/bin/make -f
+
+WW_VERSION   := 4.6.5
+PKG          := $(CURDIR)/debian/warewulf-ohpc
+PKG_DRACUT   := $(CURDIR)/debian/warewulf-dracut-ohpc
+SRCDIR       := $(CURDIR)/warewulf-$(WW_VERSION)
+
+TFTPDIR      := /srv/tftpboot
+SRVDIR       := /srv
+STATEDIR     := /srv
+WWGROUP      := warewulf
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/warewulf-$(WW_VERSION).tar.gz || \
+		wget -q -O SOURCES/warewulf-$(WW_VERSION).tar.gz \
+			https://github.com/warewulf/warewulf/releases/download/v$(WW_VERSION)/warewulf-$(WW_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/warewulf-$(WW_VERSION).tar.gz
+	cd $(SRCDIR) && \
+		patch -p1 < ../SOURCES/hosts.ww.patch || true
+
+override_dh_auto_build:
+	cd $(SRCDIR) && \
+	export OFFLINE_BUILD=1 && \
+	make defaults \
+		VERSION=$(WW_VERSION) \
+		PREFIX=/usr \
+		BINDIR=/usr/bin \
+		SYSCONFDIR=/etc \
+		DATADIR=/usr/share \
+		LOCALSTATEDIR=$(STATEDIR) \
+		SHAREDSTATEDIR=$(STATEDIR) \
+		MANDIR=/usr/share/man \
+		INFODIR=/usr/share/info \
+		DOCDIR=/usr/share/doc \
+		SRVDIR=$(SRVDIR) \
+		TFTPDIR=$(TFTPDIR) \
+		SYSTEMDDIR=/lib/systemd/system \
+		BASHCOMPDIR=/etc/bash_completion.d/ \
+		FIREWALLDDIR=/usr/lib/firewalld/services \
+		WWCLIENTDIR=/warewulf \
+		IPXESOURCE=/usr/share/ipxe \
+		DRACUTMODDIR=/usr/lib/dracut/modules.d \
+		CACHEDIR=/var/cache && \
+	make build
+
+override_dh_auto_install:
+	cd $(SRCDIR) && \
+	export OFFLINE_BUILD=1 && \
+	export NO_BRP_STALE_LINK_ERROR=yes && \
+	make install DESTDIR=$(PKG)
+	# Dracut subpackage
+	mkdir -p $(PKG_DRACUT)/usr/lib/dracut/modules.d
+	mv $(PKG)/usr/lib/dracut/modules.d/90wwinit \
+		$(PKG_DRACUT)/usr/lib/dracut/modules.d/90wwinit || true
+	# Create state directories
+	mkdir -p $(PKG)$(STATEDIR)/warewulf/chroots
+	mkdir -p $(PKG)$(STATEDIR)/warewulf/overlays
+	# Create tftpboot directory
+	mkdir -p $(PKG)$(TFTPDIR)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

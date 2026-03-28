@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+
+MAGPIE_VERSION := 3.2
+INSTALL_PATH   := /opt/ohpc/pub/libs/magpie/$(MAGPIE_VERSION)
+OHPC_MODULES   := /opt/ohpc/pub/modulefiles
+PKG            := $(CURDIR)/debian/magpie-ohpc
+SRCDIR         := $(CURDIR)/magpie-$(MAGPIE_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(MAGPIE_VERSION).tar.gz || \
+		wget -q -O SOURCES/$(MAGPIE_VERSION).tar.gz \
+			https://github.com/LLNL/magpie/archive/$(MAGPIE_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(MAGPIE_VERSION).tar.gz
+
+override_dh_auto_build:
+	# Fix file permissions and shebangs (from spec)
+	cd $(SRCDIR) && \
+	find doc -type f -exec chmod -x {} \; && \
+	find conf -type f -exec chmod -x {} \; && \
+	find examples -type f -exec chmod -x {} \; && \
+	find patches -type f -exec chmod -x {} \; && \
+	chmod -x magpie/job/magpie-job-ray-rayips.py && \
+	chmod -x magpie/job/magpie-job-tensorflow-horovod-synthetic-benchmark.py && \
+	chmod -x magpie/job/magpie-job-tensorflow-tfadd.py && \
+	chmod -x submission-scripts/script-templates/magpie-hive && \
+	chmod -x testsuite/testscripts/test-ray.py && \
+	chmod -x testsuite/testscripts/test-tensorflow.py && \
+	chmod +x testsuite/test-config.sh && \
+	for script in $$(grep -l "^#!/usr/bin/env bash" conf/*); do \
+		sed -i "s|/usr/bin/env bash|/bin/bash|" $$script; \
+		chmod +x $$script; \
+	done && \
+	sed -i "s|/usr/bin/env python|/usr/bin/python3|" magpie/job/magpie-job-zeppelin-checkzeppelinup.py && \
+	find . -name .gitignore -type f -delete && \
+	rm -f .travis.yml
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(INSTALL_PATH)
+	cp -a $(SRCDIR)/. $(PKG)$(INSTALL_PATH)/
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/magpie
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/magpie/$(MAGPIE_VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_auto_test:
