@@ -1,4 +1,4 @@
-R-gnu15-ohpc (4.5.3-1ohpc1~noble) noble; urgency=low
+r-gnu15-ohpc (4.5.3-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

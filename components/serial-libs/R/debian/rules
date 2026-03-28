@@ -10,7 +10,7 @@ PNAME           := R
 VERSION         := 4.5.3
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
-PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
+PKG             := $(CURDIR)/debian/r-$(COMPILER_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas" bash /build/devel/build-comp.sh
 
 %:

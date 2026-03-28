@@ -1,4 +1,4 @@
-Source: R-gnu15-ohpc
+Source: r-gnu15-ohpc
 Section: science
 Priority: optional
 Maintainer: VersatusHPC <packages@versatushpc.org>
@@ -25,7 +25,7 @@ Build-Depends: debhelper-compat (= 13),
 Standards-Version: 4.6.2
 Homepage: http://www.r-project.org/
 
-Package: R-gnu15-ohpc
+Package: r-gnu15-ohpc
 Architecture: any
 Depends: ohpc-filesystem,
          gnu15-compilers-ohpc (>= 14.1.0),
