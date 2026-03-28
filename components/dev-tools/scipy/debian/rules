@@ -12,8 +12,7 @@ VERSION         := 1.5.4
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/python3-$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
-ENV             := bash /build/devel/build-mpi.sh
-OHPC_MODULES    := openblas fftw numpy
+ENV             := OHPC_MODULES="openblas fftw numpy" bash /build/devel/build-mpi.sh
 
 %:
 	dh $@
@@ -27,16 +26,11 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		for mod in $(OHPC_MODULES); do module load $$mod; done && \
-		export NPY_BLAS_LIBS=openblas && \
-		export NPY_LAPACK_LIBS=openblas && \
+		export CFLAGS="$${CFLAGS} -Wno-implicit-int -Wno-incompatible-pointer-types -fno-strict-aliasing" && \
 		python3 setup.py build'
 
 override_dh_auto_install:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		for mod in $(OHPC_MODULES); do module load $$mod; done && \
-		export NPY_BLAS_LIBS=openblas && \
-		export NPY_LAPACK_LIBS=openblas && \
 		python3 setup.py install --prefix=$(INSTALL_PATH) --root=$(PKG)'
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)

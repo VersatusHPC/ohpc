@@ -1,0 +1,33 @@
+Source: mvapich2-gnu15-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc,
+               lmod-ohpc,
+               hwloc-ohpc,
+               rdma-core,
+               libibverbs-dev,
+               librdmacm-dev,
+               libnuma-dev,
+               bison,
+               flex,
+               m4,
+               zlib1g-dev
+Standards-Version: 4.6.2
+Homepage: http://mvapich.cse.ohio-state.edu
+
+Package: mvapich2-gnu15-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc,
+         prun-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: MVAPICH2 MPI implementation (gnu15, OpenHPC)
+ MVAPICH2 is a high performance MPI-2 implementation (with initial
+ support for MPI-3) for InfiniBand, 10GigE/iWARP and RoCE.
+ Built with the gnu15 compiler family.
+ .
+ This package is part of the OpenHPC project.
