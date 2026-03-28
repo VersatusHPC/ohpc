@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: R
+Upstream-Contact: https://www.r-project.org/
+
+Files: *
+Copyright: 1999-2026 The R Foundation for Statistical Computing
+License: GPL-2.0 or GPL-3.0
