@@ -1,0 +1,24 @@
+Source: spack-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               rsync,
+               python3
+Standards-Version: 4.6.2
+Homepage: https://github.com/spack/spack
+
+Package: spack-ohpc
+Architecture: all
+Depends: ohpc-filesystem, bash, coreutils, git, curl, tar, gzip, unzip,
+         bzip2, xz-utils, zstd, file, patch, gcc, g++, make, python3,
+         ${misc:Depends}
+Description: HPC software package management (OpenHPC)
+ Spack is a package management tool designed to support multiple versions and
+ configurations of software on a wide variety of platforms and environments. It
+ was designed for large supercomputing centers, where many users and application
+ teams share common installations of software on clusters with exotic
+ architectures, using libraries that do not have a standard ABI.
+ .
+ This package is part of the OpenHPC project.

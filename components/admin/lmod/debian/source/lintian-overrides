@@ -1,0 +1,2 @@
+# OpenHPC uses /opt/ohpc by design (FHS compliant for add-on software)
+lmod-ohpc: dir-or-file-in-opt

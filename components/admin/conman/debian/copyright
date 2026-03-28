@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: conman
+Upstream-Contact: https://github.com/dun/conman
+
+Files: *
+Copyright: 2001-2026 Chris Dunlap
+License: GPL-3+

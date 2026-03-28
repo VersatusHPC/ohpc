@@ -1,0 +1,31 @@
+Source: lmod-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               tcl-dev,
+               liblua5.4-dev,
+               lua-filesystem,
+               lua-posix,
+               rsync,
+               bc,
+               procps
+Standards-Version: 4.6.2
+Homepage: https://github.com/TACC/Lmod
+
+Package: lmod-ohpc
+Architecture: any
+Depends: lua5.4,
+         lua-filesystem,
+         lua-posix,
+         ohpc-filesystem,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Provides: environment-modules
+Conflicts: environment-modules
+Description: Lua based Modules - Lmod (OpenHPC)
+ Lmod is a Lua based module system that reads TCL modulefiles and
+ supports a Software Hierarchy. It provides a convenient way to
+ dynamically change the users' environment through modulefiles.
+ .
+ This package is part of the OpenHPC project.

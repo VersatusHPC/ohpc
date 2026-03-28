@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: easybuild
+Upstream-Contact: https://easybuilders.github.io/easybuild
+
+Files: *
+Copyright: 2012-2026 Ghent University
+License: GPL-2+

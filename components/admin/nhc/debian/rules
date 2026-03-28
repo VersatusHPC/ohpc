@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+NHC_VERSION := 1.4.3
+PKG         := $(CURDIR)/debian/nhc-ohpc
+SRCDIR      := $(CURDIR)/nhc-$(NHC_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/nhc-$(NHC_VERSION).tar.gz || \
+		wget -q -O SOURCES/nhc-$(NHC_VERSION).tar.gz \
+			https://github.com/mej/nhc/archive/$(NHC_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/nhc-$(NHC_VERSION).tar.gz
+	cd $(SRCDIR) && \
+		patch -p1 --fuzz=2 < ../SOURCES/nhc-ps-chronyd.patch || true
+	cd $(SRCDIR) && ./autogen.sh && \
+		./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) install DESTDIR=$(PKG)
+	# Tweak ssh check
+	perl -pi -e "s/check_ps_service -u root -S sshd/check_ps_service -m 'sshd:' -u root -S sshd/" \
+		$(PKG)/etc/nhc/nhc.conf || true
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_auto_test:

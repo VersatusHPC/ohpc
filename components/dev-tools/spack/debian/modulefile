@@ -1,0 +1,13 @@
+#%Module1.0#####################################################################
+
+module-whatis "Name: Spack"
+module-whatis "Version: 1.1.1"
+module-whatis "Category: System/Configuration"
+module-whatis "Description: Spack package management"
+module-whatis "URL: https://github.com/spack/spack"
+
+set     version             1.1.1
+set     SPACK_ROOT          /opt/ohpc/pub/apps/spack/1.1.1
+
+prepend-path    PATH        /opt/ohpc/pub/apps/spack/1.1.1/bin
+prepend-path    MODULEPATH  /opt/ohpc/pub/moduledeps/spack/

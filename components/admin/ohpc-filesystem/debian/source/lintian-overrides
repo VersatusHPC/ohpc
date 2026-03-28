@@ -1,0 +1,3 @@
+# OpenHPC uses /opt/ohpc by design (FHS compliant for add-on software)
+ohpc-filesystem: dir-or-file-in-opt
+ohpc-buildroot: dir-or-file-in-opt

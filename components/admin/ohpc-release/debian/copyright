@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ohpc-release
+Upstream-Contact: https://github.com/VersatusHPC/ohpc
+
+Files: *
+Copyright: 2014-2026 OpenHPC Community, Intel Corporation, VersatusHPC
+License: Apache-2.0

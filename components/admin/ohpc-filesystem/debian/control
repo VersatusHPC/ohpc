@@ -1,0 +1,21 @@
+Source: ohpc-filesystem
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: ohpc-filesystem
+Architecture: all
+Description: Common top-level OpenHPC directories
+ This administrative package defines the top level OpenHPC installation
+ directories. It is utilized by most packages that do not install into
+ system default paths.
+
+Package: ohpc-buildroot
+Architecture: all
+Depends: ohpc-filesystem, lmod-ohpc, ${misc:Depends}
+Description: Common build scripts used in OpenHPC packaging
+ This administrative package provides compiler and MPI family convenience
+ scripts used during OpenHPC builds.

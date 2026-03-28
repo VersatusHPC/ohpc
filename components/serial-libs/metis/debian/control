@@ -1,0 +1,23 @@
+Source: metis-gnu15-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               make,
+               cmake,
+               pkg-config
+Standards-Version: 4.6.2
+Homepage: http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
+
+Package: metis-gnu15-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), ${shlibs:Depends}, ${misc:Depends}
+Description: Serial Graph Partitioning and Fill-reducing Matrix Ordering (gnu15, OpenHPC)
+ METIS is a set of serial programs for partitioning graphs, partitioning
+ finite element meshes, and producing fill reducing orderings for sparse
+ matrices. Built with the gnu15 compiler family.
+ .
+ This package is part of the OpenHPC project.

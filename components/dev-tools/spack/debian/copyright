@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: spack
+Upstream-Contact: https://github.com/spack/spack
+
+Files: *
+Copyright: 2013-2026 Lawrence Livermore National Security, LLC
+License: LGPL-2.1+

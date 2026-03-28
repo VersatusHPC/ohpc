@@ -1,0 +1,7 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } { puts stderr "Enable operating system provided modules" }
+
+module-whatis "Name: Operating System provided modules"
+
+append-path MODULEPATH /etc/modulefiles:/usr/share/modules

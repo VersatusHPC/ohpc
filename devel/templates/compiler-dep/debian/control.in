@@ -1,0 +1,29 @@
+Source: @PNAME@-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               lmod-ohpc,
+               @COMPILER_DEP@,
+               @BUILD_DEPENDS@
+Standards-Version: 4.6.2
+Homepage: @HOMEPAGE@
+
+Package: @PNAME@-@COMPILER_FAMILY@-ohpc
+Architecture: any
+Depends: ohpc-filesystem, @COMPILER_DEP@, ${shlibs:Depends}, ${misc:Depends}
+Description: @DESCRIPTION_SHORT@ (@COMPILER_FAMILY@, OpenHPC)
+ @DESCRIPTION_LONG@
+ .
+ Built with the @COMPILER_FAMILY@ compiler family.
+ This package is part of the OpenHPC project.
+
+Package: @PNAME@-@COMPILER_FAMILY@-devel-ohpc
+Architecture: any
+Depends: @PNAME@-@COMPILER_FAMILY@-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: @DESCRIPTION_SHORT@ development files (@COMPILER_FAMILY@, OpenHPC)
+ Development headers and libraries for @PNAME@.
+ .
+ Built with the @COMPILER_FAMILY@ compiler family.
+ This package is part of the OpenHPC project.

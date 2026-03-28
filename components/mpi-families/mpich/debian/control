@@ -1,0 +1,30 @@
+Source: mpich-gnu15-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               perl,
+               zlib1g-dev,
+               libnl-3-dev,
+               libnuma-dev,
+               libfabric-dev,
+               rdma-core
+Standards-Version: 4.6.2
+Homepage: https://www.mpich.org/
+
+Package: mpich-gnu15-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         libfabric1,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: MPICH MPI implementation (gnu15, OpenHPC)
+ MPICH is a high-performance and widely portable implementation of
+ the MPI standard (MPI-1, MPI-2, and MPI-3).
+ Built with the gnu15 compiler family and libfabric (OFI).
+ .
+ This package is part of the OpenHPC project.

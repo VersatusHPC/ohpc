@@ -1,0 +1,43 @@
+#!/usr/bin/make -f
+
+CH_VERSION   := 0.43
+INSTALL_PATH := /opt/ohpc/pub/libs/charliecloud/$(CH_VERSION)
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+PKG          := $(CURDIR)/debian/charliecloud-ohpc
+SRCDIR       := $(CURDIR)/charliecloud-$(CH_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/charliecloud-$(CH_VERSION).tar.gz || \
+		wget -q -O SOURCES/charliecloud-$(CH_VERSION).tar.gz \
+			https://github.com/hpc/charliecloud/releases/download/v$(CH_VERSION)/charliecloud-$(CH_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/charliecloud-$(CH_VERSION).tar.gz
+	cd $(SRCDIR) && \
+		CFLAGS="-Wno-error=format-security" ./configure \
+			--prefix=$(INSTALL_PATH) \
+			--enable-buggy-build
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && PREFIX=$(INSTALL_PATH) DESTDIR=$(PKG) $(MAKE) install
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/charliecloud
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/charliecloud/$(CH_VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

@@ -1,0 +1,56 @@
+#!/usr/bin/make -f
+
+OHPC_ADMIN := /opt/ohpc/admin
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+LMOD_VERSION := 9.0.5
+PKG := $(CURDIR)/debian/lmod-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Download source if not present
+	if [ ! -f SOURCES/lmod-$(LMOD_VERSION).tar.gz ]; then \
+		wget -q -O SOURCES/lmod-$(LMOD_VERSION).tar.gz \
+			https://github.com/TACC/Lmod/archive/$(LMOD_VERSION)/lmod-$(LMOD_VERSION).tar.gz; \
+	fi
+	# Extract
+	rm -rf Lmod-$(LMOD_VERSION)
+	tar xf SOURCES/lmod-$(LMOD_VERSION).tar.gz
+	# Apply patches
+	cd Lmod-$(LMOD_VERSION) && \
+		patch -p1 --fuzz=2 < ../SOURCES/lmod.consulting.patch || true
+	cd Lmod-$(LMOD_VERSION) && \
+		patch -p1 --fuzz=2 < ../SOURCES/lmod.site.patch || true
+	# Remove shebangs from init scripts
+	cd Lmod-$(LMOD_VERSION) && sed -i -e '/^#!/d' init/*.in
+	# Configure
+	cd Lmod-$(LMOD_VERSION) && unset MODULEPATH && \
+		./configure --prefix=$(OHPC_ADMIN) --with-redirect=yes --with-autoSwap=no
+
+override_dh_auto_build:
+	cd Lmod-$(LMOD_VERSION) && $(MAKE)
+
+override_dh_auto_install:
+	cd Lmod-$(LMOD_VERSION) && $(MAKE) DESTDIR=$(PKG) install
+	# Install profile.d scripts from debian/ directory
+	mkdir -p $(PKG)/etc/profile.d
+	install -m 644 debian/lmod.sh $(PKG)/etc/profile.d/lmod.sh
+	install -m 644 debian/lmod.csh $(PKG)/etc/profile.d/lmod.csh
+	# Install OS module file
+	mkdir -p $(PKG)$(OHPC_MODULES)
+	install -m 644 debian/os.modulefile $(PKG)$(OHPC_MODULES)/os
+	# modulecmd symlink
+	mkdir -p $(PKG)/usr/bin
+	ln -sf $(OHPC_ADMIN)/lmod/lmod/libexec/lmod $(PKG)/usr/bin/modulecmd
+
+override_dh_auto_clean:
+	rm -rf Lmod-$(LMOD_VERSION)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true

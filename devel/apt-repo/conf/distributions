@@ -1,0 +1,6 @@
+Origin: VersatusHPC
+Label: VersatusHPC OpenHPC
+Codename: noble
+Architectures: amd64 arm64 source
+Components: main
+Description: OpenHPC packages for Ubuntu 24.04

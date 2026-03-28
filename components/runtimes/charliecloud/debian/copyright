@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: charliecloud
+Upstream-Contact: https://github.com/hpc/charliecloud
+
+Files: *
+Copyright: 2014-2026 Triad National Security, LLC
+License: Apache-2.0

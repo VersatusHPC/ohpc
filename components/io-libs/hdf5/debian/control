@@ -1,0 +1,27 @@
+Source: phdf5-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openmpi5-gnu15-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               zlib1g-dev,
+               cmake,
+               make
+Standards-Version: 4.6.2
+Homepage: http://www.hdfgroup.org/HDF5
+
+Package: phdf5-gnu15-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: A general purpose library and file format for storing scientific data - parallel (gnu15 + openmpi5, OpenHPC)
+ HDF5 is a general purpose library and file format for storing scientific data.
+ HDF5 can store two primary objects: datasets and groups.
+ Built with the gnu15 compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,22 @@
+Source: easybuild-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               python3-dev,
+               python3-pip,
+               python3-setuptools,
+               python3-wheel
+Standards-Version: 4.6.2
+Homepage: https://easybuilders.github.io/easybuild
+
+Package: easybuild-ohpc
+Architecture: all
+Depends: ohpc-filesystem, python3, patch, ${misc:Depends}
+Description: Software build and installation framework (OpenHPC)
+ EasyBuild is a software build and installation framework that allows
+ you to manage (scientific) software on High Performance Computing (HPC)
+ systems in an efficient way.
+ .
+ This package is part of the OpenHPC project.

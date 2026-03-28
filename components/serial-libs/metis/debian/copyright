@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: METIS
+Upstream-Contact: http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
+
+Files: *
+Copyright: 1995-2026 Regents of the University of Minnesota
+License: Apache-2.0

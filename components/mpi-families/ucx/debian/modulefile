@@ -1,0 +1,25 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads the UCX library."
+        puts stderr "\nVersion 1.20.0\n"
+}
+
+module-whatis "Name: ucx"
+module-whatis "Version: 1.20.0"
+module-whatis "Category: runtime library"
+module-whatis "Description: Unified Communication X framework"
+module-whatis "URL: https://www.openucx.org/"
+
+set     version             1.20.0
+
+prepend-path    PATH                /opt/ohpc/pub/mpi/ucx/1.20.0/bin
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/ucx/1.20.0/lib
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/ucx/1.20.0/lib/pkgconfig
+
+setenv          UCX_DIR             /opt/ohpc/pub/mpi/ucx/1.20.0
+setenv          UCX_BIN             /opt/ohpc/pub/mpi/ucx/1.20.0/bin
+setenv          UCX_LIB             /opt/ohpc/pub/mpi/ucx/1.20.0/lib
+setenv          UCX_INC             /opt/ohpc/pub/mpi/ucx/1.20.0/include
+setenv          UCX_WARN_UNUSED_ENV_VARS N

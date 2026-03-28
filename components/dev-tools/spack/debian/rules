@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+
+SPACK_VERSION := 1.1.1
+INSTALL_PATH  := /opt/ohpc/pub/apps/spack/$(SPACK_VERSION)
+OHPC_MODULES  := /opt/ohpc/pub/modulefiles
+OHPC_MODULEDEPS := /opt/ohpc/pub/moduledeps
+PKG           := $(CURDIR)/debian/spack-ohpc
+SRCDIR        := $(CURDIR)/spack-$(SPACK_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/spack-$(SPACK_VERSION).tar.gz || \
+		wget -q -O SOURCES/spack-$(SPACK_VERSION).tar.gz \
+			https://github.com/spack/spack/archive/v$(SPACK_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/spack-$(SPACK_VERSION).tar.gz
+	# Apply patches if they exist
+	test -f SOURCES/modules.yaml.patch && \
+		(cd $(SRCDIR) && patch -p1 --fuzz=2 < ../SOURCES/modules.yaml.patch || true) || true
+	test -f SOURCES/config.yaml.patch && \
+		(cd $(SRCDIR) && patch -p1 --fuzz=2 < ../SOURCES/config.yaml.patch || true) || true
+	test -f SOURCES/repos.yaml.patch && \
+		(cd $(SRCDIR) && patch -p1 --fuzz=2 < ../SOURCES/repos.yaml.patch || true) || true
+	# Fix shebangs
+	grep -rl '#!/bin/env ' $(SRCDIR) | xargs -i@ sed -i 's|#!/bin/env|#!/usr/bin/env|g' @ || true
+	# Remove qa scripts
+	rm -rf $(SRCDIR)/share/spack/qa
+	# Substitute placeholders in config files
+	sed -e "s,@@OHPC_APPS@@,/opt/ohpc/pub/apps,g" -i $(SRCDIR)/etc/spack/defaults/base/config.yaml || true
+	sed -e "s,@@OHPC_MODULEDEPS@@,$(OHPC_MODULEDEPS),g" -i $(SRCDIR)/etc/spack/defaults/base/modules.yaml || true
+	sed -e "s,@@SPACK_PACKAGES_PATH@@,/opt/ohpc/pub/apps/spack/spack-packages/spack_repo/builtin,g" -i $(SRCDIR)/etc/spack/defaults/base/repos.yaml || true
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(INSTALL_PATH)
+	cd $(SRCDIR) && rsync -a --exclude=.gitignore etc bin lib var share $(PKG)$(INSTALL_PATH)/
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/spack
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/spack/$(SPACK_VERSION)
+	# Create moduledeps directory for spack
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/spack
+	# Create local directory
+	mkdir -p $(PKG)/opt/ohpc/pub/apps/spack/local
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_auto_test:

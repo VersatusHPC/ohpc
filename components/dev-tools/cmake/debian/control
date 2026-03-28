@@ -1,0 +1,29 @@
+Source: cmake-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               make,
+               g++,
+               libcurl4-openssl-dev,
+               libncurses-dev,
+               liblzma-dev,
+               zlib1g-dev,
+               libjsoncpp-dev,
+               libexpat1-dev,
+               libbz2-dev,
+               libssl-dev
+Standards-Version: 4.6.2
+Homepage: https://cmake.org/
+
+Package: cmake-ohpc
+Architecture: any
+Depends: ohpc-filesystem, ${shlibs:Depends}, ${misc:Depends}
+Description: Cross-platform family of build tools (OpenHPC)
+ CMake is used to control the software compilation process using simple
+ platform and compiler independent configuration files, and generate native
+ makefiles and workspaces that can be used in the compiler environment
+ of your choice.
+ .
+ This package is part of the OpenHPC project.

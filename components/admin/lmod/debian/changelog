@@ -1,0 +1,6 @@
+lmod-ohpc (9.0.5-1ohpc1~noble) noble; urgency=low
+
+  * Initial Debian packaging for OpenHPC Ubuntu port.
+  * Lmod 9.0.5 environment module system.
+
+ -- VersatusHPC <packages@versatushpc.org>  Thu, 27 Mar 2026 18:00:00 +0000

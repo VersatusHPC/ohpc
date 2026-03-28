@@ -1,0 +1,72 @@
+Source: slurm-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               g++,
+               python3,
+               liblua5.4-dev,
+               libpam0g-dev,
+               libssl-dev,
+               libmariadb-dev,
+               libnuma-dev,
+               libreadline-dev,
+               libevent-dev,
+               libdbus-1-dev,
+               libjson-c-dev,
+               libhttp-parser-dev,
+               libyaml-dev,
+               libjwt-dev,
+               libfreeipmi-dev,
+               libcurl4-openssl-dev,
+               libxml2-dev,
+               man2html,
+               perl,
+               bzip2,
+               wget,
+               hwloc-ohpc,
+               pmix-ohpc,
+               munge-devel-ohpc
+Standards-Version: 4.6.2
+Homepage: https://slurm.schedmd.com/
+
+Package: slurm-ohpc
+Architecture: any
+Depends: munge-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm Workload Manager (OpenHPC)
+ Slurm is a highly scalable cluster management and job scheduling system.
+ This package contains the core Slurm binaries and libraries.
+ .
+ This package is part of the OpenHPC project.
+
+Package: slurm-devel-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Slurm development files (OpenHPC)
+ Development headers and libraries for Slurm.
+
+Package: slurm-slurmctld-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm controller daemon (OpenHPC)
+ The slurmctld daemon manages the Slurm cluster.
+
+Package: slurm-slurmd-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm compute node daemon (OpenHPC)
+ The slurmd daemon runs on each compute node.
+
+Package: slurm-slurmdbd-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm database daemon (OpenHPC)
+ The slurmdbd daemon manages the Slurm accounting database.
+
+Package: slurm-libpmi-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm PMI libraries (OpenHPC)
+ The PMI libraries for launching MPI applications under Slurm.
+

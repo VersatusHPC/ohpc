@@ -1,0 +1,80 @@
+#!/usr/bin/make -f
+
+MUNGE_VERSION := 0.5.13
+SRCDIR        := $(CURDIR)/munge-munge-$(MUNGE_VERSION)
+PKGDIR        := $(CURDIR)/debian/tmp
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/munge-$(MUNGE_VERSION).tar.gz || \
+		wget -q -O SOURCES/munge-$(MUNGE_VERSION).tar.gz \
+			https://github.com/dun/munge/archive/munge-$(MUNGE_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/munge-$(MUNGE_VERSION).tar.gz
+	# Apply patches
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/munge.logdir.patch || true
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/munge.service.patch || true
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/munge.syslog.patch || true
+	# Bootstrap autotools
+	cd $(SRCDIR) && ./bootstrap
+	cd $(SRCDIR) && ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKGDIR) install
+	find $(PKGDIR) -name '*.la' -delete
+	# Split into packages
+	# munge-libs-ohpc: shared libraries
+	mkdir -p $(CURDIR)/debian/munge-libs-ohpc/usr/lib/$(DEB_HOST_MULTIARCH)
+	cp -a $(PKGDIR)/usr/lib/$(DEB_HOST_MULTIARCH)/libmunge.so* $(CURDIR)/debian/munge-libs-ohpc/usr/lib/$(DEB_HOST_MULTIARCH)/ 2>/dev/null || \
+		cp -a $(PKGDIR)/usr/lib/libmunge.so* $(CURDIR)/debian/munge-libs-ohpc/usr/lib/$(DEB_HOST_MULTIARCH)/ 2>/dev/null || true
+	# munge-devel-ohpc: headers
+	mkdir -p $(CURDIR)/debian/munge-devel-ohpc/usr/include
+	cp -a $(PKGDIR)/usr/include/munge* $(CURDIR)/debian/munge-devel-ohpc/usr/include/ 2>/dev/null || true
+	# munge-ohpc: binaries, config, systemd
+	mkdir -p $(CURDIR)/debian/munge-ohpc/usr/bin
+	mkdir -p $(CURDIR)/debian/munge-ohpc/usr/sbin
+	mkdir -p $(CURDIR)/debian/munge-ohpc/etc
+	mkdir -p $(CURDIR)/debian/munge-ohpc/var
+	cp -a $(PKGDIR)/usr/bin/munge* $(CURDIR)/debian/munge-ohpc/usr/bin/ 2>/dev/null || true
+	cp -a $(PKGDIR)/usr/bin/remunge* $(CURDIR)/debian/munge-ohpc/usr/bin/ 2>/dev/null || true
+	cp -a $(PKGDIR)/usr/bin/unmunge* $(CURDIR)/debian/munge-ohpc/usr/bin/ 2>/dev/null || true
+	cp -a $(PKGDIR)/usr/sbin/munged* $(CURDIR)/debian/munge-ohpc/usr/sbin/ 2>/dev/null || true
+	cp -a $(PKGDIR)/etc/munge* $(CURDIR)/debian/munge-ohpc/etc/ 2>/dev/null || true
+	cp -a $(PKGDIR)/var/* $(CURDIR)/debian/munge-ohpc/var/ 2>/dev/null || true
+	# Man pages
+	if [ -d $(PKGDIR)/usr/share/man ]; then \
+		mkdir -p $(CURDIR)/debian/munge-ohpc/usr/share; \
+		cp -a $(PKGDIR)/usr/share/man $(CURDIR)/debian/munge-ohpc/usr/share/; \
+	fi
+	# pkg-config to devel
+	if [ -d $(PKGDIR)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig ]; then \
+		mkdir -p $(CURDIR)/debian/munge-devel-ohpc/usr/lib/$(DEB_HOST_MULTIARCH); \
+		cp -a $(PKGDIR)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig $(CURDIR)/debian/munge-devel-ohpc/usr/lib/$(DEB_HOST_MULTIARCH)/; \
+	elif [ -d $(PKGDIR)/usr/lib/pkgconfig ]; then \
+		mkdir -p $(CURDIR)/debian/munge-devel-ohpc/usr/lib; \
+		cp -a $(PKGDIR)/usr/lib/pkgconfig $(CURDIR)/debian/munge-devel-ohpc/usr/lib/; \
+	fi
+	# systemd service
+	if [ -d $(PKGDIR)/usr/lib/systemd ]; then \
+		mkdir -p $(CURDIR)/debian/munge-ohpc/lib/systemd; \
+		cp -a $(PKGDIR)/usr/lib/systemd/* $(CURDIR)/debian/munge-ohpc/lib/systemd/; \
+	fi
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

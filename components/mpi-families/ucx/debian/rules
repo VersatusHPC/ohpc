@@ -1,0 +1,72 @@
+#!/usr/bin/make -f
+
+UCX_VERSION   := 1.20.0
+INSTALL_PATH  := /opt/ohpc/pub/mpi/ucx/$(UCX_VERSION)
+SRCDIR        := $(CURDIR)/ucx-$(UCX_VERSION)
+PKGDIR        := $(CURDIR)/debian/tmp
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/ucx-$(UCX_VERSION).tar.gz || \
+		wget -q -O SOURCES/ucx-$(UCX_VERSION).tar.gz \
+			https://github.com/openucx/ucx/releases/download/v$(UCX_VERSION)/ucx-$(UCX_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/ucx-$(UCX_VERSION).tar.gz
+	cd $(SRCDIR) && ./configure \
+		--prefix=$(INSTALL_PATH) \
+		--libdir=$(INSTALL_PATH)/lib \
+		--disable-optimizations \
+		--disable-logging \
+		--disable-debug \
+		--disable-assertions \
+		--disable-params-check \
+		--enable-cma \
+		--with-verbs \
+		--with-rdmacm \
+		--disable-cuda \
+		--disable-gdrcopy \
+		--disable-knem \
+		--disable-rocm \
+		--disable-xpmem \
+		--disable-java
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKGDIR) install
+	find $(PKGDIR) -name '*.la' -delete
+	# Split into runtime and devel
+	mkdir -p $(CURDIR)/debian/ucx-ohpc$(INSTALL_PATH)
+	mkdir -p $(CURDIR)/debian/ucx-devel-ohpc$(INSTALL_PATH)
+	# Runtime: lib, bin, share, libexec
+	for d in lib bin share libexec; do \
+		if [ -d $(PKGDIR)$(INSTALL_PATH)/$$d ]; then \
+			cp -a $(PKGDIR)$(INSTALL_PATH)/$$d $(CURDIR)/debian/ucx-ohpc$(INSTALL_PATH)/; \
+		fi; \
+	done
+	# Devel: include
+	if [ -d $(PKGDIR)$(INSTALL_PATH)/include ]; then \
+		cp -a $(PKGDIR)$(INSTALL_PATH)/include $(CURDIR)/debian/ucx-devel-ohpc$(INSTALL_PATH)/; \
+	fi
+	# Install modulefile
+	mkdir -p $(CURDIR)/debian/ucx-ohpc/opt/ohpc/pub/modulefiles/ucx
+	install -m 644 debian/modulefile $(CURDIR)/debian/ucx-ohpc/opt/ohpc/pub/modulefiles/ucx/$(UCX_VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_test:

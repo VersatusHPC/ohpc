@@ -1,0 +1,34 @@
+Source: ucx-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               automake,
+               autoconf,
+               libtool,
+               g++,
+               libnuma-dev,
+               libibverbs-dev,
+               librdmacm-dev
+Standards-Version: 4.6.2
+Homepage: https://www.openucx.org/
+
+Package: ucx-ohpc
+Architecture: any
+Depends: ohpc-filesystem, ${shlibs:Depends}, ${misc:Depends}
+Description: Unified Communication X (UCX) framework (OpenHPC)
+ UCX is a communication framework for high-bandwidth and low-latency
+ networks. It provides an optimized communication layer for MPI,
+ PGAS/OpenSHMEM, and RPC/data-centric applications.
+ .
+ Includes CMA, InfiniBand, and RDMA CM transport support.
+ This package is part of the OpenHPC project.
+
+Package: ucx-devel-ohpc
+Architecture: any
+Depends: ucx-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: UCX development files (OpenHPC)
+ Development headers and libraries for UCX.
+ .
+ This package is part of the OpenHPC project.

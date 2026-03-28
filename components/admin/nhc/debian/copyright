@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: nhc
+Upstream-Contact: https://github.com/mej/nhc/
+
+Files: *
+Copyright: 2010-2026 Lawrence Berkeley National Laboratory
+License: US-Dept-of-Energy-BSD-like

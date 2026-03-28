@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: GCC
+Upstream-Contact: https://gcc.gnu.org/
+
+Files: *
+Copyright: 1987-2026 Free Software Foundation, Inc.
+License: GPL-3+ with GCC Runtime Library Exception

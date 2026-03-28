@@ -1,0 +1,19 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads the cmake utility"
+        puts stderr "\nVersion 4.3.0\n"
+}
+
+module-whatis "Name: cmake"
+module-whatis "Version: 4.3.0"
+module-whatis "Category: utility, developer support"
+module-whatis "Keywords: System, Utility"
+module-whatis "Description: CMake is an open-source, cross-platform family of tools designed to build, test and package software."
+module-whatis "URL: https://cmake.org/"
+
+set     version             4.3.0
+
+setenv          CMAKE_DIR       /opt/ohpc/pub/utils/cmake/4.3.0
+prepend-path    PATH            /opt/ohpc/pub/utils/cmake/4.3.0/bin

@@ -1,0 +1,122 @@
+FROM docker.io/library/ubuntu:24.04
+
+LABEL maintainer="VersatusHPC <packages@versatushpc.org>"
+LABEL description="OpenHPC build environment for Ubuntu 24.04 (noble)"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+ENV LANG=C.UTF-8
+
+# Core build tools and Debian packaging
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    dpkg-dev \
+    debhelper \
+    dh-make \
+    devscripts \
+    fakeroot \
+    lintian \
+    equivs \
+    quilt \
+    reprepro \
+    gnupg \
+    # Compilers and core dev
+    gcc \
+    g++ \
+    gfortran \
+    binutils \
+    binutils-dev \
+    # Build systems
+    make \
+    cmake \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config \
+    m4 \
+    bison \
+    flex \
+    texinfo \
+    gettext \
+    bc \
+    # Lua (for Lmod)
+    lua5.4 \
+    liblua5.4-dev \
+    lua-filesystem \
+    lua-posix \
+    # Tcl (for Lmod)
+    tcl \
+    tcl-dev \
+    # Python
+    python3 \
+    python3-dev \
+    python3-setuptools \
+    python3-pip \
+    cython3 \
+    # Common library development headers
+    zlib1g-dev \
+    libbz2-dev \
+    liblzma-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libxml2-dev \
+    libffi-dev \
+    libexpat1-dev \
+    libsqlite3-dev \
+    libnuma-dev \
+    libpci-dev \
+    libsysfs-dev \
+    libsystemd-dev \
+    libpam0g-dev \
+    libreadline-dev \
+    libncurses-dev \
+    libevent-dev \
+    libatomic1 \
+    libcairo2-dev \
+    libx11-dev \
+    libmariadb-dev \
+    libltdl-dev \
+    libperl-dev \
+    libgcrypt20-dev \
+    doxygen \
+    # RDMA / InfiniBand / Fabric
+    libibverbs-dev \
+    librdmacm-dev \
+    libibumad-dev \
+    libfabric-dev \
+    rdma-core \
+    # Networking and tools
+    wget \
+    curl \
+    git \
+    lsb-release \
+    ca-certificates \
+    openssh-client \
+    rsync \
+    patch \
+    swig \
+    ccache \
+    sudo \
+    procps \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create ohpc build user with sudo access
+RUN useradd -m -s /bin/bash ohpc && \
+    echo "ohpc ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ohpc
+
+# Pre-create the OHPC directory structure
+RUN mkdir -p /opt/ohpc/pub/apps \
+    /opt/ohpc/pub/bin \
+    /opt/ohpc/pub/doc \
+    /opt/ohpc/pub/compiler \
+    /opt/ohpc/pub/libs \
+    /opt/ohpc/pub/moduledeps \
+    /opt/ohpc/pub/modulefiles \
+    /opt/ohpc/pub/mpi \
+    /opt/ohpc/admin
+
+# Directory for local APT repository (bind-mounted from host)
+RUN mkdir -p /opt/ohpc-repo
+
+WORKDIR /build

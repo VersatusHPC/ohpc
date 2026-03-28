@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+
+EB_VERSION   := 5.2.1
+INSTALL_PATH := /opt/ohpc/pub/libs/easybuild/$(EB_VERSION)
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+PKG          := $(CURDIR)/debian/easybuild-ohpc
+PYVER        := $(shell python3 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/easybuild-$(EB_VERSION).tar.gz || \
+		wget -q -O SOURCES/easybuild-$(EB_VERSION).tar.gz \
+			https://pypi.io/packages/source/e/easybuild/easybuild-$(EB_VERSION).tar.gz
+	test -s SOURCES/easybuild-framework-$(EB_VERSION).tar.gz || \
+		wget -q -O SOURCES/easybuild-framework-$(EB_VERSION).tar.gz \
+			https://pypi.io/packages/source/e/easybuild-framework/easybuild_framework-$(EB_VERSION).tar.gz
+	test -s SOURCES/easybuild-easyblocks-$(EB_VERSION).tar.gz || \
+		wget -q -O SOURCES/easybuild-easyblocks-$(EB_VERSION).tar.gz \
+			https://pypi.io/packages/source/e/easybuild-easyblocks/easybuild_easyblocks-$(EB_VERSION).tar.gz
+	test -s SOURCES/easybuild-easyconfigs-$(EB_VERSION).tar.gz || \
+		wget -q -O SOURCES/easybuild-easyconfigs-$(EB_VERSION).tar.gz \
+			https://pypi.io/packages/source/e/easybuild-easyconfigs/easybuild_easyconfigs-$(EB_VERSION).tar.gz
+	rm -rf easybuild_framework-$(EB_VERSION) easybuild_easyblocks-$(EB_VERSION) \
+		easybuild_easyconfigs-$(EB_VERSION) easybuild-$(EB_VERSION)
+	tar xf SOURCES/easybuild-framework-$(EB_VERSION).tar.gz
+	tar xf SOURCES/easybuild-easyblocks-$(EB_VERSION).tar.gz
+	tar xf SOURCES/easybuild-easyconfigs-$(EB_VERSION).tar.gz
+	tar xf SOURCES/easybuild-$(EB_VERSION).tar.gz
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	cd easybuild_framework-$(EB_VERSION) && \
+		pip3 install --prefix=$(INSTALL_PATH) --root=$(PKG) --no-deps --no-build-isolation .
+	cd easybuild_easyblocks-$(EB_VERSION) && \
+		pip3 install --prefix=$(INSTALL_PATH) --root=$(PKG) --no-deps --no-build-isolation .
+	cd easybuild_easyconfigs-$(EB_VERSION) && \
+		pip3 install --prefix=$(INSTALL_PATH) --root=$(PKG) --no-deps --no-build-isolation .
+	cd easybuild-$(EB_VERSION) && \
+		pip3 install --prefix=$(INSTALL_PATH) --root=$(PKG) --no-deps --no-build-isolation .
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/EasyBuild
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/EasyBuild/$(EB_VERSION)
+
+override_dh_auto_clean:
+	rm -rf easybuild_framework-$(EB_VERSION) easybuild_easyblocks-$(EB_VERSION) \
+		easybuild_easyconfigs-$(EB_VERSION) easybuild-$(EB_VERSION)
+
+override_dh_usrlocal:
+
+override_dh_auto_test:

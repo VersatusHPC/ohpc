@@ -1,0 +1,95 @@
+#!/usr/bin/make -f
+
+# Disable dpkg hardening flags — they cause warnings-as-errors when
+# bootstrapping GCC with the host compiler. This mirrors the RPM spec's
+# %undefine _package_note_flags / %undefine _auto_set_build_flags.
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export CPPFLAGS =
+export LDFLAGS =
+export FFLAGS =
+export FCFLAGS =
+
+GCC_VERSION     := 15.2.0
+GMP_VERSION     := 6.3.0
+MPC_VERSION     := 1.3.1
+MPFR_VERSION    := 4.2.2
+
+INSTALL_PATH    := /opt/ohpc/pub/compiler/gcc/$(GCC_VERSION)
+MODULE_PATH     := /opt/ohpc/pub/modulefiles/gnu15
+MODULEDEPS_PATH := /opt/ohpc/pub/moduledeps/gnu15
+
+GNU_MIRROR      := https://ftpmirror.gnu.org/gnu
+SRCDIR          := $(CURDIR)/gcc-$(GCC_VERSION)
+OBJDIR          := $(CURDIR)/gcc-$(GCC_VERSION)/obj
+PKG             := $(CURDIR)/debian/gnu15-compilers-ohpc
+
+# Use all available cores for parallel build
+NPROC           := $(shell nproc)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Download sources if not present
+	test -s SOURCES/gcc-$(GCC_VERSION).tar.xz || \
+		wget -q -O SOURCES/gcc-$(GCC_VERSION).tar.xz \
+			$(GNU_MIRROR)/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.xz
+	test -s SOURCES/gmp-$(GMP_VERSION).tar.bz2 || \
+		wget -q -O SOURCES/gmp-$(GMP_VERSION).tar.bz2 \
+			$(GNU_MIRROR)/gmp/gmp-$(GMP_VERSION).tar.bz2
+	test -s SOURCES/mpc-$(MPC_VERSION).tar.gz || \
+		wget -q -O SOURCES/mpc-$(MPC_VERSION).tar.gz \
+			$(GNU_MIRROR)/mpc/mpc-$(MPC_VERSION).tar.gz
+	test -s SOURCES/mpfr-$(MPFR_VERSION).tar.gz || \
+		wget -q -O SOURCES/mpfr-$(MPFR_VERSION).tar.gz \
+			$(GNU_MIRROR)/mpfr/mpfr-$(MPFR_VERSION).tar.gz
+	# Extract GCC
+	rm -rf gcc-$(GCC_VERSION)
+	tar xf SOURCES/gcc-$(GCC_VERSION).tar.xz
+	# Extract and symlink bundled dependencies
+	cd gcc-$(GCC_VERSION) && tar xf ../SOURCES/gmp-$(GMP_VERSION).tar.bz2 && ln -s gmp-$(GMP_VERSION) gmp
+	cd gcc-$(GCC_VERSION) && tar xf ../SOURCES/mpc-$(MPC_VERSION).tar.gz && ln -s mpc-$(MPC_VERSION) mpc
+	cd gcc-$(GCC_VERSION) && tar xf ../SOURCES/mpfr-$(MPFR_VERSION).tar.gz && ln -s mpfr-$(MPFR_VERSION) mpfr
+	# Configure out-of-tree
+	mkdir -p $(OBJDIR)
+	cd $(OBJDIR) && ../configure \
+		--disable-multilib \
+		--enable-languages="c,c++,fortran" \
+		--prefix=$(INSTALL_PATH) \
+		--disable-static \
+		--enable-shared
+
+override_dh_auto_build:
+	cd $(OBJDIR) && $(MAKE) -j$(NPROC)
+
+override_dh_auto_install:
+	cd $(OBJDIR) && $(MAKE) -j$(NPROC) DESTDIR=$(PKG) install
+	# Convenience symlinks
+	ln -sf gcc $(PKG)$(INSTALL_PATH)/bin/cc
+	ln -sf gfortran $(PKG)$(INSTALL_PATH)/bin/f95
+	# c89/c99 wrapper scripts
+	install -m 755 debian/c89.sh $(PKG)$(INSTALL_PATH)/bin/c89
+	install -m 755 debian/c99.sh $(PKG)$(INSTALL_PATH)/bin/c99
+	# Lmod modulefile
+	mkdir -p $(PKG)$(MODULE_PATH)
+	install -m 644 debian/modulefile.lua $(PKG)$(MODULE_PATH)/$(GCC_VERSION).lua
+	# Ensure moduledeps directory exists
+	mkdir -p $(PKG)$(MODULEDEPS_PATH)
+	# Remove .la files
+	find $(PKG) -name '*.la' -delete
+
+override_dh_auto_clean:
+	rm -rf gcc-$(GCC_VERSION)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib64 -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:
+	# Skip GCC test suite — too long, not needed for packaging

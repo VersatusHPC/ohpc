@@ -1,0 +1,5 @@
+@PNAME@-ohpc (@VERSION@-1ohpc1~noble) noble; urgency=low
+
+  * Initial Debian packaging for OpenHPC.
+
+ -- VersatusHPC <packages@versatushpc.org>  @DATE@

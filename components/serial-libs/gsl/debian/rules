@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+COMPILER_FAMILY := gnu15
+PNAME           := gsl
+VERSION         := 2.8
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
+ENV             := bash /build/devel/build-comp.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://ftpmirror.gnu.org/gnu/$(PNAME)/$(PNAME)-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	cd $(SRCDIR) && $(ENV) ./configure CFLAGS="-O2" \
+		--prefix=$(INSTALL_PATH) \
+		--libdir=$(INSTALL_PATH)/lib \
+		--disable-static || { cat $(SRCDIR)/config.log && exit 1; }
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) $(MAKE) DESTDIR=$(PKG) install
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:
