@@ -24,11 +24,19 @@ override_dh_auto_configure:
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 
 override_dh_auto_build:
+	# PDToolkit doesn't support DESTDIR — configure with PKG prefix, then install.
+	# Build only; install happens in override_dh_auto_install.
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		./configure -prefix=$(PKG)$(INSTALL_PATH) -GNU && \
-		make -j$$(nproc) install'
+		./configure -prefix=$(PKG)$(INSTALL_PATH) -useropt=-fPIC -GNU && \
+		make -j$$(nproc)'
 
 override_dh_auto_install:
+	# Must re-run full configure+make+install since dh_prep wipes the prefix dir.
+	mkdir -p $(PKG)$(INSTALL_PATH)
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		./configure -prefix=$(PKG)$(INSTALL_PATH) -useropt=-fPIC -GNU && \
+		make -j$$(nproc) && \
+		export DONT_STRIP=1 && make install'
 	# PDToolkit installs to prefix (which includes PKG) during make
 	# Clean up unneeded platform dirs
 	rm -f $(PKG)$(INSTALL_PATH)/craycnl $(PKG)$(INSTALL_PATH)/mic_linux \
