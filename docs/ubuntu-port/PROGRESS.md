@@ -2,7 +2,7 @@
 
 Last updated: 2026-03-28
 
-## Overall Status: 46 packages built, 63 packaged. Phases 0-8 in progress.
+## Overall Status: 92 packages built in APT repo. 75+ components packaged. gnu15+openmpi5 column nearly complete.
 
 ---
 
