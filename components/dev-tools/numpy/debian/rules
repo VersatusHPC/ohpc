@@ -30,7 +30,7 @@ override_dh_auto_build:
 		export NPY_LAPACK_ORDER=openblas && \
 		export PKG_CONFIG_PATH="$${OPENBLAS_LIB}/pkgconfig:$${PKG_CONFIG_PATH}" && \
 		pip3 install --break-system-packages meson-python meson cython ninja && \
-		python3 -m pip wheel --break-system-packages --no-build-isolation --wheel-dir=dist . && \
+		python3 -m pip wheel --no-build-isolation --wheel-dir=dist . && \
 		pip3 install --break-system-packages --prefix=$(INSTALL_PATH) --root=$(PKG) dist/*.whl'
 
 override_dh_auto_install:
