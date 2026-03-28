@@ -23,10 +23,15 @@ override_dh_auto_configure:
 			https://www.cs.uoregon.edu/research/tau/tau_releases/tau-$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	# Fix GCC 15: omp.h has C++ templates, can't be inside extern "C"
+	cd $(SRCDIR) && sed -i '/^extern "C" {/{N;s/extern "C" {\n#include <omp.h>/#include <omp.h>\nextern "C" {/}' include/Profile/OpenMPLayer.h
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		./configure -prefix=$(INSTALL_PATH) \
+		export TAUROOT=$$(pwd) && \
+		export INSTALLROOT=$${TAUROOT}/TAUBUILD$(INSTALL_PATH) && \
+		./configure -prefix=$${INSTALLROOT} \
+			-exec-prefix= \
 			-mpi -openmp \
 			-pdt=$$PDTOOLKIT_DIR \
 			-otf=$$OTF2_DIR \
@@ -34,9 +39,11 @@ override_dh_auto_build:
 		make install'
 
 override_dh_auto_install:
-	cd $(SRCDIR) && $(ENV) sh -c ' \
-		make DESTDIR=$(PKG) install'
-	find $(PKG) -name '*.la' -delete
+	# TAU installs to TAUBUILD subdir, copy to PKG
+	mkdir -p $(PKG)
+	cp -a $(SRCDIR)/TAUBUILD/* $(PKG)/
+	find $(PKG) -name '*.a' -delete || true
+	find $(PKG) -type d -name 'static-*' -exec rm -rf {} + 2>/dev/null || true
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
