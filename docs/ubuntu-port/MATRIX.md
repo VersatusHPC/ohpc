@@ -1,43 +1,59 @@
 # OpenHPC Ubuntu Port — Build Variant Matrix
 
-This document tracks which compiler x MPI combinations have been built for each package.
+Last updated: 2026-03-28
 
-## Compilers (matching upstream OHPC 4.x for EL10)
+## Compilers
 
 | Compiler | Version | Status |
 |----------|---------|--------|
 | gnu15 | GCC 15.2.0 | DONE |
-| intel | oneAPI (wrapper) | - |
+| intel | oneAPI 2025.0 (wrapper) | DONE (modulefile only) |
+| llvm | 10.0.1 | Deferred (large bootstrap) |
+| arm1 | ARM HPC | Deferred |
 
-Note: Older GCC versions (gnu12/13/14) are not targeted for the Ubuntu port.
-ARM and LLVM compilers may be added later if needed.
-
-## MPI Stacks Available
+## MPI Stacks
 
 | MPI | Version | gnu15 | intel |
 |-----|---------|-------|-------|
-| openmpi5 | 5.0.10 | DONE | - |
-| mpich | 5.0.0 | DONE | - |
-| mvapich2 | | - | - |
-| impi | | N/A | - |
-| mvapich2 | | - | - | - |
-| impi | | - | - | - |
+| openmpi5 | 5.0.10 | DONE | deferred |
+| mpich | 5.0.0 | DONE | deferred |
+| mvapich2 | 2.3.7 | DONE | deferred |
+| impi | | N/A | deferred |
 
-## Independent Packages (no compiler/MPI dependency)
+## MPI-Dependent Packages (gnu15 row)
 
-| Package | Version | Status |
-|---------|---------|--------|
-| ohpc-filesystem | 4.1 | DONE |
-| ohpc-buildroot | 4.1 | DONE |
-| lmod-ohpc | 9.0.5 | DONE |
-| ohpc-release | 4.1 | DONE |
-| hwloc-ohpc | 2.13.0 | DONE |
-| ucx-ohpc | 1.20.0 | DONE |
-| pmix-ohpc | 4.2.9 | DONE |
-| munge-ohpc | 0.5.13 | DONE |
-| slurm-ohpc | 25.05.6 | DONE |
+| Package | Version | openmpi5 | mpich | mvapich2 |
+|---------|---------|----------|-------|----------|
+| fftw | 3.3.10 | DONE | DONE | DONE |
+| phdf5 | 2.1.0 | DONE | DONE | DONE |
+| pnetcdf | 1.14.1 | DONE | DONE | DONE |
+| boost | 1.90.0 | DONE | DONE | DONE |
+| scalapack | 2.2.2 | DONE | DONE | DONE |
+| sionlib | 1.7.7 | DONE | DONE | DONE |
+| ptscotch | 7.0.10 | DONE | DONE | DONE |
+| netcdf | 4.10.0 | DONE | DONE | DONE |
+| netcdf-fortran | 4.6.2 | DONE | DONE | DONE |
+| netcdf-cxx | 4.3.1 | DONE | DONE | DONE |
+| hypre | 3.1.0 | DONE | DONE | DONE |
+| mumps | 5.8.2 | DONE | DONE | DONE |
+| otf2 | 3.1.1 | DONE | DONE | DONE |
+| petsc | 3.24.4 | DONE | DONE | DONE |
+| slepc | 3.24.3 | DONE | DONE | DONE |
+| superlu_dist | 9.2.1 | DONE | - | - |
+| trilinos | 17.0.0 | DONE | WIP | WIP |
+| mfem | 4.9 | DONE | WIP | WIP |
+| adios2 | 2.11.0 | DONE | WIP | WIP |
+| scorep | 9.4 | DONE | DONE | DONE |
+| scalasca | 2.6.2 | DONE | DONE | WIP |
+| imb | 2021.10 | DONE | DONE | DONE |
+| omb | 7.5.2 | DONE | DONE | DONE |
+| dimemas | 5.5.0 | DONE | DONE | DONE |
+| extrae | 5.0.3 | DONE | DONE | DONE |
+| mpi4py | 4.1.1 | DONE | DONE | DONE |
+| opencoarrays | 2.10.3 | BLOCKED | WIP | - |
+| tau | 2.35.1 | BLOCKED | - | - |
 
-## Compiler-Dependent Packages (serial libraries)
+## Compiler-Dependent Packages (no MPI)
 
 | Package | Version | gnu15 | intel |
 |---------|---------|-------|-------|
@@ -46,42 +62,21 @@ ARM and LLVM compilers may be added later if needed.
 | metis | 5.1.0 | DONE | - |
 | scotch | 7.0.10 | DONE | - |
 | superlu | 7.0.1 | DONE | - |
-| plasma | | - | - |
-| R | | - | - |
-| opari2 | | - | - |
-| cubelib | | - | - |
-| gotcha | | - | - |
-| cubew | | - | - |
-| otf2 | | - | - |
-
-## Compiler+MPI-Dependent Packages (parallel libraries)
-
-| Package | Version | gnu15+ompi5 | gnu15+mpich | gnu15+mvapich2 | intel+impi |
-|---------|---------|-------------|-------------|----------------|------------|
-| fftw | 3.3.10 | WIP | - | - | - |
-| hdf5 | 2.1.0 | WIP | - | - | - |
-| scalapack | 2.2.2 | WIP | - | - | - |
-| boost | 1.90.0 | WIP | - | - | - |
-| pnetcdf | | - | - | - | - |
-| netcdf | | - | - | - | - |
-| netcdf-fortran | | - | - | - | - |
-| netcdf-cxx | | - | - | - | - |
-| hypre | | - | - | - | - |
-| mumps | | - | - | - | - |
-| superlu_dist | | - | - | - | - |
-| petsc | | - | - | - | - |
-| slepc | | - | - | - | - |
-| trilinos | | - | - | - | - |
-| mfem | | - | - | - | - |
-| opencoarrays | | - | - | - | - |
-| adios2 | | - | - | - | - |
-| sionlib | | - | - | - | - |
+| plasma | 25.5.27 | DONE | - |
+| R | 4.5.3 | DONE | - |
+| opari2 | 2.0.9 | DONE | - |
+| cubelib | 4.9.1 | DONE | - |
+| cubew | 4.9.1 | DONE | - |
+| gotcha | 1.0.8 | DONE | - |
+| likwid | 5.5.1 | DONE | - |
+| pdtoolkit | 3.25.1 | DONE | - |
+| numpy | 2.4.3 | DONE | - |
 
 ## Legend
 
 | Symbol | Meaning |
 |--------|---------|
 | DONE | Built and in APT repo |
-| WIP | In progress |
-| - | Not started |
-| N/A | Not applicable for this combination |
+| WIP | Building now |
+| BLOCKED | Upstream compatibility issue |
+| - | Not yet attempted |
