@@ -4,6 +4,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=-all
 export CFLAGS =
 export CXXFLAGS =
 export LDFLAGS =
+export FFLAGS =
+export FCFLAGS =
 
 PNAME        := papi
 VERSION      := 7.2.0

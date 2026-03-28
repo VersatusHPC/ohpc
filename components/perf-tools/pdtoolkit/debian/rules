@@ -25,12 +25,14 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		./configure -prefix=$(INSTALL_PATH) -GNU && \
-		make -j$$(nproc)'
+		./configure -prefix=$(PKG)$(INSTALL_PATH) -GNU && \
+		make -j$$(nproc) install'
 
 override_dh_auto_install:
-	cd $(SRCDIR) && $(ENV) make DESTDIR=$(PKG) install
-	find $(PKG) -name '*.la' -delete
+	# PDToolkit installs during make (prefix=DESTDIR+path), clean up
+	rm -f $(PKG)$(INSTALL_PATH)/craycnl $(PKG)$(INSTALL_PATH)/mic_linux \
+		$(PKG)$(INSTALL_PATH)/sparc64fx $(PKG)$(INSTALL_PATH)/xt3
+	find $(PKG) -name '*.la' -delete || true
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)

@@ -1,0 +1,14 @@
+#%Module1.0#####################################################################
+proc ModulesHelp { } {
+puts stderr " "
+puts stderr "This module loads the hpc-workspace utility"
+puts stderr "\nVersion 1.5.0\n"
+}
+
+module-whatis "Name: hpc-workspace"
+module-whatis "Version: 1.5.0"
+
+set     version     1.5.0
+
+prepend-path    PATH    /opt/ohpc/admin/hpc-workspace/1.5.0/bin
+setenv          HPC_WORKSPACE_DIR   /opt/ohpc/admin/hpc-workspace/1.5.0

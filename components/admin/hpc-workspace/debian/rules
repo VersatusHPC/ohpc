@@ -1,11 +1,16 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
 PNAME        := hpc-workspace
 VERSION      := 1.5.0
 INSTALL_PATH := /opt/ohpc/admin/$(PNAME)/$(VERSION)
-OHPC_MODULES := /opt/ohpc/pub/modulefiles
 SRCDIR       := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG          := $(CURDIR)/debian/$(PNAME)-ohpc
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
 
 %:
 	dh $@
@@ -13,50 +18,20 @@ PKG          := $(CURDIR)/debian/$(PNAME)-ohpc
 override_dh_auto_configure:
 	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
 		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
-			https://github.com/holgerBerger/hpc-workspace/archive/refs/tags/$(VERSION).tar.gz
+			https://github.com/holgerBerber/hpc-workspace/archive/refs/tags/$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
-	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
-	cd $(SRCDIR) && sed -e 's,-Os",-Os -fPIE",g' -i CMakeLists.txt
+	tar --no-same-owner -xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 
 override_dh_auto_build:
-	cd $(SRCDIR) && cmake \
+	cd $(SRCDIR) && cmake -S . -B build \
 		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
-		. && \
-		$(MAKE) VERBOSE=1 -j$$(nproc)
+		-DCMAKE_BUILD_TYPE=Release
+	cd $(SRCDIR) && cmake --build build -j$$(nproc)
 
 override_dh_auto_install:
-	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install
-	mkdir -p $(PKG)/var/log/$(PNAME)
-	mkdir -p $(PKG)/etc
-	cp SOURCES/ws.conf.template $(PKG)/etc/
-	# Install modulefile
+	cd $(SRCDIR) && DESTDIR=$(PKG) cmake --install build
 	mkdir -p $(PKG)$(OHPC_MODULES)/$(PNAME)
-	cat > $(PKG)$(OHPC_MODULES)/$(PNAME)/$(VERSION) <<'MODEOF'
-#%Module1.0#####################################################################
-proc ModulesHelp { } {
-
-puts stderr " "
-puts stderr "This module loads the HPC Workspace utility"
-puts stderr " "
-puts stderr "Version $(VERSION)"
-puts stderr " "
-
-}
-
-module-whatis "Name: HPC Workspace utility"
-module-whatis "Version: $(VERSION)"
-module-whatis "Category: resource manager tools"
-module-whatis "Description: Temporary workspace management"
-
-set     version                 $(VERSION)
-
-prepend-path    PATH            $(INSTALL_PATH)/bin
-
-MODEOF
-	cat > $(PKG)$(OHPC_MODULES)/$(PNAME)/.version.$(VERSION) <<'VEREOF'
-#%Module1.0#####################################################################
-set     ModulesVersion      "$(VERSION)"
-VEREOF
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/$(PNAME)/$(VERSION)
 
 override_dh_auto_clean:
 	rm -rf $(SRCDIR)
@@ -64,7 +39,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+	dh_shlibdeps -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

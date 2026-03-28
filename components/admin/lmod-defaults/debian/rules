@@ -1,11 +1,7 @@
 #!/usr/bin/make -f
 
-COMPILER_FAMILY := gnu15
-MPI_FAMILY      := openmpi5
-OHPC_MODULES    := /opt/ohpc/pub/modulefiles
-OHPC_MODULEDEPS := /opt/ohpc/pub/moduledeps
-OHPC_PUB        := /opt/ohpc/pub
-PKG             := $(CURDIR)/debian/lmod-defaults-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+PKG          := $(CURDIR)/debian/lmod-defaults-gnu15-openmpi5-ohpc
 
 %:
 	dh $@
@@ -16,40 +12,7 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	mkdir -p $(PKG)$(OHPC_MODULES)
-	cat > $(PKG)$(OHPC_MODULES)/ohpc <<'EOF'
-#%Module1.0#####################################################################
-# Default OpenHPC environment
-#############################################################################
-
-proc ModulesHelp { } {
-        puts stderr "Setup default login environment"
-}
-
-#
-# Load Desired Modules
-#
-
-prepend-path     PATH   /opt/ohpc/pub/bin
-
-# include local packages installed via spack
-prepend-path MODULEPATH /opt/ohpc/pub/moduledeps/spack/
-
-# Define modules to load/unload in order
-set modules_list [list autotools prun gnu15 openmpi5]
-
-if { [ expr [module-info mode load] || [module-info mode display] ] } {
-        prepend-path MANPATH /usr/local/share/man:/usr/share/man/overrides:/usr/share/man/en:/usr/share/man
-        foreach mod $$modules_list {
-                module try-add $$mod
-        }
-}
-
-if [ module-info mode remove ] {
-        foreach mod [lreverse $$modules_list] {
-                module del $$mod
-        }
-}
-EOF
+	install -m 644 debian/ohpc.modulefile $(PKG)$(OHPC_MODULES)/ohpc
 
 override_dh_auto_clean:
 
