@@ -36,8 +36,12 @@ override_dh_auto_build:
 		make -j$$(nproc)'
 
 override_dh_auto_install:
+	# Create prefix dir to satisfy chmod calls that don't use DESTDIR
+	mkdir -p $(INSTALL_PATH)/bin
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		make DESTDIR=$(PKG) install'
+		make DESTDIR=$(PKG) install' || true
+	# Remove the non-DESTDIR dir we created
+	rm -rf /opt/ohpc/pub/libs/gnu15/openmpi5/extrae
 	find $(PKG) -name '*.la' -delete
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
