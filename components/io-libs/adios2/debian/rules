@@ -12,7 +12,7 @@ VERSION         := 2.11.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/ADIOS2-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
-ENV             := OHPC_MODULES="phdf5 openblas numpy mpi4py" bash /build/devel/build-mpi.sh
+ENV             := OHPC_MODULES="phdf5" bash /build/devel/build-mpi.sh
 
 %:
 	dh $@
