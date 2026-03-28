@@ -29,9 +29,9 @@ override_dh_auto_configure:
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		export TAUROOT=$$(pwd) && \
-		export INSTALLROOT=$${TAUROOT}/TAUBUILD$(INSTALL_PATH) && \
+		export INSTALLROOT=$${TAUROOT}/TAUBUILD && \
+		mkdir -p $${INSTALLROOT} && \
 		./configure -prefix=$${INSTALLROOT} \
-			-exec-prefix= \
 			-mpi -openmp \
 			-pdt=$$PDTOOLKIT_DIR \
 			-otf=$$OTF2_DIR \
@@ -39,9 +39,9 @@ override_dh_auto_build:
 		make install'
 
 override_dh_auto_install:
-	# TAU installs to TAUBUILD subdir, copy to PKG
-	mkdir -p $(PKG)
-	cp -a $(SRCDIR)/TAUBUILD/* $(PKG)/
+	# TAU installs to TAUBUILD, copy to PKG at correct path
+	mkdir -p $(PKG)$(INSTALL_PATH)
+	cp -a $(SRCDIR)/TAUBUILD/* $(PKG)$(INSTALL_PATH)/
 	find $(PKG) -name '*.a' -delete || true
 	find $(PKG) -type d -name 'static-*' -exec rm -rf {} + 2>/dev/null || true
 	# Install modulefile
