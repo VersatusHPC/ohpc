@@ -33,9 +33,9 @@ override_dh_auto_build:
 override_dh_auto_install:
 	cd $(SRCDIR) && $(ENV) bash -c '\
 		export PETSC_DIR=$$PETSC_DIR && \
-		make SLEPC_DIR=$$(pwd) PETSC_DIR=$$PETSC_DIR DESTDIR=$(PKG)/tmp install'
-	# Move from tmp install location to proper DESTDIR
-	mkdir -p $$(dirname $(PKG)$(INSTALL_PATH))
+		make SLEPC_DIR=$$(pwd) PETSC_DIR=$$PETSC_DIR DESTDIR=$(PKG) install'
+	# Move from /tmp prefix to proper location
+	mkdir -p $(shell dirname $(PKG)$(INSTALL_PATH))
 	mv $(PKG)/tmp$(INSTALL_PATH) $(PKG)$(INSTALL_PATH)
 	rm -rf $(PKG)/tmp
 	# Clean up /tmp prefix references in installed files
