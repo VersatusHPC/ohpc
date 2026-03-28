@@ -1,0 +1,80 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+MPI_FAMILY      := openmpi5
+PNAME           := hypre
+VERSION         := 3.1.0
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="openblas superlu" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/v$(VERSION).tar.gz || \
+		wget -q -O SOURCES/v$(VERSION).tar.gz \
+			https://github.com/hypre-space/hypre/archive/v$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/v$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR)/src && $(ENV) bash -c '\
+		FLAGS="-fPIC -Dhypre_dgesvd=dgesvd_ -Dhypre_dlamch=dlamch_ -Dhypre_blas_lsame=hypre_lapack_lsame -Dhypre_blas_xerbla=hypre_lapack_xerbla" && \
+		./configure --prefix=$(INSTALL_PATH) \
+			--with-MPI \
+			--with-MPI-include=$$MPI_DIR/include \
+			--with-MPI-lib-dirs=$$MPI_DIR/lib \
+			--with-timing \
+			--without-openmp \
+			--with-blas-lib="-L$$OPENBLAS_LIB -lopenblas" \
+			--with-lapack-lib="-L$$OPENBLAS_LIB -lopenblas" \
+			--with-mli \
+			--with-superlu-include=$$SUPERLU_INC \
+			--with-superlu-lib=$$SUPERLU_LIB \
+			CC="mpicc $$FLAGS" CXX="mpicxx $$FLAGS" F77="mpif77 $$FLAGS" && \
+		mkdir -p hypre/lib && \
+		make -j$$(nproc) all CC="mpicc $$FLAGS" CXX="mpicxx $$FLAGS" F77="mpif77 $$FLAGS"'
+
+override_dh_auto_install:
+	cd $(SRCDIR)/src && $(ENV) make install \
+		HYPRE_INSTALL_DIR=$(PKG)$(INSTALL_PATH) \
+		HYPRE_LIB_INSTALL=$(PKG)$(INSTALL_PATH)/lib \
+		HYPRE_INC_INSTALL=$(PKG)$(INSTALL_PATH)/include
+	cd $(SRCDIR)/src && install -m644 hypre/lib/* $(PKG)$(INSTALL_PATH)/lib
+	# Build shared libraries from static archives (needs mpicxx from ENV)
+	$(ENV) sh -c 'cd $(PKG)$(INSTALL_PATH)/lib && \
+		LIBS="$$(ls *.a | sed "s|\.a||" | sort)" && \
+		mkdir -p tmp && cd tmp && \
+		for i in $$LIBS; do \
+			if [ "$$i" != "libbHYPREClient-F" ] && [ "$$i" != "libbHYPREClient-CX" ]; then \
+				ar x ../$$i.a && \
+				mpicxx -shared *.o -L.. $$ADDLIB \
+					-Wl,-soname,$$i.so -o ../$$i.so && \
+				ADDLIB="-lHYPRE" && \
+				rm -f *.o; \
+			fi; \
+		done && \
+		cd .. && rm -rf tmp && rm -f libHYPRE.a'
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PnetCDF
+Upstream-Contact: https://parallel-netcdf.github.io/
+
+Files: *
+Copyright: 2001-2026 Northwestern University and Argonne National Laboratory
+License: BSD-like

@@ -1,0 +1,28 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the netcdf-fortran library built with the gnu15 compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr "\nVersion 4.6.2\n"
+
+}
+module-whatis "Name: netcdf-fortran built with gnu15 compiler and openmpi5 MPI"
+module-whatis "Version: 4.6.2"
+module-whatis "Category: runtime library"
+module-whatis "Description: Fortran Libraries for the Unidata network Common Data Form"
+module-whatis "https://www.unidata.ucar.edu/software/netcdf/"
+
+set     version             4.6.2
+
+depends-on netcdf
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2/lib
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2/lib/pkgconfig
+
+setenv          NETCDF_FORTRAN_DIR        /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2
+setenv          NETCDF_FORTRAN_LIB        /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2/lib
+setenv          NETCDF_FORTRAN_INC        /opt/ohpc/pub/libs/gnu15/openmpi5/netcdf-fortran/4.6.2/include

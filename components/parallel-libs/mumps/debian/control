@@ -1,0 +1,30 @@
+Source: mumps-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openmpi5-gnu15-ohpc,
+               openblas-gnu15-ohpc,
+               scalapack-gnu15-openmpi5-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               libgomp1,
+               make
+Standards-Version: 4.6.2
+Homepage: https://mumps-solver.org/
+
+Package: mumps-gnu15-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, scalapack-gnu15-openmpi5-ohpc, openblas-gnu15-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: A MUltifrontal Massively Parallel Sparse direct Solver (gnu15 + openmpi5, OpenHPC)
+ MUMPS implements a direct solver for large sparse linear systems, with a
+ particular focus on symmetric positive definite matrices. It can operate
+ on distributed matrices e.g. over a cluster. It has Fortran and C
+ interfaces, and can interface with ordering tools such as Scotch.
+ Built with the gnu15 compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

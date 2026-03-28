@@ -1,0 +1,27 @@
+Source: netcdf-cxx-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openmpi5-gnu15-ohpc,
+               phdf5-gnu15-openmpi5-ohpc,
+               netcdf-gnu15-openmpi5-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.unidata.ucar.edu/software/netcdf/
+
+Package: netcdf-cxx-gnu15-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, netcdf-gnu15-openmpi5-ohpc, phdf5-gnu15-openmpi5-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: C++ Libraries for the Unidata network Common Data Form (gnu15 + openmpi5, OpenHPC)
+ NetCDF-CXX4 provides a C++ interface for NetCDF, a set of software
+ libraries and data formats for array-oriented scientific data.
+ Built with the gnu15 compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

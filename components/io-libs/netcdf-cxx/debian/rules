@@ -1,0 +1,55 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+MPI_FAMILY      := openmpi5
+PNAME           := netcdf-cxx
+VERSION         := 4.3.1
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/netcdf-cxx4-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="phdf5 netcdf" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/v$(VERSION).tar.gz || \
+		wget -q -O SOURCES/v$(VERSION).tar.gz \
+			https://github.com/Unidata/netcdf-cxx4/archive/v$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/v$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) bash -c '\
+		export CPPFLAGS="-I$${NETCDF_INC} -I$${HDF5_INC}" && \
+		export LDFLAGS="-L$${NETCDF_LIB} -L$${HDF5_LIB}" && \
+		./configure --prefix=$(INSTALL_PATH) \
+			--enable-shared --enable-netcdf-4 --enable-dap \
+			--with-pic --disable-doxygen --disable-filter-testing \
+			--disable-static && \
+		make -j$$(nproc)'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && DESTDIR=$(PKG) $(ENV) make install
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:
