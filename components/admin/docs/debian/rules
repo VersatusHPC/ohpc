@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+
+VERSION    := 4.0.0
+OHPC_PUB   := /opt/ohpc/pub
+PKG        := $(CURDIR)/debian/docs-ohpc
+SRCDIR     := $(CURDIR)/docs-ohpc
+RECIPE_BASE := $(SRCDIR)/docs/install
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Generate the source tarball if not already present
+	test -s SOURCES/docs-ohpc.tar || \
+		(cd SPECS && bash ../SOURCES/get_source.sh)
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/docs-ohpc.tar
+
+override_dh_auto_build:
+	cd $(RECIPE_BASE) && $(MAKE) PYTHON=python3 || true
+	cd $(RECIPE_BASE) && $(MAKE) PYTHON=python3 pdf || true
+	cd $(RECIPE_BASE) && $(MAKE) PYTHON=python3 html || true
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(OHPC_PUB)/doc
+	# Install ChangeLog and Release Notes
+	install -m 0644 -p $(SRCDIR)/docs/ChangeLog $(PKG)$(OHPC_PUB)/doc/ChangeLog || true
+	install -m 0644 -p $(SRCDIR)/docs/Release_Notes.txt $(PKG)$(OHPC_PUB)/doc/Release_Notes.txt || true
+	# Install recipes
+	for recipe_name in \
+		"rocky10-x86_64-warewulf-slurm" \
+		"rocky10-aarch64-warewulf-slurm" \
+		"almalinux10-x86_64-warewulf-slurm" \
+		"almalinux10-aarch64-warewulf-slurm" \
+		"rocky10-x86_64-confluent-slurm" \
+		"rocky10-aarch64-confluent-slurm" \
+		"almalinux10-x86_64-confluent-slurm" \
+		"almalinux10-aarch64-confluent-slurm" \
+		"rocky10-x86_64-openchami-slurm" \
+		"rocky10-aarch64-openchami-slurm" \
+		"almalinux10-x86_64-openchami-slurm" \
+		"almalinux10-aarch64-openchami-slurm" \
+		"openeuler24.03-x86_64-warewulf-slurm" \
+		"openeuler24.03-aarch64-warewulf-slurm" \
+	; do \
+		distro=$$(echo "$${recipe_name}" | cut -d- -f1); \
+		arch=$$(echo "$${recipe_name}" | cut -d- -f2); \
+		provisioner=$$(echo "$${recipe_name}" | cut -d- -f3); \
+		scheduler=$$(echo "$${recipe_name}" | cut -d- -f4); \
+		dest="$${distro}/$${arch}/$${provisioner}/$${scheduler}"; \
+		mkdir -p "$(PKG)$(OHPC_PUB)/doc/recipes/$${dest}"; \
+		install -m 0644 -p "$(RECIPE_BASE)/build/$${recipe_name}.pdf"  "$(PKG)$(OHPC_PUB)/doc/recipes/$${dest}/Install_guide.pdf" 2>/dev/null || true; \
+		install -m 0644 -p "$(RECIPE_BASE)/build/$${recipe_name}.md"   "$(PKG)$(OHPC_PUB)/doc/recipes/$${dest}/Install_guide.md" 2>/dev/null || true; \
+		install -m 0644 -p "$(RECIPE_BASE)/build/$${recipe_name}.html" "$(PKG)$(OHPC_PUB)/doc/recipes/$${dest}/Install_guide.html" 2>/dev/null || true; \
+		install -m 0755 -p "$(RECIPE_BASE)/build/$${recipe_name}.sh"   "$(PKG)$(OHPC_PUB)/doc/recipes/$${dest}/recipe.sh" 2>/dev/null || true; \
+	done
+	# Install input.local templates
+	for distro in "almalinux10" "rocky10" "openeuler24.03"; do \
+		mkdir -p "$(PKG)$(OHPC_PUB)/doc/recipes/$${distro}"; \
+		install -m 0644 -p "$(RECIPE_BASE)/input.local.template" \
+			"$(PKG)$(OHPC_PUB)/doc/recipes/$${distro}/input.local" 2>/dev/null || true; \
+	done
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_auto_test:

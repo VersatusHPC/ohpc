@@ -1,0 +1,33 @@
+Source: dimemas-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openmpi5-gnu15-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               boost-gnu15-openmpi5-ohpc,
+               bison,
+               make
+Standards-Version: 4.6.2
+Homepage: https://tools.bsc.es
+
+Package: dimemas-gnu15-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         openmpi5-gnu15-ohpc,
+         boost-gnu15-openmpi5-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Dimemas network simulator tool (gnu15 + openmpi5, OpenHPC)
+ Dimemas is a performance analysis tool for message-passing programs. It
+ enables the user to develop and tune parallel applications on a workstation,
+ while providing predictions of their performance on the target machine.
+ Built with the gnu15 compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

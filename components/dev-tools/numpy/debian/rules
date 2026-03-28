@@ -1,0 +1,62 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+PNAME           := numpy
+VERSION         := 2.4.3
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/python3-$(PNAME)-$(COMPILER_FAMILY)-ohpc
+ENV             := bash /build/devel/build-comp.sh
+OHPC_MODULES    := openblas
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://github.com/numpy/numpy/releases/download/v$(VERSION)/numpy-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	# Convert PEP 639 license string to old-style dict for older meson-python
+	cd $(SRCDIR) && sed -i "s|^license = '\(.*\)'|license = {text = '\1'}|" pyproject.toml
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		for mod in $(OHPC_MODULES); do module load $$mod; done && \
+		PKG_CONFIG_PATH="$$OPENBLAS_LIB/pkgconfig:$$PKG_CONFIG_PATH" \
+		python3 -m pip wheel --no-build-isolation --wheel-dir=dist \
+			-Csetup-args=-Dblas=openblas \
+			-Csetup-args=-Dlapack=openblas \
+			-Csetup-args=-Dallow-noblas=false \
+			.'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		for mod in $(OHPC_MODULES); do module load $$mod; done && \
+		python3 -m pip install --prefix=$(INSTALL_PATH) --root=$(PKG) \
+			--no-index --find-links=dist --no-deps numpy'
+	# Symlink python3 binary
+	mkdir -p $(PKG)$(INSTALL_PATH)/bin
+	ln -snf $$(which python3) $(PKG)$(INSTALL_PATH)/bin/python3 || true
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

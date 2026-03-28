@@ -1,0 +1,17 @@
+Source: lmod-defaults-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: lmod-defaults-gnu15-openmpi5-ohpc
+Architecture: all
+Depends: ohpc-filesystem, lmod-ohpc, openmpi5-gnu15-ohpc, ${misc:Depends}
+Description: OpenHPC default login environment (gnu15/openmpi5)
+ Provides default login configuration using the gnu15 compiler
+ toolchain and openmpi5 MPI environment.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,25 @@
+Source: pdtoolkit-gnu15-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: http://www.cs.uoregon.edu/Research/pdt
+
+Package: pdtoolkit-gnu15-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Program Database Toolkit (gnu15, OpenHPC)
+ PDT is a framework for analyzing source code written in several programming
+ languages and for making rich program knowledge accessible to developers of
+ static and dynamic analysis tools.
+ Built with the gnu15 compiler family.
+ .
+ This package is part of the OpenHPC project.

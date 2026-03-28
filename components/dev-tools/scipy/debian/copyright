@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: SciPy
+Upstream-Contact: http://www.scipy.org
+
+Files: *
+Copyright: 2001-2026 SciPy Developers
+License: BSD-3-Clause

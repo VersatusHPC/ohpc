@@ -1,0 +1,28 @@
+Source: docs-ohpc
+Section: doc
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               git,
+               make,
+               python3,
+               python3-jinja2,
+               python3-yaml,
+               yq,
+               pandoc,
+               texlive-xetex,
+               texlive-latex-extra,
+               texlive-fonts-extra,
+               lmodern
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: docs-ohpc
+Architecture: all
+Depends: ${misc:Depends}
+Description: OpenHPC documentation
+ This guide presents a simple cluster installation procedure using components
+ from the OpenHPC software stack.
+ .
+ This package is part of the OpenHPC project.

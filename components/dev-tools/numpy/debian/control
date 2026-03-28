@@ -1,0 +1,35 @@
+Source: python3-numpy-gnu15-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openblas-gnu15-ohpc,
+               python3-dev,
+               python3-pip,
+               python3-setuptools,
+               python3-wheel,
+               python3-meson-python,
+               cython3,
+               ninja-build,
+               pkg-config,
+               make
+Standards-Version: 4.6.2
+Homepage: https://github.com/numpy/numpy
+
+Package: python3-numpy-gnu15-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         openblas-gnu15-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: NumPy array processing for numbers, strings, records and objects (gnu15, OpenHPC)
+ NumPy is a general-purpose array-processing package designed to efficiently
+ manipulate large multi-dimensional arrays of arbitrary records without
+ sacrificing too much speed for small multi-dimensional arrays.
+ Built with the gnu15 compiler family.
+ .
+ This package is part of the OpenHPC project.

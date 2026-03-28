@@ -1,0 +1,72 @@
+#!/usr/bin/make -f
+
+PNAME        := hpc-workspace
+VERSION      := 1.5.0
+INSTALL_PATH := /opt/ohpc/admin/$(PNAME)/$(VERSION)
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+SRCDIR       := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG          := $(CURDIR)/debian/$(PNAME)-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://github.com/holgerBerger/hpc-workspace/archive/refs/tags/$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	cd $(SRCDIR) && sed -e 's,-Os",-Os -fPIE",g' -i CMakeLists.txt
+
+override_dh_auto_build:
+	cd $(SRCDIR) && cmake \
+		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
+		. && \
+		$(MAKE) VERBOSE=1 -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install
+	mkdir -p $(PKG)/var/log/$(PNAME)
+	mkdir -p $(PKG)/etc
+	cp SOURCES/ws.conf.template $(PKG)/etc/
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/$(PNAME)
+	cat > $(PKG)$(OHPC_MODULES)/$(PNAME)/$(VERSION) <<'MODEOF'
+#%Module1.0#####################################################################
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the HPC Workspace utility"
+puts stderr " "
+puts stderr "Version $(VERSION)"
+puts stderr " "
+
+}
+
+module-whatis "Name: HPC Workspace utility"
+module-whatis "Version: $(VERSION)"
+module-whatis "Category: resource manager tools"
+module-whatis "Description: Temporary workspace management"
+
+set     version                 $(VERSION)
+
+prepend-path    PATH            $(INSTALL_PATH)/bin
+
+MODEOF
+	cat > $(PKG)$(OHPC_MODULES)/$(PNAME)/.version.$(VERSION) <<'VEREOF'
+#%Module1.0#####################################################################
+set     ModulesVersion      "$(VERSION)"
+VEREOF
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

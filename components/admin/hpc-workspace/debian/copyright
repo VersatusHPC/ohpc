@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: hpc-workspace
+Upstream-Contact: https://github.com/holgerBerger/hpc-workspace
+
+Files: *
+Copyright: 2014-2026 Holger Berger
+License: GPL-2+
