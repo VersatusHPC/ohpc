@@ -38,7 +38,11 @@ override_dh_auto_build:
 		-DCMAKE_C_COMPILER=mpicc \
 		-DCMAKE_CXX_COMPILER=mpicxx \
 		-DCMAKE_Fortran_COMPILER=mpif90 \
-		-DCMAKE_Fortran_FLAGS="-fno-lto -fallow-argument-mismatch"
+		-DCMAKE_Fortran_FLAGS="-fno-lto -fallow-argument-mismatch" \
+		-DMPI_C_COMPILER=mpicc \
+		-DMPI_CXX_COMPILER=mpicxx \
+		-DMPI_Fortran_COMPILER=mpif90 \
+		-DMPI_HOME=/opt/intel/oneapi/mpi/latest
 	cd $(SRCDIR) && $(ENV) cmake --build build -j$$(nproc)
 
 override_dh_auto_install:
