@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the scotch library built with the intel compiler"
+puts stderr "toolchain."
+puts stderr "\nVersion 7.0.10\n"
+
+}
+module-whatis "Name: scotch built with intel compiler"
+module-whatis "Version: 7.0.10"
+module-whatis "Category: runtime library"
+module-whatis "Description: Graph, mesh and hypergraph partitioning library"
+module-whatis "URL https://gitlab.inria.fr/scotch/scotch"
+
+set     version             7.0.10
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/scotch/7.0.10/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/intel/scotch/7.0.10/share/man
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/scotch/7.0.10/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/scotch/7.0.10/lib64
+
+setenv          SCOTCH_DIR          /opt/ohpc/pub/libs/intel/scotch/7.0.10
+setenv          SCOTCH_BIN          /opt/ohpc/pub/libs/intel/scotch/7.0.10/bin
+setenv          SCOTCH_LIB          /opt/ohpc/pub/libs/intel/scotch/7.0.10/lib64
+setenv          SCOTCH_INC          /opt/ohpc/pub/libs/intel/scotch/7.0.10/include

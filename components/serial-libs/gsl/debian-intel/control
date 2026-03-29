@@ -1,0 +1,26 @@
+Source: gsl-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               autoconf,
+               automake,
+               libtool,
+               make,
+               pkg-config
+Standards-Version: 4.6.2
+Homepage: http://www.gnu.org/software/gsl
+
+Package: gsl-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: GNU Scientific Library (intel, OpenHPC)
+ The GNU Scientific Library (GSL) is a numerical library for C and C++
+ programmers. The library provides a wide range of mathematical routines
+ such as random number generators, special functions and least-squares fitting.
+ Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.

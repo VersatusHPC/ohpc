@@ -1,0 +1,26 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the fftw library built with the intel compiler"
+puts stderr "toolchain and the impi MPI stack."
+puts stderr "\nVersion 3.3.10\n"
+
+}
+module-whatis "Name: fftw built with intel compiler and impi MPI"
+module-whatis "Version: 3.3.10"
+module-whatis "Category: runtime library"
+module-whatis "Description: A Fast Fourier Transform library"
+module-whatis "http://www.fftw.org"
+
+set     version             3.3.10
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10/share/man
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10/lib
+
+setenv          FFTW_DIR        /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10
+setenv          FFTW_LIB        /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10/lib
+setenv          FFTW_INC        /opt/ohpc/pub/libs/intel/impi/fftw/3.3.10/include

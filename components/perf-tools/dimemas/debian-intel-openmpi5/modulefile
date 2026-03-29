@@ -1,0 +1,22 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the dimemas tool built with the intel compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr "\nVersion 5.5.0\n"
+
+}
+module-whatis "Name: dimemas built with intel compiler and openmpi5 MPI"
+module-whatis "Version: 5.5.0"
+module-whatis "Category: performance tool"
+module-whatis "Description: Dimemas network simulator tool"
+module-whatis "URL: https://tools.bsc.es"
+
+set     version             5.5.0
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/openmpi5/dimemas/5.5.0/bin
+
+setenv          DIMEMAS_DIR         /opt/ohpc/pub/libs/intel/openmpi5/dimemas/5.5.0
+setenv          DIMEMAS_BIN         /opt/ohpc/pub/libs/intel/openmpi5/dimemas/5.5.0/bin

@@ -1,0 +1,22 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the OSU Micro-Benchmarks built with the intel compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr "\nVersion 7.5.2\n"
+
+}
+module-whatis "Name: OMB built with intel compiler and openmpi5 MPI"
+module-whatis "Version: 7.5.2"
+module-whatis "Category: performance tool"
+module-whatis "Description: OSU Micro-Benchmarks"
+module-whatis "URL: https://mvapich.cse.ohio-state.edu/benchmarks/"
+
+set     version             7.5.2
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/openmpi5/omb/7.5.2/bin
+
+setenv          OMB_DIR             /opt/ohpc/pub/libs/intel/openmpi5/omb/7.5.2
+setenv          OMB_BIN             /opt/ohpc/pub/libs/intel/openmpi5/omb/7.5.2/bin

@@ -1,0 +1,28 @@
+Source: plasma-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               openblas-intel-ohpc,
+               cmake,
+               make
+Standards-Version: 4.6.2
+Homepage: https://github.com/icl-utk-edu/plasma
+
+Package: plasma-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         openblas-intel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Parallel Linear Algebra Software for Multicore Architectures (intel, OpenHPC)
+ PLASMA is a software package for solving problems in dense linear algebra
+ using multicore processors. It provides parallel implementations of LAPACK
+ routines leveraging task-based parallelism.
+ Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.

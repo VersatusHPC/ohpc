@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+PNAME           := openblas
+VERSION         := 0.3.32
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/OpenBLAS-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
+ENV             := bash /build/devel/build-comp.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/OpenBLAS-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/OpenBLAS-$(VERSION).tar.gz \
+			https://github.com/OpenMathLib/OpenBLAS/releases/download/v$(VERSION)/OpenBLAS-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/OpenBLAS-$(VERSION).tar.gz
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/openblas-noexecstack.patch || true
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/fix-arm64-cpuid-return.patch || true
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) $(MAKE) USE_THREAD=1 USE_OPENMP=1 DYNAMIC_ARCH=1 NUM_THREADS=256 \
+		PREFIX=$(INSTALL_PATH)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) $(MAKE) PREFIX=$(PKG)$(INSTALL_PATH) install
+	# Remove static libraries
+	rm -f $(PKG)$(INSTALL_PATH)/lib/*.a
+	# Fix buildroot references in cmake/pkgconfig files
+	find $(PKG) -name '*.cmake' -o -name '*.pc' | xargs -r sed -i 's|$(PKG)||g'
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

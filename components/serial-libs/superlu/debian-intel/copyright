@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: SuperLU
+Upstream-Contact: http://crd.lbl.gov/~xiaoye/SuperLU/
+
+Files: *
+Copyright: 2003-2026 The Regents of the University of California
+License: BSD-3-Clause

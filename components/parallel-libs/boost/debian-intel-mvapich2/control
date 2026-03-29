@@ -1,0 +1,36 @@
+Source: boost-intel-mvapich2-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               mvapich2-intel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               libbz2-dev,
+               libexpat1-dev,
+               python3-dev,
+               python3-numpy,
+               libgmp-dev,
+               libstdc++-dev | libstdc++-14-dev,
+               libicu-dev,
+               liblzma-dev,
+               zlib1g-dev,
+               make,
+               which,
+               dos2unix
+Standards-Version: 4.6.2
+Homepage: http://www.boost.org
+
+Package: boost-intel-mvapich2-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, mvapich2-intel-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Free peer-reviewed portable C++ source libraries (intel + mvapich2, OpenHPC)
+ Boost provides free peer-reviewed portable C++ source libraries.
+ Boost emphasizes libraries that work well with the C++ Standard Library.
+ Built with the intel compiler family and mvapich2 MPI stack.
+ .
+ This package is part of the OpenHPC project.

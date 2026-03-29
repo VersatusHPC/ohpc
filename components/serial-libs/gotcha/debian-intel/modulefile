@@ -1,0 +1,24 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the gotcha library built with the intel compiler"
+puts stderr "toolchain."
+puts stderr "\nVersion 1.0.8\n"
+
+}
+module-whatis "Name: gotcha built with intel compiler"
+module-whatis "Version: 1.0.8"
+module-whatis "Category: runtime library"
+module-whatis "Description: A library for wrapping function calls in shared libraries"
+module-whatis "https://github.com/LLNL/GOTCHA"
+
+set     version                     1.0.8
+
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/gotcha/1.0.8/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/gotcha/1.0.8/lib
+
+setenv          GOTCHA_DIR          /opt/ohpc/pub/libs/intel/gotcha/1.0.8
+setenv          GOTCHA_LIB          /opt/ohpc/pub/libs/intel/gotcha/1.0.8/lib
+setenv          GOTCHA_INC          /opt/ohpc/pub/libs/intel/gotcha/1.0.8/include

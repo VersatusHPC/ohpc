@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: MUMPS
+Upstream-Contact: http://mumps-solver.org/
+
+Files: *
+Copyright: 1991-2026 CERFACS, CNRS, ENS Lyon, INP Toulouse, Inria, Mumps Technologies, University of Bordeaux
+License: CeCILL-C

@@ -1,0 +1,36 @@
+Source: tau-intel-mvapich2-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               mvapich2-intel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               otf2-intel-ohpc,
+               pdtoolkit-intel-ohpc,
+               papi-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: http://www.cs.uoregon.edu/research/tau/home.php
+
+Package: tau-intel-mvapich2-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         mvapich2-intel-ohpc,
+         otf2-intel-ohpc,
+         pdtoolkit-intel-ohpc,
+         papi-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Tuning and Analysis Utilities profiling package (intel + mvapich2, OpenHPC)
+ TAU is a program and performance analysis tool framework for high-performance
+ parallel and distributed computing. It provides a suite of static and dynamic
+ tools for performance instrumentation, measurement, analysis, and visualization.
+ Built with the intel compiler family and mvapich2 MPI stack.
+ .
+ This package is part of the OpenHPC project.

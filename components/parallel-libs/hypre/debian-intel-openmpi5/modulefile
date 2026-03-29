@@ -1,0 +1,31 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the hypre library built with the intel compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr " "
+puts stderr "Note that this build of hypre leverages the superlu and openblas libraries."
+puts stderr "Consequently, these packages are loaded automatically with this module."
+puts stderr "\nVersion 3.1.0\n"
+
+}
+module-whatis "Name: hypre built with intel compiler and openmpi5 MPI"
+module-whatis "Version: 3.1.0"
+module-whatis "Category: runtime library"
+module-whatis "Description: Scalable algorithms for solving linear systems of equations"
+module-whatis "http://www.llnl.gov/casc/hypre/"
+
+set     version                     3.1.0
+
+depends-on superlu
+depends-on openblas
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/openmpi5/hypre/3.1.0/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/openmpi5/hypre/3.1.0/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/openmpi5/hypre/3.1.0/lib
+
+setenv          HYPRE_DIR        /opt/ohpc/pub/libs/intel/openmpi5/hypre/3.1.0
+setenv          HYPRE_LIB        /opt/ohpc/pub/libs/intel/openmpi5/hypre/3.1.0/lib
+setenv          HYPRE_INC        /opt/ohpc/pub/libs/intel/openmpi5/hypre/3.1.0/include

@@ -1,0 +1,36 @@
+Source: scalasca-intel-impi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               intel-mpi-devel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               cubew-intel-ohpc,
+               cubelib-intel-ohpc,
+               otf2-intel-ohpc,
+               scorep-intel-impi-ohpc,
+               zlib1g-dev,
+               make,
+               which
+Standards-Version: 4.6.2
+Homepage: http://www.scalasca.org
+
+Package: scalasca-intel-impi-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         intel-mpi-devel-ohpc,
+         scorep-intel-impi-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Toolset for performance analysis of large-scale parallel applications (intel + impi, OpenHPC)
+ Scalasca is a software tool that supports the performance optimization of
+ parallel programs by measuring and analyzing their runtime behavior.
+ Built with the intel compiler family and impi MPI stack.
+ .
+ This package is part of the OpenHPC project.

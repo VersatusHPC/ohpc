@@ -1,0 +1,33 @@
+Source: mfem-intel-impi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               intel-mpi-devel-ohpc,
+               hypre-intel-impi-ohpc,
+               metis-intel-ohpc,
+               netcdf-intel-impi-ohpc,
+               petsc-intel-impi-ohpc,
+               ptscotch-intel-impi-ohpc,
+               superlu-dist-intel-impi-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: http://mfem.org
+
+Package: mfem-intel-impi-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, intel-mpi-devel-ohpc, hypre-intel-impi-ohpc, metis-intel-ohpc, netcdf-intel-impi-ohpc, petsc-intel-impi-ohpc (>= 3.12.0), ptscotch-intel-impi-ohpc, superlu-dist-intel-impi-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Lightweight, general, scalable C++ library for finite element methods (intel + impi, OpenHPC)
+ MFEM is a modular parallel C++ library for finite element methods. Its goal is
+ to enable the research and development of scalable finite element discretization
+ and solver algorithms through general finite element abstractions, accurate and
+ flexible visualization, and tight integration with the hypre library.
+ Built with the intel compiler family and impi MPI stack.
+ .
+ This package is part of the OpenHPC project.

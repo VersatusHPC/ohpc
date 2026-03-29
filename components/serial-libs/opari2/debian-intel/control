@@ -1,0 +1,25 @@
+Source: opari2-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.vi-hps.org/projects/score-p/
+
+Package: opari2-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: An OpenMP runtime performance measurement instrumenter (intel, OpenHPC)
+ OPARI2 is a source-to-source instrumentation tool for OpenMP and hybrid
+ codes. It surrounds OpenMP constructs and API calls with calls to the
+ POMP2 measurement interface.
+ Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.

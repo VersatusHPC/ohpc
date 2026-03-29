@@ -1,0 +1,23 @@
+Source: metis-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               make,
+               cmake,
+               pkg-config
+Standards-Version: 4.6.2
+Homepage: http://glaros.dtc.umn.edu/gkhome/metis/metis/overview
+
+Package: metis-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Serial Graph Partitioning and Fill-reducing Matrix Ordering (intel, OpenHPC)
+ METIS is a set of serial programs for partitioning graphs, partitioning
+ finite element meshes, and producing fill reducing orderings for sparse
+ matrices. Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.

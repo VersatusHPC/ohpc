@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: NumPy
+Upstream-Contact: https://github.com/numpy/numpy
+
+Files: *
+Copyright: 2005-2026 NumPy Developers
+License: BSD-3-Clause

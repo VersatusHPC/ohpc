@@ -1,0 +1,23 @@
+help([[
+This module loads the METIS library built with the intel compiler toolchain.
+Version 5.1.0
+]])
+
+whatis("Name: METIS built with intel toolchain")
+whatis("Version: 5.1.0")
+whatis("Category: runtime library")
+whatis("Description: Serial Graph Partitioning and Fill-reducing Matrix Ordering")
+whatis("http://glaros.dtc.umn.edu/gkhome/metis/metis/overview")
+
+local version = "5.1.0"
+
+prepend_path("PATH",            "/opt/ohpc/pub/libs/intel/metis/5.1.0/bin")
+prepend_path("INCLUDE",         "/opt/ohpc/pub/libs/intel/metis/5.1.0/include")
+prepend_path("LD_LIBRARY_PATH", "/opt/ohpc/pub/libs/intel/metis/5.1.0/lib")
+
+setenv("METIS_DIR", "/opt/ohpc/pub/libs/intel/metis/5.1.0")
+setenv("METIS_BIN", "/opt/ohpc/pub/libs/intel/metis/5.1.0/bin")
+setenv("METIS_LIB", "/opt/ohpc/pub/libs/intel/metis/5.1.0/lib")
+setenv("METIS_INC", "/opt/ohpc/pub/libs/intel/metis/5.1.0/include")
+
+family("metis")

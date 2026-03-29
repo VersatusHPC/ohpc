@@ -1,0 +1,46 @@
+Source: scorep-intel-mpich-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               mpich-intel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               cubelib-intel-ohpc,
+               cubew-intel-ohpc,
+               opari2-intel-ohpc,
+               otf2-intel-mpich-ohpc,
+               gotcha-intel-ohpc,
+               papi-ohpc,
+               binutils-dev,
+               libunwind-dev,
+               cmake,
+               make,
+               which
+Standards-Version: 4.6.2
+Homepage: http://www.vi-hps.org/projects/score-p/
+
+Package: scorep-intel-mpich-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         mpich-intel-ohpc,
+         cubelib-intel-ohpc,
+         cubew-intel-ohpc,
+         opari2-intel-ohpc,
+         otf2-intel-mpich-ohpc,
+         gotcha-intel-ohpc,
+         papi-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Scalable Performance Measurement Infrastructure for Parallel Codes (intel + mpich, OpenHPC)
+ The Score-P measurement infrastructure is a highly scalable and easy-to-use
+ tool suite for profiling, event trace recording, and online analysis of HPC
+ applications.
+ Built with the intel compiler family and mpich MPI stack.
+ .
+ This package is part of the OpenHPC project.

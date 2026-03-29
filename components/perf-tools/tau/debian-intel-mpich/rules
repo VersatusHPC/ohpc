@@ -1,0 +1,64 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+MPI_FAMILY      := mpich
+export MPI_FAMILY
+PNAME           := tau
+VERSION         := 2.35.1
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="otf2 pdtoolkit papi" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://www.cs.uoregon.edu/research/tau/tau_releases/tau-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	# Fix GCC 15: omp.h has C++ templates, can't be inside extern "C"
+	cd $(SRCDIR) && sed -i '/^extern "C" {/{N;s/extern "C" {\n#include <omp.h>/#include <omp.h>\nextern "C" {/}' include/Profile/OpenMPLayer.h
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		export TAUROOT=$$(pwd) && \
+		export INSTALLROOT=$${TAUROOT}/TAUBUILD && \
+		mkdir -p $${INSTALLROOT} && \
+		./configure -prefix=$${INSTALLROOT} \
+			-mpi -openmp \
+			-pdt=$$PDTOOLKIT_DIR \
+			-otf=$$OTF2_DIR \
+			-papi=$$PAPI_DIR && \
+		make install'
+
+override_dh_auto_install:
+	# TAU installs to TAUBUILD, copy to PKG at correct path
+	mkdir -p $(PKG)$(INSTALL_PATH)
+	cp -a $(SRCDIR)/TAUBUILD/* $(PKG)$(INSTALL_PATH)/
+	find $(PKG) -name '*.a' -delete || true
+	find $(PKG) -type d -name 'static-*' -exec rm -rf {} + 2>/dev/null || true
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

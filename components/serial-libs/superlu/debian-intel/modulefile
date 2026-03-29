@@ -1,0 +1,30 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the SuperLU library built with the intel compiler"
+puts stderr "toolchain."
+puts stderr " "
+puts stderr "Note that this build of SuperLU leverages the OpenBLAS linear algebra libraries."
+puts stderr "Consequently, openblas is loaded automatically with this module."
+
+puts stderr "\nVersion 7.0.1\n"
+
+}
+module-whatis "Name: superlu built with intel compiler"
+module-whatis "Version: 7.0.1"
+module-whatis "Category: runtime library"
+module-whatis "Description: A general purpose library for the direct solution of linear equations"
+module-whatis "http://crd.lbl.gov/~xiaoye/SuperLU/"
+
+set     version                     7.0.1
+
+depends-on openblas
+
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/superlu/7.0.1/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/superlu/7.0.1/lib
+
+setenv          SUPERLU_DIR         /opt/ohpc/pub/libs/intel/superlu/7.0.1
+setenv          SUPERLU_INC         /opt/ohpc/pub/libs/intel/superlu/7.0.1/include
+setenv          SUPERLU_LIB         /opt/ohpc/pub/libs/intel/superlu/7.0.1/lib

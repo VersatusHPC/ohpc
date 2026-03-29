@@ -1,0 +1,28 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the parallel HDF5 library built with the intel compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr "\nVersion 2.1.0\n"
+
+}
+module-whatis "Name: HDF5 built with intel compiler and openmpi5 MPI"
+module-whatis "Version: 2.1.0"
+module-whatis "Category: runtime library"
+module-whatis "Description: A general purpose library and file format for storing scientific data (parallel version)"
+module-whatis "http://www.hdfgroup.org/HDF5"
+
+set     version             2.1.0
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0/lib
+
+setenv          HDF5_DIR        /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0
+setenv          HDF5_BIN        /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0/bin
+setenv          HDF5_LIB        /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0/lib
+setenv          HDF5_INC        /opt/ohpc/pub/libs/intel/openmpi5/phdf5/2.1.0/include
+
+family "hdf5"

@@ -1,0 +1,25 @@
+Source: gotcha-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               cmake,
+               make
+Standards-Version: 4.6.2
+Homepage: https://github.com/LLNL/GOTCHA
+
+Package: gotcha-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: A library for wrapping function calls in shared libraries (intel, OpenHPC)
+ GOTCHA is a library that wraps functions by manipulating the Global Offset
+ Table (GOT) at runtime, providing a clean C interface for function wrapping.
+ Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.

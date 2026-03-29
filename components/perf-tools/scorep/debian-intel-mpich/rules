@@ -1,0 +1,61 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+MPI_FAMILY      := mpich
+export MPI_FAMILY
+PNAME           := scorep
+VERSION         := 9.4
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="cubelib cubew opari2 otf2 gotcha papi" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://perftools.pages.jsc.fz-juelich.de/cicd/scorep/tags/scorep-$(VERSION)/scorep-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		./configure --prefix=$(INSTALL_PATH) \
+			--with-cube=$$CUBELIB_DIR \
+			--with-cubew=$$CUBEW_DIR \
+			--with-opari2=$$OPARI2_DIR \
+			--with-otf2=$$OTF2_DIR \
+			--with-papi=$$PAPI_DIR \
+			--with-libgotcha=$$GOTCHA_DIR \
+			--enable-shared --disable-static \
+			--without-shmem && \
+		make -j$$(nproc)'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		make DESTDIR=$(PKG) install'
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

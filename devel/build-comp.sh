@@ -16,6 +16,13 @@ COMPILER_FAMILY="${COMPILER_FAMILY:-gnu15}"
 
 export MODULEPATH=/opt/ohpc/pub/modulefiles
 . /opt/ohpc/admin/lmod/lmod/init/bash
+
+# For Intel compilers: source oneAPI environment first
+if [ "$COMPILER_FAMILY" = "intel" ]; then
+    [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
+    [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] && . /opt/intel/oneapi/mkl/latest/env/vars.sh 2>/dev/null
+fi
+
 . /opt/ohpc/admin/ohpc/OHPC_setup_compiler "$COMPILER_FAMILY"
 
 # Load any additional modules requested

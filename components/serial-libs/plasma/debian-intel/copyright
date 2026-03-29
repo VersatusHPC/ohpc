@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PLASMA
+Upstream-Contact: https://github.com/icl-utk-edu/plasma
+
+Files: *
+Copyright: 2010-2026 The University of Tennessee
+License: BSD-3-Clause

@@ -1,0 +1,27 @@
+Source: netcdf-fortran-intel-mvapich2-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               mvapich2-intel-ohpc,
+               phdf5-intel-mvapich2-ohpc,
+               netcdf-intel-mvapich2-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.unidata.ucar.edu/software/netcdf/
+
+Package: netcdf-fortran-intel-mvapich2-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, mvapich2-intel-ohpc, netcdf-intel-mvapich2-ohpc, phdf5-intel-mvapich2-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Fortran Libraries for the Unidata network Common Data Form (intel + mvapich2, OpenHPC)
+ NetCDF Fortran provides a Fortran interface for NetCDF, a set of software
+ libraries and data formats for array-oriented scientific data.
+ Built with the intel compiler family and mvapich2 MPI stack.
+ .
+ This package is part of the OpenHPC project.

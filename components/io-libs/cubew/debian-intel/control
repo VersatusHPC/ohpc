@@ -1,0 +1,25 @@
+Source: cubew-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               zlib1g-dev,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.scalasca.org/scalasca/software/cube-4.x/
+
+Package: cubew-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: CUBE high performance write library (intel, OpenHPC)
+ CubeW is the writing library component of the CUBE performance report
+ explorer, providing a C API for writing CUBE4 performance data.
+ Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.
