@@ -6,8 +6,7 @@ export CXXFLAGS =
 export LDFLAGS =
 
 COMPILER_FAMILY := gnu15
-MPI_FAMILY      := impi
-export MPI_FAMILY
+MPI_FAMILY      := openmpi5
 PNAME           := trilinos
 VERSION         := 17.0.0
 VER_EXP         := 17-0-0

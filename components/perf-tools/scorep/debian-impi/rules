@@ -35,7 +35,8 @@ override_dh_auto_build:
 			--with-papi=$$PAPI_DIR \
 			--with-libgotcha=$$GOTCHA_DIR \
 			--enable-shared --disable-static \
-			--without-shmem && \
+			--without-shmem \
+			--with-mpi=intel3 && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:

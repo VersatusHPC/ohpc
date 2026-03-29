@@ -30,7 +30,8 @@ override_dh_auto_build:
 		./configure --prefix=$(INSTALL_PATH) \
 			--with-cube=$$CUBELIB_DIR \
 			--with-otf2=$$OTF2_DIR \
-			--with-scorep=$$SCOREP_DIR && \
+			--with-scorep=$$SCOREP_DIR \
+			--with-mpi=intel3 && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:

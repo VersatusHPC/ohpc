@@ -4,11 +4,11 @@ proc ModulesHelp { } {
 
 puts stderr " "
 puts stderr "This module loads the trilinos library built with the gnu15 compiler"
-puts stderr "toolchain and the impi MPI stack."
+puts stderr "toolchain and the openmpi5 MPI stack."
 puts stderr "\nVersion 17.0.0\n"
 
 }
-module-whatis "Name: trilinos built with gnu15 compiler and impi MPI"
+module-whatis "Name: trilinos built with gnu15 compiler and openmpi5 MPI"
 module-whatis "Version: 17.0.0"
 module-whatis "Category: runtime library"
 module-whatis "Description: A collection of libraries of numerical algorithms"
@@ -16,14 +16,14 @@ module-whatis "https://trilinos.org/"
 
 set     version                     17.0.0
 
-prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0/bin
-prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0/include
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0/lib64
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0/lib64
 
-setenv          TRILINOS_DIR        /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0
-setenv          TRILINOS_BIN        /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0/bin
-setenv          TRILINOS_INC        /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0/include
-setenv          TRILINOS_LIB        /opt/ohpc/pub/libs/gnu15/impi/trilinos/17.0.0/lib64
+setenv          TRILINOS_DIR        /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0
+setenv          TRILINOS_BIN        /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0/bin
+setenv          TRILINOS_INC        /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0/include
+setenv          TRILINOS_LIB        /opt/ohpc/pub/libs/gnu15/openmpi5/trilinos/17.0.0/lib64
 
 # Autoload openblas for gnu builds
 depends-on openblas
