@@ -1,0 +1,20 @@
+FROM localhost/ohpc-build-ubuntu:noble
+
+# Add Intel oneAPI repository and install MPI
+RUN wget -qO- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | \
+    gpg --dearmor -o /usr/share/keyrings/intel-oneapi.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/intel-oneapi.gpg] https://apt.repos.intel.com/oneapi all main" \
+    > /etc/apt/sources.list.d/intel-oneapi.list && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends intel-oneapi-mpi-devel && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create Intel MPI modulefile for OHPC
+RUN mkdir -p /opt/ohpc/pub/moduledeps/gnu15/impi && \
+    echo '#%Module1.0' > /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17 && \
+    echo 'prepend-path PATH /opt/intel/oneapi/mpi/latest/bin' >> /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17 && \
+    echo 'prepend-path LD_LIBRARY_PATH /opt/intel/oneapi/mpi/latest/lib' >> /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17 && \
+    echo 'setenv MPI_DIR /opt/intel/oneapi/mpi/latest' >> /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17 && \
+    echo 'prepend-path MODULEPATH /opt/ohpc/pub/moduledeps/gnu15-impi' >> /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17 && \
+    echo 'prepend-path PKG_CONFIG_PATH /opt/intel/oneapi/mpi/latest/lib/pkgconfig' >> /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17 && \
+    echo 'family "MPI"' >> /opt/ohpc/pub/moduledeps/gnu15/impi/2021.17
