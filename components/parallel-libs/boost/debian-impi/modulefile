@@ -1,0 +1,22 @@
+help([[
+This module loads the boost library built with the gnu15
+compiler toolchain and the impi MPI stack.
+
+Version 1.90.0
+]])
+
+whatis("Name: boost built with gnu15 compiler and impi MPI")
+whatis("Version: 1.90.0")
+whatis("Category: runtime library")
+whatis("Description: Free peer-reviewed portable C++ source libraries")
+whatis("http://www.boost.org")
+
+prepend_path("INCLUDE", "/opt/ohpc/pub/libs/gnu15/impi/boost/1.90.0/include")
+prepend_path("LD_LIBRARY_PATH", "/opt/ohpc/pub/libs/gnu15/impi/boost/1.90.0/lib")
+
+setenv("BOOST_DIR", "/opt/ohpc/pub/libs/gnu15/impi/boost/1.90.0")
+setenv("BOOST_ROOT", "/opt/ohpc/pub/libs/gnu15/impi/boost/1.90.0")
+setenv("BOOST_LIB", "/opt/ohpc/pub/libs/gnu15/impi/boost/1.90.0/lib")
+setenv("BOOST_INC", "/opt/ohpc/pub/libs/gnu15/impi/boost/1.90.0/include")
+
+family("boost")
