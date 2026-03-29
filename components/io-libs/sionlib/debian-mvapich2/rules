@@ -1,0 +1,59 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+MPI_FAMILY      := mvapich2
+export MPI_FAMILY
+PNAME           := sionlib
+VERSION         := 1.7.7
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			"http://apps.fz-juelich.de/jsc/sionlib/download.php?version=$(VERSION)"
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		CONFIGURE_OPTIONS="--compiler=gnu --mpi=openmpi" && \
+		./configure --prefix=$(PKG)$(INSTALL_PATH) $$CONFIGURE_OPTIONS && \
+		sed -i "s/FFLAGS.*/& -fallow-argument-mismatch/g" build-*/Makefile.defs && \
+		sed -i "s/F90FLAGS.*/& -fallow-argument-mismatch/g" build-*/Makefile.defs && \
+		sed -i "s/F90 .*/& -fallow-argument-mismatch/g" build-*/Makefile.defs && \
+		make -j$$(nproc)'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) make DESTDIR=$(PKG) install
+	find $(PKG) -name '*.la' -delete
+	# Clean buildroot paths from installed files
+	sed -i 's|$(PKG)||g' $(PKG)$(INSTALL_PATH)/bin/sionconfig || true
+	sed -i 's|$(PKG)||g' $(PKG)$(INSTALL_PATH)/examples/simple/Makefile.defs || true
+	sed -i 's|$(PKG)||g' $(PKG)$(INSTALL_PATH)/examples/mp2c/Makefile.defs || true
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

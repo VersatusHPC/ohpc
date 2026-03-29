@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Dimemas
+Upstream-Contact: https://tools.bsc.es
+
+Files: *
+Copyright: 2000-2026 Barcelona Supercomputing Center
+License: GPL-2.0+

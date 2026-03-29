@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Trilinos
+Upstream-Contact: https://github.com/trilinos/Trilinos
+
+Files: *
+Copyright: 2001-2026 National Technology & Engineering Solutions of Sandia, LLC (NTESS)
+License: LGPL-2.1 and BSD-3-Clause

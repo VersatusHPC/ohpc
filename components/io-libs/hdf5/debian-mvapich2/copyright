@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: HDF5
+Upstream-Contact: https://github.com/HDFGroup/hdf5
+
+Files: *
+Copyright: 2006-2026 The HDF Group
+License: HDF5
