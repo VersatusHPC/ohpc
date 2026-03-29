@@ -26,8 +26,8 @@ override_dh_auto_configure:
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 
 override_dh_auto_build:
-	cd $(SRCDIR) && for prec in single double long-double; do \
-		mkdir -p build_$${prec} && cd build_$${prec} && \
+	for prec in single double long-double; do \
+		mkdir -p $(SRCDIR)/build_$${prec} && \
 		PREC_FLAGS="" && \
 		ARCH_FLAGS="--enable-sse2 --enable-avx --enable-avx2" && \
 		case $${prec} in \
@@ -35,21 +35,19 @@ override_dh_auto_build:
 			double) PREC_FLAGS="" ;; \
 			long-double) PREC_FLAGS="--enable-long-double"; ARCH_FLAGS="" ;; \
 		esac && \
-		$(ENV) ../configure --prefix=$(INSTALL_PATH) --enable-shared --disable-dependency-tracking \
+		cd $(SRCDIR)/build_$${prec} && \
+		$(ENV) $(SRCDIR)/configure --prefix=$(INSTALL_PATH) --enable-shared --disable-dependency-tracking \
 			--enable-threads --enable-openmp --enable-mpi --enable-static=no \
 			$${ARCH_FLAGS} $${PREC_FLAGS} && \
-		$(ENV) make -j$$(nproc) && \
-		cd .. ; \
+		$(ENV) make -j$$(nproc) ; \
 	done
 
 override_dh_auto_install:
-	cd $(SRCDIR) && for prec in single double long-double; do \
-		cd build_$${prec} && \
-		$(ENV) make DESTDIR=$(PKG) install && \
-		cd .. ; \
+	for prec in single double long-double; do \
+		cd $(SRCDIR)/build_$${prec} && \
+		$(ENV) make DESTDIR=$(PKG) install ; \
 	done
-	# Remove libtool archives
-	find $(PKG) -name '*.la' -delete
+	find $(PKG) -name '*.la' -delete || true
 	# Fix buildroot references
 	find $(PKG) -name '*.pc' | xargs -r sed -i 's|$(PKG)||g'
 	# Install modulefile
