@@ -1,6 +1,9 @@
 #!/usr/bin/make -f
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS = -fPIC
+export CXXFLAGS = -fPIC
+export LDFLAGS =
 
 VERSION := 3.2.4
 SRCDIR  := $(CURDIR)/cython-$(VERSION)
@@ -24,6 +27,8 @@ override_dh_auto_install:
 
 override_dh_auto_clean:
 	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
 
 override_dh_shlibdeps:
 	dh_shlibdeps -- --ignore-missing-info || true
