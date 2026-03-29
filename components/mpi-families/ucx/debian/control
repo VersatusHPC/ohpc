@@ -25,6 +25,24 @@ Description: Unified Communication X (UCX) framework (OpenHPC)
  Includes CMA, InfiniBand, and RDMA CM transport support.
  This package is part of the OpenHPC project.
 
+Package: ucx-cma-ohpc
+Architecture: any
+Depends: ucx-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: UCX CMA transport support (OpenHPC)
+ CMA (Cross Memory Attach) transport plugin for UCX.
+
+Package: ucx-ib-ohpc
+Architecture: any
+Depends: ucx-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: UCX InfiniBand transport support (OpenHPC)
+ InfiniBand transport plugin for UCX.
+
+Package: ucx-rdmacm-ohpc
+Architecture: any
+Depends: ucx-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: UCX RDMA CM transport support (OpenHPC)
+ RDMA Connection Manager transport plugin for UCX.
+
 Package: ucx-devel-ohpc
 Architecture: any
 Depends: ucx-ohpc (= ${binary:Version}), ${misc:Depends}
