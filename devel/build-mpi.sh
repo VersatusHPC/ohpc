@@ -18,7 +18,13 @@ export MODULEPATH=/opt/ohpc/pub/modulefiles
 # Load MPI module (sets MPI_DIR, adds to PATH/LD_LIBRARY_PATH)
 module load "$MPI_FAMILY"
 
-# For Intel MPI: ensure library/include paths are available to all build systems
+# For Intel MPI: source oneAPI environment and ensure paths are available
+if [ "$MPI_FAMILY" = "impi" ]; then
+    # Source Intel MPI environment (sets I_MPI_ROOT, fixes mpicc wrapper)
+    if [ -f /opt/intel/oneapi/mpi/latest/env/vars.sh ]; then
+        . /opt/intel/oneapi/mpi/latest/env/vars.sh 2>/dev/null
+    fi
+fi
 if [ "$MPI_FAMILY" = "impi" ] && [ -n "$MPI_DIR" ]; then
     export LD_LIBRARY_PATH="${MPI_DIR}/lib:${LD_LIBRARY_PATH}"
     export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"
