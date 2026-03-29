@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+
+VERSION := 3.2.4
+SRCDIR  := $(CURDIR)/cython-$(VERSION)
+PKG     := $(CURDIR)/debian/python3-cython-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/Cython-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/Cython-$(VERSION).tar.gz \
+			https://github.com/cython/cython/releases/download/$(VERSION)/cython-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar --no-same-owner -xf SOURCES/Cython-$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && python3 setup.py build
+
+override_dh_auto_install:
+	cd $(SRCDIR) && python3 setup.py install --prefix=/usr --root=$(PKG)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

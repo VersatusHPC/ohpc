@@ -24,3 +24,9 @@ Description: Static cluster configuration database (OpenHPC)
  for management of large clusters.
  .
  This package is part of the OpenHPC project.
+
+Package: genders-compat-ohpc
+Architecture: any
+Depends: genders-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Genders compatibility API (OpenHPC)
+ Genders API compatible with earlier releases.
