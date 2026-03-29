@@ -1,0 +1,16 @@
+Package: intel-mpi-devel-ohpc
+Version: 2025.0-1ohpc1~noble
+Architecture: all
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Installed-Size: 27
+Depends: ohpc-filesystem, lmod-ohpc
+Section: science
+Priority: optional
+Homepage: https://github.com/openhpc/ohpc
+Description: OpenHPC compatibility package for Intel(R) oneAPI MPI Library
+ Provides OpenHPC-style compatible modulefiles for use with the Intel(R)
+ oneAPI MPI Library. Installs a module generation script that creates
+ modulefiles pointing to the pre-installed Intel oneAPI MPI at
+ /opt/intel/oneapi/.
+ .
+ This package is part of the OpenHPC project.

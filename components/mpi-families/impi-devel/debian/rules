@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+
+# Disable dpkg hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+OHPC_BIN         := /opt/ohpc/admin/ohpc/bin
+OHPC_MODULES     := /opt/ohpc/pub/modulefiles
+OHPC_MODULEDEPS  := /opt/ohpc/pub/moduledeps
+
+GNU_MAJOR_VER    := 15
+EXACT_MPI_VER    := 2021.14
+EXACT_MKL_VER    := 2025.0
+EXACT_DEPS       := compiler/2025.0.0 mkl/2025.0 compiler-rt/2025.0.0 debugger/2025.0.0 tbb/2022.0.0
+
+PKG := $(CURDIR)/debian/intel-mpi-devel-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	# Install the module generator script
+	sed -e 's|@@oneapi_manifest@@|$(OHPC_MODULEDEPS)/intel/impi/.rpm-manifest|' \
+	    -e 's|@@OHPC_ADMIN@@|/opt/ohpc/admin|' \
+	    -e 's|@@OHPC_MODULEDEPS@@|$(OHPC_MODULEDEPS)|g' \
+	    -e 's|@@OHPC_MODULES@@|$(OHPC_MODULES)|' \
+	    -e 's|@@exact_deps@@|$(EXACT_DEPS)|' \
+	    -e 's|@@exact_mpi_ver@@|$(EXACT_MPI_VER)|' \
+	    -e 's|@@gnu_major_ver@@|$(GNU_MAJOR_VER)|' SOURCES/ohpc-update-modules-impi > ohpc-update-modules-impi
+	install -D -m 755 ohpc-update-modules-impi $(PKG)$(OHPC_BIN)/ohpc-update-modules-impi
+	# Create module directories
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/intel/impi
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/gnu/impi
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/gnu$(GNU_MAJOR_VER)/impi
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+
+override_dh_strip:
+
+override_dh_auto_test:

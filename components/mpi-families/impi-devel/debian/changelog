@@ -1,0 +1,6 @@
+intel-mpi-devel-ohpc (2025.0-1ohpc1~noble) noble; urgency=low
+
+  * Initial Debian packaging for OpenHPC Ubuntu port.
+  * Intel oneAPI MPI modulefile integration for OpenHPC.
+
+ -- VersatusHPC <packages@versatushpc.org>  Fri, 27 Mar 2026 18:00:00 +0000
