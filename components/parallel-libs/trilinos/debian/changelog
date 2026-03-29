@@ -1,4 +1,4 @@
-trilinos-gnu15-openmpi5-ohpc (17.0.0-1ohpc1~noble) noble; urgency=low
+trilinos-gnu15-impi-ohpc (17.0.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

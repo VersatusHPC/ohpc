@@ -1,0 +1,66 @@
+# OBS Development Stack for VersatusHPC OpenHPC Ubuntu Port
+#
+# Usage:
+#   cd obs/
+#   podman-compose up -d
+#   # Web UI: http://localhost:3000 (admin/opensuse)
+#   # API: http://localhost:3000/api
+#
+# After first start:
+#   1. Login as admin/opensuse
+#   2. Create project VersatusHPC:OHPC:4
+#   3. Add Ubuntu_24.04 repository target
+#   4. Upload packages
+
+version: '3'
+
+services:
+  db:
+    image: docker.io/library/mariadb:10.11
+    container_name: obs-db
+    environment:
+      MYSQL_ROOT_PASSWORD: opensuse
+      MYSQL_DATABASE: api_production
+      MYSQL_USER: obs
+      MYSQL_PASSWORD: obs
+    volumes:
+      - obs-db-data:/var/lib/mysql
+    restart: unless-stopped
+
+  memcached:
+    image: docker.io/library/memcached:1.6
+    container_name: obs-memcached
+    restart: unless-stopped
+
+  backend:
+    image: docker.io/openbuildservice/backend:latest
+    container_name: obs-backend
+    volumes:
+      - obs-backend-data:/srv/obs
+      - ./config/BSConfig.pm:/etc/obs/BSConfig.pm:ro
+    ports:
+      - "5352:5352"   # repo server
+      - "5252:5252"   # src server
+    restart: unless-stopped
+
+  frontend:
+    image: docker.io/openbuildservice/frontend-base:latest
+    container_name: obs-frontend
+    depends_on:
+      - db
+      - memcached
+      - backend
+    environment:
+      OBS_API_URL: http://localhost:3000
+      MYSQL_HOST: db
+      MYSQL_USER: obs
+      MYSQL_PASSWORD: obs
+      MYSQL_DATABASE: api_production
+      MEMCACHED_HOST: memcached
+    ports:
+      - "3000:3000"   # Web UI + API
+    restart: unless-stopped
+
+volumes:
+  obs-db-data:
+  obs-backend-data:

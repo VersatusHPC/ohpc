@@ -70,3 +70,50 @@ Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Slurm PMI libraries (OpenHPC)
  The PMI libraries for launching MPI applications under Slurm.
 
+Package: slurm-contribs-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Slurm contributed scripts (OpenHPC)
+ Contributed scripts and tools for Slurm.
+
+Package: slurm-example-configs-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Slurm example configuration files (OpenHPC)
+ Example configuration files for Slurm.
+
+Package: slurm-openlava-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Slurm OpenLava/LSF compatibility wrappers (OpenHPC)
+ OpenLava/LSF compatibility commands for Slurm.
+
+Package: slurm-pam-slurm-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm PAM module (OpenHPC)
+ PAM module for restricting access to compute nodes via Slurm.
+
+Package: slurm-perlapi-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), perl, ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm Perl API (OpenHPC)
+ Perl API bindings for Slurm.
+
+Package: slurm-sackd-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm auth and cred kiosk daemon (OpenHPC)
+ The sackd daemon for Slurm authentication.
+
+Package: slurm-sview-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Slurm graphical interface (OpenHPC)
+ Graphical user interface for viewing Slurm job and node state.
+
+Package: slurm-torque-ohpc
+Architecture: any
+Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Slurm Torque/PBS compatibility wrappers (OpenHPC)
+ Torque/PBS compatibility commands (qsub, qstat, etc.) for Slurm.

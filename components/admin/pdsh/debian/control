@@ -21,3 +21,15 @@ Description: Parallel remote shell program (OpenHPC)
  remote shell services, including standard "rsh", Kerberos IV, and ssh.
  .
  This package is part of the OpenHPC project.
+
+Package: pdsh-mod-genders-ohpc
+Architecture: any
+Depends: pdsh-ohpc (= ${binary:Version}), genders-ohpc, ${misc:Depends}
+Description: Pdsh genders module (OpenHPC)
+ Genders module for pdsh, enabling node selection via genders database.
+
+Package: pdsh-mod-slurm-ohpc
+Architecture: any
+Depends: pdsh-ohpc (= ${binary:Version}), slurm-ohpc, ${misc:Depends}
+Description: Pdsh Slurm module (OpenHPC)
+ Slurm module for pdsh, enabling node selection via Slurm job allocations.

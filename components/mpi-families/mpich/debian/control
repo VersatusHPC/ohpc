@@ -17,6 +17,7 @@ Homepage: https://www.mpich.org/
 
 Package: mpich-gnu15-ohpc
 Architecture: any
+Provides: mpich-ofi-gnu15-ohpc
 Depends: ohpc-filesystem,
          gnu15-compilers-ohpc (>= 14.1.0),
          libfabric1,

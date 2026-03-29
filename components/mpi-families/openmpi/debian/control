@@ -27,6 +27,7 @@ Homepage: https://www.open-mpi.org/
 
 Package: openmpi5-gnu15-ohpc
 Architecture: any
+Provides: openmpi5-pmix-gnu15-ohpc
 Depends: ohpc-filesystem,
          gnu15-compilers-ohpc (>= 14.1.0),
          hwloc-ohpc,
