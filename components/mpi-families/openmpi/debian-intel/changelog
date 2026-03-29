@@ -1,0 +1,3 @@
+openmpi5-intel-ohpc (5.0.10-1ohpc1~noble) noble; urgency=low
+  * Initial Debian packaging for OpenHPC Ubuntu port.
+ -- VersatusHPC <packages@versatushpc.org>  Sat, 29 Mar 2026 00:00:00 +0000

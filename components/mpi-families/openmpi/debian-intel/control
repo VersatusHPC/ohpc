@@ -1,0 +1,25 @@
+Source: openmpi5-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               ucx-devel-ohpc,
+               pmix-ohpc,
+               autoconf, automake, libtool,
+               libevent-dev, libfabric-dev, libibverbs-dev, librdmacm-dev,
+               libnuma-dev, libsysfs-dev, libltdl-dev, rdma-core, flex
+Standards-Version: 4.6.2
+Homepage: https://www.open-mpi.org/
+
+Package: openmpi5-intel-ohpc
+Architecture: any
+Provides: openmpi5-pmix-intel-ohpc
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, hwloc-ohpc, ucx-ohpc,
+         ${shlibs:Depends}, ${misc:Depends}
+Description: Open MPI 5 (Intel compilers, OpenHPC)
+ Open MPI built with Intel compilers (icx/icpx/ifx).
