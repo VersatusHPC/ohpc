@@ -36,6 +36,16 @@ services:
       - "5252:5252"   # repo server
     restart: unless-stopped
 
+  worker:
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
+    container_name: obs-worker
+    privileged: true
+    depends_on:
+      - backend
+    volumes:
+      - ../obs/open-build-service:/obs:z
+    command: /obs/contrib/start_development_worker -h backend -i -w 4
+
 volumes:
   obs-db-data:
   obs-backend-data:

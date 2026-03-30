@@ -54,10 +54,12 @@ convert_and_upload() {
         cp -aL "$comp_dir/SOURCES" "$pkgdir/${pkg_name}-${version}/"
     fi
 
-    # Also copy the devel/ helper scripts (build-comp.sh, build-mpi.sh)
+    # Copy devel/ helper scripts and fix absolute /build/ paths in rules
     mkdir -p "$pkgdir/${pkg_name}-${version}/devel"
     cp "$REPO_ROOT/devel/build-comp.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
     cp "$REPO_ROOT/devel/build-mpi.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
+    # OBS builds from /usr/src/packages/BUILD/ — change /build/devel/ to devel/
+    sed -i 's|/build/devel/|devel/|g' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
 
     # Create the source tarball
     cd "$pkgdir"
