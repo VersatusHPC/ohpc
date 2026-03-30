@@ -28,11 +28,8 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		CONFIGURE_OPTIONS="--compiler=gnu --mpi=openmpi" && \
+		CONFIGURE_OPTIONS="--compiler=gnu --mpi=mpich --disable-fortran" && \
 		./configure --prefix=$(PKG)$(INSTALL_PATH) $$CONFIGURE_OPTIONS && \
-		sed -i "s/FFLAGS.*/& -fallow-argument-mismatch/g" build-*/Makefile.defs && \
-		sed -i "s/F90FLAGS.*/& -fallow-argument-mismatch/g" build-*/Makefile.defs && \
-		sed -i "s/F90 .*/& -fallow-argument-mismatch/g" build-*/Makefile.defs && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:

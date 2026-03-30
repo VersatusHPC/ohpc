@@ -8,7 +8,6 @@ export LDFLAGS =
 COMPILER_FAMILY := intel
 export COMPILER_FAMILY
 MPI_FAMILY      := impi
-export MPI_FAMILY
 PNAME           := tau
 VERSION         := 2.35.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
@@ -29,6 +28,9 @@ override_dh_auto_configure:
 	cd $(SRCDIR) && sed -i '/^extern "C" {/{N;s/extern "C" {\n#include <omp.h>/#include <omp.h>\nextern "C" {/}' include/Profile/OpenMPLayer.h
 
 override_dh_auto_build:
+	# Create static lib symlink for PDToolkit (TAU checks for libpdb.a)
+	test -f /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/pdtoolkit/3.25.1/x86_64/lib/libpdb.a || \
+		ln -sf libpdb.so /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/pdtoolkit/3.25.1/x86_64/lib/libpdb.a 2>/dev/null || true
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		export TAUROOT=$$(pwd) && \
 		export INSTALLROOT=$${TAUROOT}/TAUBUILD && \
@@ -37,7 +39,9 @@ override_dh_auto_build:
 			-mpi -openmp \
 			-pdt=$$PDTOOLKIT_DIR \
 			-otf=$$OTF2_DIR \
-			-papi=$$PAPI_DIR && \
+			-papi=$$PAPI_DIR \
+			-fortran=ifx \
+			-cc=mpicc -c++=mpicxx && \
 		make install'
 
 override_dh_auto_install:

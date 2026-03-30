@@ -8,7 +8,6 @@ export LDFLAGS =
 COMPILER_FAMILY := intel
 export COMPILER_FAMILY
 MPI_FAMILY      := impi
-export MPI_FAMILY
 PNAME           := dimemas
 VERSION         := 5.5.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
@@ -28,6 +27,7 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
+		export CXXFLAGS="$${CXXFLAGS} -Wno-register" && \
 		./configure --prefix=$(INSTALL_PATH) \
 			--with-boost=$$BOOST_ROOT && \
 		make -j$$(nproc)'
