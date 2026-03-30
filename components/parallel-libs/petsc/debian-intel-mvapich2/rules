@@ -28,16 +28,20 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) bash -c '\
-		unset CFLAGS CXXFLAGS FCFLAGS FFLAGS OBJCFLAGS OBJCXXFLAGS CC CXX FC F77 F90 LDFLAGS MPI_DIR && \
+		_MPI_DIR=$$MPI_DIR && \
+		unset CFLAGS CXXFLAGS FCFLAGS FFLAGS OBJCFLAGS OBJCXXFLAGS LDFLAGS && \
+		export CPP="/usr/bin/cpp" && \
 		python3 ./configure \
 			--prefix=$(INSTALL_PATH) \
 			--with-cc=mpicc \
 			--with-cxx=mpicxx \
-			--with-fc=mpif90 \
-			--with-f77=mpif90 \
-			FFLAGS+="-fPIC" \
+			--with-fc=ifx \
+			--with-f77=ifx \
+			--with-cpp=/usr/bin/cpp \
+			FFLAGS+="-fPIC -I$${_MPI_DIR}/include" \
 			CFLAGS+="-fPIC -DPIC" \
 			CXXFLAGS+="-fPIC -DPIC" \
+			LDFLAGS+="-L$${_MPI_DIR}/lib -lmpi -lmpifort -lgfortran" \
 			--with-c-support \
 			--with-fortran-interfaces=1 \
 			--with-debugging=no \
