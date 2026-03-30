@@ -28,7 +28,7 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) bash -c '\
-		unset CFLAGS CXXFLAGS FCFLAGS FFLAGS CC CXX FC F77 F90 LDFLAGS MPI_DIR && \
+		unset CFLAGS CXXFLAGS FCFLAGS FFLAGS OBJCFLAGS OBJCXXFLAGS CC CXX FC F77 F90 LDFLAGS MPI_DIR && \
 		python3 ./configure \
 			--prefix=$(INSTALL_PATH) \
 			--with-cc=mpicc \
@@ -71,6 +71,10 @@ override_dh_auto_install:
 		share/petsc/examples/config/report_tests.py; do \
 		[ -f "$$file" ] && sed -e "s,/env python.*,/python3,g" -i "$$file" || true; \
 	done
+	# Strip GCC-specific flags that break Intel's clang-based compiler
+	find $(PKG)$(INSTALL_PATH) \( -name "petscvariables" -o -name "*.py" -o -name "*.cmake" \) -exec \\
+		sed -i 's/-Wno-lto-type-mismatch//g; s/-Wno-stringop-overflow//g; s/-Wno-psabi//g; s/-flto=auto//g; s/-ffat-lto-objects//g' {} + 2>/dev/null || true
+		xargs -r sed -i 's/-Wno-lto-type-mismatch//g; s/-Wno-stringop-overflow//g; s/-Wno-psabi//g; s/-flto=auto//g; s/-ffat-lto-objects//g' 2>/dev/null || true
 	# Remove stock module file
 	rm -rf $(PKG)$(INSTALL_PATH)/lib/modules
 	# Install modulefile
