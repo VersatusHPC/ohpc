@@ -11,8 +11,18 @@ set -e
 COMPILER_FAMILY="${COMPILER_FAMILY:-gnu15}"
 MPI_FAMILY="${MPI_FAMILY:-openmpi5}"
 
+# Save positional parameters — Intel oneAPI vars.sh clobbers $@
+_SAVED_ARGS=("$@")
+
 export MODULEPATH=/opt/ohpc/pub/modulefiles
 . /opt/ohpc/admin/lmod/lmod/init/bash
+
+# For Intel compilers: source oneAPI environment first
+if [ "$COMPILER_FAMILY" = "intel" ]; then
+    [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
+    [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] && . /opt/intel/oneapi/mkl/latest/env/vars.sh 2>/dev/null
+fi
+
 . /opt/ohpc/admin/ohpc/OHPC_setup_compiler "$COMPILER_FAMILY"
 
 # Load MPI module (sets MPI_DIR, adds to PATH/LD_LIBRARY_PATH)
@@ -25,6 +35,9 @@ if [ "$MPI_FAMILY" = "impi" ]; then
         . /opt/intel/oneapi/mpi/latest/env/vars.sh 2>/dev/null
     fi
 fi
+
+# Restore positional parameters
+set -- "${_SAVED_ARGS[@]}"
 if [ "$MPI_FAMILY" = "impi" ] && [ -n "$MPI_DIR" ]; then
     export LD_LIBRARY_PATH="${MPI_DIR}/lib:${LD_LIBRARY_PATH}"
     export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"

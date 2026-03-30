@@ -1,0 +1,62 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+MPICH_VERSION   := 5.0.0
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+INSTALL_PATH    := /opt/ohpc/pub/mpi/mpich-ofi-$(COMPILER_FAMILY)-ohpc/$(MPICH_VERSION)
+MODULE_PATH     := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/mpich
+MODULEDEPS_PATH := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-mpich
+
+SRCDIR          := $(CURDIR)/mpich-$(MPICH_VERSION)
+PKG             := $(CURDIR)/debian/mpich-$(COMPILER_FAMILY)-ohpc
+
+# Use helper script for compiler environment
+ENV := bash $(CURDIR)/debian/build.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/mpich-$(MPICH_VERSION).tar.gz || \
+		wget -q -O SOURCES/mpich-$(MPICH_VERSION).tar.gz \
+			https://github.com/pmodels/mpich/releases/download/v$(MPICH_VERSION)/mpich-$(MPICH_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/mpich-$(MPICH_VERSION).tar.gz
+	cd $(SRCDIR) && $(ENV) ./configure \
+		--prefix=$(INSTALL_PATH) \
+		--libdir=$(INSTALL_PATH)/lib \
+		--with-device=ch4:ofi \
+		--with-libfabric
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) $(MAKE) V=1 -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) $(MAKE) DESTDIR=$(PKG) install
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)$(MODULE_PATH)
+	install -m 644 debian/modulefile $(PKG)$(MODULE_PATH)/$(MPICH_VERSION)-ofi
+	# Ensure moduledeps directory exists
+	mkdir -p $(PKG)$(MODULEDEPS_PATH)
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

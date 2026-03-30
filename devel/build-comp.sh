@@ -14,6 +14,9 @@ set -e
 
 COMPILER_FAMILY="${COMPILER_FAMILY:-gnu15}"
 
+# Save positional parameters — Intel oneAPI vars.sh clobbers $@
+_SAVED_ARGS=("$@")
+
 export MODULEPATH=/opt/ohpc/pub/modulefiles
 . /opt/ohpc/admin/lmod/lmod/init/bash
 
@@ -24,6 +27,9 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
 fi
 
 . /opt/ohpc/admin/ohpc/OHPC_setup_compiler "$COMPILER_FAMILY"
+
+# Restore positional parameters
+set -- "${_SAVED_ARGS[@]}"
 
 # Load any additional modules requested
 if [ -n "$OHPC_MODULES" ]; then

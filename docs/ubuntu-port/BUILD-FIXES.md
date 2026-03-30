@@ -130,3 +130,26 @@ When moving to OBS:
 4. dpkg-buildpackage flags are controlled by OBS — may need project-level config
 5. The lib vs lib64 issue may differ if OBS uses different dpkg-architecture settings
 6. Module loading during builds requires lmod-ohpc to be a BuildRequires
+
+## Intel oneAPI vars.sh clobbers positional parameters ($@)
+
+**Symptom:** Intel packages build "successfully" but contain zero binaries (empty packages).
+
+**Root cause:** Sourcing Intel oneAPI `vars.sh` scripts (`compiler/latest/env/vars.sh`, `mkl/latest/env/vars.sh`, `mpi/latest/env/vars.sh`) wipes `$@` in the calling shell. Build helper scripts that end with `exec "$@"` then execute `exec` with no arguments, silently doing nothing.
+
+**Fix:** Save and restore positional parameters around the sourcing:
+```bash
+_SAVED_ARGS=("$@")
+. /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
+set -- "${_SAVED_ARGS[@]}"
+```
+
+**Affected files:** `devel/build-comp.sh`, `devel/build-mpi.sh`, all per-package `debian-intel*/build.sh`
+
+## numpy dh_prep wipes PKG directory
+
+**Symptom:** numpy packages contain only modulefile, no Python files.
+
+**Root cause:** `pip install --root=$(PKG)` was in `override_dh_auto_build`. Between build and install steps, `dh_prep` wipes `debian/<pkg>/`. So all pip-installed files are deleted before packaging.
+
+**Fix:** Move pip install to `override_dh_auto_install`. Keep `pip wheel` in build step, `pip install` from wheel in install step.

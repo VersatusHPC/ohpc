@@ -1,0 +1,31 @@
+Source: mpich-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               perl,
+               zlib1g-dev,
+               libnl-3-dev,
+               libnuma-dev,
+               libfabric-dev,
+               rdma-core
+Standards-Version: 4.6.2
+Homepage: https://www.mpich.org/
+
+Package: mpich-intel-ohpc
+Architecture: any
+Provides: mpich-ofi-intel-ohpc
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         libfabric1,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: MPICH MPI implementation (Intel compilers, OpenHPC)
+ MPICH is a high-performance and widely portable implementation of
+ the MPI standard (MPI-1, MPI-2, and MPI-3).
+ Built with the Intel compiler family and libfabric (OFI).
+ .
+ This package is part of the OpenHPC project.

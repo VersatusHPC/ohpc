@@ -1,7 +1,6 @@
 #!/bin/bash
-# Helper script for building OpenMPI within debian/rules.
-# Sets up compiler and loads dependency modules, matching the EL RPM build.
-# Usage: debian/build.sh <command> [args...]
+# Helper script for building MVAPICH2 within debian/rules.
+# Sets up Intel compiler environment, matching the EL RPM build.
 set -e
 
 COMPILER_FAMILY="${COMPILER_FAMILY:-intel}"
@@ -19,9 +18,7 @@ export MODULEPATH=/opt/ohpc/pub/modulefiles
 # Restore positional parameters
 set -- "${_SAVED_ARGS[@]}"
 
-# Load dependency modules (sets HWLOC_DIR, UCX_DIR, PMIX_DIR, etc.)
+# Load dependency modules
 module load hwloc
-module load ucx
-module load pmix
 
 exec "$@"

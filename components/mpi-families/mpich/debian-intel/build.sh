@@ -1,7 +1,6 @@
 #!/bin/bash
-# Helper script for building OpenMPI within debian/rules.
-# Sets up compiler and loads dependency modules, matching the EL RPM build.
-# Usage: debian/build.sh <command> [args...]
+# Helper script for building MPICH within debian/rules.
+# Sets up Intel compiler environment, matching the EL RPM build.
 set -e
 
 COMPILER_FAMILY="${COMPILER_FAMILY:-intel}"
@@ -19,9 +18,11 @@ export MODULEPATH=/opt/ohpc/pub/modulefiles
 # Restore positional parameters
 set -- "${_SAVED_ARGS[@]}"
 
-# Load dependency modules (sets HWLOC_DIR, UCX_DIR, PMIX_DIR, etc.)
-module load hwloc
-module load ucx
-module load pmix
+# Fix Ubuntu's libfabric.pc: remove PSM/EFA libs that aren't installed
+MULTIARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
+if [ -f "/usr/lib/${MULTIARCH}/pkgconfig/libfabric.pc" ]; then
+    sed -i 's/-lpsm_infinipath//g; s/-lpsm2//g; s/-lefa//g' \
+        "/usr/lib/${MULTIARCH}/pkgconfig/libfabric.pc"
+fi
 
 exec "$@"

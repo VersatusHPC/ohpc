@@ -27,6 +27,7 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
+		export CXXFLAGS="$${CXXFLAGS} -Wno-register" && \
 		./configure --prefix=$(INSTALL_PATH) \
 			--with-boost=$$BOOST_ROOT && \
 		make -j$$(nproc)'

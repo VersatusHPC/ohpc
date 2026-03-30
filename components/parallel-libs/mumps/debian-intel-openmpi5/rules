@@ -25,14 +25,16 @@ override_dh_auto_configure:
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/MUMPS_$(VERSION).tar.gz
 	cp -f SOURCES/Makefile.gnu.inc $(SRCDIR)/Makefile.inc
+	# Remove example builds (C examples fail with Intel due to for_main.o conflict)
+	sed -i '/cd examples/d' $(SRCDIR)/Makefile
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) bash -c '\
 		export LIBS="-L$$MPI_DIR/lib -lmpi_mpifh -lmpi" && \
-		export FCFLAGS="-fallow-argument-mismatch -Wno-unused-dummy-argument -Wno-misleading-indentation -Wno-unused-function -Wno-unused-variable -Wno-maybe-uninitialized -Wno-conversion -Wno-target-lifetime -Wno-argument-mismatch" && \
-		export CFLAGS="-Wno-unused-function -Wno-strict-aliasing -Wno-misleading-indentation" && \
+		export FCFLAGS="-fPIC" && \
+		export CFLAGS="-fPIC" && \
 		make MUMPS_MPI=openmpi \
-			FC=mpif77 \
+			FC=mpif77 CC=mpicc \
 			MUMPS_LIBF77="$$LIBS" \
 			OPTC="$$CFLAGS" OPTF="$$FCFLAGS" \
 			allshared -j$$(nproc)'

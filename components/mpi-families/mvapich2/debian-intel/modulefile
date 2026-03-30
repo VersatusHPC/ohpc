@@ -1,0 +1,24 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+puts stderr " "
+puts stderr "This module loads the mvapich2 library built with Intel compilers."
+puts stderr "\nVersion 2.3.7\n"
+}
+
+module-whatis "Name: mvapich2 built with Intel compilers"
+module-whatis "Version: 2.3.7"
+module-whatis "Category: runtime library"
+module-whatis "Description: OSU MVAPICH2 MPI implementation"
+module-whatis "URL: http://mvapich.cse.ohio-state.edu"
+
+set     version             2.3.7
+
+setenv          MPI_DIR             /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7
+prepend-path    PATH                /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/bin
+prepend-path    MANPATH             /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/share/man
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/lib
+prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/intel-mvapich2
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/lib/pkgconfig
+
+family "MPI"
