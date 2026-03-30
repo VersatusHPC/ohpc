@@ -47,8 +47,8 @@ override_dh_auto_build:
 			--with-hdf5=1 \
 			--with-hdf5-lib=$$HDF5_LIB/libhdf5.so \
 			--with-hdf5-include=$$HDF5_INC \
-			--with-scalapack-dir=$$SCALAPACK_DIR \
-			--with-blas-lapack-lib=$$OPENBLAS_LIB/libopenblas.so \
+			--with-scalapack-lib="-L$$SCALAPACK_LIB -lscalapack -lgfortran" \
+			--with-blas-lapack-lib="$$OPENBLAS_LIB/libopenblas.so -lgfortran" \
 			|| cat configure.log && \
 		make PETSC_DIR=$$(pwd) PETSC_ARCH=arch-linux-c-opt all -j$$(nproc)'
 
@@ -72,9 +72,10 @@ override_dh_auto_install:
 		[ -f "$$file" ] && sed -e "s,/env python.*,/python3,g" -i "$$file" || true; \
 	done
 	# Strip GCC-specific flags that break Intel's clang-based compiler
-	find $(PKG)$(INSTALL_PATH) \( -name "petscvariables" -o -name "*.py" -o -name "*.cmake" \) -exec \\
+	sed -i 's/-Wno-lto-type-mismatch//g; s/-Wno-stringop-overflow//g; s/-Wno-psabi//g; s/-flto=auto//g; s/-ffat-lto-objects//g' \
+		$(PKG)$(INSTALL_PATH)/lib/petsc/conf/petscvariables \
+		$(PKG)$(INSTALL_PATH)/lib/petsc/conf/PETScBuildInternal.cmake 2>/dev/null || true
 		sed -i 's/-Wno-lto-type-mismatch//g; s/-Wno-stringop-overflow//g; s/-Wno-psabi//g; s/-flto=auto//g; s/-ffat-lto-objects//g' {} + 2>/dev/null || true
-		xargs -r sed -i 's/-Wno-lto-type-mismatch//g; s/-Wno-stringop-overflow//g; s/-Wno-psabi//g; s/-flto=auto//g; s/-ffat-lto-objects//g' 2>/dev/null || true
 	# Remove stock module file
 	rm -rf $(PKG)$(INSTALL_PATH)/lib/modules
 	# Install modulefile
