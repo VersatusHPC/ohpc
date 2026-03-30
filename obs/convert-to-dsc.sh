@@ -1,0 +1,132 @@
+#!/bin/bash
+# Convert all OpenHPC packages to proper Debian source format (.dsc + .tar.gz)
+# and upload them to the OBS backend.
+#
+# Usage: bash obs/convert-to-dsc.sh [http://localhost:5352]
+set -e
+
+OBS_SRC="${1:-http://localhost:5352}"
+PROJECT="VersatusHPC:OHPC:4"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WORKDIR="/tmp/obs-dsc-import"
+COUNT=0
+ERRORS=0
+
+rm -rf "$WORKDIR"
+mkdir -p "$WORKDIR"
+
+convert_and_upload() {
+    local comp_dir="$1"
+    local debian_dir="$2"
+
+    # Get package name and version from debian/control and debian/changelog
+    local pkg_name
+    pkg_name=$(grep "^Source:" "$comp_dir/$debian_dir/control" 2>/dev/null | awk '{print $2}')
+    [ -z "$pkg_name" ] && return
+
+    local version
+    version=$(head -1 "$comp_dir/$debian_dir/changelog" 2>/dev/null | sed 's/.*(\(.*\)).*/\1/')
+    [ -z "$version" ] && return
+
+    local arch
+    arch=$(grep "^Architecture:" "$comp_dir/$debian_dir/control" 2>/dev/null | head -1 | awk '{print $2}')
+    [ -z "$arch" ] && arch="any"
+
+    local build_deps
+    # Parse multiline Build-Depends (continuation lines start with whitespace)
+    build_deps=$(sed -n '/^Build-Depends:/,/^[^ ]/{ /^Build-Depends:/s/^Build-Depends: //p; /^ /p; }' \
+        "$comp_dir/$debian_dir/control" 2>/dev/null | tr '\n' ' ' | sed 's/  */ /g; s/ $//')
+    [ -z "$build_deps" ] && build_deps="debhelper-compat (= 13)"
+
+    local maintainer
+    maintainer=$(grep "^Maintainer:" "$comp_dir/$debian_dir/control" 2>/dev/null | sed 's/^Maintainer: //')
+    [ -z "$maintainer" ] && maintainer="VersatusHPC <packages@versatushpc.org>"
+
+    local pkgdir="$WORKDIR/$pkg_name"
+    rm -rf "$pkgdir"
+    mkdir -p "$pkgdir/${pkg_name}-${version}/debian"
+
+    # Copy debian files
+    cp -a "$comp_dir/$debian_dir"/* "$pkgdir/${pkg_name}-${version}/debian/"
+
+    # Copy SOURCES if they exist (dereference symlinks with -L)
+    if [ -d "$comp_dir/SOURCES" ]; then
+        cp -aL "$comp_dir/SOURCES" "$pkgdir/${pkg_name}-${version}/"
+    fi
+
+    # Also copy the devel/ helper scripts (build-comp.sh, build-mpi.sh)
+    mkdir -p "$pkgdir/${pkg_name}-${version}/devel"
+    cp "$REPO_ROOT/devel/build-comp.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
+    cp "$REPO_ROOT/devel/build-mpi.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
+
+    # Create the source tarball
+    cd "$pkgdir"
+    tar czf "${pkg_name}_${version}.tar.gz" "${pkg_name}-${version}/" 2>/dev/null
+
+    # Create .dsc file
+    local tarball_md5 tarball_size
+    tarball_md5=$(md5sum "${pkg_name}_${version}.tar.gz" | awk '{print $1}')
+    tarball_size=$(stat -c %s "${pkg_name}_${version}.tar.gz")
+
+    cat > "${pkg_name}_${version}.dsc" << EOF
+Format: 3.0 (native)
+Source: $pkg_name
+Binary: $pkg_name
+Architecture: $arch
+Version: $version
+Maintainer: $maintainer
+Build-Depends: $build_deps
+Files:
+ $tarball_md5 $tarball_size ${pkg_name}_${version}.tar.gz
+EOF
+
+    # Ensure OBS package exists
+    curl -s -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/_meta" \
+        -d "<package name=\"$pkg_name\" project=\"$PROJECT\"><title>$pkg_name</title></package>" \
+        >/dev/null 2>&1
+
+    # Delete old flat files
+    local old_files
+    old_files=$(curl -s "$OBS_SRC/source/$PROJECT/$pkg_name" 2>/dev/null | \
+        grep 'entry name=' | sed 's/.*name="\([^"]*\)".*/\1/')
+    for f in $old_files; do
+        curl -s -X DELETE "$OBS_SRC/source/$PROJECT/$pkg_name/$f" >/dev/null 2>&1
+    done
+
+    # Upload .dsc and .tar.gz
+    curl -s -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.dsc" \
+        --data-binary "@${pkg_name}_${version}.dsc" >/dev/null 2>&1
+
+    curl -s -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.tar.gz" \
+        --data-binary "@${pkg_name}_${version}.tar.gz" >/dev/null 2>&1
+
+    COUNT=$((COUNT + 1))
+    printf "\r  [%3d] %-50s" "$COUNT" "$pkg_name"
+
+    cd "$REPO_ROOT"
+}
+
+echo "=== Converting and uploading packages to $PROJECT ==="
+echo "    Backend: $OBS_SRC"
+echo ""
+
+for debian_path in $(find "$REPO_ROOT/components" -maxdepth 3 -type d \
+    \( -name "debian" -o -name "debian-*" \) -not -path "*/debian/*" \
+    -not -path "*/open-build-service/*" \
+    -not -path "*/.debhelper/*" | sort); do
+
+    parent=$(dirname "$debian_path")
+    variant=$(basename "$debian_path")
+
+    # Skip if no control file
+    [ -f "$parent/$variant/control" ] || continue
+
+    convert_and_upload "$parent" "$variant" || ERRORS=$((ERRORS + 1))
+done
+
+echo ""
+echo ""
+echo "=== Complete: $COUNT packages converted and uploaded ($ERRORS errors) ==="
+
+# Cleanup
+rm -rf "$WORKDIR"

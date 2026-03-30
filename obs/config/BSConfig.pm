@@ -2,26 +2,46 @@
 # OBS Backend Configuration for VersatusHPC
 ################################################################################
 
-our $reporoot = '/srv/obs/repos';
-our $srcrepdir = '/srv/obs/srcrep';
-our $uploaddir = '/srv/obs/upload';
-our $treesdir = '/srv/obs/trees';
+package BSConfig;
+
+use Net::Domain;
+use Socket;
+
+my $hostname = Net::Domain::hostfqdn() || 'localhost';
+my $ip = quotemeta inet_ntoa(inet_aton($hostname) || inet_aton("localhost"));
 
 our $bsdir = '/srv/obs';
 
-# Scheduler architectures to build for
-our @all_schedulers = ('x86_64', 'aarch64');
+our $reporoot  = "$bsdir/repos";
+our $srcrepdir = "$bsdir/srcrep";
+our $uploaddir = "$bsdir/upload";
+our $treesdir  = "$bsdir/trees";
 
-# Source server
-our $srcserver = 'http://backend:5352';
+# Scheduler architectures
+our @all_schedulers = ('x86_64');
 
-# Repo server
-our $reposerver = 'http://backend:5252';
+# Source server (bs_srcserver)
+our $srcserver = "http://$hostname:5352";
 
-# Disable signing for development (enable in production with GPG key)
+# Repo server (bs_repserver)
+our $reposerver = "http://$hostname:5252";
+
+# Service server
+our $serviceserver = "http://$hostname:5152";
+
+# Access control
+our $ipaccess = {
+    '^::1$'       => 'rw',
+    '^127\..*'    => 'rw',
+    "^$ip\$"      => 'rw',
+    '.*'          => 'worker',
+};
+
+# Disable signing for development
 our $sign = undef;
 
-# Download on demand (for importing upstream Ubuntu packages)
+# Download on demand
+our $enable_download_on_demand = 1;
 our $forceprojectkeys = 0;
 
 1;

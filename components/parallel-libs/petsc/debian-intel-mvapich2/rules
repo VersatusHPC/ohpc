@@ -25,23 +25,27 @@ override_dh_auto_configure:
 			https://web.cels.anl.gov/projects/petsc/download/release-snapshots/$(PNAME)-$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	# Patch PETSc configure: mvapich2's mpicc bakes in -g which triggers an icx
+	# remark on stderr containing "optimization-level option"; PETSc's overly
+	# broad ' option' substring check in containsInvalidFlag false-positives on
+	# this, rejecting all PIC flags.  Remove ' option' — the specific entries
+	# 'unknown option', 'illegal option', 'invalid option' etc. still catch
+	# real errors.
+	sed -i "s/,' option'//g" $(SRCDIR)/config/BuildSystem/config/setCompilers.py
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) bash -c '\
-		_MPI_DIR=$$MPI_DIR && \
-		unset CFLAGS CXXFLAGS FCFLAGS FFLAGS OBJCFLAGS OBJCXXFLAGS LDFLAGS && \
-		export CPP="/usr/bin/cpp" && \
+		unset CFLAGS CXXFLAGS FCFLAGS FFLAGS CC CXX FC F77 F90 LDFLAGS MPI_DIR && \
 		python3 ./configure \
 			--prefix=$(INSTALL_PATH) \
 			--with-cc=mpicc \
 			--with-cxx=mpicxx \
-			--with-fc=ifx \
-			--with-f77=ifx \
-			--with-cpp=/usr/bin/cpp \
-			FFLAGS+="-fPIC -I$${_MPI_DIR}/include" \
+			--with-fc=mpif90 \
+			--with-f77=mpif90 \
+			--with-cpp="mpicc -E -Rno-debug-disables-optimization" \
+			FFLAGS+="-fPIC" \
 			CFLAGS+="-fPIC -DPIC" \
 			CXXFLAGS+="-fPIC -DPIC" \
-			LDFLAGS+="-L$${_MPI_DIR}/lib -lmpi -lmpifort -lgfortran" \
 			--with-c-support \
 			--with-fortran-interfaces=1 \
 			--with-debugging=no \
