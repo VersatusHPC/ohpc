@@ -28,7 +28,7 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		./configure --prefix=$(PKG)$(INSTALL_PATH) --compiler=gnu --mpi=mpich && \
+		./configure --prefix=$(PKG)$(INSTALL_PATH) --compiler=gnu --mpi=mpich --disable-fortran && \
 		make -j$$(nproc)'
 
 

@@ -21,6 +21,10 @@ export MODULEPATH=/opt/ohpc/pub/modulefiles
 if [ "$COMPILER_FAMILY" = "intel" ]; then
     [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
     [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] && . /opt/intel/oneapi/mkl/latest/env/vars.sh 2>/dev/null
+    # Ensure Intel Fortran runtime libs are findable by the linker
+    INTEL_LIB="/opt/intel/oneapi/compiler/latest/lib"
+    export LIBRARY_PATH="${INTEL_LIB}:${LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${INTEL_LIB}:${LD_LIBRARY_PATH}"
 fi
 
 . /opt/ohpc/admin/ohpc/OHPC_setup_compiler "$COMPILER_FAMILY"
@@ -45,10 +49,17 @@ if [ "$MPI_FAMILY" = "impi" ] && [ -n "$MPI_DIR" ]; then
     export CPPFLAGS="${CPPFLAGS} -I${MPI_DIR}/include"
     export MPI_HOME="${MPI_DIR}"
     export CMAKE_PREFIX_PATH="${MPI_DIR}:${CMAKE_PREFIX_PATH}"
-    export I_MPI_CC=gcc
-    export I_MPI_CXX=g++
-    export I_MPI_F90=gfortran
-    export I_MPI_FC=gfortran
+    if [ "$COMPILER_FAMILY" = "intel" ]; then
+        export I_MPI_CC=icx
+        export I_MPI_CXX=icpx
+        export I_MPI_F90=ifx
+        export I_MPI_FC=ifx
+    else
+        export I_MPI_CC=gcc
+        export I_MPI_CXX=g++
+        export I_MPI_F90=gfortran
+        export I_MPI_FC=gfortran
+    fi
 fi
 
 # Load any additional modules requested
