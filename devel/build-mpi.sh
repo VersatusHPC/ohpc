@@ -37,9 +37,16 @@ if [ -n "$MPI_DIR" ]; then
     export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"
     export LD_LIBRARY_PATH="${MPI_DIR}/lib:${LD_LIBRARY_PATH}"
     export CPATH="${MPI_DIR}/include:${CPATH}"
-    # Add MPI lib/include to standard compiler search paths via flags
-    export LDFLAGS="${LDFLAGS} -L${MPI_DIR}/lib -Wl,-rpath,${MPI_DIR}/lib"
+    # Add MPI and its deps to compiler search paths
+    # libmpi.so depends on libfabric, UCX, hwloc, pmix — add all to linker path
+    _OHPC_UCX="/opt/ohpc/pub/mpi/ucx/1.20.0/lib"
+    _OHPC_HWLOC="/opt/ohpc/pub/libs/hwloc/lib"
+    _OHPC_PMIX="/opt/ohpc/admin/pmix/lib"
+    export LDFLAGS="${LDFLAGS} -L${MPI_DIR}/lib -L${_OHPC_UCX} -L${_OHPC_HWLOC} -L${_OHPC_PMIX} -Wl,-rpath,${MPI_DIR}/lib"
     export CPPFLAGS="${CPPFLAGS} -I${MPI_DIR}/include"
+    # Also set CFLAGS/CXXFLAGS include path for configure header checks
+    export CFLAGS="${CFLAGS} -I${MPI_DIR}/include"
+    export CXXFLAGS="${CXXFLAGS} -I${MPI_DIR}/include"
     export MPICC=mpicc
     export MPICXX=mpicxx
     export MPIF90=mpif90
