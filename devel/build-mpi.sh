@@ -38,11 +38,16 @@ if [ -n "$MPI_DIR" ]; then
     export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"
     export LD_LIBRARY_PATH="${MPI_DIR}/lib:${LD_LIBRARY_PATH}"
     export CPATH="${MPI_DIR}/include:${CPATH}"
-    # Override CC/CXX/FC with MPI wrappers so configure tests find MPI
     export MPICC=mpicc
     export MPICXX=mpicxx
     export MPIF90=mpif90
     export MPIFC=mpif90
+    echo "--> MPI_DIR  = $MPI_DIR"
+    echo "--> MPICC    = $(which mpicc 2>/dev/null || echo 'not found')"
+else
+    echo "WARNING: MPI_DIR not set after loading $MPI_FAMILY"
+    echo "MODULEPATH=$MODULEPATH"
+    module avail 2>&1 | head -5
 fi
 
 # For Intel MPI: source oneAPI environment and ensure paths are available

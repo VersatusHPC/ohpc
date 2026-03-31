@@ -34,7 +34,7 @@ override_dh_auto_build:
 			double) PREC_FLAGS="" ;; \
 			long-double) PREC_FLAGS="--enable-long-double"; ARCH_FLAGS="" ;; \
 		esac && \
-		$(ENV) ../configure --prefix=$(INSTALL_PATH) --enable-shared --disable-dependency-tracking \
+		$(ENV) ../configure CC=mpicc F77=mpif90 --prefix=$(INSTALL_PATH) --enable-shared --disable-dependency-tracking \
 			--enable-threads --enable-openmp --enable-mpi --enable-static=no \
 			$${ARCH_FLAGS} $${PREC_FLAGS} && \
 		$(ENV) make -j$$(nproc) && \

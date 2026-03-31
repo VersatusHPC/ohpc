@@ -12,9 +12,14 @@ export MODULEPATH=/opt/ohpc/pub/modulefiles
 # Fix Ubuntu's libfabric.pc: remove PSM/EFA libs that aren't installed
 # (Ubuntu advertises PSM providers in static libs but doesn't ship them)
 MULTIARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
-if [ -f "/usr/lib/${MULTIARCH}/pkgconfig/libfabric.pc" ]; then
+_FABPC="/usr/lib/${MULTIARCH}/pkgconfig/libfabric.pc"
+if [ -f "$_FABPC" ]; then
+    # Copy to a writable location (OBS builds as non-root)
+    mkdir -p /tmp/ohpc-pkgconfig
+    cp "$_FABPC" /tmp/ohpc-pkgconfig/
     sed -i 's/-lpsm_infinipath//g; s/-lpsm2//g; s/-lefa//g' \
-        "/usr/lib/${MULTIARCH}/pkgconfig/libfabric.pc"
+        /tmp/ohpc-pkgconfig/libfabric.pc
+    export PKG_CONFIG_PATH="/tmp/ohpc-pkgconfig:${PKG_CONFIG_PATH}"
 fi
 
 exec "$@"
