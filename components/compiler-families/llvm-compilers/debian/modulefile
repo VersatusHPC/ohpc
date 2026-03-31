@@ -1,0 +1,19 @@
+#%Module1.0
+
+module-whatis "Name: LLVM Compiler Suite"
+module-whatis "Version: 10.0.1"
+module-whatis "Description: LLVM/Clang compiler infrastructure"
+
+set version 10.0.1
+set prefix /opt/ohpc/pub/compiler/llvm/${version}
+
+prepend-path PATH ${prefix}/bin
+prepend-path LD_LIBRARY_PATH ${prefix}/lib
+prepend-path LIBRARY_PATH ${prefix}/lib
+prepend-path MANPATH ${prefix}/share/man
+prepend-path CMAKE_PREFIX_PATH ${prefix}
+
+setenv CC clang
+setenv CXX clang++
+
+family "compiler"

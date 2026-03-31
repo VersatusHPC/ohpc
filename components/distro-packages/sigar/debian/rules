@@ -1,0 +1,46 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+PNAME           := sigar
+VERSION         := 1.6.5
+SIGAR_HASH      := ad47dc3b494e9293d1f087aebb099bdba832de5e
+SRCDIR          := $(CURDIR)/$(PNAME)-$(SIGAR_HASH)
+PKG             := $(CURDIR)/debian/$(PNAME)-ohpc
+INSTALL_PATH    := /usr
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://github.com/hyperic/sigar/archive/$(SIGAR_HASH).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	cd $(SRCDIR) && for p in $(CURDIR)/SOURCES/*.patch; do \
+		[ -f "$$p" ] && patch -p1 < "$$p" || true; \
+	done
+
+override_dh_auto_build:
+	cd $(SRCDIR) && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) . && \
+		make -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && make DESTDIR=$(PKG) install
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

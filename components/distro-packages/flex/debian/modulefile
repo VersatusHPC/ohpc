@@ -1,0 +1,13 @@
+#%Module1.0
+
+module-whatis "Name: flex"
+module-whatis "Version: 2.6.4"
+module-whatis "Description: Fast Lexical Analyzer Generator"
+
+set version 2.6.4
+set prefix /opt/ohpc/pub/libs/flex/${version}
+
+prepend-path PATH ${prefix}/bin
+prepend-path MANPATH ${prefix}/share/man
+prepend-path LD_LIBRARY_PATH ${prefix}/lib
+setenv FLEX_DIR ${prefix}

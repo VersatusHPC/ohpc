@@ -1,0 +1,56 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+PNAME           := msr-safe
+VERSION         := 1.6.0
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-ohpc
+KVERSION        := $(shell ls /lib/modules/ | sort -V | tail -1)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://github.com/LLNL/msr-safe/archive/v$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && make KVERSION=$(KVERSION) -j$$(nproc)
+	cd $(SRCDIR) && make msrsave
+
+override_dh_auto_install:
+	# Install kernel module
+	mkdir -p $(PKG)/lib/modules/$(KVERSION)/extra/msr-safe
+	install -m 644 $(SRCDIR)/msr-safe.ko $(PKG)/lib/modules/$(KVERSION)/extra/msr-safe/
+	# Install userspace tools
+	mkdir -p $(PKG)/usr/sbin
+	install -m 755 $(SRCDIR)/msrsave $(PKG)/usr/sbin/
+	# Install allowlists
+	mkdir -p $(PKG)/usr/share/msr-safe/allowlists
+	install -m 644 $(SRCDIR)/allowlists/* $(PKG)/usr/share/msr-safe/allowlists/ || true
+	# Install systemd service
+	mkdir -p $(PKG)/lib/systemd/system
+	install -m 644 $(SRCDIR)/msr-safe.service $(PKG)/lib/systemd/system/ || true
+	# Install udev rules
+	mkdir -p $(PKG)/lib/udev/rules.d
+	install -m 644 $(SRCDIR)/60-msr-safe.rules $(PKG)/lib/udev/rules.d/ || true
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:
