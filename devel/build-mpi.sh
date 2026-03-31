@@ -36,7 +36,13 @@ module load "$MPI_FAMILY"
 # (LD_LIBRARY_PATH is runtime only; LIBRARY_PATH is compile-time)
 if [ -n "$MPI_DIR" ]; then
     export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${MPI_DIR}/lib:${LD_LIBRARY_PATH}"
     export CPATH="${MPI_DIR}/include:${CPATH}"
+    # Override CC/CXX/FC with MPI wrappers so configure tests find MPI
+    export MPICC=mpicc
+    export MPICXX=mpicxx
+    export MPIF90=mpif90
+    export MPIFC=mpif90
 fi
 
 # For Intel MPI: source oneAPI environment and ensure paths are available
