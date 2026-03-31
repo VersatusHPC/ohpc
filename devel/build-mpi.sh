@@ -32,18 +32,18 @@ fi
 # Load MPI module (sets MPI_DIR, adds to PATH/LD_LIBRARY_PATH)
 module load "$MPI_FAMILY"
 
-# Ensure MPI library is in compile-time linker search path
-# (LD_LIBRARY_PATH is runtime only; LIBRARY_PATH is compile-time)
+# Ensure MPI library is findable at compile and link time
 if [ -n "$MPI_DIR" ]; then
     export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"
     export LD_LIBRARY_PATH="${MPI_DIR}/lib:${LD_LIBRARY_PATH}"
     export CPATH="${MPI_DIR}/include:${CPATH}"
+    # Add MPI lib/include to standard compiler search paths via flags
+    export LDFLAGS="${LDFLAGS} -L${MPI_DIR}/lib -Wl,-rpath,${MPI_DIR}/lib"
+    export CPPFLAGS="${CPPFLAGS} -I${MPI_DIR}/include"
     export MPICC=mpicc
     export MPICXX=mpicxx
     export MPIF90=mpif90
     export MPIFC=mpif90
-    echo "--> MPI_DIR  = $MPI_DIR"
-    echo "--> MPICC    = $(which mpicc 2>/dev/null || echo 'not found')"
 else
     echo "WARNING: MPI_DIR not set after loading $MPI_FAMILY"
     echo "MODULEPATH=$MODULEPATH"
