@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: VersatusHPC <packages@versatushpc.org>
 Build-Depends: debhelper-compat (= 13),
                cmake,
-               wget
+               wget,
+               libtirpc-dev
 Standards-Version: 4.6.2
 
 Package: sigar-ohpc

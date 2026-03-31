@@ -1,0 +1,12 @@
+diff --git a/src/os/linux/linux_sigar.c b/src/os/linux/linux_sigar.c
+index e65abd6..1234567 100644
+--- a/src/os/linux/linux_sigar.c
++++ b/src/os/linux/linux_sigar.c
+@@ -26,6 +26,7 @@
+ #include <sys/ioctl.h>
+ #include <sys/mount.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <sys/uio.h>
+ #include <sys/utsname.h>
+ #include <sys/vfs.h>

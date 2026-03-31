@@ -24,9 +24,18 @@ override_dh_auto_configure:
 	cd $(SRCDIR) && for p in $(CURDIR)/SOURCES/*.patch; do \
 		[ -f "$$p" ] && patch -p1 < "$$p" || true; \
 	done
+	# Fix for modern glibc (>= 2.32):
+	# 1. Add sys/sysmacros.h for major()/minor() macros
+	grep -q "sys/sysmacros.h" $(SRCDIR)/src/os/linux/linux_sigar.c || \
+		sed -i '1i #include <sys/sysmacros.h>' $(SRCDIR)/src/os/linux/linux_sigar.c
+	# 2. Add tirpc include/link for rpc/rpc.h (moved from glibc to libtirpc)
+	sed -i '1i include_directories(/usr/include/tirpc)' $(SRCDIR)/src/CMakeLists.txt
+	echo "TARGET_LINK_LIBRARIES(sigar tirpc)" >> $(SRCDIR)/src/CMakeLists.txt
+	# Disable test targets
+	sed -i "/ADD_SUBDIRECTORY(tests/d; /ENABLE_TESTING/d; /INCLUDE(CTest)/d" $(SRCDIR)/CMakeLists.txt
 
 override_dh_auto_build:
-	cd $(SRCDIR) && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) . && \
+	cd $(SRCDIR) && cmake -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) . && \
 		make -j$$(nproc)
 
 override_dh_auto_install:

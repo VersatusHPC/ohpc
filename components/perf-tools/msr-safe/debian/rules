@@ -6,10 +6,11 @@ export CXXFLAGS =
 export LDFLAGS =
 
 PNAME           := msr-safe
-VERSION         := 1.6.0
+VERSION         := 1.7.0
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-ohpc
-KVERSION        := $(shell ls /lib/modules/ | sort -V | tail -1)
+KVERSION        := $(shell ls /usr/src/ 2>/dev/null | grep "linux-headers-" | grep -v common | sort -V | tail -1 | sed "s/linux-headers-//")
+KDIR            := /usr/src/linux-headers-$(KVERSION)
 
 %:
 	dh $@
@@ -20,9 +21,14 @@ override_dh_auto_configure:
 			https://github.com/LLNL/msr-safe/archive/v$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	# Create symlink so kernel module build can find headers
+	mkdir -p /lib/modules/$(KVERSION)
+	ln -sfn $(KDIR) /lib/modules/$(KVERSION)/build
 
 override_dh_auto_build:
-	cd $(SRCDIR) && make KVERSION=$(KVERSION) -j$$(nproc)
+	# Fix Makefile to use our KVERSION instead of uname -r
+	sed -i 's|$$(shell uname -r)|$(KVERSION)|g' $(SRCDIR)/Makefile
+	cd $(SRCDIR) && $(MAKE)
 	cd $(SRCDIR) && make msrsave
 
 override_dh_auto_install:
