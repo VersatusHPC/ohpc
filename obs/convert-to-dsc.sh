@@ -60,6 +60,10 @@ convert_and_upload() {
     cp "$REPO_ROOT/devel/build-mpi.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
     # OBS builds from /usr/src/packages/BUILD/ — use absolute path to devel/
     sed -i 's|/build/devel/|/usr/src/packages/BUILD/devel/|g' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
+    # Ensure COMPILER_FAMILY and MPI_FAMILY are exported to the environment
+    # (OBS doesn't pass them as env vars like our container builds do)
+    sed -i 's/^COMPILER_FAMILY\b/export COMPILER_FAMILY/' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
+    sed -i 's/^MPI_FAMILY\b/export MPI_FAMILY/' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
 
     # Create the source tarball
     cd "$pkgdir"
