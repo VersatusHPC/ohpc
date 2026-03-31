@@ -32,6 +32,13 @@ fi
 # Load MPI module (sets MPI_DIR, adds to PATH/LD_LIBRARY_PATH)
 module load "$MPI_FAMILY"
 
+# Ensure MPI library is in compile-time linker search path
+# (LD_LIBRARY_PATH is runtime only; LIBRARY_PATH is compile-time)
+if [ -n "$MPI_DIR" ]; then
+    export LIBRARY_PATH="${MPI_DIR}/lib:${LIBRARY_PATH}"
+    export CPATH="${MPI_DIR}/include:${CPATH}"
+fi
+
 # For Intel MPI: source oneAPI environment and ensure paths are available
 if [ "$MPI_FAMILY" = "impi" ]; then
     # Source Intel MPI environment (sets I_MPI_ROOT, fixes mpicc wrapper)
