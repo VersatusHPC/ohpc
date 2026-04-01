@@ -25,6 +25,7 @@ override_dh_auto_configure:
 override_dh_auto_build:
 	cd $(SRCDIR) && \
 	export OFFLINE_BUILD=1 && \
+	export GOTOOLCHAIN=local && \
 	make defaults \
 		VERSION=$(WW_VERSION) \
 		PREFIX=/usr \
@@ -50,6 +51,7 @@ override_dh_auto_build:
 override_dh_auto_install:
 	cd $(SRCDIR) && \
 	export OFFLINE_BUILD=1 && \
+	export GOTOOLCHAIN=local && \
 	export NO_BRP_STALE_LINK_ERROR=yes && \
 	make install DESTDIR=$(PKG)
 	# Dracut subpackage

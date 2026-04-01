@@ -14,13 +14,15 @@ override_dh_auto_configure:
 			https://github.com/kubernetes-sigs/mdtoc/archive/v$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	tar xf SOURCES/$(PNAME)-$(VERSION)-vendor.tar.gz -C $(SRCDIR)
 
 override_dh_auto_build:
 	cd $(SRCDIR) && \
 		export PATH=/usr/local/go/bin:$$PATH && \
 		export GOPATH=$(CURDIR)/.gopath && \
 		export GOCACHE=$(CURDIR)/.gocache && \
-		go mod download && \
+		export GOFLAGS=-mod=vendor && \
+		export GOTOOLCHAIN=local && \
 		CGO_ENABLED=0 go build -o mdtoc .
 
 override_dh_auto_install:
