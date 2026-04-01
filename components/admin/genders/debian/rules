@@ -23,7 +23,7 @@ override_dh_auto_configure:
 		./configure \
 			--prefix=/usr \
 			--with-perl-extensions \
-			--with-python-extensions \
+			--without-python-extensions \
 			--with-cplusplus-extensions
 
 override_dh_auto_build:

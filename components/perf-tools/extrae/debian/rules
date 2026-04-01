@@ -37,7 +37,7 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	# Create prefix dir to satisfy chmod calls that don't use DESTDIR
-	mkdir -p $(INSTALL_PATH)/bin
+	mkdir -p $(PKG)$(INSTALL_PATH)/bin
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		make DESTDIR=$(PKG) install' || true
 	# Remove the non-DESTDIR dir we created
