@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+# Run module generator if Intel MPI is installed
+if [ -d /opt/intel/oneapi/mpi ]; then
+    /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-impi || true
+fi
+
+#DEBHELPER#
+
+exit 0
