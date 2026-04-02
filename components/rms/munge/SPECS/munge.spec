@@ -202,7 +202,6 @@ fi
 
 %files -n %{pname}-devel%{PROJ_DELIM}
 %{_includedir}/*
-%{_libdir}/*.la
 %{_libdir}/pkgconfig/*.pc
 %{_mandir}/*3/*
 %{_libdir}/*.a
