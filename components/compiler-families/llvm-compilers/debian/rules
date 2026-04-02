@@ -30,7 +30,7 @@ override_dh_auto_build:
 		cmake -G Ninja \
 			-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
 			-DCMAKE_BUILD_TYPE=Release \
-			-DLLVM_ENABLE_PROJECTS="clang;compiler-rt;openmp;lld;libcxx;libcxxabi;libunwind" \
+			-DLLVM_ENABLE_PROJECTS="clang;compiler-rt;openmp;lld" \
 			-DLLVM_TARGETS_TO_BUILD="X86" \
 			-DLLVM_BUILD_LLVM_DYLIB=ON \
 			-DLLVM_LINK_LLVM_DYLIB=ON \

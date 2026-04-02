@@ -27,6 +27,12 @@ override_dh_auto_configure:
 	tar xf SOURCES/$(BASE_PNAME)-$(VERSION).tar.gz
 
 override_dh_auto_build:
+	# Generate gfortran-compatible MPI .mod files
+	# Intel MPI ships .mod files compiled with ifort; gfortran can't read them
+	mkdir -p $(SRCDIR)/gfortran_mpi_mods
+	printf 'module mpi\n  implicit none\n  include '\''mpif.h'\''\nend module mpi\n' \
+		> $(SRCDIR)/gfortran_mpi_mods/mpi_compat.F90
+	cd $(SRCDIR)/gfortran_mpi_mods && $(ENV) mpif90 -fallow-argument-mismatch -c mpi_compat.F90 || true
 	cd $(SRCDIR) && $(ENV) cmake -S . -B build \
 		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -38,7 +44,7 @@ override_dh_auto_build:
 		-DCMAKE_C_COMPILER=mpicc \
 		-DCMAKE_CXX_COMPILER=mpicxx \
 		-DCMAKE_Fortran_COMPILER=mpif90 \
-		-DCMAKE_Fortran_FLAGS="-fno-lto -fallow-argument-mismatch" \
+		-DCMAKE_Fortran_FLAGS="-fno-lto -fallow-argument-mismatch -I$(SRCDIR)/gfortran_mpi_mods" \
 		-DMPI_C_COMPILER=mpicc \
 		-DMPI_CXX_COMPILER=mpicxx \
 		-DMPI_Fortran_COMPILER=mpif90 \

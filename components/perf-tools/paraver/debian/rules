@@ -20,7 +20,8 @@ override_dh_auto_configure:
 			https://ftp.tools.bsc.es/wxparaver/wxparaver-$(VERSION)-src.tar.bz2
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/wxparaver-$(VERSION)-src.tar.bz2
-	cd $(SRCDIR) && ./configure --prefix=$(INSTALL_PATH)
+	cd $(SRCDIR) && ./configure --prefix=$(INSTALL_PATH) \
+		--with-boost-libdir=/usr/lib/x86_64-linux-gnu
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(MAKE) -j$$(nproc)

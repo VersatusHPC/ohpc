@@ -21,9 +21,9 @@ override_dh_auto_configure:
 			https://github.com/LLNL/msr-safe/archive/v$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
-	# Create symlink so kernel module build can find headers
-	mkdir -p /lib/modules/$(KVERSION)
-	ln -sfn $(KDIR) /lib/modules/$(KVERSION)/build
+	# Create symlink so kernel module build can find headers (may fail as non-root in OBS chroot)
+	mkdir -p /lib/modules/$(KVERSION) 2>/dev/null || true
+	ln -sfn $(KDIR) /lib/modules/$(KVERSION)/build 2>/dev/null || true
 
 override_dh_auto_build:
 	# Fix Makefile to use our KVERSION instead of uname -r

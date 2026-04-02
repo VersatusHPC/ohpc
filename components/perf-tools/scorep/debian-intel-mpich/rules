@@ -37,7 +37,8 @@ override_dh_auto_build:
 			--with-libgotcha=$$GOTCHA_DIR \
 			--enable-shared --disable-static \
 			--without-shmem \
-			--disable-mpi-f08 && \
+			--disable-mpi-f08 \
+			scorep_cv_have_mpi_f08_support=no && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:

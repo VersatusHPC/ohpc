@@ -54,6 +54,9 @@ Macros:
 Optflags: x86_64 -O0
 Optflags: aarch64 -O0
 
+# Ensure fakeroot is available for dpkg-buildpackage in all chroots
+Support: fakeroot
+
 # Build order hints
 Prefer: ohpc-filesystem ohpc-buildroot lmod-ohpc
 Prefer: gnu15-compilers-ohpc

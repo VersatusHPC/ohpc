@@ -27,10 +27,10 @@ override_dh_auto_configure:
 	test -d $(SRCDIR) || mv lustre-release-$(VERSION) $(SRCDIR) 2>/dev/null || true
 
 override_dh_auto_build:
-	# Create kernel module build symlink
+	# Create kernel module build symlink (may fail as non-root in OBS chroot)
 	$(eval KVER := $(shell ls /usr/src/ 2>/dev/null | grep "linux-headers-" | grep -v common | sort -V | tail -1 | sed "s/linux-headers-//"))
-	mkdir -p /lib/modules/$(KVER)
-	ln -sfn /usr/src/linux-headers-$(KVER) /lib/modules/$(KVER)/build
+	mkdir -p /lib/modules/$(KVER) 2>/dev/null || true
+	ln -sfn /usr/src/linux-headers-$(KVER) /lib/modules/$(KVER)/build 2>/dev/null || true
 	cd $(SRCDIR) && sh autogen.sh && \
 		./configure \
 			--prefix=/usr \
