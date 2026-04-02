@@ -7,7 +7,7 @@ package BSConfig;
 use Net::Domain;
 use Socket;
 
-my $hostname = Net::Domain::hostfqdn() || 'localhost';
+my $hostname = $ENV{'OBS_HOSTNAME'} || Net::Domain::hostfqdn() || 'localhost';
 my $ip = quotemeta inet_ntoa(inet_aton($hostname) || inet_aton("localhost"));
 
 our $bsdir = '/srv/obs';

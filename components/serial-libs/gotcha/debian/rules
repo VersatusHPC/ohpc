@@ -1,0 +1,51 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+PNAME           := gotcha
+VERSION         := 1.0.8
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/GOTCHA-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
+ENV             := bash /build/devel/build-comp.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(VERSION).tar.gz \
+			https://github.com/LLNL/GOTCHA/archive/$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		cmake -S . -B build \
+			-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DGOTCHA_ENABLE_TESTS=OFF && \
+		cmake --build build -j$$(nproc)'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && DESTDIR=$(PKG) $(ENV) cmake --install build
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

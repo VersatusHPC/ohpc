@@ -50,7 +50,7 @@ override_dh_auto_build:
 			-DTPL_ENABLE_LAPACK:BOOL=ON \
 			-DLAPACK_LIBRARY_DIRS:PATH="$${OPENBLAS_LIB}" \
 			-DLAPACK_LIBRARY_NAMES:STRING="openblas" \
-			-DTrilinos_EXTRA_LINK_FLAGS:STRING="-lgfortran" \
+			-DTrilinos_EXTRA_LINK_FLAGS:STRING="-lifcore" \
 			-DTrilinos_ENABLE_MueLu:BOOL=ON \
 			-DTrilinos_ENABLE_Phalanx:BOOL=ON \
 			-DTrilinos_ENABLE_Stokhos:BOOL=ON \
