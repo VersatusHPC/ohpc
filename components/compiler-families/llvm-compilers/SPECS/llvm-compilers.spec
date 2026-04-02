@@ -14,8 +14,13 @@
 %global triple aarch64-pc-linux-gnu
 %global build_target AArch64
 %else
+%ifarch ppc64le
+%global triple powerpc64le-linux-gnu
+%global build_target PowerPC
+%else
 %global triple x86_64-pc-linux-gnu
 %global build_target X86
+%endif
 %endif
 
 # Limit the number of parallel build processes to avoid race conditions

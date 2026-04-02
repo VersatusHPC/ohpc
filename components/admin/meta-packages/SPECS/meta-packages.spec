@@ -137,7 +137,7 @@ Requires:  pnetcdf-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  phdf5-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  phdf5-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-%ifnarch aarch64
+%ifnarch aarch64 ppc64le
 Requires:  adios2-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  netcdf-cxx-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  netcdf-fortran-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -208,7 +208,7 @@ Requires:  superlu_dist-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  superlu_dist-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  trilinos-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  trilinos-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-%ifnarch aarch64
+%ifnarch aarch64 ppc64le
 Requires:  boost-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  fftw-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  hypre-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -273,7 +273,7 @@ Requires:  scalasca-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  scalasca-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scorep-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  scorep-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-%ifnarch aarch64
+%ifnarch aarch64 ppc64le
 Requires:  dimemas-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  extrae-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  imb-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -342,7 +342,7 @@ Summary:   OpenHPC python3 libraries for GNU
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  %{python_prefix}-numpy-%{compiler_family}%{PROJ_DELIM}
-%ifnarch aarch64
+%ifnarch aarch64 ppc64le
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-mvapich2%{PROJ_DELIM}
 %endif
 %description -n %{PROJ_NAME}-%{compiler_family}-python3-libs
@@ -414,7 +414,7 @@ Collection of base packages for Warewulf provisioning
 
 %if !0%{?openEuler}
 # x86_64 specific groups
-%ifnarch aarch64
+%ifnarch aarch64 ppc64le
 
 %package -n %{PROJ_NAME}-intel-io-libs
 Summary:   OpenHPC IO libraries for Intel(R) oneAPI Toolkit
@@ -837,7 +837,7 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-warewulf
 %if !0%{?openEuler}
 # x86_64 specific groups
-%ifnarch aarch64
+%ifnarch aarch64 ppc64le
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
