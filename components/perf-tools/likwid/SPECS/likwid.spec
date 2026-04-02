@@ -90,7 +90,14 @@ It consists of:
           BUILDFREQ="true" \
           ACCESSMODE="perf_event" \
     %else
+    %ifarch ppc64le
           COMPILER="GCC" \
+          BUILDDAEMON="true" \
+          BUILDFREQ="true" \
+          ACCESSMODE="perf_event" \
+    %else
+          COMPILER="GCC" \
+    %endif
     %endif
           FC="gfortran" \
           FCFLAGS="-J ./ -fsyntax-only" \
@@ -120,7 +127,14 @@ It consists of:
           BUILDFREQ="true" \
           ACCESSMODE="perf_event" \
     %else
+    %ifarch ppc64le
           COMPILER="GCC" \
+          BUILDDAEMON="true" \
+          BUILDFREQ="true" \
+          ACCESSMODE="perf_event" \
+    %else
+          COMPILER="GCC" \
+    %endif
     %endif
           FC="gfortran" \
           FCFLAGS="-J ./ -fsyntax-only" \
