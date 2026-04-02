@@ -79,11 +79,20 @@ sed -i "s|^license = '\(.*\)'|license = {text = '\1'}|" pyproject.toml
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm1"
 module load openblas
+%ifarch ppc64le
+export CFLAGS="${CFLAGS} -mcpu=power9 -mvsx"
+export CXXFLAGS="${CXXFLAGS} -mcpu=power9 -mvsx"
+%endif
 PKG_CONFIG_PATH="${OPENBLAS_LIB}/pkgconfig:${PKG_CONFIG_PATH}" \
+CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" \
 %__python -m pip wheel --no-build-isolation --wheel-dir=dist \
 	-Csetup-args=-Dblas=openblas \
 	-Csetup-args=-Dlapack=openblas \
 	-Csetup-args=-Dallow-noblas=false \
+%ifarch ppc64le
+	-Csetup-args=-Dc_args=-mcpu=power9,-mvsx \
+	-Csetup-args=-Dcpp_args=-mcpu=power9,-mvsx \
+%endif
 	.
 %endif
 
