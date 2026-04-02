@@ -25,10 +25,12 @@ services:
   backend:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     container_name: obs-backend
+    environment:
+      - OBS_HOSTNAME=obs-backend
     volumes:
       - obs-backend-data:/srv/obs
-      - ./config/BSConfig.pm:/etc/obs/BSConfig.pm.custom:ro
-      - ./start-backend.sh:/start-backend.sh:ro
+      - ./config/BSConfig.pm:/etc/obs/BSConfig.pm.custom:ro,z
+      - ./start-backend.sh:/start-backend.sh:ro,z
     entrypoint: /bin/bash
     command: /start-backend.sh
     ports:
@@ -42,9 +44,14 @@ services:
     privileged: true
     depends_on:
       - backend
+    environment:
+      - OBS_BACKEND_HOST=obs-backend
+      - OBS_WORKER_COUNT=2
     volumes:
-      - ../obs/open-build-service:/obs:z
-    command: /obs/contrib/start_development_worker -h backend -i -w 4
+      - ./start-worker.sh:/start-worker.sh:ro,z
+      - ./config/BSConfig.pm:/usr/lib/obs/server/BSConfig.pm:ro,z
+    entrypoint: /bin/bash
+    command: /start-worker.sh
 
 volumes:
   obs-db-data:
