@@ -31,7 +31,7 @@ Summary:   A powerful implementation of MPI/SHMEM
 
 Name:      %{pname}%{RMS_DELIM}-%{compiler_family}%{PROJ_DELIM}
 
-Version:   5.0.9
+Version:   5.0.10
 Release:   1%{?dist}
 License:   BSD-3-Clause
 Group:     %{PROJ_NAME}/mpi-families
@@ -56,6 +56,7 @@ BuildRequires:  numactl
 BuildRequires:  libevent-devel
 %if 0%{with_pmix}
 BuildRequires:  pmix%{PROJ_DELIM}
+BuildRequires:  munge-devel
 %endif
 %if 0%{with_ofi}
 BuildRequires:  libfabric-devel

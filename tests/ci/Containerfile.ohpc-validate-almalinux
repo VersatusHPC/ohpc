@@ -12,3 +12,6 @@ RUN chmod +x /tmp/prepare-ci-environment.sh
 
 # Run prepare-ci-environment.sh
 RUN /tmp/prepare-ci-environment.sh
+
+# From EPEL
+RUN dnf -y install gh

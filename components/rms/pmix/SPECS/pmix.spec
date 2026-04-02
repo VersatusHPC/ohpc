@@ -16,9 +16,9 @@ Name: %{pname}%{PROJ_DELIM}
 Version: 4.2.9
 Release: 1%{?dist}
 License: BSD
-URL: https://pmix.github.io/pmix/
+URL: https://pmix.org/
 Group: %{PROJ_NAME}/rms
-Source0: https://github.com/pmix/pmix/releases/download/v%{version}/pmix-%{version}.tar.bz2
+Source0: https://github.com/openpmix/openpmix/releases/download/v%{version}/pmix-%{version}.tar.bz2
 
 BuildRequires: make
 BuildRequires: libevent-devel
@@ -26,6 +26,7 @@ BuildRequires: gcc-c++
 BuildRequires: python3
 BuildRequires: hwloc%{PROJ_DELIM}
 BuildRequires: libxml2-devel
+BuildRequires: munge-devel
 #!BuildIgnore: post-build-checks
 
 %global install_path %{OHPC_ADMIN}/%{pname}

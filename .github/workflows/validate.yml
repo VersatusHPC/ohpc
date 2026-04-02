@@ -9,6 +9,7 @@ on:
       - 4.x
 
 permissions:
+  actions: write
   contents: read
 
 env:
@@ -241,6 +242,7 @@ jobs:
             arch: aarch64
     env:
       JOB_SKIP_CI_SPECS: |
+        components/admin/docs/SPECS/docs.spec
         components/provisioning/warewulf/SPECS/warewulf.spec
     runs-on: ${{ matrix.os }}
     name: Build on openEuler (${{ matrix.arch }})
@@ -301,6 +303,7 @@ jobs:
             arch: aarch64
     env:
       JOB_SKIP_CI_SPECS: |
+        components/admin/docs/SPECS/docs.spec
         components/runtimes/charliecloud/SPECS/charliecloud.spec
         components/perf-tools/likwid/SPECS/likwid.spec
         components/provisioning/warewulf/SPECS/warewulf.spec

@@ -11,7 +11,7 @@ codespell-lint:
 		tests/ci/run_build.py \
 		misc/build_order.py \
 		misc/build_order.sh \
-		misc/check_for_package_updates.sh \
+		misc/check_for_package_updates.py \
 		misc/dist/count_avail_packages.sh \
 		tests/ci/spec_to_test_mapping.py \
 		tests/ci/test_parse_doc.bats \
@@ -27,6 +27,9 @@ codespell-lint:
 		tests/user-env/ompi_info \
 		tests/perf-tools/dimemas/tests/test_module \
 		tests/perf-tools/extrae/tests/test_module \
+		tests/perf-tools/extrae/tests/rm_execution \
+		tests/perf-tools/extrae/tests/tracec.sh \
+		tests/perf-tools/extrae/tests/tracef.sh \
 		tests/perf-tools/likwid/tests/rm_execution \
 		tests/perf-tools/likwid/tests/test_module \
 		tests/perf-tools/omb/tests/rm_execution \
@@ -35,6 +38,9 @@ codespell-lint:
 		tests/perf-tools/scorep/tests/instrumenter_test \
 		tests/perf-tools/scorep/tests/rm_execution \
 		tests/perf-tools/scorep/tests/test_module \
+		tests/perf-tools/tau/tests/rm_execution \
+		tests/perf-tools/tau/tests/test_module \
+		tests/perf-tools/tau/ohpc-tests/test_mpi_families \
 		tests/perf-tools/omb/tests/rm_execution \
 		tests/perf-tools/omb/tests/test_module \
 		tests/perf-tools/omb/ohpc-tests/test_mpi_families \
@@ -44,6 +50,7 @@ codespell-lint:
 		tests/libs/superlu/ohpc-tests/test_compiler_families \
 		tests/libs/superlu_dist/tests/rm_execution \
 		tests/libs/superlu_dist/tests/test_module \
+		tests/libs/superlu_dist/ohpc-tests/test_mpi_families \
 		tests/libs/netcdf/ohpc-tests/test_mpi_families \
 		tests/libs/netcdf/ohpc-tests/netcdf_all_test_mpi_families \
 		tests/libs/netcdf/tests-parallel/test_pnetcdf \
@@ -57,6 +64,12 @@ codespell-lint:
 		tests/libs/ptscotch/tests/rm_execution \
 		tests/libs/ptscotch/tests/test_module \
 		tests/libs/boost-mpi/tests/mpi/test/rm_execution \
+		tests/dev-tools/numpy/tests/rm_execution \
+		tests/dev-tools/numpy/tests/test_module \
+		tests/dev-tools/numpy/ohpc-tests/test_compiler_families \
+		tests/dev-tools/valgrind/tests/rm_execution \
+		tests/dev-tools/valgrind/tests/test_module \
+		tests/dev-tools/valgrind/ohpc-tests/test_compiler_families \
 		tests/libs/plasma/tests/rm_execution \
 		tests/libs/plasma/tests/test_module \
 		tests/libs/fftw/tests/rm_execution \
@@ -64,6 +77,10 @@ codespell-lint:
 		tests/perf-tools/papi/tests/rm_execution \
 		tests/perf-tools/papi/tests/test_module \
 		tests/perf-tools/papi/ohpc-tests/test_compiler_families \
+		tests/perf-tools/paraver/tests/test_module \
+		tests/perf-tools/paraver/tests/rm_execution \
+		tests/perf-tools/paraver/tests/trace.sh \
+		tests/perf-tools/paraver/ohpc-tests/test_mpi_families \
 		tests/libs/adios2/tests/rm_execution \
 		tests/libs/adios2/tests/test_module \
 		tests/libs/adios2/ohpc-tests/test_mpi_families \
@@ -75,7 +92,13 @@ codespell-lint:
 		tests/libs/openblas/tests/rm_execution \
 		tests/libs/openblas/tests/test_module \
 		tests/libs/openblas/tests/test_lapack \
-		tests/libs/openblas/ohpc-tests/test_compiler_families
+		tests/libs/openblas/ohpc-tests/test_compiler_families \
+		tests/libs/hypre/tests/rm_execution \
+		tests/libs/hypre/tests/test_module \
+		tests/libs/hypre/ohpc-tests/test_mpi_families \
+		tests/libs/mfem/tests/test_module \
+		tests/libs/mfem/tests/parallel/rm_execution \
+		tests/libs/mfem/ohpc-tests/test_mpi_families
 
 ruff-check-lint:
 	@echo "Running 'ruff check' on selected Python files"
@@ -83,8 +106,10 @@ ruff-check-lint:
 		../../tests/ci/check_spec.py \
 		../../tests/ci/run_build.py \
 		../../misc/build_order.py \
+		../../misc/check_for_package_updates.py \
 		../../tests/ci/spec_to_test_mapping.py \
-		../../docs/recipes/install/parse_doc.py
+		../../docs/recipes/install/parse_doc.py \
+		../../tests/dev-tools/numpy/tests/MM.py
 
 ruff-format-lint:
 	@echo "Running 'ruff format' on selected Python files"
@@ -92,18 +117,21 @@ ruff-format-lint:
 		../../tests/ci/check_spec.py \
 		../../tests/ci/run_build.py \
 		../../misc/build_order.py \
+		../../misc/check_for_package_updates.py \
 		../../tests/ci/spec_to_test_mapping.py \
-		../../docs/recipes/install/parse_doc.py
+		../../docs/recipes/install/parse_doc.py \
+		../../tests/dev-tools/numpy/tests/MM.py
 
 whitespace-lint:
 	@echo "Checking spec files for trailing whitespaces"
 	cd ../../; ! git --no-pager grep -E '\s+$$' \*.spec \
+		\*.md.j2 \
 		tests/ci/test_parse_doc.bats \
 		docs/recipes/install/parse_doc.py \
 		docs/recipes/install/common/vc \
 		docs/recipes/install/common/listohpc \
 		misc/build_order.sh \
-		misc/check_for_package_updates.sh \
+		misc/check_for_package_updates.py \
 		misc/dist/count_avail_packages.sh \
 		components/admin/prun/SOURCES/prun \
 		components/compiler-families/intel-compilers-devel/SOURCES/ohpc-update-modules-intel \
@@ -116,6 +144,9 @@ whitespace-lint:
 		tests/user-env/ompi_info \
 		tests/perf-tools/dimemas/tests/test_module \
 		tests/perf-tools/extrae/tests/test_module \
+		tests/perf-tools/extrae/tests/rm_execution \
+		tests/perf-tools/extrae/tests/tracec.sh \
+		tests/perf-tools/extrae/tests/tracef.sh \
 		tests/perf-tools/likwid/tests/rm_execution \
 		tests/perf-tools/likwid/tests/test_module \
 		tests/perf-tools/omb/tests/rm_execution \
@@ -124,6 +155,9 @@ whitespace-lint:
 		tests/perf-tools/scorep/tests/instrumenter_test \
 		tests/perf-tools/scorep/tests/rm_execution \
 		tests/perf-tools/scorep/tests/test_module \
+		tests/perf-tools/tau/tests/rm_execution \
+		tests/perf-tools/tau/tests/test_module \
+		tests/perf-tools/tau/ohpc-tests/test_mpi_families \
 		tests/perf-tools/omb/tests/rm_execution \
 		tests/perf-tools/omb/tests/test_module \
 		tests/perf-tools/omb/ohpc-tests/test_mpi_families \
@@ -132,6 +166,7 @@ whitespace-lint:
 		tests/libs/superlu/ohpc-tests/test_compiler_families \
 		tests/libs/superlu_dist/tests/rm_execution \
 		tests/libs/superlu_dist/tests/test_module \
+		tests/libs/superlu_dist/ohpc-tests/test_mpi_families \
 		tests/libs/hdf5/ohpc-tests/test_compiler_families \
 		tests/libs/phdf5/ohpc-tests/test_mpi_families \
 		tests/libs/netcdf/ohpc-tests/test_mpi_families \
@@ -149,12 +184,22 @@ whitespace-lint:
 		tests/libs/ptscotch/tests/rm_execution \
 		tests/libs/ptscotch/tests/test_module \
 		tests/libs/boost-mpi/tests/mpi/test/rm_execution \
+		tests/dev-tools/numpy/tests/rm_execution \
+		tests/dev-tools/numpy/tests/test_module \
+		tests/dev-tools/numpy/ohpc-tests/test_compiler_families \
+		tests/dev-tools/valgrind/tests/rm_execution \
+		tests/dev-tools/valgrind/tests/test_module \
+		tests/dev-tools/valgrind/ohpc-tests/test_compiler_families \
 		tests/libs/plasma/tests/* \
 		tests/libs/fftw/tests/rm_execution \
 		tests/libs/trilinos/tests/rm_execution \
 		tests/perf-tools/papi/tests/rm_execution \
 		tests/perf-tools/papi/tests/test_module \
 		tests/perf-tools/papi/ohpc-tests/test_compiler_families \
+		tests/perf-tools/paraver/tests/test_module \
+		tests/perf-tools/paraver/tests/rm_execution \
+		tests/perf-tools/paraver/tests/trace.sh \
+		tests/perf-tools/paraver/ohpc-tests/test_mpi_families \
 		tests/libs/adios2/tests/rm_execution \
 		tests/libs/adios2/tests/test_module \
 		tests/libs/adios2/ohpc-tests/test_mpi_families \
@@ -167,6 +212,12 @@ whitespace-lint:
 		tests/libs/openblas/tests/test_module \
 		tests/libs/openblas/tests/test_lapack \
 		tests/libs/openblas/ohpc-tests/test_compiler_families \
+		tests/libs/hypre/tests/rm_execution \
+		tests/libs/hypre/tests/test_module \
+		tests/libs/hypre/ohpc-tests/test_mpi_families \
+		tests/libs/mfem/tests/test_module \
+		tests/libs/mfem/tests/parallel/rm_execution \
+		tests/libs/mfem/ohpc-tests/test_mpi_families \
 		containers/* \
 		\*.tex
 
@@ -176,7 +227,6 @@ shellcheck-lint:
 		-o require-variable-braces,quote-safe-variables,deprecate-which,avoid-nullary-conditions \
 		../../misc/build_srpm.sh \
 		../../misc/build_order.sh \
-		../../misc/check_for_package_updates.sh \
 		../../misc/get_source.sh \
 		../../misc/shell-functions \
 		../../misc/dist/count_avail_packages.sh \
@@ -209,6 +259,9 @@ shellcheck-lint:
 		../../tests/user-env/ompi_info \
 		../../tests/perf-tools/dimemas/tests/test_module \
 		../../tests/perf-tools/extrae/tests/test_module \
+		../../tests/perf-tools/extrae/tests/rm_execution \
+		../../tests/perf-tools/extrae/tests/tracec.sh \
+		../../tests/perf-tools/extrae/tests/tracef.sh \
 		../../tests/perf-tools/likwid/tests/rm_execution \
 		../../tests/perf-tools/likwid/tests/test_module \
 		../../tests/perf-tools/omb/tests/rm_execution \
@@ -229,12 +282,19 @@ shellcheck-lint:
 		../../tests/libs/superlu/ohpc-tests/test_compiler_families \
 		../../tests/libs/superlu_dist/tests/rm_execution \
 		../../tests/libs/superlu_dist/tests/test_module \
+		../../tests/libs/superlu_dist/ohpc-tests/test_mpi_families \
 		../../tests/libs/scalapack/ohpc-tests/test_mpi_families \
 		../../tests/libs/scalapack/tests/rm_execution \
 		../../tests/libs/scalapack/tests/test_module \
 		../../tests/libs/ptscotch/tests/rm_execution \
 		../../tests/libs/ptscotch/tests/test_module \
 		../../tests/libs/boost-mpi/tests/mpi/test/rm_execution \
+		../../tests/dev-tools/numpy/tests/rm_execution \
+		../../tests/dev-tools/numpy/tests/test_module \
+		../../tests/dev-tools/numpy/ohpc-tests/test_compiler_families \
+		../../tests/dev-tools/valgrind/tests/rm_execution \
+		../../tests/dev-tools/valgrind/tests/test_module \
+		../../tests/dev-tools/valgrind/ohpc-tests/test_compiler_families \
 		../../tests/libs/plasma/tests/rm_execution \
 		../../tests/libs/plasma/tests/test_module \
 		../../tests/libs/fftw/tests/rm_execution \
@@ -242,9 +302,16 @@ shellcheck-lint:
 		../../tests/perf-tools/scorep/tests/instrumenter_test \
 		../../tests/perf-tools/scorep/tests/rm_execution \
 		../../tests/perf-tools/scorep/tests/test_module \
+		../../tests/perf-tools/tau/tests/rm_execution \
+		../../tests/perf-tools/tau/tests/test_module \
+		../../tests/perf-tools/tau/ohpc-tests/test_mpi_families \
 		../../tests/perf-tools/papi/tests/rm_execution \
 		../../tests/perf-tools/papi/tests/test_module \
 		../../tests/perf-tools/papi/ohpc-tests/test_compiler_families \
+		../../tests/perf-tools/paraver/tests/test_module \
+		../../tests/perf-tools/paraver/tests/rm_execution \
+		../../tests/perf-tools/paraver/tests/trace.sh \
+		../../tests/perf-tools/paraver/ohpc-tests/test_mpi_families \
 		../../tests/libs/adios2/tests/rm_execution \
 		../../tests/libs/adios2/tests/test_module \
 		../../tests/libs/adios2/ohpc-tests/test_mpi_families \
@@ -256,9 +323,16 @@ shellcheck-lint:
 		../../tests/libs/openblas/tests/rm_execution \
 		../../tests/libs/openblas/tests/test_module \
 		../../tests/libs/openblas/tests/test_lapack \
-		../../tests/libs/openblas/ohpc-tests/test_compiler_families
+		../../tests/libs/openblas/ohpc-tests/test_compiler_families \
+		../../tests/libs/hypre/tests/rm_execution \
+		../../tests/libs/hypre/tests/test_module \
+		../../tests/libs/hypre/ohpc-tests/test_mpi_families \
+		../../tests/libs/mfem/tests/test_module \
+		../../tests/libs/mfem/tests/parallel/rm_execution \
+		../../tests/libs/mfem/ohpc-tests/test_mpi_families
 
 shfmt-lint:
+
 	@echo "Running 'shfmt' on selected shell scripts"
 	shfmt \
 		-w -d -ln bats \
@@ -271,6 +345,7 @@ shfmt-lint:
 		../../tests/user-env/ompi_info \
 		../../tests/perf-tools/dimemas/tests/test_module \
 		../../tests/perf-tools/extrae/tests/test_module \
+		../../tests/perf-tools/extrae/tests/rm_execution \
 		../../tests/perf-tools/likwid/tests/rm_execution \
 		../../tests/perf-tools/likwid/tests/test_module \
 		../../tests/perf-tools/omb/tests/rm_execution \
@@ -279,6 +354,8 @@ shfmt-lint:
 		../../tests/perf-tools/scorep/tests/instrumenter_test \
 		../../tests/perf-tools/scorep/tests/rm_execution \
 		../../tests/perf-tools/scorep/tests/test_module \
+		../../tests/perf-tools/tau/tests/rm_execution \
+		../../tests/perf-tools/tau/tests/test_module \
 		../../tests/perf-tools/omb/tests/rm_execution \
 		../../tests/perf-tools/omb/tests/test_module \
 		../../tests/perf-tools/omb/ohpc-tests/test_mpi_families \
@@ -302,12 +379,18 @@ shfmt-lint:
 		../../tests/libs/ptscotch/tests/rm_execution \
 		../../tests/libs/ptscotch/tests/test_module \
 		../../tests/libs/boost-mpi/tests/mpi/test/rm_execution \
+		../../tests/dev-tools/numpy/tests/rm_execution \
+		../../tests/dev-tools/numpy/tests/test_module \
+		../../tests/dev-tools/valgrind/tests/rm_execution \
+		../../tests/dev-tools/valgrind/tests/test_module \
 		../../tests/libs/plasma/tests/rm_execution \
 		../../tests/libs/plasma/tests/test_module \
 		../../tests/libs/fftw/tests/rm_execution \
 		../../tests/libs/trilinos/tests/rm_execution \
 		../../tests/perf-tools/papi/tests/rm_execution \
 		../../tests/perf-tools/papi/tests/test_module \
+		../../tests/perf-tools/paraver/tests/test_module \
+		../../tests/perf-tools/paraver/tests/rm_execution \
 		../../tests/libs/adios2/tests/rm_execution \
 		../../tests/libs/adios2/tests/test_module \
 		../../tests/rms-harness/tests/test_harness \
@@ -315,13 +398,20 @@ shfmt-lint:
 		../../tests/libs/petsc/tests/test_module \
 		../../tests/libs/openblas/tests/rm_execution \
 		../../tests/libs/openblas/tests/test_module \
-		../../tests/libs/openblas/tests/test_lapack
+		../../tests/libs/openblas/tests/test_lapack \
+		../../tests/libs/hypre/tests/rm_execution \
+		../../tests/libs/hypre/tests/test_module \
+		../../tests/libs/mfem/tests/test_module \
+		../../tests/libs/mfem/tests/parallel/rm_execution
 	shfmt -w -d \
+		../../tests/perf-tools/extrae/tests/tracec.sh \
+		../../tests/perf-tools/extrae/tests/tracef.sh \
 		../../tests/ci/prepare-ci-environment.sh \
 		../../misc/build_order.sh \
-		../../misc/check_for_package_updates.sh \
 		../../misc/dist/count_avail_packages.sh \
 		../../tests/common/functions \
+		../../tests/dev-tools/numpy/ohpc-tests/test_compiler_families \
+		../../tests/dev-tools/valgrind/ohpc-tests/test_compiler_families \
 		../../tests/libs/hdf5/ohpc-tests/test_compiler_families \
 		../../tests/libs/phdf5/ohpc-tests/test_mpi_families \
 		../../components/compiler-families/intel-compilers-devel/SOURCES/ohpc-update-modules-intel \
@@ -332,10 +422,16 @@ shfmt-lint:
 		../../containers/*.sh \
 		../../containers/examples/mpi/*.sh \
 		../../tests/perf-tools/papi/ohpc-tests/test_compiler_families \
+		../../tests/perf-tools/paraver/ohpc-tests/test_mpi_families \
+		../../tests/perf-tools/paraver/tests/trace.sh \
+		../../tests/perf-tools/tau/ohpc-tests/test_mpi_families \
 		../../tests/libs/adios2/ohpc-tests/test_mpi_families \
 		../../tests/rms-harness/ohpc-tests/test_mpi_families \
 		../../tests/libs/petsc/ohpc-tests/test_mpi_families \
-		../../tests/libs/openblas/ohpc-tests/test_compiler_families
+		../../tests/libs/openblas/ohpc-tests/test_compiler_families \
+		../../tests/libs/hypre/ohpc-tests/test_mpi_families \
+		../../tests/libs/superlu_dist/ohpc-tests/test_mpi_families \
+		../../tests/libs/mfem/ohpc-tests/test_mpi_families
 
 clang-format-lint:
 	@echo "Running 'clang-format' on selected source code files"
@@ -350,6 +446,7 @@ clang-format-lint:
 		../libs/netcdf/tests-parallel/*.h \
 		../libs/phdf5/tests/C_mpi_test.c \
 		../dev-tools/cuda/add.cu \
+		../dev-tools/valgrind/tests/*.c \
 		../../tests/libs/plasma/tests/*.c \
 		../../tests/libs/plasma/tests/*.h \
 		../../tests/libs/superlu/tests/*.c \
@@ -357,10 +454,18 @@ clang-format-lint:
 		../../tests/libs/fftw/tests/*.cpp \
 		../../tests/libs/trilinos/tests/*.cpp \
 		../../containers/examples/mpi/mpi.c \
+		../../tests/perf-tools/extrae/tests/*.c \
 		../../tests/perf-tools/papi/tests/*.c \
+		../../tests/perf-tools/paraver/tests/*.c \
+		../../tests/perf-tools/tau/tests/*.c \
+		../../tests/perf-tools/tau/tests/*.cpp \
 		../../tests/rms-harness/tests/*.c \
 		../../tests/libs/petsc/tests/*.c \
-		../../tests/libs/openblas/tests/eigen.cpp
+		../../tests/libs/openblas/tests/eigen.cpp \
+		../../tests/libs/hypre/tests/*.c \
+		../../tests/libs/superlu_dist/tests/*.c \
+		../../tests/libs/mfem/tests/serial/*.cpp \
+		../../tests/libs/mfem/tests/parallel/*.cpp
 
 build-ohpc-ci:
 	podman build  -f Containerfile.ohpc-lint -t  ghcr.io/openhpc/ohpc-lint:latest

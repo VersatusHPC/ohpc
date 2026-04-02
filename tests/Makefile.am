@@ -126,7 +126,7 @@ if MPI4PY_ENABLED
 endif
 
 if NUMPY_ENABLED
-   TESTS += dev-tools/numpy/ohpc-tests/test_mpi_families
+   TESTS += dev-tools/numpy/ohpc-tests/test_compiler_families
 endif
 
 if SCIPY_ENABLED
@@ -276,6 +276,10 @@ endif
 
 if PAPI_ENABLED
    TESTS += perf-tools/papi/ohpc-tests/test_compiler_families
+endif
+
+if PARAVER_ENABLED
+   TESTS += perf-tools/paraver/ohpc-tests/test_mpi_families
 endif
 
 if SCOREP_ENABLED

@@ -88,6 +88,15 @@ test_map = {
         "",
         "lmod-defaults-COMPILER_FAMILY-openmpi5-ohpc",
     ],
+    "components/perf-tools/paraver/SPECS/paraver.spec": [
+        "paraver",
+        "",
+        (
+            "lmod-defaults-COMPILER_FAMILY-openmpi5-ohpc "
+            "extrae-COMPILER_FAMILY-openmpi5-ohpc "
+            "extrae-COMPILER_FAMILY-mpich-ohpc"
+        ),
+    ],
     "components/perf-tools/papi/SPECS/papi.spec": ["papi", "", ""],
     "components/perf-tools/scorep/SPECS/scorep.spec": [
         "scorep",
@@ -159,6 +168,7 @@ test_map = {
         "",
     ],
     "components/admin/lmod/SPECS/lmod.spec": ["", "lmod", ""],
+    "components/dev-tools/numpy/SPECS/python-numpy.spec": ["numpy", "", ""],
 }
 
 # Check which base OS we are using
@@ -203,6 +213,7 @@ all_test_packages = [
     "EasyBuild-ohpc",
     "losf-ohpc",
     "papi-ohpc",
+    "paraver-ohpc",
     "pdsh-ohpc",
     "pdsh-mod-slurm-ohpc",
     "spack-ohpc",
@@ -214,6 +225,7 @@ all_test_packages = [
     "metis-COMPILER_FAMILY-ohpc",
     "netcdf-COMPILER_FAMILY-ohpc",
     "plasma-COMPILER_FAMILY-ohpc",
+    "python3-numpy-COMPILER_FAMILY-ohpc",
     "R-COMPILER_FAMILY-ohpc",
     "scotch-COMPILER_FAMILY-ohpc",
     "superlu-COMPILER_FAMILY-ohpc",
