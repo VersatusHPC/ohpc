@@ -18,7 +18,7 @@ OHPC_MODULES := /opt/ohpc/pub/modulefiles
 override_dh_auto_configure:
 	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
 		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
-			https://github.com/holgerBerber/hpc-workspace/archive/refs/tags/$(VERSION).tar.gz
+			https://github.com/holgerBerger/hpc-workspace/archive/refs/tags/$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar --no-same-owner -xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 
