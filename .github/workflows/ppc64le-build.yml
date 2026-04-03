@@ -8,6 +8,8 @@ on:
       - 'components/*/*/SPECS/*.spec'
       - 'components/OHPC_macros'
       - 'components/OHPC_setup_compiler'
+      - '.github/workflows/ppc64le-build.yml'
+      - 'misc/ppc64le-autobuild.sh'
   workflow_dispatch:
     inputs:
       package:
