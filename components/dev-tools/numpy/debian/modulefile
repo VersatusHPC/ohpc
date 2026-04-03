@@ -20,7 +20,8 @@ set     version             2.4.3
 depends-on openblas
 
 prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/numpy/2.4.3/bin
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/numpy/2.4.3/local/lib/python3.12/dist-packages
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/numpy/2.4.3/lib/python3.12/dist-packages
 prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/numpy/2.4.3/lib/python3/dist-packages
-prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/numpy/2.4.3/lib64/python3/dist-packages
 
 setenv          NUMPY_DIR           /opt/ohpc/pub/libs/gnu15/numpy/2.4.3

@@ -28,8 +28,7 @@ override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) bash -c '\
 		export CPPFLAGS="-I$${NETCDF_INC} -I$${HDF5_INC}" && \
 		export LDFLAGS="-L$${NETCDF_LIB} -L$${HDF5_LIB}" && \
-		export LIBS="-lnetcdf -lhdf5_hl -lhdf5 -lz -ldl -lm -lcurl" && \
-		FC=mpif90 ./configure --prefix=$(INSTALL_PATH) \
+		FC=mpif90 ./configure --prefix=$(INSTALL_PATH) --with-nc-config=$${NETCDF_DIR}/bin/nc-config \
 			--enable-shared --with-pic --disable-doxygen --disable-static && \
 		make -j$$(nproc)'
 
