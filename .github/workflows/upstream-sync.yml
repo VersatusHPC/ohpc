@@ -1,0 +1,67 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # Daily at 4 AM UTC
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: [self-hosted, ppc64le]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ppc64le-support
+          fetch-depth: 0
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/openhpc/ohpc.git 2>/dev/null || true
+          git fetch upstream 4.x
+
+      - name: Attempt merge
+        id: merge
+        run: |
+          UPSTREAM_SHA=$(git rev-parse upstream/4.x)
+          LOCAL_SHA=$(git rev-parse HEAD)
+          MERGE_BASE=$(git merge-base HEAD upstream/4.x)
+
+          if [ "$UPSTREAM_SHA" = "$MERGE_BASE" ]; then
+            echo "Already up to date with upstream."
+            echo "changed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Upstream has $(git rev-list HEAD..upstream/4.x --count) new commits"
+          echo "changed=true" >> $GITHUB_OUTPUT
+
+          # List changed specs
+          CHANGED=$(git diff --name-only HEAD...upstream/4.x -- 'components/*/SPECS/*.spec' 'components/*/*/SPECS/*.spec' | head -20)
+          echo "Changed specs:"
+          echo "$CHANGED"
+          echo "specs<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # Try merge
+          if git merge upstream/4.x --no-edit; then
+            echo "merge=clean" >> $GITHUB_OUTPUT
+            git push origin ppc64le-support
+          else
+            echo "merge=conflict" >> $GITHUB_OUTPUT
+            git merge --abort
+          fi
+
+      - name: Create PR on conflict
+        if: steps.merge.outputs.merge == 'conflict'
+        run: |
+          BRANCH="upstream-sync-$(date +%Y%m%d)"
+          git checkout -b "$BRANCH"
+          git merge upstream/4.x --no-commit || true
+          echo "Merge conflict — manual resolution needed"
+          echo ""
+          echo "Changed specs from upstream:"
+          echo "${{ steps.merge.outputs.specs }}"
+        # Note: PR creation would go here with gh pr create
+        # Skipping auto-PR to avoid unintended upstream interaction
