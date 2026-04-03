@@ -36,6 +36,9 @@ BuildRequires:  %{python_prefix}-pip
 BuildRequires:  ninja-build
 BuildRequires:  pkg-config
 BuildRequires:  fdupes gcc
+# ppc64le: fix VSX3 intrinsics used when building with -mcpu=power9 baseline
+# https://github.com/numpy/numpy/pull/29627
+Patch0:         numpy-ppc64le-vsx-fix.patch
 #!BuildIgnore: post-build-checks
 
 # Default library install path
@@ -57,6 +60,9 @@ basic linear algebra and random number generation.
 %setup -q -n %{pname}-%{version}
 # Convert PEP 639 license string to old-style dict for older meson-python
 sed -i "s|^license = '\(.*\)'|license = {text = '\1'}|" pyproject.toml
+%ifarch ppc64le
+%patch -P 0 -p1
+%endif
 
 %build
 # OpenHPC compiler/mpi designation
@@ -79,20 +85,11 @@ sed -i "s|^license = '\(.*\)'|license = {text = '\1'}|" pyproject.toml
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm1"
 module load openblas
-%ifarch ppc64le
-export CFLAGS="${CFLAGS} -mcpu=power9 -mvsx"
-export CXXFLAGS="${CXXFLAGS} -mcpu=power9 -mvsx"
-%endif
 PKG_CONFIG_PATH="${OPENBLAS_LIB}/pkgconfig:${PKG_CONFIG_PATH}" \
-CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" \
 %__python -m pip wheel --no-build-isolation --wheel-dir=dist \
 	-Csetup-args=-Dblas=openblas \
 	-Csetup-args=-Dlapack=openblas \
 	-Csetup-args=-Dallow-noblas=false \
-%ifarch ppc64le
-	-Csetup-args=-Dc_args=-mcpu=power9,-mvsx \
-	-Csetup-args=-Dcpp_args=-mcpu=power9,-mvsx \
-%endif
 	.
 %endif
 
