@@ -61,7 +61,12 @@ basic linear algebra and random number generation.
 # Convert PEP 639 license string to old-style dict for older meson-python
 sed -i "s|^license = '\(.*\)'|license = {text = '\1'}|" pyproject.toml
 %ifarch ppc64le
-%patch -P 0 -p1
+# Fix VSX3 intrinsics used when building with -mcpu=power9 baseline (numpy PR #29627)
+sed -i "s|args: {'val': '-mcpu=power8', 'match': '.*vsx'}|args: ['-mcpu=power8', '-mvsx']|" meson_cpu/ppc64/meson.build
+sed -i 's|defined(NPY_HAVE_VSX3) && defined(NPY_HAVE_VSX_ASM)|defined(NPY_HAVE_VSX3) \&\& defined(NPY_HAVE_VSX_ASM) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
+sed -i 's|defined(NPY_HAVE_VSX3) && defined(vec_extract_fp_from_shorth)|defined(NPY_HAVE_VSX3) \&\& defined(vec_extract_fp_from_shorth) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
+sed -i 's|defined(NPY_HAVE_VSX3) && defined(NPY_HAVE_VSX3_HALF_DOUBLE)|defined(NPY_HAVE_VSX3) \&\& defined(NPY_HAVE_VSX3_HALF_DOUBLE) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
+sed -i "s|flags=\"-mcpu=power8\", implies_detect=False|flags=\"-mcpu=power8 -mvsx\", implies_detect=False|" numpy/distutils/ccompiler_opt.py
 %endif
 
 %build
