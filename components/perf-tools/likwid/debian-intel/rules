@@ -24,6 +24,7 @@ override_dh_auto_configure:
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 	cd $(SRCDIR) && sed -i \
+		-e "s|PREFIX ?= .*|PREFIX = $(INSTALL_PATH)|" \
 		-e "s|PREFIX = .*|PREFIX = $(INSTALL_PATH)|" \
 		-e "s|COMPILER = .*|COMPILER = GCC|" \
 		-e "s|INSTALLED_PREFIX ?= .*|INSTALLED_PREFIX = $(INSTALL_PATH)|" \
