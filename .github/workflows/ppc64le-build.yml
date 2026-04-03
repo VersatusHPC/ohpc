@@ -1,0 +1,76 @@
+name: ppc64le Build
+
+on:
+  push:
+    branches: [ppc64le-support]
+    paths:
+      - 'components/*/SPECS/*.spec'
+      - 'components/*/*/SPECS/*.spec'
+      - 'components/OHPC_macros'
+      - 'components/OHPC_setup_compiler'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to build (leave empty for auto-detect)'
+        required: false
+        type: string
+      force_all:
+        description: 'Rebuild all packages'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Check upstream every 6 hours
+    - cron: '0 */6 * * *'
+
+jobs:
+  build:
+    runs-on: [self-hosted, ppc64le]
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ppc64le-support
+          fetch-depth: 0
+
+      - name: Setup build environment
+        run: |
+          echo "=== System info ==="
+          uname -m
+          cat /etc/os-release | head -3
+          echo "=== Compiler ==="
+          /opt/ohpc/pub/compiler/gcc/15.2.0/bin/gcc --version | head -1
+          echo "=== RPM repo ==="
+          ls /home/ferrao/ohpc-repo/EL10/ppc64le/*.rpm 2>/dev/null | wc -l
+          echo "packages in repo"
+
+      - name: Build packages
+        run: |
+          cd /home/ferrao/ohpc-ppc64le-support
+          git pull origin ppc64le-support
+
+          if [ "${{ inputs.force_all }}" = "true" ]; then
+            ./misc/ppc64le-autobuild.sh --force-all
+          elif [ -n "${{ inputs.package }}" ]; then
+            ./misc/ppc64le-autobuild.sh --package "${{ inputs.package }}"
+          else
+            ./misc/ppc64le-autobuild.sh
+          fi
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_number }}
+          path: /var/log/ohpc-autobuild/*.log
+          retention-days: 30
+
+      - name: Report repo status
+        run: |
+          echo "=== RPM Repository Status ==="
+          echo "Total RPMs: $(ls /home/ferrao/ohpc-repo/EL10/ppc64le/*.rpm 2>/dev/null | wc -l)"
+          echo ""
+          echo "=== Package list ==="
+          ls /home/ferrao/ohpc-repo/EL10/ppc64le/*.rpm 2>/dev/null | xargs -I{} basename {} | sed 's/-[0-9].*//' | sort -u
