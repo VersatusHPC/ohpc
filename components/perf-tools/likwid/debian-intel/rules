@@ -35,12 +35,12 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	mkdir -p $(PKG)$(INSTALL_PATH)
-	# Rewrite config.mk completely to use DESTDIR prefix
-	cd $(SRCDIR) && sed -i \
-		-e "/^PREFIX /s|=.*|= $(PKG)$(INSTALL_PATH)|" \
-		-e "/^INSTALLED_PREFIX/s|=.*|= $(PKG)$(INSTALL_PATH)|" \
-		config.mk
-	cd $(SRCDIR) && $(ENV) $(MAKE) PREFIX=$(PKG)$(INSTALL_PATH) INSTALLED_PREFIX=$(PKG)$(INSTALL_PATH) install
+	# Install everything except install_daemon (which ignores DESTDIR)
+	cd $(SRCDIR) && $(ENV) $(MAKE) PREFIX=$(PKG)$(INSTALL_PATH) INSTALLED_PREFIX=$(PKG)$(INSTALL_PATH) install_lib install_exec install_man
+	# Manually install daemon binaries
+	mkdir -p $(PKG)$(INSTALL_PATH)/sbin
+	install -m 4755 $(SRCDIR)/likwid-accessD $(PKG)$(INSTALL_PATH)/sbin/ 2>/dev/null || true
+	install -m 4755 $(SRCDIR)/likwid-setFreq $(PKG)$(INSTALL_PATH)/sbin/ 2>/dev/null || true
 	# Fix embedded paths back to real prefix
 	find $(PKG)$(INSTALL_PATH) -type f -exec grep -l '$(PKG)' {} + 2>/dev/null | while read f; do \
 		sed -i 's|$(PKG)||g' "$$f"; \
