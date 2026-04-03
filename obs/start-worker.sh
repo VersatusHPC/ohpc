@@ -35,7 +35,8 @@ while [ $w_count -le $WORKER_N ]; do
         --hostlabel OBS_WORKER_SECURITY_LEVEL_ \
         --jobs 1 \
         --cachedir /var/cache/obs/worker/cache \
-        --cachesize 3967 &
+        --cachesize 10000 \
+        --vm-memory 8192 &
 
     w_count=$((w_count + 1))
 done
