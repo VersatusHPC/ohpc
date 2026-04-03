@@ -34,17 +34,12 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	mkdir -p $(PKG)$(INSTALL_PATH)
-	# Override PREFIX and INSTALLED_PREFIX in config.mk to respect DESTDIR
+	# Rewrite config.mk completely to use DESTDIR prefix
 	cd $(SRCDIR) && sed -i \
-		-e "s|^PREFIX = .*|PREFIX = $(PKG)$(INSTALL_PATH)|" \
-		-e "s|^INSTALLED_PREFIX = .*|INSTALLED_PREFIX = $(PKG)$(INSTALL_PATH)|" \
-		-e "s|^INSTALLED_PREFIX ?= .*|INSTALLED_PREFIX = $(PKG)$(INSTALL_PATH)|" \
+		-e "/^PREFIX /s|=.*|= $(PKG)$(INSTALL_PATH)|" \
+		-e "/^INSTALLED_PREFIX/s|=.*|= $(PKG)$(INSTALL_PATH)|" \
 		config.mk
-	# Pre-create real prefix dir so install_daemon doesn't fail on mkdir
-	mkdir -p $(INSTALL_PATH)/sbin 2>/dev/null || true
 	cd $(SRCDIR) && $(ENV) $(MAKE) PREFIX=$(PKG)$(INSTALL_PATH) INSTALLED_PREFIX=$(PKG)$(INSTALL_PATH) install
-	# Move any files installed to real prefix into DESTDIR
-	test -d $(INSTALL_PATH)/sbin && cp -a $(INSTALL_PATH)/sbin/* $(PKG)$(INSTALL_PATH)/sbin/ 2>/dev/null || true
 	# Fix embedded paths back to real prefix
 	find $(PKG)$(INSTALL_PATH) -type f -exec grep -l '$(PKG)' {} + 2>/dev/null | while read f; do \
 		sed -i 's|$(PKG)||g' "$$f"; \

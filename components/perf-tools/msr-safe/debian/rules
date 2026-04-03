@@ -28,7 +28,9 @@ override_dh_auto_configure:
 override_dh_auto_build:
 	# Fix Makefile to use our KVERSION instead of uname -r
 	sed -i 's|$$(shell uname -r)|$(KVERSION)|g' $(SRCDIR)/Makefile
-	cd $(SRCDIR) && $(MAKE) KCFLAGS="-Wno-error"
+	# Disable -Werror for kernel module build (GCC 14 pointer type warnings)
+	sed -i '1i ccflags-y += -Wno-error' $(SRCDIR)/Makefile
+	cd $(SRCDIR) && $(MAKE)
 	cd $(SRCDIR) && make msrsave
 
 override_dh_auto_install:
