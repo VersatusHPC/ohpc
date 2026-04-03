@@ -5,7 +5,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=-all
 export CFLAGS =
 export CXXFLAGS =
 export LDFLAGS = -Wl,-z,lazy -L/opt/ohpc/admin/pmix/lib -L/opt/ohpc/pub/libs/hwloc/lib -Wl,-rpath,/opt/ohpc/admin/pmix/lib -Wl,-rpath,/opt/ohpc/pub/libs/hwloc/lib
-export LD_LIBRARY_PATH = /opt/ohpc/admin/pmix/lib:/opt/ohpc/pub/libs/hwloc/lib
+export LD_LIBRARY_PATH := /opt/ohpc/admin/pmix/lib:/opt/ohpc/pub/libs/hwloc/lib:$(LD_LIBRARY_PATH)
 export LIBRARY_PATH = /opt/ohpc/admin/pmix/lib:/opt/ohpc/pub/libs/hwloc/lib
 export CPPFLAGS = -I/opt/ohpc/admin/pmix/include -I/opt/ohpc/pub/libs/hwloc/include
 

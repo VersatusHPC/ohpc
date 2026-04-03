@@ -24,7 +24,12 @@ override_dh_auto_configure:
 		--with-boost-libdir=/usr/lib/x86_64-linux-gnu
 
 override_dh_auto_build:
-	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+	# Build kernel first (serial to ensure ordering), install to staging dir
+	cd $(SRCDIR) && $(MAKE) -C src/paraver-kernel -j$$(nproc)
+	cd $(SRCDIR) && $(MAKE) -C src/paraver-kernel DESTDIR=$(CURDIR)/staging install
+	# Now build everything with staging headers accessible
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc) \
+		CPPFLAGS="-I$(CURDIR)/staging$(INSTALL_PATH)/include -I$(CURDIR)/staging$(INSTALL_PATH)/include/pcfparser"
 
 override_dh_auto_install:
 	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install

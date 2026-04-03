@@ -29,6 +29,7 @@ override_dh_auto_build:
 	mkdir -p $(SRCDIR)/build-opencoarrays
 	cd $(SRCDIR)/build-opencoarrays && $(ENV) bash -c '\
 		export CFLAGS="$${CFLAGS} -Wno-int-conversion" && \
+		sed -i "/OpenMPI is incompatible with gfortran/,+2d" ../src/runtime-libraries/mpi/CMakeLists.txt && \
 		cmake -DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) .. && \
 		make -j$$(nproc) VERBOSE=1'
 
