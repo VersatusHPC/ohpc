@@ -11,26 +11,49 @@
 
 ### Key Challenge: Incomplete ppc64le Package Repo
 
-openEuler 24.03 ppc64le only ships the `OS` repo. The `everything` repo
-(which contains -devel packages) **does not exist for ppc64le**.
+openEuler 24.03 ppc64le ships the `OS` repo with **217 -devel packages** —
+most of what OpenHPC needs. The `everything` repo (openEuler's equivalent
+of EL's CRB/CodeReady Builder) **does not exist for ppc64le**.
 
 | Repo | x86_64 | aarch64 | ppc64le |
 |------|--------|---------|---------|
 | OS | ~2540 pkgs | ~2500 pkgs | ~2362 pkgs |
-| everything | ~30k pkgs | ~30k pkgs | **NOT AVAILABLE** |
+| everything (CRB equiv) | ~30k pkgs | ~30k pkgs | **NOT AVAILABLE** |
+| EPOL | available | available | **NOT AVAILABLE** |
+| update | available | available | **NOT AVAILABLE** |
 
-This means many BuildRequires packages (lua-devel, curl-devel, jsoncpp-devel,
-openssl-devel, etc.) must be **rebuilt from SRPMs** before OpenHPC packages
-can be built. Each missing -devel package adds a step to the build chain.
+**Note:** SP1 and SP2 dropped ppc64le entirely — only the base 24.03 LTS has it.
 
-### Workaround: SRPM Rebuild Pipeline
+### Available vs Missing -devel Packages
 
-For each missing -devel package:
+Most critical -devel packages **ARE available** in the ppc64le OS repo:
+openssl-devel, ncurses-devel, readline-devel, libxml2-devel, zlib-devel,
+bzip2-devel, xz-devel, tcl-devel, binutils-devel, numactl-devel,
+libevent-devel, pam-devel, expat-devel, libcurl-devel, rdma-core-devel
+(provides libibverbs-devel + librdmacm-devel).
+
+**Only 6 packages need SRPM rebuild:**
+
+| Package | Status | Notes |
+|---------|--------|-------|
+| lua-devel | Built in prototype | From lua SRPM |
+| lua-filesystem | Built in prototype | From lua-filesystem SRPM |
+| jsoncpp-devel | Need to build | For cmake |
+| json-c-devel | Need to build | For slurm |
+| libfabric-devel | Need to build | For MPI stacks |
+| freeipmi-devel | Need to build | For conman/slurm (optional) |
+
+Additionally, OpenHPC builds its own hwloc and munge, so hwloc-devel
+and munge-devel are self-provided and not blocking.
+
+### SRPM Rebuild Process
+
+For each missing package:
 1. Download SRPM from `source/Packages/` on the openEuler mirror
 2. `rpmbuild --rebuild --nodeps <package>.src.rpm`
 3. Install the resulting -devel RPM
 
-This is tedious but works. The SRPMs exist and compile on ppc64le.
+This works — SRPMs exist and compile on ppc64le.
 
 ### Container Images
 
@@ -55,8 +78,8 @@ Building the full OpenHPC stack on openEuler 24.03 ppc64le requires:
 2. **OpenHPC builds**: Same spec files as EL10 (openEuler conditionals already exist)
 3. **OHPC_setup_compiler**: Same ppc64le changes apply (already in versatushpc/4.x)
 
-Estimated additional effort vs EL10 port: 1-2 days for the -devel bootstrapping,
-then the same build process.
+Estimated additional effort vs EL10 port: ~half a day for the 6 SRPM rebuilds,
+then the same build process. Much less work than initially estimated.
 
 ### Mirror
 
