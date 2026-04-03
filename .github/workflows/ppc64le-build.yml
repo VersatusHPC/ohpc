@@ -42,8 +42,10 @@ jobs:
           echo "=== System info ==="
           uname -m
           cat /etc/os-release | head -3
-          echo "=== Compiler ==="
-          /opt/ohpc/pub/compiler/gcc/15.2.0/bin/gcc --version | head -1
+          echo "=== System GCC (used for SYS_COMPILER packages) ==="
+          /usr/bin/gcc --version | head -1
+          echo "=== OpenHPC GCC (used for OHPC_COMP packages via module load gnu15) ==="
+          /opt/ohpc/pub/compiler/gcc/15.2.0/bin/gcc --version | head -1 || echo "Not installed"
           echo "=== RPM repo ==="
           ls /home/ferrao/ohpc-repo/EL10/ppc64le/*.rpm 2>/dev/null | wc -l
           echo "packages in repo"
