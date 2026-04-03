@@ -17,7 +17,7 @@
 Summary:   Lua based Modules (lmod)
 Name:      %{pname}%{PROJ_DELIM}
 Version:   9.0.5
-Release:   %{?dist}.1
+Release:	1%{?dist}
 License:   MIT
 Group:     %{PROJ_NAME}/admin
 Url:       https://github.com/TACC/Lmod

@@ -15,7 +15,7 @@ Version:                1.4.0
 BuildRequires:  golang
 
 Name:           mdtoc%{PROJ_DELIM}
-Release:        %{?dist}.1
+Release:	1%{?dist}
 Summary:        Markdown table-of-contents generator
 Group:          %{PROJ_NAME}/admin
 

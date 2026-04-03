@@ -10,7 +10,7 @@
 
 Name: ohpc-filesystem
 Version: 4.1
-Release: %{?dist}.3
+Release:	3%{?dist}
 Summary: Common top-level OpenHPC directories
 
 Group:   ohpc/admin

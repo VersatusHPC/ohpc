@@ -32,7 +32,7 @@
 Name:		%{pname}%{PROJ_DELIM}
 Version:	25.05.6
 %global rel	1
-Release:	%{?dist}.1
+Release:	1%{?dist}
 Summary:	Slurm Workload Manager
 
 Group:		%{PROJ_NAME}/rms
