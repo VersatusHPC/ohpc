@@ -21,9 +21,10 @@ override_dh_auto_configure:
 			https://github.com/llvm/llvm-project/releases/download/llvmorg-$(VERSION)/$(PNAME)-$(VERSION).tar.xz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.xz
-	# Fix for GCC 14: add missing cstdint include
+	# Fix for GCC 14: add missing standard library includes
 	sed -i '1s/^/#include <cstdint>\n/' $(SRCDIR)/llvm/include/llvm/Support/Signals.h
 	sed -i '1s/^/#include <cstdint>\n/' $(SRCDIR)/llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
+	sed -i '1s/^/#include <limits>\n/' $(SRCDIR)/llvm/utils/benchmark/src/benchmark_register.h
 
 override_dh_auto_build:
 	mkdir -p $(SRCDIR)/build && cd $(SRCDIR)/build && \
