@@ -2,7 +2,7 @@ name: ppc64le Build
 
 on:
   push:
-    branches: [ppc64le-support]
+    branches: [versatushpc/4.x]
     paths:
       - 'components/*/SPECS/*.spec'
       - 'components/*/*/SPECS/*.spec'
@@ -34,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ppc64le-support
+          ref: versatushpc/4.x
           fetch-depth: 0
 
       - name: Verify build environment
@@ -47,7 +47,7 @@ jobs:
       - name: Build packages
         run: |
           cd /home/ferrao/ohpc-ppc64le-support
-          git pull origin ppc64le-support
+          git pull origin versatushpc/4.x
 
           if [ "${{ inputs.force_all }}" = "true" ]; then
             ./misc/ppc64le-autobuild.sh --force-all

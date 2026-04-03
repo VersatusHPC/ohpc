@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ppc64le-support
+          ref: versatushpc/4.x
           fetch-depth: 0
 
       - name: Fetch upstream
@@ -47,7 +47,7 @@ jobs:
           # Try merge
           if git merge upstream/4.x --no-edit; then
             echo "merge=clean" >> $GITHUB_OUTPUT
-            git push origin ppc64le-support
+            git push origin versatushpc/4.x
           else
             echo "merge=conflict" >> $GITHUB_OUTPUT
             git merge --abort

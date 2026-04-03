@@ -2,6 +2,34 @@
 # <img src="https://github.com/openhpc/ohpc/blob/master/docs/recipes/install/common/figures/ohpc_logo.png" width="170" valign="middle" hspace="5" alt="OpenHPC"/>
 <!-- markdownlint-enable MD013 MD033 -->
 
+## VersatusHPC Fork
+
+This is the [VersatusHPC](https://versatushpc.com.br) fork of
+[OpenHPC](https://github.com/openhpc/ohpc), extending the upstream project
+with additional platform support:
+
+| Platform | Architecture | Status |
+|----------|-------------|--------|
+| **EL10 (AlmaLinux/Rocky/RHEL)** | **ppc64le (IBM POWER)** | Available (`versatushpc/4.x` branch) |
+| **Ubuntu** | **x86_64** | Planned |
+
+### ppc64le Port
+
+The `versatushpc/4.x` branch provides full OpenHPC 4.x support for **ppc64le**
+(IBM POWER9+) on EL10. All 71 architecture-portable components from the
+official OpenHPC component list are built and available, including compilers
+(GCC 15), MPI stacks (OpenMPI 5, MPICH, MVAPICH2), SLURM, OpenPBS, and the
+complete scientific library stack (PETSc, Trilinos, Boost, HDF5, NetCDF, etc.).
+
+Only components that are inherently architecture-locked are excluded:
+Intel compilers/MPI, CUDA, ARM compilers, geopm, and msr-safe.
+
+The spec file changes are minimal (~90 lines across 21 files) and fully
+conditional (`%ifarch ppc64le`), preserving compatibility with upstream
+x86_64 and aarch64 builds.
+
+---
+
 ## Community building blocks for HPC systems
 
 ### Introduction
