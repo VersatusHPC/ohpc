@@ -2,7 +2,7 @@
 
 ## Summary
 
-- **78 RPMs** built for ppc64le on EL10 (AlmaLinux 10)
+- **84 RPMs** built for ppc64le on EL10 (AlmaLinux 10)
 - **Repository**: `/home/ferrao/ohpc-repo/EL10/ppc64le/`
 - **Branch**: `ppc64le-support` on VersatusHPC/ohpc
 
@@ -64,8 +64,27 @@
 | imb | 2021.10 | OHPC_COMP+MPI | |
 | omb | 7.5.2 | OHPC_COMP+MPI | |
 | mpi4py | 4.1.1 | OHPC_COMP+MPI | |
+| numpy | 2.4.3 | OHPC_COMP | VSX3 fix (PR #29627) |
+| adios2 | 2.11.0 | OHPC_COMP+MPI | |
+| pdtoolkit | 3.25.1 | OHPC_COMP | ibm64linux platform |
+| tau | 2.35.1 | OHPC_COMP+MPI | |
+| charliecloud | 0.43 | SYS_COMPILER | |
+| opencoarrays | 2.10.3 | OHPC_COMP+MPI | Built with MPICH (not OpenMPI) |
+| openpbs | 23.06.06 | SYS_COMPILER | server + execution + client + devel |
+| tau | Depends on pdtoolkit |
 
-## Packages NOT Ported (architecture limitations)
+## Packages Initially Thought Unportable — Now Built
+
+| Package | Initial Issue | Root Cause | Fix Applied |
+|---------|--------------|------------|-------------|
+| pdtoolkit | `ibm64linux` dir missing | Configure expects platform dir to exist before running | Create `ibm64linux/bin` before configure; guard rose-header-gen sed |
+| tau | Depends on pdtoolkit | Blocked by pdtoolkit | Built after pdtoolkit fix |
+| numpy | VSX3 intrinsics compiled for VSX2 targets | Upstream bug — NumPy PR #29627 (not yet merged) | Apply PR #29627 fixes via sed in %prep |
+| adios2 | Missing numpy + mpi4py modules | Dependency chain | Built after numpy + mpi4py installed |
+| charliecloud | GitLab package registry URL | Dynamic download URL | Manual wget from gitlab package_files |
+| opencoarrays | OpenMPI incompatible with gfortran 15 coarray | Upstream OpenMPI limitation | Built with MPICH instead of OpenMPI |
+
+## Packages NOT Ported (genuine architecture limitations)
 
 | Package | Reason |
 |---------|--------|
@@ -75,17 +94,6 @@
 | arm-compilers-devel | BuildArch: aarch64 (ARM) |
 | msr-safe | x86 MSR registers only |
 | lustre-client | Kernel module (separate effort) |
-| pdtoolkit | Pre-built parser binaries (x86_64/arm64 only) |
-| tau | Depends on pdtoolkit |
-
-## Packages With Build Issues (need further work)
-
-| Package | Issue | Potential Fix |
-|---------|-------|---------------|
-| numpy | VSX builtin flags not propagating to meson-python | Need meson cross-compile config or upstream fix |
-| adios2 | Depends on numpy module | Build after numpy is fixed |
-| charliecloud | Source hosted on GitLab package registry with dynamic URL | Manual download needed |
-| opencoarrays | Source download from GitHub failed | Retry download |
 
 ## Spec File Changes Made for ppc64le
 
@@ -97,10 +105,10 @@
 6. `components/compiler-families/gnu-compilers/SPECS/gnu-compilers.spec` — Make whatis description arch-generic
 7. `components/admin/meta-packages/SPECS/meta-packages.spec` — Add ppc64le to exclusion lists (mvapich2, Intel, etc.)
 8. `components/perf-tools/likwid/SPECS/likwid.spec` — Add ppc64le with perf_event access
-9. `components/perf-tools/pdtoolkit/SPECS/pdtoolkit.spec` — Add ppc64le arch_dir, exclude x86-only binaries
+9. `components/perf-tools/pdtoolkit/SPECS/pdtoolkit.spec` — Create `ibm64linux/bin` before configure; use `ibm64linux` as arch_dir; guard rose-header-gen sed
 10. `components/rms/munge/SPECS/munge.spec` — Remove .la file reference (EL10 brp-remove-la-files)
 11. `components/rms/slurm/SPECS/slurm.spec` — Remove deprecated sview subpackage (SLURM 25.x)
-12. `components/dev-tools/numpy/SPECS/python-numpy.spec` — Add `-mcpu=power9 -mvsx` for ppc64le via meson args
+12. `components/dev-tools/numpy/SPECS/python-numpy.spec` — Apply NumPy PR #29627 VSX3 fix via sed (add `-mvsx` to VSX2, guard VSX3 intrinsics with `NPY__CPU_TARGET_VSX3`)
 
 ## Build Infrastructure Notes
 
