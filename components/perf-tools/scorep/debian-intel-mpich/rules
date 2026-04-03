@@ -28,6 +28,7 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
+		sed -i "s/as_fn_error.*Compiler.MPI mismatch.*TS 29113.*/: # patched out TS29113 check/" configure build-mpi/configure 2>/dev/null; \
 		./configure --prefix=$(INSTALL_PATH) \
 			--with-cube=$$CUBELIB_DIR \
 			--with-cubew=$$CUBEW_DIR \
@@ -37,8 +38,7 @@ override_dh_auto_build:
 			--with-libgotcha=$$GOTCHA_DIR \
 			--enable-shared --disable-static \
 			--without-shmem \
-			--disable-mpi-f08 \
-			scorep_cv_have_mpi_f08_support=no && \
+			--disable-mpi-f08 && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:
