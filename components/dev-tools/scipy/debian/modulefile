@@ -5,21 +5,22 @@ proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the scipy library built with python3,"
 puts stderr "the gnu15 compiler toolchain and the openmpi5 MPI stack."
-puts stderr "\nVersion 1.5.4\n"
+puts stderr "\nVersion 1.14.1\n"
 
 }
 module-whatis "Name: python3-scipy built with gnu15 compiler and openmpi5 MPI"
-module-whatis "Version: 1.5.4"
+module-whatis "Version: 1.14.1"
 module-whatis "Category: python module"
 module-whatis "Description: Scientific Tools for Python"
 module-whatis "URL: http://www.scipy.org"
 
 family                      scipy
-set     version             1.5.4
+set     version             1.14.1
 
 depends-on numpy
 
-prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.5.4/lib/python3/dist-packages
-prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.5.4/lib64/python3/dist-packages
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.14.1/local/lib/python3.12/dist-packages
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.14.1/lib/python3.12/dist-packages
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.14.1/lib/python3/dist-packages
 
-setenv          SCIPY_DIR           /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.5.4
+setenv          SCIPY_DIR           /opt/ohpc/pub/libs/gnu15/openmpi5/scipy/1.14.1

@@ -18,8 +18,8 @@ Build-Depends: debhelper-compat (= 13),
                python3-setuptools,
                python3-wheel,
                cython3,
-               swig,
-               python3-pybind11,
+               ninja-build,
+               pkg-config,
                make
 Standards-Version: 4.6.2
 Homepage: http://www.scipy.org

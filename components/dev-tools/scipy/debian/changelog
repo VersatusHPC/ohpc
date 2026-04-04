@@ -1,5 +1,5 @@
-python3-scipy-gnu15-openmpi5-ohpc (1.5.4-1ohpc1~noble) noble; urgency=low
+python3-scipy-gnu15-openmpi5-ohpc (1.14.1-1ohpc1~noble) noble; urgency=low
 
-  * Initial Debian packaging for OpenHPC Ubuntu port.
+  * Upgrade to 1.14.1 for NumPy 2.x compatibility (meson build system).
 
- -- VersatusHPC <packages@versatushpc.org>  Thu, 27 Mar 2026 18:00:00 +0000
+ -- VersatusHPC <packages@versatushpc.org>  Fri, 04 Apr 2026 00:00:00 +0000
