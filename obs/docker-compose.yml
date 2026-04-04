@@ -46,7 +46,7 @@ services:
       - backend
     environment:
       - OBS_BACKEND_HOST=obs-backend
-      - OBS_WORKER_COUNT=8
+      - OBS_WORKER_COUNT=4
     volumes:
       - ./start-worker.sh:/start-worker.sh:ro,z
       - ./config/BSConfig.pm:/usr/lib/obs/server/BSConfig.pm:ro,z

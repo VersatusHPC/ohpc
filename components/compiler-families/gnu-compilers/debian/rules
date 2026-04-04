@@ -25,8 +25,8 @@ SRCDIR          := $(CURDIR)/gcc-$(GCC_VERSION)
 OBJDIR          := $(CURDIR)/gcc-$(GCC_VERSION)/obj
 PKG             := $(CURDIR)/debian/gnu15-compilers-ohpc
 
-# Cap parallel build at 32 to avoid resource exhaustion with multiple OBS workers
-NPROC           := $(shell echo $$(( $(shell nproc) > 32 ? 32 : $(shell nproc) )))
+# Cap parallel build at 16 to avoid fork exhaustion with multiple OBS workers
+NPROC           := $(shell echo $$(( $(shell nproc) > 16 ? 16 : $(shell nproc) )))
 
 %:
 	dh $@
