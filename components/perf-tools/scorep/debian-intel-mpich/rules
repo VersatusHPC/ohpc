@@ -39,6 +39,8 @@ override_dh_auto_build:
 			--enable-shared --disable-static \
 			--without-shmem \
 			--disable-mpi-f08 && \
+		rm -rf build-mpi/src/adapters/mpi/f08 && \
+		mkdir -p build-mpi/src/adapters/mpi/f08/wrappers && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:
