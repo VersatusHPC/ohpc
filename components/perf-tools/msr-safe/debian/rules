@@ -31,8 +31,10 @@ override_dh_auto_build:
 	# Disable -Werror for kernel module build (GCC 14 pointer type warnings)
 	sed -i '1i ccflags-y += -Wno-error' $(SRCDIR)/Makefile
 	# Patch for kernel 6.4+ API: class_create lost owner parameter, devnode const qualifier
-	sed -i 's/class_create(THIS_MODULE, /class_create(/' $(SRCDIR)/msr_entry.c
-	sed -i 's/char \*msr_devnode(struct device \*/char *msr_devnode(const struct device */' $(SRCDIR)/msr_entry.c
+	# Apply to ALL source files (msr_entry.c AND msr_allowlist.c)
+	find $(SRCDIR) -name '*.c' -exec sed -i 's/class_create(THIS_MODULE, /class_create(/' {} +
+	find $(SRCDIR) -name '*.c' -exec sed -i 's/char \*msr_devnode(struct device \*/char *msr_devnode(const struct device */' {} +
+	find $(SRCDIR) -name '*.c' -exec sed -i 's/char \*msr_allowlist_devnode(struct device \*/char *msr_allowlist_devnode(const struct device */' {} +
 	cd $(SRCDIR) && $(MAKE)
 	cd $(SRCDIR) && make msrsave
 
