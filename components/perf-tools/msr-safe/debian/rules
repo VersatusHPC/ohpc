@@ -32,8 +32,7 @@ override_dh_auto_build:
 	sed -i '1i ccflags-y += -Wno-error' $(SRCDIR)/Makefile
 	# Patch for kernel 6.4+ API: class_create lost owner parameter, devnode const qualifier
 	sed -i 's/class_create(THIS_MODULE, /class_create(/' $(SRCDIR)/msr_entry.c
-	sed -i 's/^static char \*msr_devnode/static const char *msr_devnode/' $(SRCDIR)/msr_entry.c
-	sed -i 's/char \*msr_devnode(struct device/const char *msr_devnode(const struct device/' $(SRCDIR)/msr_entry.c
+	sed -i 's/char \*msr_devnode(struct device \*/const char *msr_devnode(const struct device */' $(SRCDIR)/msr_entry.c
 	cd $(SRCDIR) && $(MAKE)
 	cd $(SRCDIR) && make msrsave
 
