@@ -31,7 +31,7 @@ override_dh_auto_build:
 		export LDFLAGS="-L$${NETCDF_LIB} -L$${HDF5_LIB}" && \
 		FC=mpif90 ./configure --prefix=$(INSTALL_PATH) \
 			--enable-shared --with-pic --disable-doxygen --disable-static \
-			ac_cv_search_nc_open="-lnetcdf -lhdf5_hl -lhdf5 -lz -ldl -lm -lcurl" && \
+			ac_cv_search_nc_open="-lnetcdf -lhdf5_hl -lhdf5 -lz -ldl -lm -lcurl" ac_cv_func_nc_def_var_szip=yes && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:
