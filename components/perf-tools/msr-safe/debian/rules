@@ -31,9 +31,11 @@ override_dh_auto_build:
 	# Disable -Werror for kernel module build (GCC 14 pointer type warnings)
 	sed -i '1i ccflags-y += -Wno-error' $(SRCDIR)/Makefile
 	# Patch for kernel 6.4+ API: class_create lost owner parameter, devnode const qualifier
-	# Apply to ALL source files
+	# Apply to ALL source files - match both old mode_t and new umode_t signatures
 	find $(SRCDIR) -name '*.c' -exec sed -i 's/class_create(THIS_MODULE, /class_create(/' {} +
-	find $(SRCDIR) -name '*.c' -exec sed -i 's/devnode(struct device \*/devnode(const struct device */' {} +
+	# Patch any function that takes (struct device *, umode_t *) to use const struct device *
+	find $(SRCDIR) -name '*.c' -exec sed -i 's/(struct device \*\([a-z_]*\), umode_t \*/(const struct device *\1, umode_t */g' {} +
+	find $(SRCDIR) -name '*.c' -exec sed -i 's/(struct device \*\([a-z_]*\), mode_t \*/(const struct device *\1, mode_t */g' {} +
 	cd $(SRCDIR) && $(MAKE)
 	cd $(SRCDIR) && make msrsave
 
