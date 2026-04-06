@@ -32,7 +32,7 @@ override_dh_auto_build:
 		export LDFLAGS="-L$${NETCDF_LIB} -L$${HDF5_LIB}" && \
 		FC=mpif90 ./configure --prefix=$(INSTALL_PATH) \
 			--enable-shared --with-pic --disable-doxygen --disable-static \
-			ac_cv_search_nc_open="-lnetcdf" ac_cv_func_nc_def_var_szip=yes ac_cv_sizeof_off_t=8 ac_cv_sizeof_size_t=8 ac_cv_sizeof_int=4 ac_cv_sizeof_long=8 ac_cv_sizeof_float=4 ac_cv_sizeof_double=8 ac_cv_sizeof_short=2 && \
+			ac_cv_search_nc_open="-lnetcdf" ac_cv_func_nc_def_var_szip=yes ac_cv_sizeof_off_t=8 ac_cv_sizeof_size_t=8 ac_cv_sizeof_int=4 ac_cv_sizeof_long=8 ac_cv_sizeof_float=4 ac_cv_sizeof_double=8 ac_cv_sizeof_short=2 ac_cv_sizeof_ptrdiff_t=8 && \
 		make -j$$(nproc)'
 
 override_dh_auto_install:

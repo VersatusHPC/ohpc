@@ -45,7 +45,7 @@ override_dh_auto_install:
 	install -m 644 $(SRCDIR)/msr-safe.ko $(PKG)/lib/modules/$(KVERSION)/extra/msr-safe/
 	# Install userspace tools
 	mkdir -p $(PKG)/usr/sbin
-	install -m 755 $(SRCDIR)/msrsave $(PKG)/usr/sbin/
+	install -m 755 $(SRCDIR)/msrsave/msrsave $(PKG)/usr/sbin/
 	# Install allowlists
 	mkdir -p $(PKG)/usr/share/msr-safe/allowlists
 	install -m 644 $(SRCDIR)/allowlists/* $(PKG)/usr/share/msr-safe/allowlists/ || true
