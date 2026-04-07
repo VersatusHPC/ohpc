@@ -32,13 +32,13 @@ override_dh_auto_build:
 		export FFLAGS="-fPIC -fno-strict-aliasing" && \
 		export FCFLAGS="-fPIC -fno-strict-aliasing" && \
 		pip3 install --break-system-packages --no-index --find-links=../SOURCES/pip-wheels meson-python meson cython ninja pybind11 pythran && \
-		python3 -m pip wheel --no-build-isolation --wheel-dir=dist .'
+		python3 -m pip wheel --no-build-isolation --no-deps --wheel-dir=dist .'
 
 override_dh_auto_install:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		export PYTHONPATH="$${NUMPY_DIR}/local/lib/python3.12/dist-packages:$${PYTHONPATH}" && \
 		export PKG_CONFIG_PATH="$${OPENBLAS_LIB}/pkgconfig:$${PKG_CONFIG_PATH}" && \
-		pip3 install --break-system-packages --prefix=$(INSTALL_PATH) --root=$(PKG) dist/*.whl'
+		pip3 install --break-system-packages --no-deps --prefix=$(INSTALL_PATH) --root=$(PKG) dist/*.whl'
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
