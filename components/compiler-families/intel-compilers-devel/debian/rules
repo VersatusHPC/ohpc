@@ -21,6 +21,12 @@ PKG := $(CURDIR)/debian/intel-compilers-devel-ohpc
 	dh $@
 
 override_dh_auto_configure:
+	# Install Intel oneAPI arch:all packages from SOURCES
+	# (OBS DoD cannot resolve arch:all packages from Intel APT repo)
+	if ls SOURCES/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then \
+		echo "Installing Intel oneAPI arch:all packages from SOURCES..."; \
+		dpkg -i SOURCES/intel-oneapi-*_all.deb 2>/dev/null || true; \
+	fi
 
 override_dh_auto_build:
 
