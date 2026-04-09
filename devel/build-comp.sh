@@ -26,7 +26,9 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
         SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         if ls "$SCRIPT_DIR"/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then
             echo "Installing Intel oneAPI arch:all packages..."
-            dpkg -i "$SCRIPT_DIR"/intel-oneapi-*_all.deb 2>/dev/null || true
+            dpkg --force-depends -i "$SCRIPT_DIR"/intel-oneapi-*_all.deb || true
+            echo "Intel arch:all install done. Checking setvars..."
+            ls -la /opt/intel/oneapi/setvars.sh 2>/dev/null || echo "WARNING: setvars.sh still missing!"
         fi
     fi
     [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
