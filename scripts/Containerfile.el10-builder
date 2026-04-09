@@ -76,7 +76,7 @@ RUN dnf -y install \
         pdtoolkit-gnu15-ohpc \
         python3-numpy-gnu15-ohpc python3-mpi4py-gnu15-openmpi5-ohpc \
         slurm-ohpc slurm-devel-ohpc \
-        openpbs-server-ohpc openpbs-execution-ohpc openpbs-client-ohpc openpbs-devel-ohpc \
+        openpbs-devel-ohpc \
         genders-ohpc genders-compat-ohpc \
         trilinos-gnu15-openmpi5-ohpc \
     && dnf clean all
