@@ -44,7 +44,12 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
             fi
             rm -rf "$_TMPEXT"
             set -e
-            ls /opt/intel/oneapi/setvars.sh 2>/dev/null && echo "Intel arch:all install OK" || echo "WARNING: setvars.sh still missing!"
+            if [ -f /opt/intel/oneapi/setvars.sh ]; then
+                echo "Intel arch:all install OK, generating modulefiles..."
+                /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel 2>/dev/null || true
+            else
+                echo "WARNING: setvars.sh still missing!"
+            fi
         fi
     fi
     [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
