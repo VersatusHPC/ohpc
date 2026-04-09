@@ -1,11 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
-
-# Run module generator if Intel oneAPI is installed
-if [ -f /opt/intel/oneapi/modulefiles-setup.sh ]; then
-    /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel || true
-fi
-
-#DEBHELPER#
-
-exit 0
+# Make /opt/intel writable for OBS build user
+chmod -R a+w /opt/intel 2>/dev/null || true
