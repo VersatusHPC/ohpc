@@ -26,14 +26,14 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
         SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         if ls "$SCRIPT_DIR"/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then
             echo "Installing Intel oneAPI arch:all packages..."
-            if command -v sudo >/dev/null 2>&1; then
-                sudo dpkg --force-depends -i "$SCRIPT_DIR"/intel-oneapi-*_all.deb || true
-            elif [ "$(id -u)" = "0" ]; then
-                dpkg --force-depends -i "$SCRIPT_DIR"/intel-oneapi-*_all.deb || true
-            else
-                fakeroot dpkg --force-depends -i "$SCRIPT_DIR"/intel-oneapi-*_all.deb 2>/dev/null || \
-                for deb in "$SCRIPT_DIR"/intel-oneapi-*_all.deb; do dpkg-deb -x "$deb" /; done || true
-            fi
+            _TMPEXT=$(mktemp -d)
+            for deb in "$SCRIPT_DIR"/intel-oneapi-*_all.deb; do
+                dpkg-deb -x "$deb" "$_TMPEXT" 2>/dev/null
+            done
+            cp -a "$_TMPEXT"/opt/intel/oneapi/* /opt/intel/oneapi/ 2>/dev/null || \
+                rsync -a "$_TMPEXT"/opt/ /opt/ 2>/dev/null || \
+                (cd "$_TMPEXT" && find . -type f -exec sh -c 'mkdir -p "/$(dirname "$1")" && cp "$1" "/$1" 2>/dev/null' _ {} \;) || true
+            rm -rf "$_TMPEXT"
             echo "Intel arch:all install done. Checking setvars..."
             ls -la /opt/intel/oneapi/setvars.sh 2>/dev/null || echo "WARNING: setvars.sh still missing!"
         fi
