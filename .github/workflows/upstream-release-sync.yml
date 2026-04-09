@@ -1,0 +1,151 @@
+name: Upstream Release Sync
+
+# Keeps 4.x branch and tags in 1:1 sync with upstream openhpc/ohpc.
+# When a new v4.* release tag appears, creates a PR into versatushpc/4.x
+# listing which components changed and need ppc64le rebuilds.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 08:00 UTC
+  workflow_dispatch:      # Manual trigger for testing
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          ref: versatushpc/4.x
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/openhpc/ohpc.git
+          git fetch upstream 4.x --tags
+
+      - name: Sync 4.x branch
+        run: |
+          # Update fork's 4.x to match upstream exactly
+          git push origin upstream/4.x:refs/heads/4.x --force-with-lease
+
+      - name: Mirror upstream tags
+        run: |
+          git push origin --tags
+
+      - name: Detect new release tags
+        id: detect
+        run: |
+          # Tags matching v4.* that are NOT ancestors of versatushpc/4.x
+          NEW_TAGS=$(git tag -l 'v4*' --no-merged origin/versatushpc/4.x --sort=-version:refname)
+
+          if [ -z "$NEW_TAGS" ]; then
+            echo "No new release tags"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Take the latest new tag
+          LATEST=$(echo "$NEW_TAGS" | head -1)
+          echo "New release tag: $LATEST"
+          echo "found=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$LATEST" >> "$GITHUB_OUTPUT"
+
+          # Find the previous release tag (latest one already merged)
+          PREV=$(git tag -l 'v4*' --merged origin/versatushpc/4.x --sort=-version:refname | head -1)
+          echo "prev_tag=$PREV" >> "$GITHUB_OUTPUT"
+
+      - name: Check for existing PR
+        if: steps.detect.outputs.found == 'true'
+        id: existing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          OPEN=$(gh pr list --base versatushpc/4.x --head 4.x --state open --json number --jq 'length')
+          if [ "$OPEN" -gt 0 ]; then
+            echo "PR already open, skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build change report
+        if: steps.detect.outputs.found == 'true' && steps.existing.outputs.skip == 'false'
+        id: report
+        run: |
+          TAG="${{ steps.detect.outputs.tag }}"
+          PREV="${{ steps.detect.outputs.prev_tag }}"
+
+          if [ -n "$PREV" ]; then
+            RANGE="${PREV}..${TAG}"
+          else
+            RANGE="$(git merge-base origin/versatushpc/4.x origin/4.x)..${TAG}"
+          fi
+
+          # Changed components (deduplicated to component level)
+          CHANGED=$(git diff --name-only "$RANGE" -- components/ | \
+            sed 's|components/\([^/]*/[^/]*\)/.*|\1|' | sort -u)
+
+          # Also check for OHPC_setup_compiler or other infra changes
+          INFRA=$(git diff --name-only "$RANGE" -- components/OHPC_setup_compiler)
+
+          # Build the body
+          BODY_FILE=$(mktemp)
+          {
+            echo "## Upstream Release: ${TAG}"
+            echo ""
+            if [ -n "$PREV" ]; then
+              echo "Previous release: ${PREV}"
+              echo ""
+            fi
+            echo "### Changed components"
+            echo ""
+            if [ -n "$CHANGED" ]; then
+              echo "$CHANGED" | while read -r comp; do
+                echo "- \`$comp\`"
+              done
+            else
+              echo "_No component changes detected_"
+            fi
+            echo ""
+            if [ -n "$INFRA" ]; then
+              echo "### ⚠ Infrastructure changes"
+              echo ""
+              echo "- \`OHPC_setup_compiler\` was modified upstream — review against our ppc64le patch"
+              echo ""
+            fi
+            echo "### Merge checklist"
+            echo ""
+            echo "- [ ] Resolve merge conflicts (check patched specs)"
+            echo "- [ ] Review \`OHPC_setup_compiler\` changes if flagged"
+            echo "- [ ] Rebuild changed ppc64le packages"
+            echo "- [ ] Run smoke tests"
+            echo "- [ ] Publish updated RPMs"
+          } > "$BODY_FILE"
+
+          # Pass to next step via file (avoids quoting issues)
+          echo "body_file=$BODY_FILE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create PR
+        if: steps.detect.outputs.found == 'true' && steps.existing.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.report.outputs.tag }}"
+          BODY_FILE="${{ steps.report.outputs.body_file }}"
+
+          gh pr create \
+            --base versatushpc/4.x \
+            --head 4.x \
+            --title "upstream: merge ${TAG}" \
+            --body-file "$BODY_FILE"
