@@ -12,17 +12,18 @@
 set -euo pipefail
 
 # ── Local build server settings ──────────────────────────────────────
-LOCAL_USER="ferrao"
-LOCAL_RPMBUILD="/home/${LOCAL_USER}/rpmbuild"
+LOCAL_USER="${LOCAL_USER:-builder}"
 STAGING_DIR="/home/${LOCAL_USER}/staging/versatushpc-4"
 
-# ── openEuler container settings ─────────────────────────────────────
-CONTAINER_NAME="oe-builder"
+# ── Container settings ──────────────────────────────────────────────
+EL10_CONTAINER="el10-builder"
+OE_CONTAINER="oe-builder"
 CONTAINER_RPMBUILD="/root/rpmbuild"
 
 # ── GPG signing ──────────────────────────────────────────────────────
 GPG_KEY_NAME="VersatusHPC (Repository Signing Key) <support@versatushpc.com.br>"
-GPG_PUBLIC_KEY="/home/${LOCAL_USER}/ohpc/RPM-GPG-KEY-VersatusHPC"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+GPG_PUBLIC_KEY="${SCRIPT_DIR}/../RPM-GPG-KEY-VersatusHPC"
 
 # ── Remote repo server settings ──────────────────────────────────────
 REMOTE_USER="reposync"
@@ -52,17 +53,17 @@ else
              "${STAGING_DIR}/openEuler_24.03/noarch" \
              "${STAGING_DIR}/openEuler_24.03/src"
 
-    # ── Stage EL10 RPMs ─────────────────────────────────────────────
-    echo "==> Staging EL10 RPMs from ${LOCAL_RPMBUILD}"
-    cp -v "${LOCAL_RPMBUILD}"/RPMS/ppc64le/*.rpm "${STAGING_DIR}/EL_10/ppc64le/"
-    cp -v "${LOCAL_RPMBUILD}"/RPMS/noarch/*.rpm  "${STAGING_DIR}/EL_10/noarch/"
-    cp -v "${LOCAL_RPMBUILD}"/SRPMS/*.rpm        "${STAGING_DIR}/EL_10/src/"
+    # ── Stage EL10 RPMs (extract from container) ───────────────────
+    echo "==> Staging EL10 RPMs from container '${EL10_CONTAINER}'"
+    podman cp "${EL10_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/ppc64le/." "${STAGING_DIR}/EL_10/ppc64le/"
+    podman cp "${EL10_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/noarch/."  "${STAGING_DIR}/EL_10/noarch/"
+    podman cp "${EL10_CONTAINER}:${CONTAINER_RPMBUILD}/SRPMS/."        "${STAGING_DIR}/EL_10/src/"
 
     # ── Stage openEuler RPMs (extract from container) ────────────────
-    echo "==> Staging openEuler RPMs from container '${CONTAINER_NAME}'"
-    podman cp "${CONTAINER_NAME}:${CONTAINER_RPMBUILD}/RPMS/ppc64le/." "${STAGING_DIR}/openEuler_24.03/ppc64le/"
-    podman cp "${CONTAINER_NAME}:${CONTAINER_RPMBUILD}/RPMS/noarch/."  "${STAGING_DIR}/openEuler_24.03/noarch/"
-    podman cp "${CONTAINER_NAME}:${CONTAINER_RPMBUILD}/SRPMS/."        "${STAGING_DIR}/openEuler_24.03/src/"
+    echo "==> Staging openEuler RPMs from container '${OE_CONTAINER}'"
+    podman cp "${OE_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/ppc64le/." "${STAGING_DIR}/openEuler_24.03/ppc64le/"
+    podman cp "${OE_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/noarch/."  "${STAGING_DIR}/openEuler_24.03/noarch/"
+    podman cp "${OE_CONTAINER}:${CONTAINER_RPMBUILD}/SRPMS/."        "${STAGING_DIR}/openEuler_24.03/src/"
 
     # ── Sign RPMs ────────────────────────────────────────────────────
     echo "==> Signing RPMs with GPG key: ${GPG_KEY_NAME}"
@@ -75,7 +76,6 @@ else
     createrepo_c "${STAGING_DIR}/openEuler_24.03/"
 
     # ── Copy GPG public key and .repo files to staging ───────────────
-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     cp "${GPG_PUBLIC_KEY}" "${STAGING_DIR}/RPM-GPG-KEY-VersatusHPC"
     cp "${SCRIPT_DIR}/repo-files/EL_10/versatushpc-openhpc.repo" "${STAGING_DIR}/EL_10/"
     cp "${SCRIPT_DIR}/repo-files/openEuler_24.03/versatushpc-openhpc.repo" "${STAGING_DIR}/openEuler_24.03/"
