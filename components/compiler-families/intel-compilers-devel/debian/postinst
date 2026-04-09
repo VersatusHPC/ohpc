@@ -2,3 +2,4 @@
 set -e
 # Make /opt/intel writable for OBS build user
 chmod -R a+w /opt/intel 2>/dev/null || true
+chmod -R a+w /opt/ohpc 2>/dev/null || true
