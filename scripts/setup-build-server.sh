@@ -19,7 +19,7 @@ BUILDER_HOME="/home/${BUILDER_USER}"
 OHPC_REPO="git@github.com:VersatusHPC/ohpc.git"
 OHPC_UPSTREAM="https://github.com/openhpc/ohpc.git"
 PORTING_BRANCH="versatushpc/4.x"
-WORKTREE_DIR="${BUILDER_HOME}/versatushpc-4.x"
+WORKTREE_DIR="${BUILDER_HOME}/ohpc-versatushpc-4.x"
 
 EL10_IMAGE="el10-ohpc-builder"
 OE2403_IMAGE="oe2403-ohpc-builder"
