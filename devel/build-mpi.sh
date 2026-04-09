@@ -23,16 +23,25 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
         SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         if ls "$SCRIPT_DIR"/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then
             echo "Installing Intel oneAPI arch:all packages..."
+            set +e
             _TMPEXT=$(mktemp -d)
             for deb in "$SCRIPT_DIR"/intel-oneapi-*_all.deb; do
                 dpkg-deb -x "$deb" "$_TMPEXT" 2>/dev/null
             done
-            cp -a "$_TMPEXT"/opt/intel/oneapi/* /opt/intel/oneapi/ 2>/dev/null || \
-                rsync -a "$_TMPEXT"/opt/ /opt/ 2>/dev/null || \
-                (cd "$_TMPEXT" && find . -type f -exec sh -c 'mkdir -p "/$(dirname "$1")" && cp "$1" "/$1" 2>/dev/null' _ {} \;) || true
+            if [ -d "$_TMPEXT/opt/intel" ]; then
+                cp -a "$_TMPEXT"/opt/intel/oneapi/* /opt/intel/oneapi/ 2>/dev/null
+                if [ $? -ne 0 ]; then
+                    echo "cp failed, trying file-by-file..."
+                    cd "$_TMPEXT" && find opt -type f | while read f; do
+                        mkdir -p "/$(dirname "$f")" 2>/dev/null
+                        cp -f "$_TMPEXT/$f" "/$f" 2>/dev/null
+                    done
+                    cd /usr/src/packages/BUILD
+                fi
+            fi
             rm -rf "$_TMPEXT"
-            echo "Intel arch:all install done. Checking setvars..."
-            ls -la /opt/intel/oneapi/setvars.sh 2>/dev/null || echo "WARNING: setvars.sh still missing!"
+            set -e
+            ls /opt/intel/oneapi/setvars.sh 2>/dev/null && echo "Intel arch:all install OK" || echo "WARNING: setvars.sh still missing!"
         fi
     fi
     [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
