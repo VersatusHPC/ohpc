@@ -43,7 +43,8 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
             set -e
             if [ -f /opt/intel/oneapi/setvars.sh ]; then
                 echo "Intel arch:all install OK, generating modulefiles..."
-                /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel 2>/dev/null || true
+                /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel 2>&1 || true
+                echo "Module dirs:" && ls /opt/ohpc/pub/modulefiles/intel/ 2>/dev/null || echo "No intel modulefiles dir"
             else
                 echo "WARNING: setvars.sh still missing!"
             fi
