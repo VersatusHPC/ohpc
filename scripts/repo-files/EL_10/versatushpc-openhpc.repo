@@ -1,0 +1,6 @@
+[versatushpc-openhpc]
+name=VersatusHPC - OpenHPC 4.x for ppc64le (EL10)
+baseurl=https://repos.versatushpc.com.br/openhpc/versatushpc-4/EL_10/
+enabled=1
+gpgcheck=1
+gpgkey=https://repos.versatushpc.com.br/openhpc/versatushpc-4/RPM-GPG-KEY-VersatusHPC

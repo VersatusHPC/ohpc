@@ -1,12 +1,19 @@
-# OpenHPC ppc64le Porting Log
+# OpenHPC 4.x ppc64le Port — Porting Log
 
 ## Summary
 
-- **84 RPMs** built for ppc64le on EL10 (AlmaLinux 10)
-- **Repository**: `/home/ferrao/ohpc-repo/EL10/ppc64le/`
-- **Branch**: `ppc64le-support` on VersatusHPC/ohpc
+| Platform | Components | Binary RPMs | Source RPMs |
+|----------|-----------|-------------|-------------|
+| EL10 (AlmaLinux/Rocky/RHEL) | 68/68 | 117 | 72 |
+| openEuler 24.03 LTS | 68/68 | 150 | 73 |
 
-## Successfully Built Packages (78 RPMs)
+**Repository**: <https://repos.versatushpc.com.br/openhpc/versatushpc-4/>
+
+All 68 architecture-portable OpenHPC 4.x components build and install on
+ppc64le (IBM POWER9+). Only components inherently locked to other architectures
+are excluded (Intel compilers/MPI, CUDA, ARM compilers, geopm, msr-safe).
+
+## Built Components
 
 | Package | Version | Category | Notes |
 |---------|---------|----------|-------|
@@ -70,49 +77,66 @@
 | tau | 2.35.1 | OHPC_COMP+MPI | |
 | charliecloud | 0.43 | SYS_COMPILER | |
 | opencoarrays | 2.10.3 | OHPC_COMP+MPI | Built with MPICH (not OpenMPI) |
-| openpbs | 23.06.06 | SYS_COMPILER | server + execution + client + devel |
-| tau | Depends on pdtoolkit |
+| warewulf | 4.6.5 | PROVISIONING | |
+| EasyBuild | 5.2.1 | DEV_TOOLS | |
+| spack | 1.1.1 | DEV_TOOLS | |
+| losf | 0.56.0 | ADMIN | |
+| nhc | 1.4.3 | ADMIN | |
+| prun | 2.2 | ADMIN | |
+| magpie | 4.0.2 | ADMIN | |
+| examples | 2.6 | ADMIN | |
+| Cython | 3.2.4 | DEV_TOOLS | |
+| mvapich2 | 2.3.7 | OHPC_COMP | |
 
 ## Packages Initially Thought Unportable — Now Built
 
-| Package | Initial Issue | Root Cause | Fix Applied |
-|---------|--------------|------------|-------------|
-| pdtoolkit | `ibm64linux` dir missing | Configure expects platform dir to exist before running | Create `ibm64linux/bin` before configure; guard rose-header-gen sed |
-| tau | Depends on pdtoolkit | Blocked by pdtoolkit | Built after pdtoolkit fix |
-| numpy | VSX3 intrinsics compiled for VSX2 targets | Upstream bug — NumPy PR #29627 (not yet merged) | Apply PR #29627 fixes via sed in %prep |
-| adios2 | Missing numpy + mpi4py modules | Dependency chain | Built after numpy + mpi4py installed |
-| charliecloud | GitLab package registry URL | Dynamic download URL | Manual wget from gitlab package_files |
-| opencoarrays | OpenMPI incompatible with gfortran 15 coarray | Upstream OpenMPI limitation | Built with MPICH instead of OpenMPI |
+| Package | Initial Issue | Fix Applied |
+|---------|--------------|-------------|
+| pdtoolkit | `ibm64linux` dir missing | Create `ibm64linux/bin` before configure; guard rose-header-gen sed |
+| tau | Blocked by pdtoolkit | Built after pdtoolkit fix |
+| numpy | VSX3 intrinsics compiled for VSX2 targets | Apply upstream PR #29627 fixes via sed in `%prep` |
+| adios2 | Missing numpy + mpi4py modules | Built after numpy + mpi4py installed |
+| charliecloud | GitLab package registry URL | Manual wget from gitlab package_files |
+| opencoarrays | OpenMPI incompatible with gfortran 15 coarray | Built with MPICH instead of OpenMPI |
 
-## Packages NOT Ported (genuine architecture limitations)
+## Packages NOT Ported (architecture-locked)
 
 | Package | Reason |
 |---------|--------|
-| intel-compilers-devel | BuildArch: x86_64 (Intel proprietary) |
-| impi-devel | BuildArch: x86_64 (Intel MPI) |
-| cuda-devel | BuildArch: x86_64 (NVIDIA) |
-| arm-compilers-devel | BuildArch: aarch64 (ARM) |
+| intel-compilers-devel | x86_64 only (Intel proprietary) |
+| impi-devel | x86_64 only (Intel MPI) |
+| cuda-devel | x86_64 only (NVIDIA) |
+| arm-compilers-devel | aarch64 only (ARM) |
+| geopm | x86_64 only (Intel RAPL/MSR) |
 | msr-safe | x86 MSR registers only |
+| likwid | x86_64 + aarch64 only (hardware counters) |
 | lustre-client | Kernel module (separate effort) |
 
-## Spec File Changes Made for ppc64le
+## Spec File Changes (21 files, +88 -41 lines)
 
-1. `components/OHPC_setup_compiler` — Add ppc64le detection with `-mcpu=power9 -mtune=power9`; skip `-mtune=generic` on ppc64le
-2. `components/serial-libs/openblas/SPECS/openblas.spec` — Add `TARGET=POWER9 NUM_THREADS=256`
-3. `components/parallel-libs/fftw/SPECS/fftw.spec` — Add `--enable-vsx` for VSX SIMD
-4. `components/parallel-libs/boost/SPECS/boost.spec` — Add `architecture="power"` for Boost.Build
-5. `components/compiler-families/llvm-compilers/SPECS/llvm-compilers.spec` — Add ppc64le triple `powerpc64le-linux-gnu` and `PowerPC` target
-6. `components/compiler-families/gnu-compilers/SPECS/gnu-compilers.spec` — Make whatis description arch-generic
-7. `components/admin/meta-packages/SPECS/meta-packages.spec` — Add ppc64le to exclusion lists (mvapich2, Intel, etc.)
-8. `components/perf-tools/likwid/SPECS/likwid.spec` — Add ppc64le with perf_event access
-9. `components/perf-tools/pdtoolkit/SPECS/pdtoolkit.spec` — Create `ibm64linux/bin` before configure; use `ibm64linux` as arch_dir; guard rose-header-gen sed
-10. `components/rms/munge/SPECS/munge.spec` — Remove .la file reference (EL10 brp-remove-la-files)
-11. `components/rms/slurm/SPECS/slurm.spec` — Remove deprecated sview subpackage (SLURM 25.x)
-12. `components/dev-tools/numpy/SPECS/python-numpy.spec` — Apply NumPy PR #29627 VSX3 fix via sed (add `-mvsx` to VSX2, guard VSX3 intrinsics with `NPY__CPU_TARGET_VSX3`)
+All changes are minimal and conditional (`%ifarch ppc64le`), preserving
+compatibility with upstream x86_64 and aarch64 builds.
 
-## Build Infrastructure Notes
+| File | Change |
+|------|--------|
+| `OHPC_setup_compiler` | Add ppc64le detection with `-mcpu=power9 -mtune=power9`; skip `-mtune=generic` on ppc64le |
+| `openblas.spec` | Add `TARGET=POWER9 NUM_THREADS=256` |
+| `fftw.spec` | Add `--enable-vsx` for VSX SIMD |
+| `boost.spec` | Add `architecture="power"` for Boost.Build |
+| `llvm-compilers.spec` | Add ppc64le triple `powerpc64le-linux-gnu` and `PowerPC` target |
+| `gnu-compilers.spec` | Make whatis description arch-generic |
+| `meta-packages.spec` | Add ppc64le to exclusion lists (mvapich2, Intel, etc.) |
+| `likwid.spec` | Add ppc64le with perf_event access |
+| `pdtoolkit.spec` | Create `ibm64linux/bin` before configure; use `ibm64linux` as arch_dir; guard rose-header-gen sed |
+| `munge.spec` | Remove .la file reference (EL10 brp-remove-la-files) |
+| `slurm.spec` | Remove deprecated sview subpackage (SLURM 25.x) |
+| `python-numpy.spec` | Apply NumPy PR #29627 VSX3 fix via sed |
+| 9 other specs | Add `ppc64le` to `BuildArch` or `ExclusiveArch` |
 
-### ~/.rpmmacros required settings
+## Build Infrastructure
+
+### Required `~/.rpmmacros`
+
 ```
 %__brp_check_rpaths %{nil}
 %__spec_build_shell /bin/bash
@@ -127,9 +151,18 @@
   %{___build_pre}
 ```
 
-### Key findings
+### openEuler 24.03 Notes
+
+openEuler 24.03 ppc64le ships only the `OS` repo (~2362 packages). The
+`everything` and `EPOL` repos are not available for ppc64le, and SP1/SP2
+dropped ppc64le entirely. Only 6 additional packages needed SRPM rebuilds
+(lua, lua-filesystem, libfabric, freeipmi, libedit, yaml-cpp). All builds
+run inside a Podman container (`oe-builder`) using the same spec files as EL10.
+
+### Key Findings
+
 - `-mtune=generic` is NOT valid on ppc64le GCC — must be skipped
 - Lmod must be explicitly sourced in rpmbuild scripts (not available by default)
 - rpmbuild must use `/bin/bash` (not `/bin/sh`) for module function to work
 - OHPC packages install under `/opt/ohpc/` which triggers rpath checks — disable with `%__brp_check_rpaths %{nil}`
-- Source tarballs must be in the worktree SOURCES directories, not the main repo
+- Source tarballs must be in the component SOURCES directories
