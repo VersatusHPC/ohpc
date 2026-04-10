@@ -17,8 +17,8 @@ _SAVED_ARGS=("$@")
 export MODULEPATH=/opt/ohpc/pub/modulefiles
 . /opt/ohpc/admin/lmod/lmod/init/bash
 
-# For Intel compilers: install arch:all packages if missing, then source oneAPI
-if [ "$COMPILER_FAMILY" = "intel" ]; then
+# For Intel compilers or Intel MPI: install arch:all packages if missing
+if [ "$COMPILER_FAMILY" = "intel" ] || [ "$MPI_FAMILY" = "impi" ]; then
     if [ ! -f /opt/intel/oneapi/setvars.sh ]; then
         SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         if ls "$SCRIPT_DIR"/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then
@@ -54,9 +54,12 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
             fi
         fi
     fi
+fi
+
+# For Intel compilers: also source oneAPI env
+if [ "$COMPILER_FAMILY" = "intel" ]; then
     [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
     [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] && . /opt/intel/oneapi/mkl/latest/env/vars.sh 2>/dev/null
-    # Ensure Intel Fortran runtime libs are findable by the linker
     INTEL_LIB="/opt/intel/oneapi/compiler/latest/lib"
     export LIBRARY_PATH="${INTEL_LIB}:${LIBRARY_PATH}"
     export LD_LIBRARY_PATH="${INTEL_LIB}:${LD_LIBRARY_PATH}"
