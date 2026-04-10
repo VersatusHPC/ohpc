@@ -58,6 +58,7 @@ convert_and_upload() {
     mkdir -p "$pkgdir/${pkg_name}-${version}/devel"
     cp "$REPO_ROOT/devel/build-comp.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
     cp "$REPO_ROOT/devel/build-mpi.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
+    cp "$REPO_ROOT/devel/intel-install.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
     cp "$REPO_ROOT"/devel/intel-oneapi-*_all.deb "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
     # OBS builds from /usr/src/packages/BUILD/ — use absolute path to devel/
     sed -i 's|/build/devel/|/usr/src/packages/BUILD/devel/|g' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
