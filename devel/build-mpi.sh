@@ -24,6 +24,7 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
         if ls "$SCRIPT_DIR"/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then
             echo "Installing Intel oneAPI arch:all packages..."
             set +e
+            _SAVED_PWD="$PWD"
             _TMPEXT=$(mktemp -d)
             for deb in "$SCRIPT_DIR"/intel-oneapi-*_all.deb; do
                 dpkg-deb -x "$deb" "$_TMPEXT" 2>/dev/null
@@ -32,14 +33,15 @@ if [ "$COMPILER_FAMILY" = "intel" ]; then
                 cp -a "$_TMPEXT"/opt/intel/oneapi/* /opt/intel/oneapi/ 2>/dev/null
                 if [ $? -ne 0 ]; then
                     echo "cp failed, trying file-by-file..."
-                    cd "$_TMPEXT" && find opt -type f | while read f; do
-                        mkdir -p "/$(dirname "$f")" 2>/dev/null
-                        cp -f "$_TMPEXT/$f" "/$f" 2>/dev/null
+                    find "$_TMPEXT/opt" -type f | while read f; do
+                        rel="${f#$_TMPEXT/}"
+                        mkdir -p "/$(dirname "$rel")" 2>/dev/null
+                        cp -f "$f" "/$rel" 2>/dev/null
                     done
-                    cd /usr/src/packages/BUILD
                 fi
             fi
             rm -rf "$_TMPEXT"
+            cd "$_SAVED_PWD"
             set -e
             if [ -f /opt/intel/oneapi/setvars.sh ]; then
                 echo "Intel arch:all install OK, generating modulefiles..."
