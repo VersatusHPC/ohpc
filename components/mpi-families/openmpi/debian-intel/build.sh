@@ -10,6 +10,10 @@ COMPILER_FAMILY="${COMPILER_FAMILY:-intel}"
 _SAVED_ARGS=("$@")
 
 export MODULEPATH=/opt/ohpc/pub/modulefiles
+# Install Intel oneAPI arch:all packages if missing
+set +e
+. /usr/src/packages/BUILD/devel/intel-install.sh 2>&1
+set -e
 . /opt/ohpc/admin/lmod/lmod/init/bash
 # Source Intel oneAPI environment
 [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
