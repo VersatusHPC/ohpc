@@ -2,10 +2,32 @@
 # Start OBS backend services using installed binaries
 set -e
 
-# Create required directories
-mkdir -p /srv/obs/{repos,srcrep,upload,trees,build,jobs,workers,run}
-mkdir -p /srv/obs/log
-chown -R obsrun:obsrun /srv/obs
+# Create required directories as obsrun. The OBS data volume may live on NFS,
+# where rootless containers cannot recursively chown files even when ownership
+# is already correct.
+obs_dirs=(
+    /srv/obs/repos
+    /srv/obs/srcrep
+    /srv/obs/upload
+    /srv/obs/trees
+    /srv/obs/build
+    /srv/obs/jobs
+    /srv/obs/workers
+    /srv/obs/run
+    /srv/obs/log
+)
+
+run_as_obsrun() {
+    runuser -u obsrun -- "$@"
+}
+
+run_as_obsrun mkdir -p "${obs_dirs[@]}"
+
+expected_owner="$(id -u obsrun):$(id -g obsrun)"
+actual_owner="$(stat -c '%u:%g' /srv/obs)"
+if [ "${actual_owner}" != "${expected_owner}" ]; then
+    chown obsrun:obsrun /srv/obs
+fi
 
 # Copy BSConfig if mounted
 if [ -f /etc/obs/BSConfig.pm.custom ]; then
@@ -18,34 +40,33 @@ cd /usr/lib/obs/server
 
 # Start source server
 echo "Starting bs_srcserver on port 5352..."
-./bs_srcserver &
+run_as_obsrun ./bs_srcserver &
 
 # Start repo server
 echo "Starting bs_repserver on port 5252..."
-./bs_repserver &
+run_as_obsrun ./bs_repserver &
 
 # Start scheduler
 echo "Starting bs_sched x86_64..."
-./bs_sched x86_64 &
+run_as_obsrun ./bs_sched x86_64 &
 
 # Start dispatcher
 echo "Starting bs_dispatch..."
-./bs_dispatch &
+run_as_obsrun ./bs_dispatch &
 
 # Start publisher
 echo "Starting bs_publish..."
-./bs_publish &
+run_as_obsrun ./bs_publish &
 
 # Start service daemon
 echo "Starting bs_dodup..."
-./bs_dodup &
+run_as_obsrun ./bs_dodup &
 
 echo "Starting bs_service..."
-./bs_service &
+run_as_obsrun ./bs_service &
 
 echo "OBS backend services started."
 
-# Wait for any process to exit
-wait -n
-echo "A backend process exited!"
-wait
+# The OBS backend commands daemonize, so the wrapper process must remain alive
+# to keep the container from being restarted by the runtime policy.
+tail -f /dev/null

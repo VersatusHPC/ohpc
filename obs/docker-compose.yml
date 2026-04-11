@@ -25,6 +25,7 @@ services:
   backend:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     container_name: obs-backend
+    pids_limit: -1
     environment:
       - OBS_HOSTNAME=obs-backend
     volumes:
@@ -42,6 +43,7 @@ services:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     container_name: obs-worker
     privileged: true
+    pids_limit: -1
     depends_on:
       - backend
     environment:

@@ -1,5 +1,25 @@
 #!/bin/sh
 set -e
-# Make /opt/intel writable for OBS build user
-chmod -R a+w /opt/intel 2>/dev/null || true
-chmod -R a+w /opt/ohpc 2>/dev/null || true
+
+# Install Intel oneAPI packages from the upstream APT repo.
+# OBS download-on-demand only indexes binary-amd64, missing the
+# Architecture:all packages. Using apt directly bypasses the OBS solver
+# and lets apt resolve everything natively — just like upstream OpenHPC
+# does on RHEL via yum (see SOURCES/oneAPI.repo).
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/oneAPI.list \
+               -o Dir::Etc::sourceparts=- \
+               -o APT::Get::List-Cleanup=0 2>/dev/null || true
+apt-get install -y --no-install-recommends \
+    intel-oneapi-compiler-dpcpp-cpp-2025.0 \
+    intel-oneapi-compiler-fortran-2025.0 \
+    intel-oneapi-mkl-devel-2025.0 2>/dev/null || true
+
+# Generate OpenHPC-style module files
+if [ -f /opt/intel/oneapi/modulefiles-setup.sh ]; then
+    /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel || true
+fi
+
+#DEBHELPER#
+
+exit 0

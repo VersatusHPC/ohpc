@@ -21,12 +21,6 @@ PKG := $(CURDIR)/debian/intel-compilers-devel-ohpc
 	dh $@
 
 override_dh_auto_configure:
-	# Install Intel oneAPI arch:all packages from SOURCES
-	# (OBS DoD cannot resolve arch:all packages from Intel APT repo)
-	if ls SOURCES/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then \
-		echo "Installing Intel oneAPI arch:all packages from SOURCES..."; \
-		dpkg -i SOURCES/intel-oneapi-*_all.deb 2>/dev/null || true; \
-	fi
 
 override_dh_auto_build:
 
@@ -41,6 +35,9 @@ override_dh_auto_install:
 	    -e 's|@@exact_mkl_ver@@|$(EXACT_MKL_VER)|' \
 	    SOURCES/ohpc-update-modules-intel > ohpc-update-modules-intel
 	install -D -m 755 ohpc-update-modules-intel $(PKG)$(OHPC_BIN)/ohpc-update-modules-intel
+	# Install Intel oneAPI APT repository config and GPG key
+	install -D -m 644 SOURCES/oneAPI.list $(PKG)/etc/apt/sources.list.d/oneAPI.list
+	install -D -m 644 SOURCES/intel-oneapi-archive-keyring.gpg $(PKG)/usr/share/keyrings/intel-oneapi-archive-keyring.gpg
 	# Create module directories
 	mkdir -p $(PKG)$(OHPC_MODULES)/intel
 	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/oneapi

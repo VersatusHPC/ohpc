@@ -20,43 +20,10 @@ _SAVED_ARGS=("$@")
 export MODULEPATH=/opt/ohpc/pub/modulefiles
 . /opt/ohpc/admin/lmod/lmod/init/bash
 
-# For Intel compilers: install arch:all packages if missing, then source oneAPI
+# For Intel compilers: source oneAPI environment
+# (Intel oneAPI is installed via apt by intel-compilers-devel-ohpc postinst
+# which uses /etc/apt/sources.list.d/oneAPI.list pointing to Intel's APT repo.)
 if [ "$COMPILER_FAMILY" = "intel" ]; then
-    if [ ! -f /opt/intel/oneapi/setvars.sh ]; then
-        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-        if ls "$SCRIPT_DIR"/intel-oneapi-*_all.deb 1>/dev/null 2>&1; then
-            echo "Installing Intel oneAPI arch:all packages..."
-            set +e
-            _SAVED_PWD="$PWD"
-            _TMPEXT=$(mktemp -d)
-            for deb in "$SCRIPT_DIR"/intel-oneapi-*_all.deb; do
-                dpkg-deb -x "$deb" "$_TMPEXT" 2>/dev/null
-            done
-            if [ -d "$_TMPEXT/opt/intel" ]; then
-                cp -a "$_TMPEXT"/opt/intel/oneapi/* /opt/intel/oneapi/ 2>/dev/null
-                if [ $? -ne 0 ]; then
-                    echo "cp failed, trying file-by-file..."
-                    find "$_TMPEXT/opt" -type f | while read f; do
-                        rel="${f#$_TMPEXT/}"
-                        mkdir -p "/$(dirname "$rel")" 2>/dev/null
-                        cp -f "$f" "/$rel" 2>/dev/null
-                    done
-                fi
-            fi
-            rm -rf "$_TMPEXT"
-            cd "$_SAVED_PWD"
-            set -e
-            if [ -f /opt/intel/oneapi/setvars.sh ]; then
-                echo "Intel arch:all install OK, generating modulefiles..."
-                /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel 2>&1 || true
-                [ -x /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-impi ] && \
-                    /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-impi 2>&1 || true
-                echo "Module dirs:" && ls /opt/ohpc/pub/modulefiles/intel/ 2>/dev/null || echo "No intel modulefiles dir"
-            else
-                echo "WARNING: setvars.sh still missing!"
-            fi
-        fi
-    fi
     [ -f /opt/intel/oneapi/compiler/latest/env/vars.sh ] && . /opt/intel/oneapi/compiler/latest/env/vars.sh 2>/dev/null
     [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] && . /opt/intel/oneapi/mkl/latest/env/vars.sh 2>/dev/null
 fi
