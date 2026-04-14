@@ -29,9 +29,11 @@ services:
     environment:
       - OBS_HOSTNAME=obs-backend
     volumes:
-      - obs-backend-data:/srv/obs
+      - /home/ferrao/.local/share/containers/storage/volumes/obs_obs-backend-data/_data:/srv/obs
       - ./config/BSConfig.pm:/etc/obs/BSConfig.pm.custom:ro,z
       - ./start-backend.sh:/start-backend.sh:ro,z
+    tmpfs:
+      - /srv/obs/events
     entrypoint: /bin/bash
     command: /start-backend.sh
     ports:

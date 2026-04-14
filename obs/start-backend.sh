@@ -21,18 +21,22 @@ run_as_obsrun() {
     runuser -u obsrun -- "$@"
 }
 
-run_as_obsrun mkdir -p "${obs_dirs[@]}"
+mkdir -p "${obs_dirs[@]}"
 
-expected_owner="$(id -u obsrun):$(id -g obsrun)"
-actual_owner="$(stat -c '%u:%g' /srv/obs)"
-if [ "${actual_owner}" != "${expected_owner}" ]; then
-    chown obsrun:obsrun /srv/obs
-fi
+# Fix ownership for tmpfs-mounted dirs (events, jobs, run) that are owned
+# by root after mount. Also fix /srv/obs if NFS/volume changed ownership.
+for dir in /srv/obs /srv/obs/events /srv/obs/jobs /srv/obs/run; do
+    [ -d "$dir" ] && chown -R obsrun:obsrun "$dir" 2>/dev/null || true
+done
 
 # Copy BSConfig if mounted
 if [ -f /etc/obs/BSConfig.pm.custom ]; then
     cp /etc/obs/BSConfig.pm.custom /usr/lib/obs/server/BSConfig.pm
 fi
+
+# Patch BSUtil.pm: NFS requires read-write fd for LOCK_EX (flock)
+# The upstream code opens read-only '<' which fails on ZFS/NFS with EBADF
+sed -i "498s/open(\$fg, '<'/open(\$fg, '+<'/" /usr/lib/obs/server/BSUtil.pm 2>/dev/null || true
 
 echo "Starting OBS backend services..."
 
