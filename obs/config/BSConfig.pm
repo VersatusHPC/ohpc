@@ -31,10 +31,12 @@ our $serviceserver = "http://$hostname:5152";
 
 # Access control
 our $ipaccess = {
-    '^::1$'       => 'rw',
-    '^127\..*'    => 'rw',
-    "^$ip\$"      => 'rw',
-    '.*'          => 'worker',
+    '^::1$'          => 'rw',
+    '^127\..*'       => 'rw',
+    "^$ip\$"         => 'rw',
+    '^10\.89\..*'    => 'rw',
+    '^10\.88\..*'    => 'rw',
+    '.*'             => 'worker',
 };
 
 # Disable signing for development
