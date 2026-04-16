@@ -138,9 +138,11 @@ Configure the publish path in the project meta:
 
 Users add the repo:
 ```bash
-echo "deb [signed-by=/usr/share/keyrings/versatushpc-ohpc.gpg] \
-  https://packages.versatushpc.org/ohpc/4 noble main" \
-  > /etc/apt/sources.list.d/ohpc.list
+curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg \
+  | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null
+curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list \
+  | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null
+sudo apt update
 ```
 
 ## Monitoring

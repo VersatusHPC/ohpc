@@ -117,7 +117,8 @@ fi
 
 echo "==> Installing public key and APT source helper into staging"
 cp "${GPG_PUBLIC_KEY}" "${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC"
-gpg --dearmor --yes --output "${STAGING_ROOT}/versatushpc-ohpc.gpg" "${GPG_PUBLIC_KEY}"
+rm -f "${STAGING_ROOT}/versatushpc-ohpc.gpg"
+gpg --dearmor --yes --output "${STAGING_ROOT}/versatushpc.gpg" "${GPG_PUBLIC_KEY}"
 cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
 
 echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
@@ -132,8 +133,9 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 
 LFTP_DRY_RUN=""
 LFTP_KEY_UPLOADS="
+rm -f ${REMOTE_PATH}/versatushpc-ohpc.gpg;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
-put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc-ohpc.gpg;
+put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc.gpg;
 "
 if [[ -n "${DRY_RUN}" ]]; then
     LFTP_DRY_RUN="--dry-run"
@@ -165,6 +167,6 @@ echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 
 echo "    Metadata:          Release InRelease Release.gpg Packages.gz"
 echo ""
 echo "    Users enable the repo with:"
-echo "      curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc-ohpc.gpg | sudo tee /usr/share/keyrings/versatushpc-ohpc.gpg >/dev/null"
+echo "      curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null"
 echo "      curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null"
 echo "      sudo apt update"
