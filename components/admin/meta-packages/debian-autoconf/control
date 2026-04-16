@@ -1,0 +1,22 @@
+Source: autoconf-ohpc
+Section: devel
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               m4,
+               perl,
+               make,
+               wget
+Standards-Version: 4.6.2
+Homepage: https://www.gnu.org/software/autoconf/
+
+Package: autoconf-ohpc
+Architecture: all
+Depends: ohpc-filesystem, m4, perl, ${misc:Depends}
+Description: GNU autoconf for OpenHPC
+ GNU Autoconf is an extensible package of M4 macros that produce shell
+ scripts to automatically configure software source code packages.
+ Installed to /opt/ohpc/pub/utils for the OpenHPC software stack.
+ .
+ This package is part of the OpenHPC project.

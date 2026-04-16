@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Genders
+Upstream-Contact: https://github.com/chaos/genders
+
+Files: *
+Copyright: 2003-2026 The Regents of the University of California
+License: GPL-2+

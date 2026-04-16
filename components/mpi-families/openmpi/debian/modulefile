@@ -1,0 +1,28 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+puts stderr " "
+puts stderr "This module loads the openmpi5 library built with the gnu15 toolchain."
+puts stderr "\nVersion 5.0.10\n"
+}
+
+module-whatis "Name: openmpi5 built with gnu15 toolchain"
+module-whatis "Version: 5.0.10"
+module-whatis "Category: runtime library"
+module-whatis "Description: A powerful implementation of MPI/SHMEM"
+module-whatis "URL: https://www.open-mpi.org"
+
+set     version             5.0.10
+
+setenv          MPI_DIR             /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10
+setenv          OMPI_MCA_mca_base_component_show_load_errors 0
+prepend-path    PATH                /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10/bin
+prepend-path    MANPATH             /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10/share/man
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/hwloc/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/ucx/1.20.0/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/admin/pmix/lib
+prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/gnu15-openmpi5
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10/lib/pkgconfig
+
+family "MPI"

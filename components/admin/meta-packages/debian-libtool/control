@@ -1,0 +1,20 @@
+Source: libtool-ohpc
+Section: devel
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               make,
+               wget
+Standards-Version: 4.6.2
+Homepage: https://www.gnu.org/software/libtool/
+
+Package: libtool-ohpc
+Architecture: all
+Depends: ohpc-filesystem, ${misc:Depends}
+Description: GNU libtool for OpenHPC
+ GNU Libtool is a generic library support script that hides the complexity
+ of using shared libraries behind a consistent, portable interface.
+ Installed to /opt/ohpc/pub/utils for the OpenHPC software stack.
+ .
+ This package is part of the OpenHPC project.

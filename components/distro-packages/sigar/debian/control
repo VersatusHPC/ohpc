@@ -1,0 +1,16 @@
+Source: sigar-ohpc
+Section: libs
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               cmake,
+               wget,
+               libtirpc-dev
+Standards-Version: 4.6.2
+
+Package: sigar-ohpc
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: System Information Gatherer And Reporter for OpenHPC
+ Portable interface for gathering system information such as memory,
+ swap, cpu, load average, uptime, logged in users, process info, etc.

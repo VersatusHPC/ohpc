@@ -1,0 +1,24 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads the hwloc utility"
+        puts stderr "\nVersion 2.13.0\n"
+}
+
+module-whatis "Name: hwloc"
+module-whatis "Version: 2.13.0"
+module-whatis "Category: utility"
+module-whatis "Description: Portable Hardware Locality"
+module-whatis "URL: https://www.open-mpi.org/projects/hwloc/"
+
+set     version             2.13.0
+
+prepend-path    PATH                /opt/ohpc/pub/libs/hwloc/bin
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/hwloc/lib
+prepend-path    MANPATH             /opt/ohpc/pub/libs/hwloc/man
+
+setenv          HWLOC_DIR           /opt/ohpc/pub/libs/hwloc
+setenv          HWLOC_BIN           /opt/ohpc/pub/libs/hwloc/bin
+setenv          HWLOC_INC           /opt/ohpc/pub/libs/hwloc/include
+setenv          HWLOC_LIB           /opt/ohpc/pub/libs/hwloc/lib

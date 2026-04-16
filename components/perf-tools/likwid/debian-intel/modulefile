@@ -1,0 +1,24 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the likwid library built with the intel compiler toolchain."
+puts stderr "\nVersion 5.5.1\n"
+
+}
+module-whatis "Name: likwid built with intel toolchain"
+module-whatis "Version: 5.5.1"
+module-whatis "Category: performance tool"
+module-whatis "Description: Performance monitoring and benchmarking suite"
+module-whatis "URL: https://github.com/RRZE-HPC/likwid"
+
+set     version             5.5.1
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/likwid/5.5.1/bin
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/likwid/5.5.1/lib
+prepend-path    MANPATH             /opt/ohpc/pub/libs/intel/likwid/5.5.1/share/man
+
+setenv          LIKWID_DIR          /opt/ohpc/pub/libs/intel/likwid/5.5.1
+setenv          LIKWID_LIB          /opt/ohpc/pub/libs/intel/likwid/5.5.1/lib
+setenv          LIKWID_INC          /opt/ohpc/pub/libs/intel/likwid/5.5.1/include

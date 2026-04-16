@@ -1,0 +1,22 @@
+Source: magpie-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot
+Standards-Version: 4.6.2
+Homepage: https://github.com/LLNL/magpie
+
+Package: magpie-ohpc
+Architecture: all
+Depends: ohpc-filesystem, python3, ${misc:Depends}
+Recommends: default-jdk
+Description: Scripts for running Big Data software in HPC environments (OpenHPC)
+ Magpie contains a number of scripts for running Big Data software in HPC
+ environments. Thus far, Hadoop, Spark, Hbase, Storm, Pig, Mahout, Phoenix,
+ Kafka, Zeppelin, and Zookeeper are supported. It currently supports running
+ over the parallel file system Lustre and running over any generic network
+ filesystem. There is scheduler/resource manager support for Slurm, Moab,
+ Torque, and LSF.
+ .
+ This package is part of the OpenHPC project.

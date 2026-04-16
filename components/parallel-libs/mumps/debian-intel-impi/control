@@ -1,0 +1,30 @@
+Source: mumps-intel-impi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               intel-mpi-devel-ohpc,
+               openblas-intel-ohpc,
+               scalapack-intel-impi-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               libgomp1,
+               make
+Standards-Version: 4.6.2
+Homepage: https://mumps-solver.org/
+
+Package: mumps-intel-impi-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, intel-mpi-devel-ohpc, scalapack-intel-impi-ohpc, openblas-intel-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: A MUltifrontal Massively Parallel Sparse direct Solver (intel + impi, OpenHPC)
+ MUMPS implements a direct solver for large sparse linear systems, with a
+ particular focus on symmetric positive definite matrices. It can operate
+ on distributed matrices e.g. over a cluster. It has Fortran and C
+ interfaces, and can interface with ordering tools such as Scotch.
+ Built with the intel compiler family and impi MPI stack.
+ .
+ This package is part of the OpenHPC project.

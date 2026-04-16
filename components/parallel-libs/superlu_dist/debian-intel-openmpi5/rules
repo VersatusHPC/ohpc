@@ -1,0 +1,72 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+MPI_FAMILY      := openmpi5
+PNAME           := superlu_dist
+VERSION         := 9.2.1
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/superlu-dist-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="metis ptscotch openblas" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/v$(VERSION).tar.gz || \
+		wget -q -O SOURCES/v$(VERSION).tar.gz \
+			https://github.com/xiaoyeli/superlu_dist/archive/v$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/v$(VERSION).tar.gz
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/superlu_dist-parmetis.patch || true
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) bash -c '\
+		export CFLAGS="$${CFLAGS} -Wno-implicit-function-declaration" && \
+		export CFLAGS="$${CFLAGS} -Wno-implicit-int" && \
+		export CFLAGS="$${CFLAGS} -Wno-unused-but-set-variable" && \
+		export CFLAGS="$${CFLAGS} -Wno-unused-variable" && \
+		export CFLAGS="$${CFLAGS} -Wno-maybe-uninitialized" && \
+		cmake -S . -B build \
+			-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
+			-DCMAKE_C_COMPILER=mpicc \
+			-DCMAKE_CXX_COMPILER=mpicxx \
+			-DCMAKE_Fortran_COMPILER=mpif90 \
+			-DCMAKE_C_FLAGS="$${CFLAGS} -fPIC" \
+			-DCMAKE_CXX_FLAGS="$${CXXFLAGS} -fPIC" \
+			-DBUILD_SHARED_LIBS=ON \
+			-DBUILD_STATIC_LIBS=OFF \
+			-DTPL_ENABLE_PARMETISLIB=ON \
+			-DTPL_PARMETIS_INCLUDE_DIRS="$${PTSCOTCH_INC}" \
+			-DTPL_PARMETIS_LIBRARIES="$${PTSCOTCH_LIB}/libptscotchparmetisv3.so;$${METIS_LIB}/libmetis.so" \
+			-DTPL_BLAS_LIBRARIES="-L$${OPENBLAS_LIB} -lopenblas" \
+			-DTPL_ENABLE_INTERNAL_BLASLIB=OFF \
+			-DTPL_ENABLE_LAPACKLIB=OFF \
+			-Denable_examples=OFF \
+			-Denable_tests=OFF && \
+		cmake --build build -j$$(nproc)'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && DESTDIR=$(PKG) cmake --install build
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib64:$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

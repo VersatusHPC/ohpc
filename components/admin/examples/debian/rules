@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+
+OHPC_HOME := /opt/ohpc
+PKG       := $(CURDIR)/debian/examples-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	install -D -m 0644 SOURCES/hello.c               $(PKG)$(OHPC_HOME)/pub/examples/mpi/hello.c
+	install -D -m 0644 SOURCES/ifcfg-ib0             $(PKG)$(OHPC_HOME)/pub/examples/network/sles/ifcfg-ib0
+	install -D -m 0644 SOURCES/ifcfg-ib0.centos      $(PKG)$(OHPC_HOME)/pub/examples/network/centos/ifcfg-ib0
+	install -D -m 0644 SOURCES/ifcfg-ib0.sles.ww     $(PKG)$(OHPC_HOME)/pub/examples/network/sles/ifcfg-ib0.ww
+	install -D -m 0644 SOURCES/ifcfg-ib0.centos.ww   $(PKG)$(OHPC_HOME)/pub/examples/network/centos/ifcfg-ib0.ww
+	install -D -m 0644 SOURCES/job.mpi                $(PKG)$(OHPC_HOME)/pub/examples/slurm/job.mpi
+	install -D -m 0644 SOURCES/60-ipath.rules         $(PKG)$(OHPC_HOME)/pub/examples/udev/60-ipath.rules
+	install -D -m 0644 SOURCES/gmond.conf             $(PKG)$(OHPC_HOME)/pub/examples/ganglia/gmond.conf
+	install -D -m 0644 SOURCES/job.pbs.mpi            $(PKG)$(OHPC_HOME)/pub/examples/openpbs/job.mpi
+	install -D -m 0644 SOURCES/example.modulefile     $(PKG)$(OHPC_HOME)/pub/examples/example.modulefile
+	install -D -m 0644 SOURCES/example-mpi-dependent.modulefile $(PKG)$(OHPC_HOME)/pub/examples/example-mpi-dependent.modulefile
+	install -D -m 0644 SOURCES/chrony.conf.ww         $(PKG)$(OHPC_HOME)/pub/examples/chrony.conf.ww
+	install -D -m 0644 SOURCES/NetworkManager-wait-online.service.d.override.conf \
+		$(PKG)$(OHPC_HOME)/pub/examples/network/NetworkManager-wait-online.service.d/override.conf
+	install -D -m 0644 SOURCES/slurmd.ww              $(PKG)$(OHPC_HOME)/pub/examples/slurm/slurmd.ww
+
+override_dh_auto_clean:
+
+override_dh_usrlocal:
+
+override_dh_auto_test:

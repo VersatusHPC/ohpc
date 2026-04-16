@@ -1,0 +1,22 @@
+Source: intel-compilers-devel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: intel-compilers-devel-ohpc
+Architecture: all
+Depends: ohpc-filesystem,
+         intel-oneapi-compiler-dpcpp-cpp-2025.0,
+         intel-oneapi-compiler-fortran-2025.0,
+         intel-oneapi-mkl-devel-2025.0,
+         ${misc:Depends}
+Description: OpenHPC compatibility package for Intel(R) oneAPI HPC Toolkit
+ Provides OpenHPC-style compatible modulefiles for use with the Intel(R)
+ oneAPI HPC Toolkit. Installs module generation scripts that create
+ modulefiles pointing to the pre-installed Intel oneAPI compilers
+ (icx, icpx, ifx) at /opt/intel/oneapi/.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,55 @@
+#!/usr/bin/make -f
+
+# Disable dpkg hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+OHPC_BIN         := /opt/ohpc/admin/ohpc/bin
+OHPC_MODULES     := /opt/ohpc/pub/modulefiles
+OHPC_MODULEDEPS  := /opt/ohpc/pub/moduledeps
+
+EXACT_INTEL_VER         := 2025.0
+EXACT_INTEL_VER_MODULE  := 2025.0.1
+EXACT_MKL_VER           := 2025.0
+EXACT_DEPS              := umf/0.9.1 compiler/2025.0.1 mkl/2025.0 compiler-rt/2025.0.1 debugger/2025.0.0 tbb/2022.0.0
+
+PKG := $(CURDIR)/debian/intel-compilers-devel-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	# Install the module generator script
+	sed -e 's|@@oneapi_manifest@@|$(OHPC_MODULES)/intel/.rpm-manifest|' \
+	    -e 's|@@OHPC_MODULEDEPS@@|$(OHPC_MODULEDEPS)|' \
+	    -e 's|@@OHPC_MODULES@@|$(OHPC_MODULES)|' \
+	    -e 's|@@exact_deps@@|$(EXACT_DEPS)|' \
+	    -e 's|@@exact_intel_ver@@|$(EXACT_INTEL_VER)|' \
+	    -e 's|@@exact_intel_ver_module@@|$(EXACT_INTEL_VER_MODULE)|' \
+	    -e 's|@@exact_mkl_ver@@|$(EXACT_MKL_VER)|' \
+	    SOURCES/ohpc-update-modules-intel > ohpc-update-modules-intel
+	install -D -m 755 ohpc-update-modules-intel $(PKG)$(OHPC_BIN)/ohpc-update-modules-intel
+	# Create module directories
+	mkdir -p $(PKG)$(OHPC_MODULES)/intel
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/oneapi
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/intel
+	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/gnu/mkl
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+
+override_dh_strip:
+
+override_dh_auto_test:

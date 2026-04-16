@@ -1,0 +1,32 @@
+Source: otf2-intel-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               openmpi5-intel-ohpc,
+               sionlib-intel-openmpi5-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.vi-hps.org/projects/score-p/
+
+Package: otf2-intel-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         openmpi5-intel-ohpc,
+         sionlib-intel-openmpi5-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Open Trace Format 2 library (intel + openmpi5, OpenHPC)
+ OTF2 is a highly scalable, memory efficient event trace data format plus
+ support library. It provides an interface for writing and reading trace
+ data for performance analysis tools.
+ Built with the intel compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

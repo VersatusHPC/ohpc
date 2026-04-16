@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: hwloc
+Upstream-Contact: https://www.open-mpi.org/projects/hwloc/
+
+Files: *
+Copyright: 2004-2026 The Open MPI Project
+License: BSD-3-Clause

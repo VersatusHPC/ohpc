@@ -1,0 +1,27 @@
+Source: netcdf-cxx-intel-impi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               intel-mpi-devel-ohpc,
+               phdf5-intel-impi-ohpc,
+               netcdf-intel-impi-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.unidata.ucar.edu/software/netcdf/
+
+Package: netcdf-cxx-intel-impi-ohpc
+Architecture: any
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, intel-mpi-devel-ohpc, netcdf-intel-impi-ohpc, phdf5-intel-impi-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: C++ Libraries for the Unidata network Common Data Form (intel + impi, OpenHPC)
+ NetCDF-CXX4 provides a C++ interface for NetCDF, a set of software
+ libraries and data formats for array-oriented scientific data.
+ Built with the intel compiler family and impi MPI stack.
+ .
+ This package is part of the OpenHPC project.

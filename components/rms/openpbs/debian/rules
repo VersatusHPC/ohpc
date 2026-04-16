@@ -1,0 +1,170 @@
+#!/usr/bin/make -f
+
+# Disable dpkg hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+PBS_VERSION  := 23.06.06
+PBS_PREFIX   := /opt/pbs
+PBS_HOME     := /var/spool/pbs
+PBS_DBUSER   := postgres
+HWLOC_PATH   := /opt/ohpc/pub/libs/hwloc
+
+SRCDIR       := $(CURDIR)/openpbs-$(PBS_VERSION)
+BUILDDIR     := $(SRCDIR)/build
+PKGDIR       := $(CURDIR)/debian/tmp
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/v$(PBS_VERSION).tar.gz || \
+		wget -q -O SOURCES/v$(PBS_VERSION).tar.gz \
+			https://github.com/openpbs/openpbs/archive/v$(PBS_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/v$(PBS_VERSION).tar.gz
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/hwloc.patch || true
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/2594.patch || true
+	cd $(SRCDIR) && [ -f configure ] || ./autogen.sh
+	mkdir -p $(BUILDDIR)
+	cd $(BUILDDIR) && ../configure \
+		CFLAGS="-fPIC" \
+		PBS_VERSION=$(PBS_VERSION) \
+		--prefix=$(PBS_PREFIX) \
+		--with-hwloc=$(HWLOC_PATH) \
+		--libexecdir=$(PBS_PREFIX)/libexec \
+		--with-pbs-server-home=$(PBS_HOME) \
+		--with-database-user=$(PBS_DBUSER)
+
+override_dh_auto_build:
+	cd $(BUILDDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(BUILDDIR) && $(MAKE) DESTDIR=$(PKGDIR) install
+	# Compress man pages
+	mandir=$$(find $(PKGDIR) -type d -name man); \
+	if [ -d "$$mandir" ]; then find $$mandir -type f -exec gzip -9 -n {} \; ; fi
+	# Install init script
+	install -D $(PKGDIR)$(PBS_PREFIX)/libexec/pbs_init.d $(PKGDIR)/etc/init.d/pbs
+	# --- Split into sub-packages ---
+	# openpbs-server-ohpc: everything
+	mkdir -p $(CURDIR)/debian/openpbs-server-ohpc$(PBS_PREFIX)
+	cp -a $(PKGDIR)$(PBS_PREFIX)/* $(CURDIR)/debian/openpbs-server-ohpc$(PBS_PREFIX)/
+	# Remove static libs and headers from server package
+	find $(CURDIR)/debian/openpbs-server-ohpc$(PBS_PREFIX) -name '*.a' -delete
+	rm -rf $(CURDIR)/debian/openpbs-server-ohpc$(PBS_PREFIX)/include
+	# Profile scripts
+	mkdir -p $(CURDIR)/debian/openpbs-server-ohpc/etc/profile.d
+	cp -a $(PKGDIR)/etc/profile.d/pbs.sh $(CURDIR)/debian/openpbs-server-ohpc/etc/profile.d/ 2>/dev/null || true
+	cp -a $(PKGDIR)/etc/profile.d/pbs.csh $(CURDIR)/debian/openpbs-server-ohpc/etc/profile.d/ 2>/dev/null || true
+	# Init script
+	mkdir -p $(CURDIR)/debian/openpbs-server-ohpc/etc/init.d
+	cp -a $(PKGDIR)/etc/init.d/pbs $(CURDIR)/debian/openpbs-server-ohpc/etc/init.d/ 2>/dev/null || true
+	# Systemd unit
+	if [ -f $(PKGDIR)/usr/lib/systemd/system/pbs.service ]; then \
+		mkdir -p $(CURDIR)/debian/openpbs-server-ohpc/lib/systemd/system; \
+		cp -a $(PKGDIR)/usr/lib/systemd/system/pbs.service $(CURDIR)/debian/openpbs-server-ohpc/lib/systemd/system/; \
+	fi
+	# Set suid bits
+	chmod 4755 $(CURDIR)/debian/openpbs-server-ohpc$(PBS_PREFIX)/sbin/pbs_rcp 2>/dev/null || true
+	chmod 4755 $(CURDIR)/debian/openpbs-server-ohpc$(PBS_PREFIX)/sbin/pbs_iff 2>/dev/null || true
+	# openpbs-execution-ohpc
+	mkdir -p $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)
+	cp -a $(PKGDIR)$(PBS_PREFIX)/* $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/
+	find $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX) -name '*.a' -delete
+	rm -rf $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/include
+	# Remove server-only components from execution
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/bin/printjob_svr.bin
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_comm
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_dataservice
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_ds_monitor
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_ds_password
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_ds_password.bin
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_sched
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_server
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_server.bin
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbsfs
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/etc/pbs_db_schema.sql
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/etc/pbs_dedicated
+	rm -rf $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/etc/pbs_holidays*
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/etc/pbs_resource_group
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/etc/pbs_sched_config
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/libexec/install_db
+	rm -f $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/libexec/pbs_schema_upgrade
+	rm -rf $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/lib*/python/altair/pbs_hooks 2>/dev/null || true
+	rm -rf $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/lib*/init.d/sgiICEplacement.sh 2>/dev/null || true
+	mkdir -p $(CURDIR)/debian/openpbs-execution-ohpc/etc/profile.d
+	cp -a $(PKGDIR)/etc/profile.d/pbs.sh $(CURDIR)/debian/openpbs-execution-ohpc/etc/profile.d/ 2>/dev/null || true
+	cp -a $(PKGDIR)/etc/profile.d/pbs.csh $(CURDIR)/debian/openpbs-execution-ohpc/etc/profile.d/ 2>/dev/null || true
+	mkdir -p $(CURDIR)/debian/openpbs-execution-ohpc/etc/init.d
+	cp -a $(PKGDIR)/etc/init.d/pbs $(CURDIR)/debian/openpbs-execution-ohpc/etc/init.d/ 2>/dev/null || true
+	if [ -f $(PKGDIR)/usr/lib/systemd/system/pbs.service ]; then \
+		mkdir -p $(CURDIR)/debian/openpbs-execution-ohpc/lib/systemd/system; \
+		cp -a $(PKGDIR)/usr/lib/systemd/system/pbs.service $(CURDIR)/debian/openpbs-execution-ohpc/lib/systemd/system/; \
+	fi
+	chmod 4755 $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_rcp 2>/dev/null || true
+	chmod 4755 $(CURDIR)/debian/openpbs-execution-ohpc$(PBS_PREFIX)/sbin/pbs_iff 2>/dev/null || true
+	# openpbs-client-ohpc
+	mkdir -p $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)
+	cp -a $(PKGDIR)$(PBS_PREFIX)/* $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/
+	find $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX) -name '*.a' -delete
+	rm -rf $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/include
+	# Remove server and execution components from client
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/bin/mpiexec
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/bin/pbs_attach
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/bin/pbs_tmrsh
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/bin/printjob_svr.bin
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_comm
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_dataservice
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_demux
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_ds_monitor
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_ds_password
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_ds_password.bin
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_idled
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_mom
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_rcp
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_sched
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_server
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_server.bin
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_upgrade_job
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbsfs
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/etc/pbs_db_schema.sql
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/etc/pbs_dedicated
+	rm -rf $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/etc/pbs_holidays*
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/etc/pbs_resource_group
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/etc/pbs_sched_config
+	rm -rf $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/lib*/MPI 2>/dev/null || true
+	rm -rf $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/lib*/init.d 2>/dev/null || true
+	rm -rf $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/lib*/python/altair/pbs_hooks 2>/dev/null || true
+	rm -rf $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/lib*/python/pbs_bootcheck* 2>/dev/null || true
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/libexec/install_db
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/libexec/pbs_habitat
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/libexec/pbs_schema_upgrade
+	rm -f $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/libexec/pbs_init.d
+	chmod 4755 $(CURDIR)/debian/openpbs-client-ohpc$(PBS_PREFIX)/sbin/pbs_iff 2>/dev/null || true
+	mkdir -p $(CURDIR)/debian/openpbs-client-ohpc/etc/profile.d
+	cp -a $(PKGDIR)/etc/profile.d/pbs.sh $(CURDIR)/debian/openpbs-client-ohpc/etc/profile.d/ 2>/dev/null || true
+	cp -a $(PKGDIR)/etc/profile.d/pbs.csh $(CURDIR)/debian/openpbs-client-ohpc/etc/profile.d/ 2>/dev/null || true
+	# openpbs-devel-ohpc: static libs and headers
+	mkdir -p $(CURDIR)/debian/openpbs-devel-ohpc$(PBS_PREFIX)/include
+	cp -a $(PKGDIR)$(PBS_PREFIX)/include/* $(CURDIR)/debian/openpbs-devel-ohpc$(PBS_PREFIX)/include/ 2>/dev/null || true
+	mkdir -p $(CURDIR)/debian/openpbs-devel-ohpc$(PBS_PREFIX)/lib
+	find $(PKGDIR)$(PBS_PREFIX) -name '*.a' -exec cp {} $(CURDIR)/debian/openpbs-devel-ohpc$(PBS_PREFIX)/lib/ \; 2>/dev/null || true
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKGDIR)$(PBS_PREFIX)/lib -l$(HWLOC_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

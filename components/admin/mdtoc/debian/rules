@@ -1,0 +1,45 @@
+#!/usr/bin/make -f
+
+PNAME           := mdtoc
+VERSION         := 1.4.0
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://github.com/kubernetes-sigs/mdtoc/archive/v$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	tar xf SOURCES/$(PNAME)-$(VERSION)-vendor.tar.gz -C $(SRCDIR)
+
+override_dh_auto_build:
+	cd $(SRCDIR) && \
+		export PATH=/usr/local/go/bin:$$PATH && \
+		export GOPATH=$(CURDIR)/.gopath && \
+		export GOCACHE=$(CURDIR)/.gocache && \
+		export GOFLAGS=-mod=vendor && \
+		export GOTOOLCHAIN=local && \
+		CGO_ENABLED=0 go build -o mdtoc .
+
+override_dh_auto_install:
+	mkdir -p $(PKG)/usr/bin
+	install -m 755 $(SRCDIR)/mdtoc $(PKG)/usr/bin/mdtoc
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps || true
+
+override_dh_dwz:
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

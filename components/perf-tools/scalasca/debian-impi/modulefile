@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the scalasca library built with the gnu15 compiler"
+puts stderr "toolchain and the impi MPI stack."
+puts stderr "\nVersion 2.6.2\n"
+
+}
+module-whatis "Name: scalasca built with gnu15 compiler and impi MPI"
+module-whatis "Version: 2.6.2"
+module-whatis "Category: performance tool"
+module-whatis "Description: Toolset for performance analysis of large-scale parallel applications"
+module-whatis "URL: http://www.scalasca.org"
+
+set     version             2.6.2
+
+depends-on scorep
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/impi/scalasca/2.6.2/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/impi/scalasca/2.6.2/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/impi/scalasca/2.6.2/lib
+
+setenv          SCALASCA_DIR        /opt/ohpc/pub/libs/gnu15/impi/scalasca/2.6.2
+setenv          SCALASCA_BIN        /opt/ohpc/pub/libs/gnu15/impi/scalasca/2.6.2/bin
+setenv          SCALASCA_LIB        /opt/ohpc/pub/libs/gnu15/impi/scalasca/2.6.2/lib

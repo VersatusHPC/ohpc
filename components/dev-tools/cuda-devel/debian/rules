@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+PKG_DEVEL := $(CURDIR)/debian/cuda-devel-ohpc
+PKG_REPO  := $(CURDIR)/debian/cuda-repo-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+override_dh_auto_build:
+
+override_dh_auto_install:
+	mkdir -p $(PKG_DEVEL)/opt/ohpc/pub/modulefiles/cuda-toolkit
+	install -m 644 SOURCES/cuda-toolkit.lua $(PKG_DEVEL)/opt/ohpc/pub/modulefiles/cuda-toolkit/25.9.lua 2>/dev/null || \
+	echo 'append_path("MODULEPATH", "/opt/nvidia/hpc_sdk/modulefiles")' > $(PKG_DEVEL)/opt/ohpc/pub/modulefiles/cuda-toolkit/25.9.lua
+	mkdir -p $(PKG_REPO)/etc/apt/sources.list.d
+
+override_dh_auto_clean:
+override_dh_usrlocal:
+override_dh_auto_test:

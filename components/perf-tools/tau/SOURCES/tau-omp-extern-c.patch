@@ -1,0 +1,15 @@
+--- a/include/Profile/OpenMPLayer.h
++++ b/include/Profile/OpenMPLayer.h
+@@ -24,11 +24,11 @@
+ // class OpenMPLayer
+ //
+ 
+ #ifdef TAU_OPENMP
+-extern "C" {
+ #include <omp.h>
++extern "C" {
+ #ifndef _OPENMP
+ #define _OPENMP
+ #endif /* _OPENMP */
+ }
+ #include <mutex>

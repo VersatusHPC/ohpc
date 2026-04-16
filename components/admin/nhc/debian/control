@@ -1,0 +1,24 @@
+Source: nhc-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               automake,
+               autoconf,
+               make
+Standards-Version: 4.6.2
+Homepage: https://github.com/mej/nhc/
+
+Package: nhc-ohpc
+Architecture: all
+Depends: ohpc-filesystem, bash, ${misc:Depends}
+Description: LBNL Node Health Check (OpenHPC)
+ TORQUE (and other resource managers) allow for the execution of a
+ script to determine if a node is "healthy" or "unhealthy" and
+ potentially mark unhealthy nodes as unavailable. The scripts
+ contained in this package provide a flexible, extensible mechanism for
+ collecting health checks to be run on your cluster and specifying
+ which checks should be run on which nodes.
+ .
+ This package is part of the OpenHPC project.

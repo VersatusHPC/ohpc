@@ -1,0 +1,43 @@
+#!/usr/bin/make -f
+
+PMIX_VERSION  := 4.2.9
+INSTALL_PATH  := /opt/ohpc/admin/pmix
+HWLOC_PATH    := /opt/ohpc/pub/libs/hwloc
+SRCDIR        := $(CURDIR)/pmix-$(PMIX_VERSION)
+PKG           := $(CURDIR)/debian/pmix-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/pmix-$(PMIX_VERSION).tar.bz2 || \
+		wget -q -O SOURCES/pmix-$(PMIX_VERSION).tar.bz2 \
+			https://github.com/openpmix/openpmix/releases/download/v$(PMIX_VERSION)/pmix-$(PMIX_VERSION).tar.bz2
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/pmix-$(PMIX_VERSION).tar.bz2
+	cd $(SRCDIR) && ./configure \
+		--prefix=$(INSTALL_PATH) \
+		--with-hwloc=$(HWLOC_PATH)
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/modulefiles/pmix
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/modulefiles/pmix/$(PMIX_VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -l$(HWLOC_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

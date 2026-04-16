@@ -1,0 +1,40 @@
+Source: munge-ohpc
+Section: admin
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gcc,
+               libbz2-dev,
+               libssl-dev,
+               zlib1g-dev,
+               pkg-config,
+               systemd,
+               libgcrypt20-dev,
+               autoconf,
+               automake,
+               libtool
+Standards-Version: 4.6.2
+Homepage: https://github.com/dun/munge
+
+Package: munge-ohpc
+Architecture: any
+Depends: munge-libs-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: MUNGE authentication service (OpenHPC)
+ MUNGE (MUNGE Uid 'N' Gid Emporium) is an authentication service for
+ creating and validating user credentials. It is designed for use in
+ an HPC cluster environment.
+ .
+ This package is part of the OpenHPC project.
+
+Package: munge-libs-ohpc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: MUNGE shared libraries (OpenHPC)
+ Runtime libraries for the MUNGE authentication service.
+
+Package: munge-devel-ohpc
+Architecture: any
+Depends: munge-libs-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: MUNGE development files (OpenHPC)
+ Development headers and libraries for MUNGE.

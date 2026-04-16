@@ -1,0 +1,35 @@
+Source: python3-mpi4py-intel-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               openmpi5-intel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               python3-dev,
+               python3-pip,
+               python3-setuptools,
+               python3-wheel,
+               cython3,
+               make
+Standards-Version: 4.6.2
+Homepage: https://github.com/mpi4py/mpi4py
+
+Package: python3-mpi4py-intel-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         openmpi5-intel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Python bindings for the Message Passing Interface (intel + openmpi5, OpenHPC)
+ MPI4Py provides Python bindings for the Message Passing Interface (MPI)
+ standard. It is implemented on top of the MPI-1/2/3 specification and
+ exposes an API which grounds on the standard MPI-2 C++ bindings.
+ Built with the intel compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,23 @@
+Source: intel-mpi-devel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: intel-mpi-devel-ohpc
+Architecture: all
+Depends: ohpc-filesystem,
+         lmod-ohpc,
+         intel-compilers-devel-ohpc,
+         intel-oneapi-mpi-devel-2021.14,
+         prun-ohpc,
+         ${misc:Depends}
+Description: OpenHPC compatibility package for Intel(R) oneAPI MPI Library
+ Provides OpenHPC-style compatible modulefiles for use with the Intel(R)
+ oneAPI MPI Library. Installs a module generation script that creates
+ modulefiles pointing to the pre-installed Intel oneAPI MPI at
+ /opt/intel/oneapi/.
+ .
+ This package is part of the OpenHPC project.

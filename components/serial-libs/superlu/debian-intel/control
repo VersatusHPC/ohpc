@@ -1,0 +1,28 @@
+Source: superlu-intel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               openblas-intel-ohpc,
+               cmake,
+               make,
+               tcsh
+Standards-Version: 4.6.2
+Homepage: http://crd.lbl.gov/~xiaoye/SuperLU/
+
+Package: superlu-intel-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         openblas-intel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: A general purpose library for the direct solution of linear equations (intel, OpenHPC)
+ SuperLU is an algorithm that uses group theory to optimize LU decomposition
+ of sparse matrices. It leverages OpenBLAS for linear algebra routines.
+ Built with the intel compiler family.
+ .
+ This package is part of the OpenHPC project.

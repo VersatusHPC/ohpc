@@ -1,0 +1,25 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the cubelib library built with the intel compiler"
+puts stderr "toolchain."
+puts stderr "\nVersion 4.9.1\n"
+
+}
+module-whatis "Name: cubelib built with intel compiler"
+module-whatis "Version: 4.9.1"
+module-whatis "Category: runtime library"
+module-whatis "Description: CUBE high performance analysis library"
+module-whatis "https://www.scalasca.org/scalasca/software/cube-4.x/"
+
+set     version                     4.9.1
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/cubelib/4.9.1/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/cubelib/4.9.1/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/cubelib/4.9.1/lib
+
+setenv          CUBELIB_DIR         /opt/ohpc/pub/libs/intel/cubelib/4.9.1
+setenv          CUBELIB_LIB         /opt/ohpc/pub/libs/intel/cubelib/4.9.1/lib
+setenv          CUBELIB_INC         /opt/ohpc/pub/libs/intel/cubelib/4.9.1/include

@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+PNAME        := libtool
+VERSION      := 2.4.6
+INSTALL_PATH := /opt/ohpc/pub/utils/$(PNAME)/$(VERSION)
+SRCDIR       := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG          := $(CURDIR)/debian/$(PNAME)-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
+			https://ftp.gnu.org/gnu/$(PNAME)/$(PNAME)-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+
+override_dh_auto_build:
+	cd $(SRCDIR) && \
+		./configure --prefix=$(INSTALL_PATH) && \
+		make -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && make DESTDIR=$(PKG) install
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+
+override_dh_strip:
+
+override_dh_auto_test:

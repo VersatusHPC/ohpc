@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: SuperLU_DIST
+Upstream-Contact: https://github.com/xiaoyeli/superlu_dist
+
+Files: *
+Copyright: 2003-2026 The Regents of the University of California, through Lawrence Berkeley National Laboratory
+License: BSD-3-Clause

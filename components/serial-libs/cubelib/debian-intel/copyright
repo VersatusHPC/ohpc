@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: CubeLib
+Upstream-Contact: https://www.scalasca.org/scalasca/software/cube-4.x/
+
+Files: *
+Copyright: 2009-2026 Forschungszentrum Juelich GmbH
+License: BSD-3-Clause

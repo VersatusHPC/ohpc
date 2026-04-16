@@ -1,0 +1,290 @@
+Source: ohpc-meta-packages
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: ohpc-autotools
+Architecture: all
+Depends: autoconf, automake, libtool, ${misc:Depends}
+Description: OpenHPC autotools collection
+ Collection of GNU autotools packages.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-base
+Architecture: all
+Depends: bash-completion,
+         bc,
+         conman-ohpc,
+         cmake-ohpc,
+         examples-ohpc,
+         gdb,
+         ipmitool,
+         libstdc++-dev,
+         libunwind-dev,
+         lmod-ohpc,
+         losf-ohpc,
+         make,
+         man-db,
+         wget,
+         net-tools,
+         nfs-common,
+         chrony,
+         rsyslog,
+         openipmi,
+         pdsh-ohpc,
+         screen,
+         sudo,
+         binutils,
+         binutils-dev,
+         network-manager,
+         ${misc:Depends}
+Description: OpenHPC base packages
+ Collection of base packages for an OpenHPC head node.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-base-compute
+Architecture: all
+Depends: binutils,
+         libicu-dev,
+         libunwind-dev,
+         libfabric1,
+         numactl,
+         python3,
+         python3-full,
+         hostname,
+         libyaml-cpp0.8,
+         libcairo2,
+         libpciaccess0,
+         libseccomp2,
+         librdmacm1,
+         network-manager,
+         perl,
+         ${misc:Depends}
+Description: OpenHPC compute node base packages
+ Collection of compute node base packages for OpenHPC.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-slurm-client
+Architecture: all
+Depends: slurm-ohpc,
+         slurm-slurmd-ohpc,
+         slurm-contribs-ohpc,
+         slurm-example-configs-ohpc,
+         slurm-pam-slurm-ohpc,
+         hwloc-ohpc,
+         ${misc:Depends}
+Description: OpenHPC client packages for SLURM
+ Collection of client packages for SLURM.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-slurm-server
+Architecture: all
+Depends: slurm-ohpc,
+         slurm-devel-ohpc,
+         slurm-example-configs-ohpc,
+         slurm-perlapi-ohpc,
+         slurm-slurmctld-ohpc,
+         slurm-slurmdbd-ohpc,
+         pdsh-mod-slurm-ohpc,
+         ${misc:Depends}
+Description: OpenHPC server packages for SLURM
+ Collection of server packages for SLURM.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-io-libs
+Architecture: all
+Depends: hdf5-gnu15-ohpc,
+         netcdf-cxx-gnu15-ohpc,
+         netcdf-fortran-gnu15-ohpc,
+         netcdf-gnu15-ohpc,
+         ${misc:Depends}
+Description: OpenHPC IO libraries for GNU (all MPI families)
+ Collection of IO library builds for use with GNU compiler toolchain.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-mpich-io-libs
+Architecture: all
+Depends: hdf5-gnu15-ohpc,
+         netcdf-cxx-gnu15-mpich-ohpc,
+         netcdf-fortran-gnu15-mpich-ohpc,
+         netcdf-gnu15-mpich-ohpc,
+         pnetcdf-gnu15-mpich-ohpc,
+         phdf5-gnu15-mpich-ohpc,
+         ${misc:Depends}
+Description: OpenHPC IO libraries for GNU and MPICH
+ Collection of IO library builds for use with GNU compiler toolchain and MPICH.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-openmpi5-io-libs
+Architecture: all
+Depends: hdf5-gnu15-ohpc,
+         netcdf-cxx-gnu15-openmpi5-ohpc,
+         netcdf-fortran-gnu15-openmpi5-ohpc,
+         netcdf-gnu15-openmpi5-ohpc,
+         pnetcdf-gnu15-openmpi5-ohpc,
+         phdf5-gnu15-openmpi5-ohpc,
+         ${misc:Depends}
+Description: OpenHPC IO libraries for GNU and OpenMPI
+ Collection of IO library builds for use with GNU compiler toolchain and OpenMPI.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-parallel-libs
+Architecture: all
+Depends: boost-gnu15-mpich-ohpc,
+         boost-gnu15-openmpi5-ohpc,
+         fftw-gnu15-mpich-ohpc,
+         fftw-gnu15-openmpi5-ohpc,
+         hypre-gnu15-mpich-ohpc,
+         hypre-gnu15-openmpi5-ohpc,
+         mumps-gnu15-mpich-ohpc,
+         mumps-gnu15-openmpi5-ohpc,
+         petsc-gnu15-mpich-ohpc,
+         petsc-gnu15-openmpi5-ohpc,
+         scalapack-gnu15-mpich-ohpc,
+         scalapack-gnu15-openmpi5-ohpc,
+         slepc-gnu15-mpich-ohpc,
+         slepc-gnu15-openmpi5-ohpc,
+         ptscotch-gnu15-mpich-ohpc,
+         ptscotch-gnu15-openmpi5-ohpc,
+         superlu-dist-gnu15-mpich-ohpc,
+         superlu-dist-gnu15-openmpi5-ohpc,
+         trilinos-gnu15-mpich-ohpc,
+         trilinos-gnu15-openmpi5-ohpc,
+         ${misc:Depends}
+Description: OpenHPC parallel libraries for GNU (all MPI families)
+ Collection of parallel library builds for use with GNU compiler toolchain.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-mpich-parallel-libs
+Architecture: all
+Depends: boost-gnu15-mpich-ohpc,
+         fftw-gnu15-mpich-ohpc,
+         hypre-gnu15-mpich-ohpc,
+         mumps-gnu15-mpich-ohpc,
+         petsc-gnu15-mpich-ohpc,
+         scalapack-gnu15-mpich-ohpc,
+         slepc-gnu15-mpich-ohpc,
+         ptscotch-gnu15-mpich-ohpc,
+         superlu-dist-gnu15-mpich-ohpc,
+         trilinos-gnu15-mpich-ohpc,
+         ${misc:Depends}
+Description: OpenHPC parallel libraries for GNU and MPICH
+ Collection of parallel library builds for use with GNU compiler toolchain
+ and the MPICH runtime.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-openmpi5-parallel-libs
+Architecture: all
+Depends: boost-gnu15-openmpi5-ohpc,
+         fftw-gnu15-openmpi5-ohpc,
+         hypre-gnu15-openmpi5-ohpc,
+         mumps-gnu15-openmpi5-ohpc,
+         petsc-gnu15-openmpi5-ohpc,
+         scalapack-gnu15-openmpi5-ohpc,
+         slepc-gnu15-openmpi5-ohpc,
+         ptscotch-gnu15-openmpi5-ohpc,
+         superlu-dist-gnu15-openmpi5-ohpc,
+         trilinos-gnu15-openmpi5-ohpc,
+         ${misc:Depends}
+Description: OpenHPC parallel libraries for GNU and OpenMPI
+ Collection of parallel library builds for use with GNU compiler toolchain
+ and the OpenMPI runtime.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-serial-libs
+Architecture: all
+Depends: gsl-gnu15-ohpc,
+         metis-gnu15-ohpc,
+         openblas-gnu15-ohpc,
+         plasma-gnu15-ohpc,
+         r-gnu15-ohpc,
+         scotch-gnu15-ohpc,
+         superlu-gnu15-ohpc,
+         ${misc:Depends}
+Description: OpenHPC serial libraries for GNU
+ Collection of serial library builds for use with GNU compiler toolchain.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-perf-tools
+Architecture: all
+Depends: imb-gnu15-mpich-ohpc,
+         imb-gnu15-openmpi5-ohpc,
+         omb-gnu15-mpich-ohpc,
+         omb-gnu15-openmpi5-ohpc,
+         tau-gnu15-mpich-ohpc,
+         tau-gnu15-openmpi5-ohpc,
+         scalasca-gnu15-mpich-ohpc,
+         scalasca-gnu15-openmpi5-ohpc,
+         scorep-gnu15-mpich-ohpc,
+         scorep-gnu15-openmpi5-ohpc,
+         ${misc:Depends}
+Description: OpenHPC performance tools for GNU
+ Collection of performance tool builds for use with GNU compiler toolchain.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-mpich-perf-tools
+Architecture: all
+Depends: imb-gnu15-mpich-ohpc,
+         omb-gnu15-mpich-ohpc,
+         tau-gnu15-mpich-ohpc,
+         scalasca-gnu15-mpich-ohpc,
+         scorep-gnu15-mpich-ohpc,
+         papi-ohpc,
+         ${misc:Depends}
+Description: OpenHPC performance tools for GNU and MPICH
+ Collection of performance tool builds for use with GNU compiler toolchain
+ and the MPICH runtime.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-openmpi5-perf-tools
+Architecture: all
+Depends: imb-gnu15-openmpi5-ohpc,
+         omb-gnu15-openmpi5-ohpc,
+         tau-gnu15-openmpi5-ohpc,
+         scalasca-gnu15-openmpi5-ohpc,
+         scorep-gnu15-openmpi5-ohpc,
+         papi-ohpc,
+         ${misc:Depends}
+Description: OpenHPC performance tools for GNU and OpenMPI
+ Collection of performance tool builds for use with GNU compiler toolchain
+ and the OpenMPI runtime.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-python3-libs
+Architecture: all
+Depends: python3-numpy-gnu15-ohpc,
+         python3-mpi4py-gnu15-mpich-ohpc,
+         python3-mpi4py-gnu15-openmpi5-ohpc,
+         ${misc:Depends}
+Description: OpenHPC python3 libraries for GNU
+ Collection of python3 related library builds for use with GNU compiler
+ toolchain.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-runtimes
+Architecture: all
+Depends: charliecloud-ohpc,
+         ${misc:Depends}
+Description: OpenHPC runtimes for GNU
+ Collection of runtimes for use with GNU compiler toolchain.
+ .
+ This is an OpenHPC meta-package.

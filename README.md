@@ -12,6 +12,21 @@ with additional platform support:
 |----------|-------------|--------|
 | **EL10 (AlmaLinux/Rocky/RHEL)** | **ppc64le (IBM POWER)** | Available |
 | **openEuler 24.03 LTS** | **ppc64le (IBM POWER)** | Available |
+| **Ubuntu 24.04 LTS** | **x86_64** | OBS validated |
+
+### Ubuntu 24.04 Port
+
+The `ubuntu-port` work adds Debian packaging for the full OpenHPC 4.x package
+matrix on Ubuntu 24.04 LTS. Validation is performed in OBS project
+`VersatusHPC:OHPC:4`, repository `Ubuntu_24.04`, architecture `x86_64`.
+
+As of 2026-04-16, the Ubuntu OBS build is published with **296/296 packages
+succeeded**.
+
+The port keeps the OpenHPC compiler/MPI package model, using Debian packaging
+under `components/**/debian*`, shared build helpers under `devel/`, and local
+OBS import/runtime tooling under `obs/`. Intel oneAPI dependencies are resolved
+through OBS Debian Download-on-Demand against Intel's upstream APT repository.
 
 ### ppc64le Port
 

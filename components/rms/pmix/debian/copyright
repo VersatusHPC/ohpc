@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PMIx
+Upstream-Contact: https://github.com/openpmix/openpmix
+
+Files: *
+Copyright: 2013-2026 Intel, Inc.
+           2015-2026 IBM Corporation
+License: BSD-3-Clause

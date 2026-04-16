@@ -1,0 +1,26 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the opencoarrays library built with the gnu15 compiler"
+puts stderr "toolchain and the mpich MPI stack."
+puts stderr "\nVersion 2.10.3\n"
+
+}
+module-whatis "Name: opencoarrays built with gnu15 compiler and mpich MPI"
+module-whatis "Version: 2.10.3"
+module-whatis "Category: runtime library"
+module-whatis "Description: ABI to leverage the parallel programming features of Fortran 2018"
+module-whatis "http://www.opencoarrays.org"
+
+set     version                     2.10.3
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3/lib64
+
+setenv          OPENCOARRAYS_DIR    /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3
+setenv          OPENCOARRAYS_BIN    /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3/bin
+setenv          OPENCOARRAYS_INC    /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3/include
+setenv          OPENCOARRAYS_LIB    /opt/ohpc/pub/libs/gnu15/mpich/opencoarrays/2.10.3/lib64

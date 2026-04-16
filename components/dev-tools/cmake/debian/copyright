@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cmake
+Upstream-Contact: https://cmake.org/
+
+Files: *
+Copyright: 2000-2026 Kitware, Inc. and Contributors
+License: BSD-3-Clause

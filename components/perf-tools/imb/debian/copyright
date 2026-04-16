@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Intel MPI Benchmarks
+Upstream-Contact: https://github.com/intel/mpi-benchmarks
+
+Files: *
+Copyright: 2001-2026 Intel Corporation
+License: BSD-3-Clause

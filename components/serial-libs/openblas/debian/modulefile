@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the OpenBLAS library built with the gnu15 compiler toolchain."
+puts stderr "\nVersion 0.3.32\n"
+
+}
+module-whatis "Name: OpenBLAS built with gnu15 toolchain"
+module-whatis "Version: 0.3.32"
+module-whatis "Category: runtime library"
+module-whatis "Description: An optimized BLAS library based on GotoBLAS2"
+module-whatis "http://www.openblas.net"
+
+set     version             0.3.32
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openblas/0.3.32/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/openblas/0.3.32/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openblas/0.3.32/lib
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/libs/gnu15/openblas/0.3.32/lib/pkgconfig
+
+setenv          OPENBLAS_DIR        /opt/ohpc/pub/libs/gnu15/openblas/0.3.32
+setenv          OPENBLAS_LIB        /opt/ohpc/pub/libs/gnu15/openblas/0.3.32/lib
+setenv          OPENBLAS_INC        /opt/ohpc/pub/libs/gnu15/openblas/0.3.32/include
+
+family "openblas"

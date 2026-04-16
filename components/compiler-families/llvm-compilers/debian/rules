@@ -1,0 +1,61 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := llvm10
+PNAME           := llvm-project
+VERSION         := 10.0.1
+INSTALL_PATH    := /opt/ohpc/pub/compiler/llvm/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/llvm10-compilers-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION).tar.xz || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.xz \
+			https://github.com/llvm/llvm-project/releases/download/llvmorg-$(VERSION)/$(PNAME)-$(VERSION).tar.xz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION).tar.xz
+	# Fix for GCC 14: add missing standard library includes
+	sed -i '1s/^/#include <cstdint>\n/' $(SRCDIR)/llvm/include/llvm/Support/Signals.h
+	sed -i '1s/^/#include <cstdint>\n/' $(SRCDIR)/llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
+	sed -i '1s/^/#include <limits>\n/' $(SRCDIR)/llvm/utils/benchmark/src/benchmark_register.h
+
+override_dh_auto_build:
+	mkdir -p $(SRCDIR)/build && cd $(SRCDIR)/build && \
+		cmake -G Ninja \
+			-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DLLVM_ENABLE_PROJECTS="clang;openmp;lld" \
+			-DLLVM_TARGETS_TO_BUILD="X86" \
+			-DLLVM_BUILD_LLVM_DYLIB=ON \
+			-DLLVM_LINK_LLVM_DYLIB=ON \
+			-DCLANG_LINK_CLANG_DYLIB=ON \
+			-DLLVM_INSTALL_UTILS=ON \
+			-DPYTHON_EXECUTABLE=/usr/bin/python3 \
+			../llvm && \
+		ninja -j$$(( $$(nproc) > 8 ? 8 : $$(nproc) ))
+
+override_dh_auto_install:
+	cd $(SRCDIR)/build && DESTDIR=$(PKG) ninja install
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/modulefiles/$(COMPILER_FAMILY)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/modulefiles/$(COMPILER_FAMILY)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

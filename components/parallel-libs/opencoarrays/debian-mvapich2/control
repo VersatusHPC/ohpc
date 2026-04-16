@@ -1,0 +1,27 @@
+Source: opencoarrays-gnu15-mvapich2-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               mvapich2-gnu15-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               cmake,
+               make
+Standards-Version: 4.6.2
+Homepage: http://www.opencoarrays.org
+
+Package: opencoarrays-gnu15-mvapich2-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), mvapich2-gnu15-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: ABI to leverage the parallel programming features of Fortran 2018 (gnu15 + mvapich2, OpenHPC)
+ OpenCoarrays is an open-source software project that supports the coarray
+ Fortran (CAF) parallel programming features of the Fortran 2008 standard and
+ several features proposed for Fortran 2015.
+ Built with the gnu15 compiler family and mvapich2 MPI stack.
+ .
+ This package is part of the OpenHPC project.

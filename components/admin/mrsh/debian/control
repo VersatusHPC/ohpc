@@ -1,0 +1,25 @@
+Source: mrsh-ohpc
+Section: admin
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               make,
+               gcc,
+               autoconf,
+               automake,
+               libtool,
+               libncurses-dev,
+               libpam0g-dev,
+               libmunge-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/chaos/mrsh
+
+Package: mrsh-ohpc
+Architecture: any
+Depends: ohpc-filesystem, munge-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Remote shell program that uses munge authentication (OpenHPC)
+ Remote shell programs that use munge authentication rather than
+ reserved ports for security.
+ .
+ This package is part of the OpenHPC project.

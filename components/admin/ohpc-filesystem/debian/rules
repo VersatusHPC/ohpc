@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# Nothing to build
+
+override_dh_auto_install:
+	# ohpc-filesystem: directory structure
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/apps
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/bin
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/doc
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/compiler
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/libs
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/moduledeps
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/modulefiles
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/pub/mpi
+	mkdir -p debian/ohpc-filesystem/opt/ohpc/admin
+	# ohpc-buildroot: setup scripts
+	mkdir -p debian/ohpc-buildroot/opt/ohpc/admin/ohpc
+	install -p -m 644 SOURCES/OHPC_setup_compiler debian/ohpc-buildroot/opt/ohpc/admin/ohpc/
+	install -p -m 644 SOURCES/OHPC_setup_mpi debian/ohpc-buildroot/opt/ohpc/admin/ohpc/
+
+override_dh_usrlocal:
+	# OpenHPC installs to /opt/ohpc

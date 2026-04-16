@@ -1,0 +1,17 @@
+Source: prun-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: prun-ohpc
+Architecture: all
+Depends: ohpc-filesystem, ${misc:Depends}
+Description: Convenience utility for parallel job launch (OpenHPC)
+ prun provides a unified, script-based wrapper for launching parallel jobs
+ within a resource manager for a variety of MPI families.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,21 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads the charliecloud utility"
+        puts stderr "\nVersion 0.43\n"
+}
+
+module-whatis "Name: charliecloud"
+module-whatis "Version: 0.43"
+module-whatis "Category: runtime"
+module-whatis "Description: Lightweight user-defined software stacks for high-performance computing"
+module-whatis "URL: https://charliecloud.io/"
+
+set     version             0.43
+
+prepend-path    PATH                /opt/ohpc/pub/libs/charliecloud/0.43/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/charliecloud/0.43/share/man
+
+setenv          CHARLIECLOUD_DIR    /opt/ohpc/pub/libs/charliecloud/0.43
+setenv          CHARLIECLOUD_BIN    /opt/ohpc/pub/libs/charliecloud/0.43/bin

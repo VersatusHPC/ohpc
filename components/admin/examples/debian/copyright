@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: examples
+Upstream-Contact: https://github.com/openhpc/ohpc
+
+Files: *
+Copyright: 2014-2026 OpenHPC Community
+License: Apache-2.0

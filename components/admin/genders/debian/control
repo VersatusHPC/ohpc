@@ -1,0 +1,32 @@
+Source: genders-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               g++,
+               bison,
+               flex,
+               python3-dev,
+               perl,
+               autoconf,
+               automake,
+               libtool
+Standards-Version: 4.6.2
+Homepage: https://github.com/chaos/genders
+
+Package: genders-ohpc
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Static cluster configuration database (OpenHPC)
+ Genders is a static cluster configuration database used for cluster
+ configuration management. It is used by a variety of tools and scripts
+ for management of large clusters.
+ .
+ This package is part of the OpenHPC project.
+
+Package: genders-compat-ohpc
+Architecture: any
+Depends: genders-ohpc (= ${binary:Version}), ${misc:Depends}
+Description: Genders compatibility API (OpenHPC)
+ Genders API compatible with earlier releases.

@@ -1,0 +1,19 @@
+Source: cuda-devel-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+
+Package: cuda-devel-ohpc
+Architecture: all
+Depends: ohpc-filesystem, lmod-ohpc, ${misc:Depends}
+Description: OpenHPC compatibility package for CUDA (OpenHPC)
+ Provides OpenHPC-style modulefiles for NVIDIA CUDA/HPC SDK.
+ Requires NVIDIA HPC SDK to be installed at /opt/nvidia/hpc_sdk/.
+
+Package: cuda-repo-ohpc
+Architecture: all
+Depends: ${misc:Depends}
+Description: CUDA toolkit repository configuration (OpenHPC)
+ Provides repository configuration for NVIDIA CUDA toolkit.

@@ -1,0 +1,29 @@
+Source: gnu15-compilers-ohpc
+Section: devel
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               g++,
+               binutils (>= 2.30),
+               make (>= 3.80),
+               gettext (>= 0.14.5),
+               flex (>= 2.5.4),
+               texinfo (>= 4.7),
+               m4 (>= 1.4.6),
+               wget,
+               xz-utils,
+               bzip2,
+               libc6-dev,
+               zlib1g-dev
+Standards-Version: 4.6.2
+Homepage: https://gcc.gnu.org/
+
+Package: gnu15-compilers-ohpc
+Architecture: any
+Depends: libc6-dev, binutils, ${shlibs:Depends}, ${misc:Depends}
+Description: GNU Compiler Collection 15.2.0 (OpenHPC)
+ Core package for the GNU Compiler Collection version 15.2.0,
+ including C, C++, and Fortran language frontends.
+ Installs to /opt/ohpc/pub/compiler/gcc/15.2.0.
+ .
+ This package is part of the OpenHPC project.

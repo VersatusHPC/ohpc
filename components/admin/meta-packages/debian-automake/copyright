@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: automake
+Upstream-Contact: https://www.gnu.org/software/automake/
+
+Files: *
+Copyright: 1992-2021 Free Software Foundation, Inc.
+License: GPL-2+

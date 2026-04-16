@@ -1,0 +1,28 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the mumps library built with the intel compiler"
+puts stderr "toolchain and the impi MPI stack."
+puts stderr " "
+puts stderr "\nVersion 5.8.2\n"
+
+}
+module-whatis "Name: mumps built with intel compiler and impi MPI"
+module-whatis "Version: 5.8.2"
+module-whatis "Category: runtime library"
+module-whatis "Description: A MUltifrontal Massively Parallel Sparse direct Solver"
+module-whatis "https://mumps-solver.org/"
+
+set     version                     5.8.2
+
+depends-on scalapack
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/impi/mumps/5.8.2/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/impi/mumps/5.8.2/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/impi/mumps/5.8.2/lib
+
+setenv          MUMPS_DIR        /opt/ohpc/pub/libs/intel/impi/mumps/5.8.2
+setenv          MUMPS_LIB        /opt/ohpc/pub/libs/intel/impi/mumps/5.8.2/lib
+setenv          MUMPS_INC        /opt/ohpc/pub/libs/intel/impi/mumps/5.8.2/include

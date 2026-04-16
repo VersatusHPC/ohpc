@@ -1,0 +1,21 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the Paraver visualization tool"
+puts stderr "\nVersion 4.12.0\n"
+
+}
+module-whatis "Name: Paraver"
+module-whatis "Version: 4.12.0"
+module-whatis "Category: performance tool"
+module-whatis "Description: Paraver parallel program visualization and analysis tool"
+module-whatis "URL: https://tools.bsc.es"
+
+set     version             4.12.0
+
+prepend-path    PATH                /opt/ohpc/pub/libs/paraver/4.12.0/bin
+
+setenv          PARAVER_DIR         /opt/ohpc/pub/libs/paraver/4.12.0
+setenv          PARAVER_BIN         /opt/ohpc/pub/libs/paraver/4.12.0/bin

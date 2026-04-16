@@ -1,0 +1,24 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the valgrind utility"
+puts stderr "\nVersion 3.26.0\n"
+
+}
+module-whatis "Name: valgrind"
+module-whatis "Version: 3.26.0"
+module-whatis "Category: development tool"
+module-whatis "Description: An instrumentation framework for building dynamic analysis tools"
+module-whatis "URL: https://valgrind.org/"
+
+set     version             3.26.0
+
+prepend-path    PATH                /opt/ohpc/pub/utils/valgrind/3.26.0/bin
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/utils/valgrind/3.26.0/lib
+prepend-path    MANPATH             /opt/ohpc/pub/utils/valgrind/3.26.0/share/man
+
+setenv          VALGRIND_DIR        /opt/ohpc/pub/utils/valgrind/3.26.0
+setenv          VALGRIND_BIN        /opt/ohpc/pub/utils/valgrind/3.26.0/bin
+setenv          VALGRIND_LIB        /opt/ohpc/pub/utils/valgrind/3.26.0/lib

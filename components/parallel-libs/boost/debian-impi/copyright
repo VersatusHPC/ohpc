@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Boost
+Upstream-Contact: http://www.boost.org
+
+Files: *
+Copyright: 1998-2026 Boost Contributors
+License: BSL-1.0

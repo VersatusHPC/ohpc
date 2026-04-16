@@ -1,0 +1,29 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the plasma library built with the intel compiler"
+puts stderr "toolchain."
+puts stderr " "
+puts stderr "Note that this build of PLASMA leverages the OpenBLAS linear algebra libraries."
+puts stderr "Consequently, openblas is loaded automatically with this module."
+puts stderr "\nVersion 25.5.27\n"
+
+}
+module-whatis "Name: plasma built with intel compiler"
+module-whatis "Version: 25.5.27"
+module-whatis "Category: runtime library"
+module-whatis "Description: Parallel Linear Algebra Software for Multicore Architectures"
+module-whatis "https://github.com/icl-utk-edu/plasma"
+
+set     version                     25.5.27
+
+depends-on openblas
+
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/plasma/25.5.27/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/plasma/25.5.27/lib
+
+setenv          PLASMA_DIR          /opt/ohpc/pub/libs/intel/plasma/25.5.27
+setenv          PLASMA_LIB          /opt/ohpc/pub/libs/intel/plasma/25.5.27/lib
+setenv          PLASMA_INC          /opt/ohpc/pub/libs/intel/plasma/25.5.27/include

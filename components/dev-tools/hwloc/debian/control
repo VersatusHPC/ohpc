@@ -1,0 +1,24 @@
+Source: hwloc-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               g++,
+               libtool,
+               libcairo2-dev,
+               libxml2-dev,
+               libncurses-dev,
+               libnuma-dev,
+               doxygen
+Standards-Version: 4.6.2
+Homepage: https://www.open-mpi.org/projects/hwloc/
+
+Package: hwloc-ohpc
+Architecture: any
+Depends: ohpc-filesystem, ${shlibs:Depends}, ${misc:Depends}
+Description: Portable Hardware Locality (hwloc) (OpenHPC)
+ The Portable Hardware Locality (hwloc) software package provides a
+ portable abstraction of the hierarchical topology of modern architectures.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,32 @@
+Source: otf2-gnu15-impi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               intel-mpi-devel-ohpc,
+               sionlib-gnu15-impi-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make
+Standards-Version: 4.6.2
+Homepage: https://www.vi-hps.org/projects/score-p/
+
+Package: otf2-gnu15-impi-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         intel-mpi-devel-ohpc,
+         sionlib-gnu15-impi-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Open Trace Format 2 library (gnu15 + impi, OpenHPC)
+ OTF2 is a highly scalable, memory efficient event trace data format plus
+ support library. It provides an interface for writing and reading trace
+ data for performance analysis tools.
+ Built with the gnu15 compiler family and impi MPI stack.
+ .
+ This package is part of the OpenHPC project.

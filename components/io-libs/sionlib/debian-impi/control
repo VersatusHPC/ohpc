@@ -1,0 +1,30 @@
+Source: sionlib-gnu15-impi-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               intel-mpi-devel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               make,
+               gcc-gfortran | gfortran
+Standards-Version: 4.6.2
+Homepage: https://apps.fz-juelich.de/jsc/sionlib/docu/index.html
+
+Package: sionlib-gnu15-impi-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         intel-mpi-devel-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Scalable I/O Library for Parallel Access to Task-Local Files (gnu15 + impi, OpenHPC)
+ SIONlib is a library for writing and reading binary data to/from several
+ thousands of processors into one or a small number of physical files.
+ Built with the gnu15 compiler family and impi MPI stack.
+ .
+ This package is part of the OpenHPC project.

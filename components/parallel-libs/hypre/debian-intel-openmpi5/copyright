@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: hypre
+Upstream-Contact: https://github.com/hypre-space/hypre
+
+Files: *
+Copyright: 1998-2026 Lawrence Livermore National Security, LLC
+License: Apache-2.0 or MIT

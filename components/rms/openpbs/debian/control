@@ -1,0 +1,101 @@
+Source: openpbs-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               hwloc-ohpc,
+               gcc,
+               g++,
+               autoconf,
+               automake,
+               libtool,
+               libltdl-dev,
+               libpq-dev,
+               python3-dev,
+               tcl-dev,
+               tk-dev,
+               swig,
+               libical-dev,
+               libssl-dev,
+               libexpat1-dev,
+               libxt-dev,
+               libedit-dev,
+               zlib1g-dev,
+               libx11-dev,
+               libxt-dev,
+               libncurses-dev,
+               perl,
+               wget
+Standards-Version: 4.6.2
+Homepage: http://www.openpbs.org
+
+Package: openpbs-server-ohpc
+Architecture: any
+Depends: bash,
+         libexpat1,
+         libedit2,
+         postgresql,
+         postgresql-contrib,
+         python3 (>= 3.5),
+         tcl,
+         tk,
+         libical3 | libical-dev,
+         hostname,
+         hwloc-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Conflicts: openpbs-execution-ohpc, openpbs-client-ohpc
+Description: OpenPBS server (OpenHPC)
+ OpenPBS is a fast, powerful workload manager and job scheduler designed
+ to improve productivity, optimize utilization and efficiency, and simplify
+ administration for HPC clusters, clouds and supercomputers.
+ .
+ This package is intended for a server host. It includes all PBS components.
+ .
+ This package is part of the OpenHPC project.
+
+Package: openpbs-execution-ohpc
+Architecture: any
+Depends: bash,
+         libexpat1,
+         python3 (>= 3.5),
+         hostname,
+         hwloc-ohpc,
+         pmix-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Conflicts: openpbs-server-ohpc, openpbs-client-ohpc
+Description: OpenPBS execution host (OpenHPC)
+ OpenPBS is a fast, powerful workload manager and job scheduler designed
+ to improve productivity, optimize utilization and efficiency, and simplify
+ administration for HPC clusters, clouds and supercomputers.
+ .
+ This package is intended for an execution host.
+ .
+ This package is part of the OpenHPC project.
+
+Package: openpbs-client-ohpc
+Architecture: any
+Depends: bash,
+         python3 (>= 3.5),
+         ${shlibs:Depends},
+         ${misc:Depends}
+Conflicts: openpbs-server-ohpc, openpbs-execution-ohpc
+Description: OpenPBS client (OpenHPC)
+ OpenPBS is a fast, powerful workload manager and job scheduler designed
+ to improve productivity, optimize utilization and efficiency, and simplify
+ administration for HPC clusters, clouds and supercomputers.
+ .
+ This package is intended for a client host and provides the PBS user commands.
+ .
+ This package is part of the OpenHPC project.
+
+Package: openpbs-devel-ohpc
+Architecture: any
+Depends: zlib1g-dev,
+         ${misc:Depends}
+Description: OpenPBS development files (OpenHPC)
+ Development headers and static libraries for OpenPBS.
+ .
+ This package is part of the OpenHPC project.

@@ -1,0 +1,38 @@
+Source: extrae-intel-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               intel-compilers-devel-ohpc,
+               lmod-ohpc,
+               openmpi5-intel-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               papi-ohpc,
+               libunwind-dev,
+               libxml2-dev,
+               binutils-dev,
+               autoconf,
+               automake,
+               libtool,
+               make
+Standards-Version: 4.6.2
+Homepage: https://tools.bsc.es
+
+Package: extrae-intel-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         intel-compilers-devel-ohpc,
+         openmpi5-intel-ohpc,
+         papi-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Extrae instrumentation framework for parallel applications (intel + openmpi5, OpenHPC)
+ Extrae is the core instrumentation package developed by the Performance
+ Tools team at BSC. It generates Paraver trace files that can be analyzed
+ with Paraver.
+ Built with the intel compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

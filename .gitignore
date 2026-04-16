@@ -1,2 +1,44 @@
 /.claude/
 misc/__pycache__/
+obs/open-build-service/
+
+# Build artifacts
+*.deb
+*.buildinfo
+*.changes
+*.build
+
+# Build output directories (installed package trees)
+**/debian/*-ohpc/
+**/debian-*/*-ohpc/
+
+# Source tarballs (too large for git)
+**/*.tar.gz
+**/*.tar.xz
+**/*.tar.bz2
+**/*.zip
+
+# Build source trees
+**/flex-*/
+**/.gopath/
+**/debian.bak/
+
+# APT repo
+devel/apt-repo/db/
+devel/apt-repo/dists/
+devel/apt-repo/pool/
+
+# OBS data
+obs/data/
+
+# Debhelper leftovers
+**/*.postrm.debhelper
+
+# APT repo metadata
+devel/apt-repo/Packages
+devel/apt-repo/Packages.gz
+
+# Local settings
+settings.json
+stop-hook.sh
+.gitignore-ubuntu-port

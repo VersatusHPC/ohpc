@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: GOTCHA
+Upstream-Contact: https://github.com/LLNL/GOTCHA
+
+Files: *
+Copyright: 2017-2026 Lawrence Livermore National Security, LLC
+License: LGPL-2.1

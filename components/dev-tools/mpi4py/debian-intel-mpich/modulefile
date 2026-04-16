@@ -1,0 +1,23 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the mpi4py library built with python3,"
+puts stderr "the intel compiler toolchain and the mpich MPI stack."
+puts stderr "\nVersion 4.1.1\n"
+
+}
+module-whatis "Name: python3-mpi4py built with intel compiler and mpich MPI"
+module-whatis "Version: 4.1.1"
+module-whatis "Category: python module"
+module-whatis "Description: Python bindings for the Message Passing Interface"
+module-whatis "URL: https://github.com/mpi4py/mpi4py"
+
+family                      mpi4py
+set     version             4.1.1
+
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/intel/mpich/mpi4py/4.1.1/lib/python3/dist-packages
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/intel/mpich/mpi4py/4.1.1/lib64/python3/dist-packages
+
+setenv          MPI4PY_DIR          /opt/ohpc/pub/libs/intel/mpich/mpi4py/4.1.1

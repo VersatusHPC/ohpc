@@ -1,0 +1,33 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the MFEM library built with the intel compiler"
+puts stderr "toolchain and the impi MPI stack."
+puts stderr " "
+puts stderr "\nVersion 4.9\n"
+
+}
+module-whatis "Name: mfem built with intel compiler and impi MPI"
+module-whatis "Version: 4.9"
+module-whatis "Category: runtime library"
+module-whatis "Description: Lightweight, general, scalable C++ library for finite element methods"
+module-whatis "http://mfem.org"
+
+set     version                     4.9
+
+depends-on hypre
+depends-on metis
+depends-on netcdf
+depends-on petsc
+depends-on superlu_dist
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/impi/mfem/4.9/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/impi/mfem/4.9/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/impi/mfem/4.9/lib
+
+setenv          MFEM_DIR            /opt/ohpc/pub/libs/intel/impi/mfem/4.9
+setenv          MFEM_BIN            /opt/ohpc/pub/libs/intel/impi/mfem/4.9/bin
+setenv          MFEM_INC            /opt/ohpc/pub/libs/intel/impi/mfem/4.9/include
+setenv          MFEM_LIB            /opt/ohpc/pub/libs/intel/impi/mfem/4.9/lib

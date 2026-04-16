@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OSU Micro-Benchmarks
+Upstream-Contact: https://mvapich.cse.ohio-state.edu/benchmarks/
+
+Files: *
+Copyright: 2001-2026 The Ohio State University
+License: BSD-3-Clause

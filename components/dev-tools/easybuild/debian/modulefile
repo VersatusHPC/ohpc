@@ -1,0 +1,25 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads EasyBuild"
+        puts stderr "\nVersion 5.2.1\n"
+}
+
+module-whatis "Name: EasyBuild"
+module-whatis "Version: 5.2.1"
+module-whatis "Category: system tool"
+module-whatis "Description: Software build and installation framework"
+module-whatis "URL: https://easybuilders.github.io/easybuild/"
+
+set             version                 5.2.1
+set             home                    $::env(HOME)
+
+prepend-path    PATH                    /opt/ohpc/pub/libs/easybuild/5.2.1/bin
+module          use                     $home/.local/easybuild/modules/all
+
+setenv          EBROOTEASYBUILD         /opt/ohpc/pub/libs/easybuild/5.2.1
+setenv          EBVERSIONEASYBUILD      5.2.1
+setenv          EB_PYTHON               python3
+
+prepend-path    PYTHONPATH              /opt/ohpc/pub/libs/easybuild/5.2.1/lib/python3/dist-packages

@@ -1,0 +1,21 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+    puts stderr "This module loads the pmix library."
+}
+
+module-whatis "Name: pmix"
+module-whatis "Version: 4.2.9"
+
+set     version                     4.2.9
+
+# The pmix library requires the hwloc library. Also load it.
+depends-on hwloc
+
+prepend-path    MANPATH             /opt/ohpc/admin/pmix/share/man
+prepend-path    INCLUDE             /opt/ohpc/admin/pmix/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/admin/pmix/lib
+
+setenv          PMIX_DIR            /opt/ohpc/admin/pmix
+setenv          PMIX_LIB            /opt/ohpc/admin/pmix/lib
+setenv          PMIX_INC            /opt/ohpc/admin/pmix/include

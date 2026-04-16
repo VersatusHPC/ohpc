@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+
+CMAKE_VERSION := 4.3.0
+CMAKE_MAJOR   := 4.3
+INSTALL_PATH  := /opt/ohpc/pub/utils/cmake/$(CMAKE_VERSION)
+OHPC_MODULES  := /opt/ohpc/pub/modulefiles
+PKG           := $(CURDIR)/debian/cmake-ohpc
+SRCDIR        := $(CURDIR)/cmake-$(CMAKE_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/cmake-$(CMAKE_VERSION).tar.gz || \
+		wget -q -O SOURCES/cmake-$(CMAKE_VERSION).tar.gz \
+			https://cmake.org/files/v$(CMAKE_MAJOR)/cmake-$(CMAKE_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/cmake-$(CMAKE_VERSION).tar.gz
+	cd $(SRCDIR) && ./bootstrap \
+		--system-libs \
+		--no-system-librhash \
+		--no-system-libuv \
+		--no-system-libarchive \
+		--no-system-cppdap \
+		--no-qt-gui \
+		--parallel=$$(nproc) \
+		--prefix=$(INSTALL_PATH)
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) install DESTDIR=$(PKG)
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/cmake
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/cmake/$(CMAKE_VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

@@ -1,0 +1,17 @@
+Source: examples-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot
+Standards-Version: 4.6.2
+Homepage: https://github.com/openhpc/ohpc
+
+Package: examples-ohpc
+Architecture: all
+Depends: ohpc-filesystem, ${misc:Depends}
+Description: Example source code and templates for OpenHPC
+ Collection of simple example programs and file templates for use within
+ the OpenHPC development environment.
+ .
+ This package is part of the OpenHPC project.

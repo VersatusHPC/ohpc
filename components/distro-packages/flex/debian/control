@@ -1,0 +1,19 @@
+Source: flex-ohpc
+Section: devel
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               wget,
+               m4,
+               help2man,
+               texinfo
+Standards-Version: 4.6.2
+Homepage: https://github.com/westes/flex
+
+Package: flex-ohpc
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Fast Lexical Analyzer Generator for OpenHPC
+ Flex is a tool for generating scanners. Installed under the
+ OpenHPC module system.

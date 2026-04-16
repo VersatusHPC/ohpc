@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: MUNGE
+Upstream-Contact: https://github.com/dun/munge
+
+Files: *
+Copyright: 2007-2026 Lawrence Livermore National Security
+License: GPL-3+

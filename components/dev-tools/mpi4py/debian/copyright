@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: mpi4py
+Upstream-Contact: https://github.com/mpi4py/mpi4py
+
+Files: *
+Copyright: 2017-2026 Lisandro Dalcin
+License: BSD-3-Clause

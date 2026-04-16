@@ -1,0 +1,46 @@
+Source: scorep-gnu15-mvapich2-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               mvapich2-gnu15-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               cubelib-gnu15-ohpc,
+               cubew-gnu15-ohpc,
+               opari2-gnu15-ohpc,
+               otf2-gnu15-mvapich2-ohpc,
+               gotcha-gnu15-ohpc,
+               papi-ohpc,
+               binutils-dev,
+               libunwind-dev,
+               cmake,
+               make,
+               which
+Standards-Version: 4.6.2
+Homepage: http://www.vi-hps.org/projects/score-p/
+
+Package: scorep-gnu15-mvapich2-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         mvapich2-gnu15-ohpc,
+         cubelib-gnu15-ohpc,
+         cubew-gnu15-ohpc,
+         opari2-gnu15-ohpc,
+         otf2-gnu15-mvapich2-ohpc,
+         gotcha-gnu15-ohpc,
+         papi-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Scalable Performance Measurement Infrastructure for Parallel Codes (gnu15 + mvapich2, OpenHPC)
+ The Score-P measurement infrastructure is a highly scalable and easy-to-use
+ tool suite for profiling, event trace recording, and online analysis of HPC
+ applications.
+ Built with the gnu15 compiler family and mvapich2 MPI stack.
+ .
+ This package is part of the OpenHPC project.

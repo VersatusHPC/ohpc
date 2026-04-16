@@ -1,0 +1,18 @@
+#%Module1.0
+proc ModulesHelp { } {
+puts stderr "This module loads openmpi5 built with Intel compilers."
+puts stderr "\nVersion 5.0.10\n"
+}
+module-whatis "Name: openmpi5 built with Intel compilers"
+module-whatis "Version: 5.0.10"
+set     version             5.0.10
+setenv          MPI_DIR             /opt/ohpc/pub/mpi/openmpi5-intel/5.0.10
+prepend-path    PATH                /opt/ohpc/pub/mpi/openmpi5-intel/5.0.10/bin
+prepend-path    MANPATH             /opt/ohpc/pub/mpi/openmpi5-intel/5.0.10/share/man
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/openmpi5-intel/5.0.10/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/hwloc/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/ucx/1.20.0/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/admin/pmix/lib
+prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/intel-openmpi5
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/openmpi5-intel/5.0.10/lib/pkgconfig
+family "MPI"

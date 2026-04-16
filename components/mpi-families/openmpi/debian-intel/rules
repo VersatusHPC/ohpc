@@ -1,0 +1,73 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS = -Wl,-z,lazy
+
+OMPI_VERSION    := 5.0.10
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+INSTALL_PATH    := /opt/ohpc/pub/mpi/openmpi5-$(COMPILER_FAMILY)/$(OMPI_VERSION)
+HWLOC_PATH      := /opt/ohpc/pub/libs/hwloc
+UCX_PATH        := /opt/ohpc/pub/mpi/ucx/1.20.0
+PMIX_PATH       := /opt/ohpc/admin/pmix
+INTEL_LIB       := /opt/intel/oneapi/compiler/latest/lib
+MODULE_PATH     := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/openmpi5
+MODULEDEPS_PATH := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-openmpi5
+
+SRCDIR          := $(CURDIR)/openmpi-$(OMPI_VERSION)
+PKG             := $(CURDIR)/debian/openmpi5-$(COMPILER_FAMILY)-ohpc
+ENV             := bash $(CURDIR)/debian/build.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/openmpi-$(OMPI_VERSION).tar.bz2 || \
+		wget -q -O SOURCES/openmpi-$(OMPI_VERSION).tar.bz2 \
+			http://www.open-mpi.org/software/ompi/v5.0/downloads/openmpi-$(OMPI_VERSION).tar.bz2
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/openmpi-$(OMPI_VERSION).tar.bz2
+	cd $(SRCDIR) && $(ENV) ./configure \
+		--prefix=$(INSTALL_PATH) \
+		--disable-static \
+		--enable-builtin-atomics \
+		--with-libevent=external \
+		--with-hwloc=$(HWLOC_PATH) \
+		--with-pmix=$(PMIX_PATH) \
+		--with-ucx=$(UCX_PATH) \
+		--with-libfabric \
+		--without-tm \
+		--without-lustre \
+		--disable-oshmem
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	mkdir -p $(PKG)
+	cd $(SRCDIR) && $(ENV) $(MAKE) DESTDIR=$(PKG) install
+	find $(PKG) -name '*.la' -delete || true
+	if [ -f $(PKG)$(INSTALL_PATH)/bin/prun ]; then \
+		mv $(PKG)$(INSTALL_PATH)/bin/prun $(PKG)$(INSTALL_PATH)/bin/prrte-prun; \
+	fi
+	mkdir -p $(PKG)$(MODULE_PATH)
+	install -m 644 debian/modulefile $(PKG)$(MODULE_PATH)/$(OMPI_VERSION)
+	mkdir -p $(PKG)$(MODULEDEPS_PATH)
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -l$(HWLOC_PATH)/lib -l$(UCX_PATH)/lib -l$(PMIX_PATH)/lib -l$(INTEL_LIB) -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

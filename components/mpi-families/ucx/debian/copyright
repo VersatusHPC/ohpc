@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: UCX
+Upstream-Contact: https://www.openucx.org/
+
+Files: *
+Copyright: 2014-2026 The UCX Project
+License: BSD-3-Clause

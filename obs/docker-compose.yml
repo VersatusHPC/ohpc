@@ -1,0 +1,63 @@
+# OBS Stack for VersatusHPC OpenHPC Ubuntu Port
+#
+# Usage:
+#   cd obs/
+#   podman-compose up -d
+#   # Web UI: http://localhost:3000 (admin/opensuse)
+#   # Source server API: http://localhost:5352
+#   # Repo server API: http://localhost:5252
+
+services:
+  db:
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/mariadb
+    container_name: obs-db
+    command: /usr/lib/mysql/mysql-systemd-helper start
+    volumes:
+      - obs-db-data:/var/lib/mysql
+    restart: unless-stopped
+
+  memcached:
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/memcached
+    container_name: obs-memcached
+    command: /usr/bin/memcached -u memcached
+    restart: unless-stopped
+
+  backend:
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
+    container_name: obs-backend
+    pids_limit: -1
+    environment:
+      - OBS_HOSTNAME=obs-backend
+    volumes:
+      - /home/ferrao/.local/share/containers/storage/volumes/obs_obs-backend-data/_data:/srv/obs
+      - ./config/BSConfig.pm:/etc/obs/BSConfig.pm.custom:ro,z
+      - ./patches/bs_dodup-debian-binary-all.patch:/etc/obs/patches/bs_dodup-debian-binary-all.patch:ro,z
+      - ./start-backend.sh:/start-backend.sh:ro,z
+    tmpfs:
+      - /srv/obs/events
+    entrypoint: /bin/bash
+    command: /start-backend.sh
+    ports:
+      - "5352:5352"   # source server
+      - "5252:5252"   # repo server
+    restart: unless-stopped
+
+  worker:
+    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
+    container_name: obs-worker
+    privileged: true
+    pids_limit: -1
+    depends_on:
+      - backend
+    environment:
+      - OBS_BACKEND_HOST=obs-backend
+      - OBS_WORKER_COUNT=4
+    volumes:
+      - ./start-worker.sh:/start-worker.sh:ro,z
+      - ./config/BSConfig.pm:/usr/lib/obs/server/BSConfig.pm:ro,z
+    entrypoint: /bin/bash
+    command: /start-worker.sh
+
+volumes:
+  obs-db-data:
+  obs-backend-data:

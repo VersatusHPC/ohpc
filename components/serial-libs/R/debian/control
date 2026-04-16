@@ -1,0 +1,41 @@
+Source: r-gnu15-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openblas-gnu15-ohpc,
+               libcairo2-dev,
+               libjpeg-dev,
+               libpng-dev,
+               libtiff-dev,
+               perl,
+               libreadline-dev,
+               tcl-dev,
+               liblzma-dev,
+               libpcre2-dev,
+               libcurl4-openssl-dev,
+               libpango1.0-dev,
+               gfortran,
+               zlib1g-dev,
+               libbz2-dev,
+               make
+Standards-Version: 4.6.2
+Homepage: http://www.r-project.org/
+
+Package: r-gnu15-ohpc
+Architecture: any
+Depends: ohpc-filesystem,
+         gnu15-compilers-ohpc (>= 14.1.0),
+         openblas-gnu15-ohpc,
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: R language for statistical computing (gnu15, OpenHPC)
+ R is a language and environment for statistical computing and graphics.
+ It is a GNU project which is similar to the S language and environment
+ which was developed at Bell Laboratories by John Chambers and colleagues.
+ Built with the gnu15 compiler family.
+ .
+ This package is part of the OpenHPC project.

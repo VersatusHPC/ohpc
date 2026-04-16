@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+PRUN_VERSION := 2.2
+INSTALL_PATH := /opt/ohpc/pub/utils/prun/$(PRUN_VERSION)
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+PKG          := $(CURDIR)/debian/prun-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(INSTALL_PATH)
+	install -D -m 0755 SOURCES/prun $(PKG)$(INSTALL_PATH)/prun
+	# Install modulefile
+	mkdir -p $(PKG)$(OHPC_MODULES)/prun
+	install -m 644 debian/modulefile $(PKG)$(OHPC_MODULES)/prun/$(PRUN_VERSION)
+
+override_dh_auto_clean:
+
+override_dh_usrlocal:
+
+override_dh_auto_test:

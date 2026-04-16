@@ -1,0 +1,34 @@
+Source: superlu-dist-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openmpi5-gnu15-ohpc,
+               openblas-gnu15-ohpc,
+               metis-gnu15-ohpc,
+               ptscotch-gnu15-openmpi5-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               cmake,
+               make,
+               zlib1g-dev,
+               libbz2-dev
+Standards-Version: 4.6.2
+Homepage: https://portal.nersc.gov/project/sparse/superlu/
+
+Package: superlu-dist-gnu15-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, openblas-gnu15-ohpc, metis-gnu15-ohpc, ptscotch-gnu15-openmpi5-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: A general purpose library for the direct solution of linear equations (gnu15 + openmpi5, OpenHPC)
+ SuperLU is a general purpose library for the direct solution of large, sparse,
+ nonsymmetric systems of linear equations on high performance machines. The
+ library is written in C and is callable from either C or Fortran. The library
+ routines will perform an LU decomposition with partial pivoting and triangular
+ system solves through forward and back substitution.
+ Built with the gnu15 compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

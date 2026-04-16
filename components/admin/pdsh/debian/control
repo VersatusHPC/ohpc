@@ -1,0 +1,35 @@
+Source: pdsh-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               make,
+               gcc,
+               libncurses-dev,
+               libreadline-dev,
+               libpam0g-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/chaos/pdsh
+
+Package: pdsh-ohpc
+Architecture: any
+Depends: ohpc-filesystem, ${shlibs:Depends}, ${misc:Depends}
+Description: Parallel remote shell program (OpenHPC)
+ Pdsh is a multithreaded remote shell client which executes commands
+ on multiple remote hosts in parallel. Pdsh can use several different
+ remote shell services, including standard "rsh", Kerberos IV, and ssh.
+ .
+ This package is part of the OpenHPC project.
+
+Package: pdsh-mod-genders-ohpc
+Architecture: any
+Depends: pdsh-ohpc (= ${binary:Version}), genders-ohpc, ${misc:Depends}
+Description: Pdsh genders module (OpenHPC)
+ Genders module for pdsh, enabling node selection via genders database.
+
+Package: pdsh-mod-slurm-ohpc
+Architecture: any
+Depends: pdsh-ohpc (= ${binary:Version}), slurm-ohpc, ${misc:Depends}
+Description: Pdsh Slurm module (OpenHPC)
+ Slurm module for pdsh, enabling node selection via Slurm job allocations.

@@ -1,0 +1,22 @@
+Source: automake-ohpc
+Section: devel
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               autoconf,
+               perl,
+               make,
+               wget
+Standards-Version: 4.6.2
+Homepage: https://www.gnu.org/software/automake/
+
+Package: automake-ohpc
+Architecture: all
+Depends: ohpc-filesystem, autoconf, perl, ${misc:Depends}
+Description: GNU automake for OpenHPC
+ GNU Automake is a tool for automatically generating Makefile.in files
+ compliant with the GNU Coding Standards.
+ Installed to /opt/ohpc/pub/utils for the OpenHPC software stack.
+ .
+ This package is part of the OpenHPC project.

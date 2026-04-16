@@ -1,0 +1,23 @@
+Source: pmix-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               g++,
+               python3,
+               libevent-dev,
+               libxml2-dev,
+               hwloc-ohpc
+Standards-Version: 4.6.2
+Homepage: https://github.com/openpmix/openpmix
+
+Package: pmix-ohpc
+Architecture: any
+Depends: ohpc-filesystem, hwloc-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Process Management Interface for Exascale (PMIx) (OpenHPC)
+ PMIx is an application programming interface standard that provides
+ HPC libraries and programming models with portable and well-defined
+ access to commonly needed services.
+ .
+ This package is part of the OpenHPC project.

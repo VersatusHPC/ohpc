@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Lmod
+Upstream-Contact: https://github.com/TACC/Lmod
+
+Files: *
+Copyright: 2008-2026 Robert McLay, TACC
+License: MIT

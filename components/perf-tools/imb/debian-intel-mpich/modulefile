@@ -1,0 +1,22 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the Intel MPI Benchmarks built with the intel compiler"
+puts stderr "toolchain and the mpich MPI stack."
+puts stderr "\nVersion 2021.10\n"
+
+}
+module-whatis "Name: IMB built with intel compiler and mpich MPI"
+module-whatis "Version: 2021.10"
+module-whatis "Category: performance tool"
+module-whatis "Description: Intel MPI Benchmarks"
+module-whatis "URL: https://github.com/intel/mpi-benchmarks"
+
+set     version             2021.10
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/mpich/imb/2021.10/bin
+
+setenv          IMB_DIR             /opt/ohpc/pub/libs/intel/mpich/imb/2021.10
+setenv          IMB_BIN             /opt/ohpc/pub/libs/intel/mpich/imb/2021.10/bin

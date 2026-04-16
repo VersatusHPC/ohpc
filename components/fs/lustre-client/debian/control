@@ -1,0 +1,28 @@
+Source: lustre-client-ohpc
+Section: admin
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               wget,
+               libtool,
+               libyaml-dev,
+               zlib1g-dev,
+               libmount-dev,
+               libnl-3-dev,
+               libnl-genl-3-dev,
+               libaio-dev,
+               libselinux1-dev,
+               pkg-config,
+               flex,
+               bison,
+               python3-dev,
+               linux-headers-generic
+Standards-Version: 4.6.2
+Homepage: https://wiki.whamcloud.com/
+
+Package: lustre-client-ohpc
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Lustre filesystem client utilities for OpenHPC
+ Userspace tools for the Lustre distributed filesystem client.
+ Includes lfs, lctl, mount.lustre, and related utilities.

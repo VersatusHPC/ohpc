@@ -1,0 +1,75 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+MPI_FAMILY      := impi
+export MPI_FAMILY
+PNAME           := phdf5
+BASE_PNAME      := hdf5
+VERSION         := 2.1.0
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(BASE_PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(BASE_PNAME)-$(VERSION).tar.gz || \
+		wget -q -O SOURCES/$(BASE_PNAME)-$(VERSION).tar.gz \
+			https://github.com/HDFGroup/hdf5/releases/download/$(VERSION)/$(BASE_PNAME)-$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(BASE_PNAME)-$(VERSION).tar.gz
+
+override_dh_auto_build:
+	# Generate gfortran-compatible MPI .mod files
+	# Intel MPI ships .mod files compiled with ifort; gfortran can't read them
+	mkdir -p $(SRCDIR)/gfortran_mpi_mods
+	printf 'module mpi\n  implicit none\n  include '\''mpif.h'\''\nend module mpi\n' \
+		> $(SRCDIR)/gfortran_mpi_mods/mpi_compat.F90
+	cd $(SRCDIR)/gfortran_mpi_mods && $(ENV) mpif90 -fallow-argument-mismatch -c mpi_compat.F90 || true
+	cd $(SRCDIR) && $(ENV) cmake -S . -B build \
+		-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=ON \
+		-DBUILD_STATIC_LIBS=OFF \
+		-DHDF5_BUILD_FORTRAN=ON \
+		-DHDF5_ENABLE_ZLIB_SUPPORT=ON \
+		-DHDF5_ENABLE_PARALLEL=ON \
+		-DCMAKE_C_COMPILER=mpicc \
+		-DCMAKE_CXX_COMPILER=mpicxx \
+		-DCMAKE_Fortran_COMPILER=mpif90 \
+		-DCMAKE_Fortran_FLAGS="-fno-lto -fallow-argument-mismatch -I$(SRCDIR)/gfortran_mpi_mods" \
+		-DMPI_C_COMPILER=mpicc \
+		-DMPI_CXX_COMPILER=mpicxx \
+		-DMPI_Fortran_COMPILER=mpif90 \
+		-DMPI_HOME=/opt/intel/oneapi/mpi/latest
+	cd $(SRCDIR) && $(ENV) cmake --build build -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && DESTDIR=$(PKG) $(ENV) cmake --install build
+	# Remove libtool archives and static libs
+	find $(PKG) -name '*.la' -delete
+	# Fix buildroot references in cmake/pkgconfig files
+	find $(PKG) -name '*.cmake' -o -name '*.pc' | xargs -r sed -i 's|$(PKG)||g'
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

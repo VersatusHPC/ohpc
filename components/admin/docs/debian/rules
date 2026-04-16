@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+VERSION  := 4.0.0
+OHPC_PUB := /opt/ohpc/pub
+PKG      := $(CURDIR)/debian/docs-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+override_dh_auto_build:
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(OHPC_PUB)/doc
+	install -m 0644 ../../ChangeLog $(PKG)$(OHPC_PUB)/doc/ChangeLog 2>/dev/null || true
+	install -m 0644 ../../Release_Notes.txt $(PKG)$(OHPC_PUB)/doc/Release_Notes.txt 2>/dev/null || true
+
+override_dh_auto_clean:
+override_dh_usrlocal:
+override_dh_auto_test:

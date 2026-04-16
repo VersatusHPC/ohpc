@@ -1,0 +1,30 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+    puts stderr " "
+    puts stderr "This module loads the R package for statistical computing."
+    puts stderr "\nVersion 4.5.3\n"
+    puts stderr " "
+
+}
+
+module-whatis "Name: R project for statistical computing built with the gnu15 compiler toolchain."
+module-whatis "Version: 4.5.3"
+module-whatis "Category: utility, developer support, user tool"
+module-whatis "Keywords: Statistics"
+module-whatis "Description: R is a language and environment for statistical computing and graphics (S-Plus like)."
+module-whatis "URL http://www.r-project.org/"
+
+set     version                     4.5.3
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/R/4.5.3/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/gnu15/R/4.5.3/share/man
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/R/4.5.3/lib64
+
+setenv          R_DIR        /opt/ohpc/pub/libs/gnu15/R/4.5.3
+setenv          R_BIN        /opt/ohpc/pub/libs/gnu15/R/4.5.3/bin
+setenv          R_LIB        /opt/ohpc/pub/libs/gnu15/R/4.5.3/lib64
+setenv          R_SHARE      /opt/ohpc/pub/libs/gnu15/R/4.5.3/share
+
+depends-on openblas

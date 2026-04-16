@@ -1,0 +1,15 @@
+Source: ohpc-release
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.2
+Homepage: https://github.com/VersatusHPC/ohpc
+
+Package: ohpc-release
+Architecture: all
+Description: OpenHPC release files and repository configuration
+ This package provides the OpenHPC repository configuration for APT
+ and the /etc/ohpc-release identification file.
+ .
+ This package is part of the OpenHPC project.

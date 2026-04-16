@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+#
+# OpenHPC independent package template
+# Replace @VARIABLES@ with actual values
+
+# Find OHPC_vars.mk relative to this package's location in the tree
+OHPC_VARS_MK := $(shell for d in .. ../.. ../../.. ../../../.. ; do \
+	[ -f "$$d/components/OHPC_vars.mk" ] && echo "$$d/components/OHPC_vars.mk" && break; \
+done)
+include $(OHPC_VARS_MK)
+
+pname    := @PNAME@
+version  := @VERSION@
+
+INSTALL_PATH := $(call install_path_indep,$(pname))
+MODULE_PATH  := $(call module_path_indep,$(pname))
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	./configure \
+		--prefix=$(INSTALL_PATH) \
+		--disable-static
+
+override_dh_auto_install:
+	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
+	# Remove .la files
+	find debian/tmp -name '*.la' -delete
+
+override_dh_usrlocal:
+	# OpenHPC installs to /opt/ohpc
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true

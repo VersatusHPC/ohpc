@@ -1,0 +1,16 @@
+Source: msr-safe-ohpc
+Section: admin
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               wget,
+               linux-headers-generic
+Standards-Version: 4.6.2
+Homepage: https://github.com/LLNL/msr-safe
+
+Package: msr-safe-ohpc
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Safer MSR access for OpenHPC
+ Allows safer access to model-specific registers (MSRs) on x86.
+ Includes kernel module and userspace utilities.

@@ -1,0 +1,77 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+MPI_FAMILY      := openmpi5
+PNAME           := boost
+VERSION         := 1.90.0
+VERSION_EXP     := 1_90_0
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)_$(VERSION_EXP)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)_$(VERSION_EXP).tar.bz2 || \
+		wget -q -O SOURCES/$(PNAME)_$(VERSION_EXP).tar.bz2 \
+			https://archives.boost.io/release/$(VERSION)/source/$(PNAME)_$(VERSION_EXP).tar.bz2
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)_$(VERSION_EXP).tar.bz2
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/boost-1.79.0-oneapi_pch.patch || true
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/boost-1.57.0-python-abi_letters.patch || true
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/boost-icpx-pthread.patch || true
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c 'echo "using python : 3.12 : /usr/bin/python3 : /usr/include/python3.12 ;" > rpm-config.jam && \
+		echo "using gcc : : : <compileflags>\"$$CFLAGS\" ;" >> rpm-config.jam && \
+		echo "using mpi : $$(which mpicxx) ;" >> rpm-config.jam'
+	cd $(SRCDIR) && $(ENV) ./bootstrap.sh --with-libraries=all \
+		--prefix=$(INSTALL_PATH) \
+		--libdir=lib \
+		--with-python=python3 \
+		--with-toolset=gcc
+	cd $(SRCDIR) && $(ENV) ./b2 -d2 -q -j$$(nproc) --user-config=./rpm-config.jam \
+		address-model="64" \
+		architecture="x86" \
+		threading="multi" \
+		link="shared" \
+		runtime-link="shared" \
+		variant="release" \
+		toolset=gcc
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) ./b2 -j$$(nproc) --user-config=./rpm-config.jam \
+		--prefix=$(PKG)$(INSTALL_PATH) \
+		--libdir=$(PKG)$(INSTALL_PATH)/lib \
+		link="shared" \
+		runtime-link="shared" \
+		variant="release" \
+		toolset=gcc install
+	# Remove cmake files
+	rm -rf $(PKG)$(INSTALL_PATH)/lib/cmake
+	# Install modulefile (Lua)
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION).lua
+	cd $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME) && \
+		ln -s $(VERSION).lua default
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

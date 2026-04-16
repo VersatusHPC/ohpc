@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+
+CONMAN_VERSION := 0.3.1
+PKG            := $(CURDIR)/debian/conman-ohpc
+SRCDIR         := $(CURDIR)/conman-$(CONMAN_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/conman-$(CONMAN_VERSION).tar.xz || \
+		wget -q -O SOURCES/conman-$(CONMAN_VERSION).tar.xz \
+			https://github.com/dun/conman/releases/download/conman-$(CONMAN_VERSION)/conman-$(CONMAN_VERSION).tar.xz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/conman-$(CONMAN_VERSION).tar.xz
+	cd $(SRCDIR) && ./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) install DESTDIR=$(PKG)
+	# Remove SysV init scripts if present
+	rm -rf $(PKG)/etc/init.d
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

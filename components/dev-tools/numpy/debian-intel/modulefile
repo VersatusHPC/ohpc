@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the numpy library built with python3"
+puts stderr "and the intel compiler toolchain."
+puts stderr "\nVersion 2.4.3\n"
+
+}
+module-whatis "Name: python3-numpy built with intel compiler"
+module-whatis "Version: 2.4.3"
+module-whatis "Category: python module"
+module-whatis "Description: NumPy array processing for numbers, strings, records and objects"
+module-whatis "URL: https://github.com/numpy/numpy"
+
+family                      numpy
+set     version             2.4.3
+
+depends-on openblas
+
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/numpy/2.4.3/bin
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/numpy/2.4.3/local/bin
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/intel/numpy/2.4.3/lib/python3/dist-packages
+prepend-path    PYTHONPATH          /opt/ohpc/pub/libs/intel/numpy/2.4.3/lib64/python3/dist-packages
+
+setenv          NUMPY_DIR           /opt/ohpc/pub/libs/intel/numpy/2.4.3

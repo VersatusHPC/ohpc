@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OpenBLAS
+Upstream-Contact: https://github.com/OpenMathLib/OpenBLAS
+
+Files: *
+Copyright: 2011-2026 The OpenBLAS Project
+License: BSD-3-Clause

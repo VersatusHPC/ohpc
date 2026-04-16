@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: NetCDF-Fortran
+Upstream-Contact: https://github.com/Unidata/netcdf-fortran
+
+Files: *
+Copyright: 1993-2026 University Corporation for Atmospheric Research/Unidata
+License: BSD-3-Clause

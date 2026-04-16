@@ -1,0 +1,17 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+        puts stderr " "
+        puts stderr "This module loads the prun job launch utility"
+        puts stderr "\nVersion 2.2\n"
+}
+
+module-whatis "Name: prun job launch utility"
+module-whatis "Version: 2.2"
+module-whatis "Category: resource manager tools"
+module-whatis "Description: job launch utility for multiple MPI families"
+
+set     version                 2.2
+
+setenv          PRUN_DIR        /opt/ohpc/pub/utils/prun/2.2
+prepend-path    PATH            /opt/ohpc/pub/utils/prun/2.2

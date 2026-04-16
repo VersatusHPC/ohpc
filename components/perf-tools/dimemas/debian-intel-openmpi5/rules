@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := intel
+export COMPILER_FAMILY
+MPI_FAMILY      := openmpi5
+PNAME           := dimemas
+VERSION         := 5.5.0
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="boost" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/$(PNAME)-$(VERSION)-src.tar.bz2 || \
+		wget -q -O SOURCES/$(PNAME)-$(VERSION)-src.tar.bz2 \
+			https://ftp.tools.bsc.es/dimemas/dimemas-$(VERSION)-src.tar.bz2
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/$(PNAME)-$(VERSION)-src.tar.bz2
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		export CXXFLAGS="$${CXXFLAGS} -Wno-register" && \
+		./configure --prefix=$(INSTALL_PATH) \
+			--with-boost=$$BOOST_ROOT && \
+		make -j$$(nproc)'
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) sh -c ' \
+		make DESTDIR=$(PKG) install'
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

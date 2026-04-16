@@ -1,0 +1,60 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+COMPILER_FAMILY := gnu15
+MPI_FAMILY      := mvapich2
+export MPI_FAMILY
+PNAME           := scalapack
+VERSION         := 2.2.2
+INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+ENV             := OHPC_MODULES="openblas" bash /build/devel/build-mpi.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/v$(VERSION).tar.gz || \
+		wget -q -O SOURCES/v$(VERSION).tar.gz \
+			https://github.com/Reference-ScaLAPACK/scalapack/archive/refs/tags/v$(VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/v$(VERSION).tar.gz
+	cd $(SRCDIR) && patch -p2 < $(CURDIR)/SOURCES/scalapack-2.2.2-shared-lib.patch
+	cd $(SRCDIR) && cp SLmake.inc.example SLmake.inc
+	# Add flags needed for GCC 15 compatibility
+	cd $(SRCDIR) && sed -i 's/^CCFLAGS.*/& -Wno-implicit-function-declaration -Wno-implicit-int -std=gnu89 -fPIC/' SLmake.inc
+	cd $(SRCDIR) && sed -i 's/^FCFLAGS.*/& -fallow-argument-mismatch -fPIC/' SLmake.inc
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) make lib
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(INSTALL_PATH)/etc
+	mkdir -p $(PKG)$(INSTALL_PATH)/lib
+	install -m 644 $(SRCDIR)/SLmake.inc $(PKG)$(INSTALL_PATH)/etc
+	# The shared-lib patch creates libscalapack.so.2.2.2 in the source root
+	install -m 755 $(SRCDIR)/libscalapack.so.2.2.2 $(PKG)$(INSTALL_PATH)/lib
+	cd $(PKG)$(INSTALL_PATH)/lib && \
+		ln -fs libscalapack.so.2.2.2 libscalapack.so.2 && \
+		ln -s libscalapack.so.2.2.2 libscalapack.so
+	# Install modulefile
+	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)
+	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

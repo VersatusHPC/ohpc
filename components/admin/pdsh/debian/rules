@@ -1,0 +1,52 @@
+#!/usr/bin/make -f
+
+PDSH_VERSION := 2.36
+INSTALL_PATH := /opt/ohpc/admin/pdsh
+PKG          := $(CURDIR)/debian/pdsh-ohpc
+SRCDIR       := $(CURDIR)/pdsh-$(PDSH_VERSION)
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/pdsh-$(PDSH_VERSION).tar.gz || \
+		wget -q -O SOURCES/pdsh-$(PDSH_VERSION).tar.gz \
+			https://github.com/chaos/pdsh/releases/download/pdsh-$(PDSH_VERSION)/pdsh-$(PDSH_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/pdsh-$(PDSH_VERSION).tar.gz
+	cd $(SRCDIR) && ./configure \
+		--prefix=$(INSTALL_PATH) \
+		--with-rcmd-rank-list="ssh mrsh rsh krb4 exec xcpu" \
+		--with-ssh \
+		--with-dshgroups \
+		--with-machines=/etc/pdsh/machines \
+		--without-rsh \
+		--with-pam
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install
+	# Remove unneeded .a and .la files
+	find $(PKG) -name '*.a' -delete
+	find $(PKG) -name '*.la' -delete
+	# Create symlinks in /usr/bin
+	mkdir -p $(PKG)/usr/bin
+	ln -sf $(INSTALL_PATH)/bin/pdsh $(PKG)/usr/bin/pdsh
+	ln -sf $(INSTALL_PATH)/bin/dshbak $(PKG)/usr/bin/dshbak
+	ln -sf $(INSTALL_PATH)/bin/pdcp $(PKG)/usr/bin/pdcp
+	ln -sf $(INSTALL_PATH)/bin/rpdcp $(PKG)/usr/bin/rpdcp
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

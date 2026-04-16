@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+PKG := $(CURDIR)/debian/ohpc-release
+
+%:
+	dh $@
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	# /etc/ohpc-release identification file
+	mkdir -p $(PKG)/etc
+	echo "OpenHPC release 4.1 (VersatusHPC)" > $(PKG)/etc/ohpc-release
+	echo "HOME_URL=https://github.com/VersatusHPC/ohpc" >> $(PKG)/etc/ohpc-release
+	echo "BUG_REPORT_URL=https://github.com/VersatusHPC/ohpc/issues" >> $(PKG)/etc/ohpc-release
+	# APT repository configuration
+	mkdir -p $(PKG)/etc/apt/sources.list.d
+	echo "# OpenHPC repository for Ubuntu" > $(PKG)/etc/apt/sources.list.d/ohpc.list
+	echo "# Uncomment and configure when the public repository is available" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
+	echo "# deb [signed-by=/usr/share/keyrings/versatushpc-ohpc.gpg] https://packages.versatushpc.org/ohpc/4 noble main" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
+	# GPG keyring directory (key to be added when available)
+	mkdir -p $(PKG)/usr/share/keyrings
+
+override_dh_usrlocal:

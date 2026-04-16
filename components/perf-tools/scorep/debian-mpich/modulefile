@@ -1,0 +1,32 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the scorep library built with the gnu15 compiler"
+puts stderr "toolchain and the mpich MPI stack."
+puts stderr "\nVersion 9.4\n"
+
+}
+module-whatis "Name: scorep built with gnu15 compiler and mpich MPI"
+module-whatis "Version: 9.4"
+module-whatis "Category: performance tool"
+module-whatis "Description: Scalable Performance Measurement Infrastructure for Parallel Codes"
+module-whatis "URL: http://www.vi-hps.org/projects/score-p/"
+
+set     version             9.4
+
+depends-on cubelib
+depends-on cubew
+depends-on opari2
+depends-on otf2
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/lib
+prepend-path    MANPATH             /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/share/man
+
+setenv          SCOREP_DIR          /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4
+setenv          SCOREP_BIN          /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/bin
+setenv          SCOREP_LIB          /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/lib
+setenv          SCOREP_INC          /opt/ohpc/pub/libs/gnu15/mpich/scorep/9.4/include

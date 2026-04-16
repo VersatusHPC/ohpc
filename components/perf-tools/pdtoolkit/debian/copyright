@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PDToolkit
+Upstream-Contact: http://www.cs.uoregon.edu/Research/pdt
+
+Files: *
+Copyright: 1997-2026 University of Oregon
+License: PDToolkit-License

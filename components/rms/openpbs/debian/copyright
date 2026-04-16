@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OpenPBS
+Upstream-Contact: https://www.openpbs.org
+
+Files: *
+Copyright: 2019-2026 Altair Engineering, Inc.
+License: AGPL-3.0-with-exceptions

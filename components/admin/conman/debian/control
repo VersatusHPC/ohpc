@@ -1,0 +1,23 @@
+Source: conman-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               make,
+               gcc,
+               libfreeipmi-dev,
+               systemd
+Standards-Version: 4.6.2
+Homepage: http://dun.github.io/conman/
+
+Package: conman-ohpc
+Architecture: any
+Depends: ohpc-filesystem, expect, ${shlibs:Depends}, ${misc:Depends}
+Description: ConMan: The Console Manager (OpenHPC)
+ ConMan is a serial console management program designed to support a large
+ number of console devices and simultaneous users. It supports local serial
+ devices, remote terminal servers (via the telnet protocol), IPMI
+ Serial-Over-LAN (via FreeIPMI), Unix domain sockets, and external processes.
+ .
+ This package is part of the OpenHPC project.

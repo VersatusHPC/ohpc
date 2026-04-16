@@ -1,0 +1,30 @@
+Source: ptscotch-gnu15-openmpi5-ohpc
+Section: science
+Priority: optional
+Maintainer: VersatusHPC <packages@versatushpc.org>
+Build-Depends: debhelper-compat (= 13),
+               ohpc-buildroot,
+               gnu15-compilers-ohpc (>= 14.1.0),
+               lmod-ohpc,
+               openmpi5-gnu15-ohpc,
+               hwloc-ohpc,
+               ucx-ohpc,
+               pmix-ohpc,
+               cmake,
+               make,
+               flex,
+               bison,
+               zlib1g-dev,
+               libbz2-dev
+Standards-Version: 4.6.2
+Homepage: https://gitlab.inria.fr/scotch/scotch
+
+Package: ptscotch-gnu15-openmpi5-ohpc
+Architecture: any
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), openmpi5-gnu15-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Description: Graph, mesh and hypergraph partitioning library - MPI variant (gnu15 + openmpi5, OpenHPC)
+ Scotch is a software package for graph and mesh/hypergraph partitioning and
+ sparse matrix ordering. PT-Scotch is the parallel (MPI) variant.
+ Built with the gnu15 compiler family and openmpi5 MPI stack.
+ .
+ This package is part of the OpenHPC project.

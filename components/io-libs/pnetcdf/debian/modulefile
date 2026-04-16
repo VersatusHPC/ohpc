@@ -1,0 +1,27 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the pnetcdf library built with the gnu15 compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr "\nVersion 1.14.1\n"
+
+}
+module-whatis "Name: pnetcdf built with gnu15 compiler and openmpi5 MPI"
+module-whatis "Version: 1.14.1"
+module-whatis "Category: runtime library"
+module-whatis "Description: A Parallel I/O Library for NetCDF File Access"
+module-whatis "https://parallel-netcdf.github.io/"
+
+set     version             1.14.1
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/lib
+prepend-path    MANPATH             /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/share/man
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/lib/pkgconfig
+
+setenv          PNETCDF_DIR        /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1
+setenv          PNETCDF_LIB        /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/lib
+setenv          PNETCDF_INC        /opt/ohpc/pub/libs/gnu15/openmpi5/pnetcdf/1.14.1/include

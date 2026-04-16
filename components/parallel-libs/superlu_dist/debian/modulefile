@@ -1,0 +1,31 @@
+#%Module1.0#####################################################################
+
+proc ModulesHelp { } {
+
+puts stderr " "
+puts stderr "This module loads the SuperLU_dist library built with the gnu15 compiler"
+puts stderr "toolchain and the openmpi5 MPI stack."
+puts stderr " "
+puts stderr "Note that this build of SuperLU_dist leverages the metis and MKL libraries."
+puts stderr "Consequently, these packages are loaded automatically with this module."
+puts stderr "\nVersion 9.2.1\n"
+
+}
+module-whatis "Name: superlu_dist built with gnu15 compiler and openmpi5 MPI"
+module-whatis "Version: 9.2.1"
+module-whatis "Category: runtime library"
+module-whatis "Description: A general purpose library for the direct solution of linear equations"
+module-whatis "https://portal.nersc.gov/project/sparse/superlu/"
+
+set     version                     9.2.1
+
+depends-on metis
+depends-on ptscotch
+
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openmpi5/superlu_dist/9.2.1/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/openmpi5/superlu_dist/9.2.1/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/superlu_dist/9.2.1/lib
+
+setenv          SUPERLU_DIST_DIR        /opt/ohpc/pub/libs/gnu15/openmpi5/superlu_dist/9.2.1
+setenv          SUPERLU_DIST_INC        /opt/ohpc/pub/libs/gnu15/openmpi5/superlu_dist/9.2.1/include
+setenv          SUPERLU_DIST_LIB        /opt/ohpc/pub/libs/gnu15/openmpi5/superlu_dist/9.2.1/lib

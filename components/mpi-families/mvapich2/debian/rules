@@ -1,0 +1,70 @@
+#!/usr/bin/make -f
+
+# Disable dpkg hardening
+export DEB_BUILD_MAINT_OPTIONS = hardening=-all
+export CFLAGS =
+export CXXFLAGS =
+export LDFLAGS =
+
+MVAPICH2_VERSION := 2.3.7
+COMPILER_FAMILY  := gnu15
+INSTALL_PATH     := /opt/ohpc/pub/mpi/mvapich2-$(COMPILER_FAMILY)/$(MVAPICH2_VERSION)
+MODULE_PATH      := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/mvapich2
+MODULEDEPS_PATH  := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-mvapich2
+
+SRCDIR           := $(CURDIR)/mvapich2-$(MVAPICH2_VERSION)
+PKG              := $(CURDIR)/debian/mvapich2-$(COMPILER_FAMILY)-ohpc
+
+# Use helper script for compiler environment
+ENV := bash $(CURDIR)/debian/build.sh
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	test -s SOURCES/mvapich2-$(MVAPICH2_VERSION).tar.gz || \
+		wget -q -O SOURCES/mvapich2-$(MVAPICH2_VERSION).tar.gz \
+			http://mvapich.cse.ohio-state.edu/download/mvapich/mv2/mvapich2-$(MVAPICH2_VERSION).tar.gz
+	rm -rf $(SRCDIR)
+	tar xf SOURCES/mvapich2-$(MVAPICH2_VERSION).tar.gz
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/mvapich2-get_cycles.patch || true
+	cd $(SRCDIR) && patch -p1 < ../SOURCES/mpidimpl.opt.patch || true
+	cd $(SRCDIR) && $(ENV) env \
+		FFLAGS=-fallow-argument-mismatch \
+		CFLAGS="-Wno-incompatible-pointer-types -std=gnu17" \
+		./configure \
+		--prefix=$(INSTALL_PATH) \
+		--libdir=$(INSTALL_PATH)/lib \
+		--enable-cxx \
+		--enable-g=dbg \
+		--with-device=ch3:mrail \
+		--disable-ibv-dlopen \
+		--enable-fast=O3 || { cat $(SRCDIR)/config.log | tail -100; exit 1; }
+
+override_dh_auto_build:
+	cd $(SRCDIR) && $(ENV) $(MAKE) -j$$(nproc)
+
+override_dh_auto_install:
+	cd $(SRCDIR) && $(ENV) $(MAKE) DESTDIR=$(PKG) install
+	find $(PKG) -name '*.la' -delete
+	# Install modulefile
+	mkdir -p $(PKG)$(MODULE_PATH)
+	install -m 644 debian/modulefile $(PKG)$(MODULE_PATH)/$(MVAPICH2_VERSION)
+	# Ensure moduledeps directory exists
+	mkdir -p $(PKG)$(MODULEDEPS_PATH)
+
+override_dh_missing:
+	dh_missing --list-missing
+
+override_dh_auto_clean:
+	rm -rf $(SRCDIR)
+
+override_dh_usrlocal:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym || true
+
+override_dh_auto_test:

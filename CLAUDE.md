@@ -1,4 +1,4 @@
-# VersatusHPC OpenHPC ppc64le Port
+# VersatusHPC OpenHPC 4.x Work
 
 ## Branch model
 
@@ -6,7 +6,15 @@
 - `versatushpc/4.x` — our fork with ppc64le patches. All work goes here.
 - Upstream remote push is disabled (`PUSH_DISABLED_TO_PREVENT_ACCIDENTS`). NEVER push to upstream.
 
-## Build approach
+## Ubuntu port goal
+
+- Port OpenHPC 4.x to Ubuntu 24.04 LTS in an 1:1 model.
+- Do NOT stop to ask for confirmation between tasks.
+- Do NOT ask "should I continue?" or "want me to proceed?" — just keep going.
+- Work through packages sequentially without pausing.
+- If a package fails but you can move to the next one, do so. Document the failure and continue.
+
+## ppc64le build approach
 
 - No gcc-toolset or SCL. Only native EL10 system packages + OpenHPC's own compiler ecosystem.
 - Build chain: system GCC bootstraps OpenHPC GCC (gnu15) → `module load gnu15` → all packages built against OpenHPC compilers.
@@ -20,7 +28,7 @@
   - Ignores normal upstream commits between releases
   - Fails with a change summary when a new upstream release is not yet merged into `versatushpc/4.x`
 - Merges are never automatic — ~19 patched spec files will conflict on upstream updates.
-- OBS does not work for ppc64le. Do not suggest it.
+- OBS does not work for ppc64le. Do not suggest it for ppc64le builds.
 
 ## RPM publishing
 

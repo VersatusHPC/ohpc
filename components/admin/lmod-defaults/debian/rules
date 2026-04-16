@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+OHPC_MODULES := /opt/ohpc/pub/modulefiles
+PKG          := $(CURDIR)/debian/lmod-defaults-gnu15-openmpi5-ohpc
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+
+override_dh_auto_build:
+
+override_dh_auto_install:
+	mkdir -p $(PKG)$(OHPC_MODULES)
+	install -m 644 debian/ohpc.modulefile $(PKG)$(OHPC_MODULES)/ohpc
+
+override_dh_auto_clean:
+
+override_dh_usrlocal:
+
+override_dh_auto_test:

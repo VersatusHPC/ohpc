@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ScaLAPACK
+Upstream-Contact: https://netlib.org/scalapack/
+
+Files: *
+Copyright: 1992-2026 The University of Tennessee
+License: netlib-ScaLAPACK
