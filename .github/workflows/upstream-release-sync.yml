@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   watch:
@@ -68,6 +69,37 @@ jobs:
             echo "- \`versatushpc/4.x\` already contains that GA release"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Close stale upstream release issue
+        if: steps.detect.outputs.status == 'up_to_date'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const marker = 'OpenHPC GA release pending:';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'automation'
+            });
+
+            const staleIssues = issues.filter(issue => issue.title.startsWith(marker));
+            for (const issue of staleIssues) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ \`versatushpc/4.x\` now contains the latest upstream OpenHPC GA release (\`${{ steps.detect.outputs.latest_upstream }}\`). Closing this release-tracking issue.`
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+                state_reason: 'completed'
+              });
+            }
+
       - name: Build release summary
         if: steps.detect.outputs.status == 'release_pending'
         run: |
@@ -121,7 +153,52 @@ jobs:
               echo ""
               echo "- \`OHPC_setup_compiler\` changed upstream; review the ppc64le compiler flags and bootstrap path"
             fi
-          } | tee -a "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "---"
+            echo ""
+            echo "_This issue is automatically managed by the Upstream Release Watch workflow._"
+          } | tee upstream_release_issue.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create or update upstream release issue
+        if: steps.detect.outputs.status == 'release_pending'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const latest = '${{ steps.detect.outputs.latest_upstream }}';
+            const title = `OpenHPC GA release pending: ${latest}`;
+            const marker = 'OpenHPC GA release pending:';
+            const body = fs.readFileSync('upstream_release_issue.md', 'utf8');
+
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'automation'
+            });
+
+            const existingIssue = issues
+              .filter(issue => issue.title.startsWith(marker))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+
+            if (existingIssue) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                title,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['automation']
+              });
+            }
 
       - name: Fail until release is integrated
         if: steps.detect.outputs.status == 'release_pending'
