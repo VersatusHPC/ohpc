@@ -33,7 +33,9 @@ APT_SOURCE_FILE="${APT_SOURCE_FILE:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/versat
 
 # Remote mirror settings.
 REMOTE_USER="${REMOTE_USER:-reposync}"
-REMOTE_HOST="${REMOTE_HOST:-mirror.local.versatushpc.com.br}"
+# SFTP publish target used by the existing ppc64le/RPM publisher. The public
+# web mirror fronts this content under repos.versatushpc.com.br.
+REMOTE_HOST="${REMOTE_HOST:-172.21.1.40}"
 REMOTE_PATH="${REMOTE_PATH:-/mnt/pool1/repos/openhpc/versatushpc-4}"
 SSH_KEY="${SSH_KEY:-/home/${LOCAL_USER}/.ssh/id_ed25519_openhpc}"
 
@@ -68,7 +70,7 @@ require_command podman
 require_command tar
 require_command gpg
 require_command ssh
-require_command rsync
+require_command lftp
 
 if [[ ! -f "${GPG_PUBLIC_KEY}" ]]; then
     echo "Error: public repository key not found: ${GPG_PUBLIC_KEY}" >&2
@@ -128,18 +130,30 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
         --digest-algo SHA256 --armor --detach-sign --output Release.gpg Release
 )
 
-RSYNC_DRY_RUN=()
+LFTP_DRY_RUN=""
+LFTP_KEY_UPLOADS="
+put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
+put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc-ohpc.gpg;
+"
 if [[ -n "${DRY_RUN}" ]]; then
-    RSYNC_DRY_RUN=(--dry-run)
+    LFTP_DRY_RUN="--dry-run"
+    LFTP_KEY_UPLOADS="
+cls -la ${REMOTE_PATH};
+"
     echo "*** DRY RUN - no files will be transferred ***"
 fi
 
-echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
-SSH_OPTS=(-i "${SSH_KEY}" -o StrictHostKeyChecking=no -o BatchMode=yes)
-ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p '${REMOTE_PATH}'"
-rsync -a --delete --info=stats2,progress2 "${RSYNC_DRY_RUN[@]}" \
-    -e "ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes" \
-    "${STAGING_ROOT}/" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}/"
+echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH} via SFTP"
+lftp -e "
+set cmd:fail-exit yes;
+set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
+open sftp://${REMOTE_HOST};
+mkdir -pf ${REMOTE_PATH}/${OBS_REPO_NAME};
+mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
+    ${STAGING_REPO}/ ${REMOTE_PATH}/${OBS_REPO_NAME}/;
+${LFTP_KEY_UPLOADS}
+bye;
+"
 
 echo ""
 echo "==> Done. Debian repository summary:"
