@@ -1,0 +1,43 @@
+--- bs_dodup
++++ bs_dodup
+@@ -344,17 +344,31 @@ sub dod_deb {
+   writestr($file, undef, '');
+   my $basearch = Build::Deb::basearch($doddata->{'arch'});
+   for my $component (@$components) {
+-    my $pfile;
++    my @pfiles;
+     for ('Packages.xz', 'Packages.gz') {
+-      $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
+-      last if $files{$pfile};
++      my $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
++      if ($files{$pfile}) {
++        push @pfiles, $pfile;
++        last;
++      }
++    }
++    die("$component/binary-$basearch/Packages not in Release\n") if $doddata->{'pubkey'} && !@pfiles;
++    if ($component ne '.') {
++      for ('Packages.xz', 'Packages.gz') {
++        my $pfile = "$component/binary-all/$_";
++        if ($files{$pfile}) {
++          push @pfiles, $pfile;
++          last;
++        }
++      }
++    }
++    for my $pfile (@pfiles) {
++      my $tmp = "$file.tmp";
++      fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
++      chkverify($tmp, $files{$pfile}) if $files{$pfile};
++      uncompress($tmp, $pfile, $file);
++      unlink($tmp);
+     }
+-    die("$pfile not in Release\n") if $doddata->{'pubkey'} && !$files{$pfile};
+-    my $tmp = "$file.tmp";
+-    fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
+-    chkverify($tmp, $files{$pfile}) if $files{$pfile};
+-    uncompress($tmp, $pfile, $file);
+-    unlink($tmp);
+   }
+   return ($newcookie, $baseurl);
+ }

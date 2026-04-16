@@ -1,28 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-# Install Intel oneAPI packages from the upstream APT repo.
-# OBS download-on-demand only indexes binary-amd64, missing the
-# Architecture:all packages. Using apt directly bypasses the OBS solver
-# and lets apt resolve everything natively — just like upstream OpenHPC
-# does on RHEL via yum (see SOURCES/oneAPI.repo).
-export DEBIAN_FRONTEND=noninteractive
-echo "[intel-compilers-devel-ohpc postinst] Running apt-get update..."
-apt-get update -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/oneAPI.list \
-               -o Dir::Etc::sourceparts=- \
-               -o APT::Get::List-Cleanup=0 2>&1 | tail -20 || echo "apt-get update FAILED"
-echo "[intel-compilers-devel-ohpc postinst] Running apt-get install..."
-apt-get install -y --no-install-recommends \
-    intel-oneapi-compiler-dpcpp-cpp-2025.0 \
-    intel-oneapi-compiler-fortran-2025.0 \
-    intel-oneapi-mkl-devel-2025.0 2>&1 | tail -10 || echo "apt-get install FAILED"
-
-# Generate OpenHPC-style module files
+# Run module generator if Intel oneAPI is installed
 if [ -f /opt/intel/oneapi/modulefiles-setup.sh ]; then
-    echo "[intel-compilers-devel-ohpc postinst] Generating modulefiles..."
-    /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel 2>&1 || echo "ohpc-update-modules-intel FAILED"
-else
-    echo "[intel-compilers-devel-ohpc postinst] WARNING: /opt/intel/oneapi/modulefiles-setup.sh not found"
+    /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-intel || true
 fi
 
 #DEBHELPER#

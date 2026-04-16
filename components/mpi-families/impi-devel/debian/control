@@ -11,6 +11,7 @@ Architecture: all
 Depends: ohpc-filesystem,
          lmod-ohpc,
          intel-compilers-devel-ohpc,
+         intel-oneapi-mpi-devel-2021.14,
          prun-ohpc,
          ${misc:Depends}
 Description: OpenHPC compatibility package for Intel(R) oneAPI MPI Library

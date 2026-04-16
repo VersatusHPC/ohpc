@@ -34,6 +34,12 @@ if [ -f /etc/obs/BSConfig.pm.custom ]; then
     cp /etc/obs/BSConfig.pm.custom /usr/lib/obs/server/BSConfig.pm
 fi
 
+# Patch bs_dodup so Debian DoD imports both binary-$arch and binary-all indexes.
+if [ -f /etc/obs/patches/bs_dodup-debian-binary-all.patch ] \
+    && ! grep -q 'binary-all' /usr/lib/obs/server/bs_dodup; then
+    patch -d /usr/lib/obs/server -p0 < /etc/obs/patches/bs_dodup-debian-binary-all.patch
+fi
+
 # Patch BSUtil.pm: NFS requires read-write fd for LOCK_EX (flock)
 # The upstream code opens read-only '<' which fails on ZFS/NFS with EBADF
 sed -i "498s/open(\$fg, '<'/open(\$fg, '+<'/" /usr/lib/obs/server/BSUtil.pm 2>/dev/null || true

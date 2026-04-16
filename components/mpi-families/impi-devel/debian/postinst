@@ -1,19 +1,8 @@
 #!/bin/bash
 set -e
 
-# Install Intel MPI from the upstream APT repo via intel-compilers-devel-ohpc's
-# sources.list.d/oneAPI.list (arch:all packages aren't in OBS DoD).
-export DEBIAN_FRONTEND=noninteractive
-if [ -f /etc/apt/sources.list.d/oneAPI.list ]; then
-    apt-get update -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/oneAPI.list \
-                   -o Dir::Etc::sourceparts=- \
-                   -o APT::Get::List-Cleanup=0 2>/dev/null || true
-    apt-get install -y --no-install-recommends \
-        intel-oneapi-mpi-devel-2021.14 2>/dev/null || true
-fi
-
 # Run module generator if Intel MPI is installed
-if [ -f /opt/intel/oneapi/modulefiles-setup.sh ]; then
+if [ -d /opt/intel/oneapi/mpi ]; then
     /opt/ohpc/admin/ohpc/bin/ohpc-update-modules-impi || true
 fi
 

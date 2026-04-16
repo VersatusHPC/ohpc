@@ -2,10 +2,11 @@
 # Convert all OpenHPC packages to proper Debian source format (.dsc + .tar.gz)
 # and upload them to the OBS backend.
 #
-# Usage: bash obs/convert-to-dsc.sh [http://localhost:5352]
+# Usage: bash obs/convert-to-dsc.sh [http://localhost:5352] [path-substring-filter]
 set -e
 
 OBS_SRC="${1:-http://localhost:5352}"
+PATH_FILTER="${2:-}"
 PROJECT="VersatusHPC:OHPC:4"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKDIR="/tmp/obs-dsc-import"
@@ -14,6 +15,17 @@ ERRORS=0
 
 rm -rf "$WORKDIR"
 mkdir -p "$WORKDIR"
+
+obs_request() {
+    local description="$1"
+    shift
+
+    if ! curl -fsS "$@" >/dev/null; then
+        echo ""
+        echo "ERROR: $description" >&2
+        return 1
+    fi
+}
 
 convert_and_upload() {
     local comp_dir="$1"
@@ -87,24 +99,27 @@ Files:
 EOF
 
     # Ensure OBS package exists
-    curl -s -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/_meta" \
-        -d "<package name=\"$pkg_name\" project=\"$PROJECT\"><title>$pkg_name</title></package>" \
-        >/dev/null 2>&1
+    obs_request "creating package metadata for $pkg_name" \
+        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/_meta" \
+        -d "<package name=\"$pkg_name\" project=\"$PROJECT\"><title>$pkg_name</title></package>" || return 1
 
     # Delete old flat files
     local old_files
-    old_files=$(curl -s "$OBS_SRC/source/$PROJECT/$pkg_name" 2>/dev/null | \
-        grep 'entry name=' | sed 's/.*name="\([^"]*\)".*/\1/')
+    old_files=$(curl -fsS "$OBS_SRC/source/$PROJECT/$pkg_name" | \
+        grep 'entry name=' | sed 's/.*name="\([^"]*\)".*/\1/') || return 1
     for f in $old_files; do
-        curl -s -X DELETE "$OBS_SRC/source/$PROJECT/$pkg_name/$f" >/dev/null 2>&1
+        obs_request "deleting stale source file $pkg_name/$f" \
+            -X DELETE "$OBS_SRC/source/$PROJECT/$pkg_name/$f" || return 1
     done
 
     # Upload .dsc and .tar.gz
-    curl -s -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.dsc" \
-        --data-binary "@${pkg_name}_${version}.dsc" >/dev/null 2>&1
+    obs_request "uploading ${pkg_name}_${version}.dsc" \
+        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.dsc" \
+        --data-binary "@${pkg_name}_${version}.dsc" || return 1
 
-    curl -s -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.tar.gz" \
-        --data-binary "@${pkg_name}_${version}.tar.gz" >/dev/null 2>&1
+    obs_request "uploading ${pkg_name}_${version}.tar.gz" \
+        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.tar.gz" \
+        --data-binary "@${pkg_name}_${version}.tar.gz" || return 1
 
     COUNT=$((COUNT + 1))
     printf "\r  [%3d] %-50s" "$COUNT" "$pkg_name"
@@ -114,12 +129,19 @@ EOF
 
 echo "=== Converting and uploading packages to $PROJECT ==="
 echo "    Backend: $OBS_SRC"
+if [ -n "$PATH_FILTER" ]; then
+    echo "    Filter:  $PATH_FILTER"
+fi
 echo ""
 
 for debian_path in $(find "$REPO_ROOT/components" -maxdepth 3 -type d \
     \( -name "debian" -o -name "debian-*" \) -not -path "*/debian/*" \
     -not -path "*/open-build-service/*" \
     -not -path "*/.debhelper/*" | sort); do
+
+    if [ -n "$PATH_FILTER" ] && [[ "$debian_path" != *"$PATH_FILTER"* ]]; then
+        continue
+    fi
 
     parent=$(dirname "$debian_path")
     variant=$(basename "$debian_path")

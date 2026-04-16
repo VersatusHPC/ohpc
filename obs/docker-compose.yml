@@ -31,6 +31,7 @@ services:
     volumes:
       - /home/ferrao/.local/share/containers/storage/volumes/obs_obs-backend-data/_data:/srv/obs
       - ./config/BSConfig.pm:/etc/obs/BSConfig.pm.custom:ro,z
+      - ./patches/bs_dodup-debian-binary-all.patch:/etc/obs/patches/bs_dodup-debian-binary-all.patch:ro,z
       - ./start-backend.sh:/start-backend.sh:ro,z
     tmpfs:
       - /srv/obs/events
