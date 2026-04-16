@@ -13,7 +13,7 @@
 %global _with_pmix --with-pmix=%{OHPC_ADMIN}/pmix
 %global _with_hwloc 1
 %global _with_numa 1
-%global _with_slurmrestd 1
+%global _with_slurmrestd 0
 %global _with_multiple_slurmd 1
 %global _with_freeipmi 1
 
@@ -32,7 +32,7 @@
 Name:		%{pname}%{PROJ_DELIM}
 Version:	25.05.6
 %global rel	1
-Release:	%{?dist}.1
+Release:	1%{?dist}
 Summary:	Slurm Workload Manager
 
 Group:		%{PROJ_NAME}/rms
@@ -410,16 +410,7 @@ support daemons and software for the Cray SMW.  Includes slurmsmwd which
 notifies slurm about failed nodes.
 %endif
 
-%package -n %{pname}-sview%{PROJ_DELIM}
-Summary: Graphical user interface to view and modify Slurm state
-Group: %{PROJ_NAME}/rms
-Requires: %{pname}%{PROJ_DELIM} = %{version}-%{release}
-BuildRequires: gtk2-devel
-Requires: gtk2
-%description  -n %{pname}-sview%{PROJ_DELIM}
-This package provides sview, which can be used to view Slurm configuration, job,
-step, node and partitions state information. Authorized users can also modify
-select information.
+# sview removed in SLURM 25.x
 
 #############################################################################
 
@@ -641,7 +632,7 @@ fi
 %exclude %{_bindir}/sjobexitmod
 %exclude %{_bindir}/sjstat
 %exclude %{_bindir}/smail
-%exclude %{_bindir}/sview
+# sview removed in SLURM 25.x
 %exclude %{_libdir}/libpmi*
 %{_libdir}/*.so*
 %{_libdir}/slurm/src/*
@@ -652,7 +643,7 @@ fi
 %{_mandir}
 %exclude %{_mandir}/man1/sjobexit*
 %exclude %{_mandir}/man1/sjstat*
-%exclude %{_mandir}/man1/sview*
+# sview manpage removed
 %dir %{_libdir}/slurm/src
 %if %{with cray}
 %dir /opt/modulefiles/slurm
@@ -783,9 +774,7 @@ fi
 %endif
 #############################################################################
 
-%files -n %{pname}-sview%{PROJ_DELIM}
-%{_mandir}/man1/sview*
-%{_bindir}/sview
+# sview subpackage removed - deprecated in SLURM 25.x
 #############################################################################
 
 %pre

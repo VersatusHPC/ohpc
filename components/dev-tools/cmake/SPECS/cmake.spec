@@ -18,7 +18,7 @@
 Summary: CMake is an open-source, cross-platform family of tools designed to build, test and package software.
 Name:    %{pname}%{PROJ_DELIM}
 Version: %{major_version}.%{minor_version}
-Release: %{?dist}.1
+Release:	1%{?dist}
 # https://spdx.org/licenses/BSD-3-Clause.html
 License:        BSD-3-Clause
 Group:          %{PROJ_NAME}/dev-tools
@@ -30,7 +30,6 @@ BuildRequires:  ncurses-devel
 BuildRequires:  xz-devel
 BuildRequires:  zlib-devel
 BuildRequires:  pkgconfig
-BuildRequires:  jsoncpp-devel
 
 %if 0%{?rhel} || 0%{?openEuler}
 BuildRequires:  expat-devel
@@ -52,7 +51,7 @@ of your choice.
 %prep
 %setup -q -n %{pname}-%{version}
 
-./bootstrap --system-libs \
+./bootstrap --system-libs --no-system-jsoncpp --no-system-zstd \
 --no-system-librhash \
 --no-system-libuv \
 --no-system-libarchive \

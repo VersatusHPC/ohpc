@@ -15,7 +15,7 @@
 
 Name:		%{pname}%{PROJ_DELIM}
 Version:	0.3.1
-Release:	%{?dist}.1
+Release:	1%{?dist}
 
 Summary:	ConMan: The Console Manager
 Group:		%{PROJ_NAME}/admin

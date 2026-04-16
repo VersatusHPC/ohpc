@@ -1,4 +1,5 @@
 /.claude/
+misc/__pycache__/
 obs/open-build-service/
 
 # Build artifacts

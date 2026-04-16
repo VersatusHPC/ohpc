@@ -15,7 +15,7 @@
 
 Name:		%{pname}%{PROJ_DELIM}
 Version:	1.1.1
-Release:	%{?dist}.1
+Release:	1%{?dist}
 Summary:	HPC software package management
 
 Group:		%{PROJ_NAME}/dev-tools

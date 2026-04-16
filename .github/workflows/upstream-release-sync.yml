@@ -1,0 +1,130 @@
+name: Upstream Release Watch
+
+# Watches upstream OpenHPC release tags.
+# Normal upstream commits do not trigger work here; the workflow only raises a
+# failure when a new v4.*.GA release tag appears upstream and versatushpc/4.x
+# does not yet contain that release.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 08:00 UTC
+  workflow_dispatch:      # Manual trigger for testing
+
+permissions:
+  contents: read
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: versatushpc/4.x
+          fetch-depth: 0
+
+      - name: Fetch upstream release tags
+        run: |
+          git remote add upstream https://github.com/openhpc/ohpc.git
+          git fetch upstream --tags
+
+      - name: Detect upstream release gap
+        id: detect
+        run: |
+          set -euo pipefail
+
+          LATEST_UPSTREAM=$(git tag -l 'v4.*.GA' --sort=-version:refname | head -1)
+          CURRENT_RELEASE=$(git tag -l 'v4.*.GA' --merged HEAD --sort=-version:refname | head -1)
+
+          if [ -z "$LATEST_UPSTREAM" ]; then
+            echo "No upstream v4.*.GA tags found" >&2
+            exit 1
+          fi
+
+          echo "latest_upstream=$LATEST_UPSTREAM" >> "$GITHUB_OUTPUT"
+          echo "current_release=$CURRENT_RELEASE" >> "$GITHUB_OUTPUT"
+
+          if [ "$LATEST_UPSTREAM" = "$CURRENT_RELEASE" ]; then
+            echo "status=up_to_date" >> "$GITHUB_OUTPUT"
+            echo "versatushpc/4.x already contains release $LATEST_UPSTREAM"
+            exit 0
+          fi
+
+          echo "status=release_pending" >> "$GITHUB_OUTPUT"
+          echo "New upstream release detected: $LATEST_UPSTREAM"
+          if [ -n "$CURRENT_RELEASE" ]; then
+            echo "Current integrated release: $CURRENT_RELEASE"
+          else
+            echo "Current integrated release: none"
+          fi
+
+      - name: Summarize current release state
+        if: steps.detect.outputs.status == 'up_to_date'
+        run: |
+          {
+            echo "## Upstream release watch"
+            echo ""
+            echo "- Latest upstream release: \`${{ steps.detect.outputs.latest_upstream }}\`"
+            echo "- \`versatushpc/4.x\` already contains that GA release"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build release summary
+        if: steps.detect.outputs.status == 'release_pending'
+        run: |
+          set -euo pipefail
+
+          LATEST="${{ steps.detect.outputs.latest_upstream }}"
+          CURRENT="${{ steps.detect.outputs.current_release }}"
+
+          if [ -n "$CURRENT" ]; then
+            RANGE="${CURRENT}..${LATEST}"
+            CHANGED=$(git diff --name-only "$RANGE" -- components/ | \
+              sed 's|components/\([^/]*/[^/]*\)/.*|\1|' | sort -u)
+            INFRA=$(git diff --name-only "$RANGE" -- components/OHPC_setup_compiler)
+          else
+            RANGE=""
+            CHANGED=""
+            INFRA=""
+          fi
+
+          {
+            echo "## Upstream release pending"
+            echo ""
+            echo "- Latest upstream release: \`$LATEST\`"
+            if [ -n "$CURRENT" ]; then
+              echo "- Latest release merged into \`versatushpc/4.x\`: \`$CURRENT\`"
+              echo "- Review range: \`$RANGE\`"
+            else
+              echo "- Latest release merged into \`versatushpc/4.x\`: _none detected_"
+              echo "- Review range: full release review required"
+            fi
+            echo ""
+            echo "### Required work"
+            echo ""
+            echo "- Merge the upstream release into \`versatushpc/4.x\` manually"
+            echo "- Rebuild affected ppc64le packages"
+            echo "- Revalidate Ubuntu porting work against \`$LATEST\`"
+            echo "- Run smoke tests and publish updated artifacts"
+            echo ""
+            echo "### Changed components"
+            echo ""
+            if [ -n "$CHANGED" ]; then
+              echo "$CHANGED" | while IFS= read -r comp; do
+                echo "- \`$comp\`"
+              done
+            else
+              echo "_No component-level changes detected in \`components/\` for the release range_"
+            fi
+            echo ""
+            if [ -n "$INFRA" ]; then
+              echo "### Infrastructure notes"
+              echo ""
+              echo "- \`OHPC_setup_compiler\` changed upstream; review the ppc64le compiler flags and bootstrap path"
+            fi
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail until release is integrated
+        if: steps.detect.outputs.status == 'release_pending'
+        run: |
+          echo "::error title=Upstream release pending::${{ steps.detect.outputs.latest_upstream }} is available upstream but not yet contained in versatushpc/4.x. Manual merge and release work required."
+          exit 1

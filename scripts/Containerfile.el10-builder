@@ -1,0 +1,89 @@
+# EL10 ppc64le OpenHPC Builder Container
+#
+# Provides a complete build environment for compiling all 68 OpenHPC 4.x
+# components on ppc64le. Used by the VersatusHPC build pipeline.
+#
+# Build:  podman build -t el10-ohpc-builder -f scripts/Containerfile.el10-builder .
+# Run:    podman run -d --name el10-builder --privileged \
+#           -v /home/builder/versatushpc-4.x:/ohpc:Z \
+#           el10-ohpc-builder sleep infinity
+
+FROM almalinux:10
+
+# ── System build tools and -devel packages ───────────────────────────
+RUN dnf -y install epel-release && \
+    dnf config-manager --set-enabled crb && \
+    dnf -y install \
+        rpm-build rpm-sign \
+        gcc gcc-c++ gcc-gfortran \
+        make autoconf automake libtool cmake \
+        bison flex patch file which hostname \
+        git wget curl \
+        python3 python3-devel python3-setuptools \
+        lua lua-devel \
+        perl perl-devel perl-Encode-devel \
+        tcl tcl-devel tk-devel \
+        bzip2 bzip2-devel xz xz-devel zstd libzstd-devel \
+        texinfo texlive-latex \
+        openssl-devel ncurses-devel readline-devel \
+        libxml2-devel libcurl-devel expat-devel \
+        pam-devel numactl-devel libevent-devel \
+        rdma-core-devel libfabric-devel opensm-devel \
+        binutils-devel elfutils-devel elfutils-libelf-devel \
+        hwloc-devel munge-devel json-c-devel jsoncpp-devel \
+        freeipmi-devel libedit-devel yaml-cpp-devel \
+        libicu-devel pcre2-devel zlib-ng-compat-devel \
+        libjpeg-turbo-devel libpng-devel libtiff-devel libwebp-devel \
+        libX11-devel libXt-devel libXmu-devel libXp-devel libXft-devel \
+        libXext-devel libXrender-devel libXi-devel libXrandr-devel \
+        libXinerama-devel libXcomposite-devel libXcursor-devel \
+        libXdamage-devel libXfixes-devel libXtst-devel libXau-devel \
+        libxcb-devel motif-devel \
+        cairo-devel pango-devel gdk-pixbuf2-devel gtk3-devel \
+        fontconfig-devel freetype-devel harfbuzz-devel \
+        glib2-devel dbus-devel libepoxy-devel \
+        libffi-devel libstdc++-devel libquadmath-devel \
+        libnl3-devel libpciaccess-devel \
+        libpq-devel mariadb-connector-c-devel sqlite-devel \
+        libjwt-devel libical-devel \
+        check-devel valgrind-devel systemtap-sdt-devel \
+        kernel-devel \
+    && dnf clean all
+
+# ── VersatusHPC ppc64le OpenHPC repository ──────────────────────────
+# Upstream OpenHPC repos do not provide ppc64le packages — use VersatusHPC
+COPY scripts/repo-files/EL_10/versatushpc-openhpc.repo /etc/yum.repos.d/
+RUN dnf -y install \
+        ohpc-filesystem ohpc-buildroot lmod-ohpc \
+        gnu15-compilers-ohpc \
+        cmake-ohpc hwloc-ohpc \
+        ucx-ohpc ucx-ib-ohpc ucx-rdmacm-ohpc ucx-cma-ohpc \
+        pmix-ohpc papi-ohpc \
+        openmpi5-gnu15-ohpc mpich-ofi-gnu15-ohpc \
+        openblas-gnu15-ohpc gsl-gnu15-ohpc \
+        metis-gnu15-ohpc superlu-gnu15-ohpc gotcha-gnu15-ohpc \
+        opari2-gnu15-ohpc cubelib-gnu15-ohpc cubew-gnu15-ohpc \
+        R-gnu15-ohpc plasma-gnu15-ohpc \
+        boost-gnu15-openmpi5-ohpc fftw-gnu15-openmpi5-ohpc \
+        scalapack-gnu15-openmpi5-ohpc hypre-gnu15-openmpi5-ohpc \
+        hdf5-gnu15-ohpc phdf5-gnu15-openmpi5-ohpc \
+        netcdf-gnu15-openmpi5-ohpc \
+        pnetcdf-gnu15-openmpi5-ohpc ptscotch-gnu15-openmpi5-ohpc \
+        sionlib-gnu15-openmpi5-ohpc mumps-gnu15-openmpi5-ohpc \
+        superlu_dist-gnu15-openmpi5-ohpc otf2-gnu15-openmpi5-ohpc \
+        petsc-gnu15-openmpi5-ohpc slepc-gnu15-openmpi5-ohpc \
+        scorep-gnu15-openmpi5-ohpc \
+        pdtoolkit-gnu15-ohpc \
+        python3-numpy-gnu15-ohpc python3-mpi4py-gnu15-openmpi5-ohpc \
+        slurm-ohpc slurm-devel-ohpc \
+        openpbs-devel-ohpc \
+        genders-ohpc genders-compat-ohpc \
+        trilinos-gnu15-openmpi5-ohpc \
+    && dnf clean all
+
+# ── rpmbuild environment ────────────────────────────────────────────
+COPY scripts/rpm-macros /root/.rpmmacros
+RUN mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+COPY components/OHPC_macros /root/rpmbuild/SOURCES/
+
+CMD ["sleep", "infinity"]

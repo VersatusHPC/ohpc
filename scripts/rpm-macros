@@ -1,0 +1,11 @@
+%__brp_check_rpaths %{nil}
+%__spec_build_shell /bin/bash
+%__spec_install_shell /bin/bash
+%__spec_build_pre \
+  export MODULEPATH=/opt/ohpc/pub/modulefiles:/opt/ohpc/admin/modulefiles\
+  source /opt/ohpc/admin/lmod/lmod/init/bash\
+  %{___build_pre}
+%__spec_install_pre \
+  export MODULEPATH=/opt/ohpc/pub/modulefiles:/opt/ohpc/admin/modulefiles\
+  source /opt/ohpc/admin/lmod/lmod/init/bash\
+  %{___build_pre}
