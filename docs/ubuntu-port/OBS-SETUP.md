@@ -94,7 +94,7 @@ Each OBS package contains:
 
 ### Key OBS project settings:
 
-1. **Repository**: Ubuntu_24.04 with amd64 + arm64 architectures
+1. **Repository**: Ubuntu_24.04 with x86_64 architecture
 2. **Build flags**: dpkg hardening disabled (OHPC_setup_compiler sets own flags)
 3. **Build order**: OBS resolves automatically from Build-Depends
 4. **Module loading**: `ohpc-buildroot` pulls in `lmod-ohpc`; `build-comp.sh` and
@@ -133,7 +133,6 @@ Configure the publish path in the project meta:
 <repository name="Ubuntu_24.04">
   <path project="Ubuntu:24.04" repository="universe"/>
   <arch>x86_64</arch>
-  <arch>aarch64</arch>
 </repository>
 ```
 

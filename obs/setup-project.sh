@@ -38,7 +38,6 @@ osc api -X PUT "/source/VersatusHPC:OHPC:4/_meta" -d '
   <repository name="Ubuntu_24.04">
     <path project="Ubuntu:24.04" repository="universe"/>
     <arch>x86_64</arch>
-    <arch>aarch64</arch>
   </repository>
 </project>'
 
@@ -52,7 +51,6 @@ Macros:
 
 # Disable dpkg hardening flags (OHPC sets its own via OHPC_setup_compiler)
 Optflags: x86_64 -O0
-Optflags: aarch64 -O0
 
 # Ensure fakeroot is available for dpkg-buildpackage in all chroots
 Support: fakeroot

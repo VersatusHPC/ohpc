@@ -44,6 +44,7 @@ OHPC_CONTAINER="${OHPC_CONTAINER:-ohpc-build-ubuntu:noble}"
 # Parse arguments
 COMPONENT_DIR=""
 SOURCE_ONLY=0
+POSITIONAL=()
 
 usage() {
     echo "Usage: $0 <component-path> [compiler_family] [mpi_family] [--source-only]"
@@ -72,16 +73,23 @@ for arg in "$@"; do
             usage
             ;;
         *)
-            if [ -z "$COMPONENT_DIR" ]; then
-                COMPONENT_DIR="$arg"
-            elif [ "$COMPILER_FAMILY" = "gnu15" ] && [ -z "${2:-}" ]; then
-                export COMPILER_FAMILY="$arg"
-            else
-                export MPI_FAMILY="$arg"
-            fi
+            POSITIONAL+=("$arg")
             ;;
     esac
 done
+
+if [ "${#POSITIONAL[@]}" -gt 3 ]; then
+    echo "Error: too many positional arguments"
+    usage
+fi
+
+COMPONENT_DIR="${POSITIONAL[0]:-}"
+if [ "${#POSITIONAL[@]}" -ge 2 ]; then
+    export COMPILER_FAMILY="${POSITIONAL[1]}"
+fi
+if [ "${#POSITIONAL[@]}" -ge 3 ]; then
+    export MPI_FAMILY="${POSITIONAL[2]}"
+fi
 
 if [ -z "$COMPONENT_DIR" ]; then
     echo "Error: component path is required"
