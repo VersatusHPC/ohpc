@@ -1,8 +1,9 @@
-name: Upstream Release Sync
+name: Upstream Release Watch
 
-# Keeps 4.x branch and tags in 1:1 sync with upstream openhpc/ohpc.
-# When a new v4.* release tag appears, creates a PR into versatushpc/4.x
-# listing which components changed and need ppc64le rebuilds.
+# Watches upstream OpenHPC release tags.
+# Normal upstream commits do not trigger work here; the workflow only raises a
+# failure when a new v4.*.GA release tag appears upstream and versatushpc/4.x
+# does not yet contain that release.
 
 on:
   schedule:
@@ -10,142 +11,120 @@ on:
   workflow_dispatch:      # Manual trigger for testing
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  sync:
+  watch:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout fork
+      - name: Checkout integration branch
         uses: actions/checkout@v4
         with:
           ref: versatushpc/4.x
           fetch-depth: 0
 
-      - name: Configure git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Fetch upstream
+      - name: Fetch upstream release tags
         run: |
           git remote add upstream https://github.com/openhpc/ohpc.git
-          git fetch upstream 4.x --tags
+          git fetch upstream --tags
 
-      - name: Sync 4.x branch
-        run: |
-          # Update fork's 4.x to match upstream exactly
-          git push origin upstream/4.x:refs/heads/4.x --force-with-lease
-
-      - name: Mirror upstream tags
-        run: |
-          git push origin --tags
-
-      - name: Detect new release tags
+      - name: Detect upstream release gap
         id: detect
         run: |
-          # Tags matching v4.* that are NOT ancestors of versatushpc/4.x
-          NEW_TAGS=$(git tag -l 'v4*' --no-merged origin/versatushpc/4.x --sort=-version:refname)
+          set -euo pipefail
 
-          if [ -z "$NEW_TAGS" ]; then
-            echo "No new release tags"
-            echo "found=false" >> "$GITHUB_OUTPUT"
+          LATEST_UPSTREAM=$(git tag -l 'v4.*.GA' --sort=-version:refname | head -1)
+          CURRENT_RELEASE=$(git tag -l 'v4.*.GA' --merged HEAD --sort=-version:refname | head -1)
+
+          if [ -z "$LATEST_UPSTREAM" ]; then
+            echo "No upstream v4.*.GA tags found" >&2
+            exit 1
+          fi
+
+          echo "latest_upstream=$LATEST_UPSTREAM" >> "$GITHUB_OUTPUT"
+          echo "current_release=$CURRENT_RELEASE" >> "$GITHUB_OUTPUT"
+
+          if [ "$LATEST_UPSTREAM" = "$CURRENT_RELEASE" ]; then
+            echo "status=up_to_date" >> "$GITHUB_OUTPUT"
+            echo "versatushpc/4.x already contains release $LATEST_UPSTREAM"
             exit 0
           fi
 
-          # Take the latest new tag
-          LATEST=$(echo "$NEW_TAGS" | head -1)
-          echo "New release tag: $LATEST"
-          echo "found=true" >> "$GITHUB_OUTPUT"
-          echo "tag=$LATEST" >> "$GITHUB_OUTPUT"
-
-          # Find the previous release tag (latest one already merged)
-          PREV=$(git tag -l 'v4*' --merged origin/versatushpc/4.x --sort=-version:refname | head -1)
-          echo "prev_tag=$PREV" >> "$GITHUB_OUTPUT"
-
-      - name: Check for existing PR
-        if: steps.detect.outputs.found == 'true'
-        id: existing
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          OPEN=$(gh pr list --base versatushpc/4.x --head 4.x --state open --json number --jq 'length')
-          if [ "$OPEN" -gt 0 ]; then
-            echo "PR already open, skipping"
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+          echo "status=release_pending" >> "$GITHUB_OUTPUT"
+          echo "New upstream release detected: $LATEST_UPSTREAM"
+          if [ -n "$CURRENT_RELEASE" ]; then
+            echo "Current integrated release: $CURRENT_RELEASE"
           else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Current integrated release: none"
           fi
 
-      - name: Build change report
-        if: steps.detect.outputs.found == 'true' && steps.existing.outputs.skip == 'false'
-        id: report
+      - name: Summarize current release state
+        if: steps.detect.outputs.status == 'up_to_date'
         run: |
-          TAG="${{ steps.detect.outputs.tag }}"
-          PREV="${{ steps.detect.outputs.prev_tag }}"
-
-          if [ -n "$PREV" ]; then
-            RANGE="${PREV}..${TAG}"
-          else
-            RANGE="$(git merge-base origin/versatushpc/4.x origin/4.x)..${TAG}"
-          fi
-
-          # Changed components (deduplicated to component level)
-          CHANGED=$(git diff --name-only "$RANGE" -- components/ | \
-            sed 's|components/\([^/]*/[^/]*\)/.*|\1|' | sort -u)
-
-          # Also check for OHPC_setup_compiler or other infra changes
-          INFRA=$(git diff --name-only "$RANGE" -- components/OHPC_setup_compiler)
-
-          # Build the body
-          BODY_FILE=$(mktemp)
           {
-            echo "## Upstream Release: ${TAG}"
+            echo "## Upstream release watch"
             echo ""
-            if [ -n "$PREV" ]; then
-              echo "Previous release: ${PREV}"
-              echo ""
+            echo "- Latest upstream release: \`${{ steps.detect.outputs.latest_upstream }}\`"
+            echo "- \`versatushpc/4.x\` already contains that GA release"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build release summary
+        if: steps.detect.outputs.status == 'release_pending'
+        run: |
+          set -euo pipefail
+
+          LATEST="${{ steps.detect.outputs.latest_upstream }}"
+          CURRENT="${{ steps.detect.outputs.current_release }}"
+
+          if [ -n "$CURRENT" ]; then
+            RANGE="${CURRENT}..${LATEST}"
+            CHANGED=$(git diff --name-only "$RANGE" -- components/ | \
+              sed 's|components/\([^/]*/[^/]*\)/.*|\1|' | sort -u)
+            INFRA=$(git diff --name-only "$RANGE" -- components/OHPC_setup_compiler)
+          else
+            RANGE=""
+            CHANGED=""
+            INFRA=""
+          fi
+
+          {
+            echo "## Upstream release pending"
+            echo ""
+            echo "- Latest upstream release: \`$LATEST\`"
+            if [ -n "$CURRENT" ]; then
+              echo "- Latest release merged into \`versatushpc/4.x\`: \`$CURRENT\`"
+              echo "- Review range: \`$RANGE\`"
+            else
+              echo "- Latest release merged into \`versatushpc/4.x\`: _none detected_"
+              echo "- Review range: full release review required"
             fi
+            echo ""
+            echo "### Required work"
+            echo ""
+            echo "- Merge the upstream release into \`versatushpc/4.x\` manually"
+            echo "- Rebuild affected ppc64le packages"
+            echo "- Revalidate Ubuntu porting work against \`$LATEST\`"
+            echo "- Run smoke tests and publish updated artifacts"
+            echo ""
             echo "### Changed components"
             echo ""
             if [ -n "$CHANGED" ]; then
-              echo "$CHANGED" | while read -r comp; do
+              echo "$CHANGED" | while IFS= read -r comp; do
                 echo "- \`$comp\`"
               done
             else
-              echo "_No component changes detected_"
+              echo "_No component-level changes detected in \`components/\` for the release range_"
             fi
             echo ""
             if [ -n "$INFRA" ]; then
-              echo "### ⚠ Infrastructure changes"
+              echo "### Infrastructure notes"
               echo ""
-              echo "- \`OHPC_setup_compiler\` was modified upstream — review against our ppc64le patch"
-              echo ""
+              echo "- \`OHPC_setup_compiler\` changed upstream; review the ppc64le compiler flags and bootstrap path"
             fi
-            echo "### Merge checklist"
-            echo ""
-            echo "- [ ] Resolve merge conflicts (check patched specs)"
-            echo "- [ ] Review \`OHPC_setup_compiler\` changes if flagged"
-            echo "- [ ] Rebuild changed ppc64le packages"
-            echo "- [ ] Run smoke tests"
-            echo "- [ ] Publish updated RPMs"
-          } > "$BODY_FILE"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
-          # Pass to next step via file (avoids quoting issues)
-          echo "body_file=$BODY_FILE" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
-      - name: Create PR
-        if: steps.detect.outputs.found == 'true' && steps.existing.outputs.skip == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fail until release is integrated
+        if: steps.detect.outputs.status == 'release_pending'
         run: |
-          TAG="${{ steps.report.outputs.tag }}"
-          BODY_FILE="${{ steps.report.outputs.body_file }}"
-
-          gh pr create \
-            --base versatushpc/4.x \
-            --head 4.x \
-            --title "upstream: merge ${TAG}" \
-            --body-file "$BODY_FILE"
+          echo "::error title=Upstream release pending::${{ steps.detect.outputs.latest_upstream }} is available upstream but not yet contained in versatushpc/4.x. Manual merge and release work required."
+          exit 1

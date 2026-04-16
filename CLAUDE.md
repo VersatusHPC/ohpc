@@ -2,7 +2,7 @@
 
 ## Branch model
 
-- `4.x` — exact 1:1 mirror of upstream `openhpc/ohpc`. Never commit here directly.
+- `4.x` — upstream reference branch for release-integration work. Do not commit here directly.
 - `versatushpc/4.x` — our fork with ppc64le patches. All work goes here.
 - Upstream remote push is disabled (`PUSH_DISABLED_TO_PREVENT_ACCIDENTS`). NEVER push to upstream.
 
@@ -16,9 +16,9 @@
 ## CI/CD
 
 - GitHub Action `.github/workflows/upstream-release-sync.yml` runs daily:
-  - Syncs `4.x` branch and tags 1:1 with upstream
-  - Detects new `v4.*` release tags not yet merged into `versatushpc/4.x`
-  - Creates a PR with change report listing affected components
+  - Watches upstream `v4.*.GA` release tags
+  - Ignores normal upstream commits between releases
+  - Fails with a change summary when a new upstream release is not yet merged into `versatushpc/4.x`
 - Merges are never automatic — ~19 patched spec files will conflict on upstream updates.
 - OBS does not work for ppc64le. Do not suggest it.
 
