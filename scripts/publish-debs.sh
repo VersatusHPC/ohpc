@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Local staging settings.
-LOCAL_USER="${LOCAL_USER:-${SUDO_USER:-${USER:-builder}}}"
+LOCAL_USER="${LOCAL_USER:-builder}"
 STAGING_ROOT="${STAGING_ROOT:-/home/${LOCAL_USER}/staging/versatushpc-4}"
 STAGING_REPO="${STAGING_ROOT}/Ubuntu_24.04"
 
