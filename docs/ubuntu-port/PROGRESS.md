@@ -1,5 +1,10 @@
 # OpenHPC Ubuntu Port — Progress Tracker
 
+> Status note (2026-04-17): this file is a historical bootstrap snapshot
+> from the pre-OBS phase of the Ubuntu port. Do not use the package counts or
+> failure lists below for release decisions. Use `README.md` for the current
+> public status and `docs/ubuntu-port/VALIDATION.md` for release validation.
+
 Last updated: 2026-03-28
 
 ## Overall Status

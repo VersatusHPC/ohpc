@@ -1,5 +1,10 @@
 # OpenHPC Ubuntu Port — Build Variant Matrix
 
+> Status note (2026-04-17): this matrix is a historical bootstrap snapshot
+> from the pre-OBS phase of the Ubuntu port. Do not use the status cells below
+> for release decisions. Use OBS status and `docs/ubuntu-port/VALIDATION.md`
+> for current release validation.
+
 Last updated: 2026-03-28
 
 ## Compilers
