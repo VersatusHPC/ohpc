@@ -17,7 +17,7 @@ override_dh_auto_install:
 	mkdir -p $(PKG)/etc/apt/sources.list.d
 	echo "# OpenHPC repository for Ubuntu" > $(PKG)/etc/apt/sources.list.d/ohpc.list
 	echo "# Uncomment and configure when the public repository is available" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
-	echo "# deb [signed-by=/usr/share/keyrings/versatushpc-ohpc.gpg] https://packages.versatushpc.org/ohpc/4 noble main" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
+	echo "# deb [signed-by=/usr/share/keyrings/versatushpc.gpg] https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/ ./" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
 	# GPG keyring directory (key to be added when available)
 	mkdir -p $(PKG)/usr/share/keyrings
 

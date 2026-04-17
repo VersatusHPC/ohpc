@@ -3,4 +3,4 @@ intel-compilers-devel-ohpc (2025.0-1ohpc1~noble) noble; urgency=low
   * Initial Debian packaging for OpenHPC Ubuntu port.
   * Intel oneAPI compiler modulefile integration for OpenHPC.
 
- -- VersatusHPC <packages@versatushpc.org>  Thu, 27 Mar 2026 18:00:00 +0000
+ -- VersatusHPC <packages@versatushpc.com.br>  Thu, 27 Mar 2026 18:00:00 +0000

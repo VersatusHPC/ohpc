@@ -117,7 +117,7 @@ fi
 
 echo "==> Installing public key and APT source helper into staging"
 cp "${GPG_PUBLIC_KEY}" "${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC"
-rm -f "${STAGING_ROOT}/versatushpc-ohpc.gpg"
+rm -f "${STAGING_ROOT}"/versatushpc*.gpg
 gpg --dearmor --yes --output "${STAGING_ROOT}/versatushpc.gpg" "${GPG_PUBLIC_KEY}"
 cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
 
@@ -133,7 +133,7 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 
 LFTP_DRY_RUN=""
 LFTP_KEY_UPLOADS="
-rm -f ${REMOTE_PATH}/versatushpc-ohpc.gpg;
+rm -f ${REMOTE_PATH}/versatushpc*.gpg;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc.gpg;
 "

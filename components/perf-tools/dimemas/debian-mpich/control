@@ -1,7 +1,7 @@
 Source: dimemas-gnu15-mpich-ohpc
 Section: science
 Priority: optional
-Maintainer: VersatusHPC <packages@versatushpc.org>
+Maintainer: VersatusHPC <packages@versatushpc.com.br>
 Build-Depends: debhelper-compat (= 13),
                ohpc-buildroot,
                gnu15-compilers-ohpc (>= 14.1.0),

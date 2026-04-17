@@ -52,7 +52,7 @@ convert_and_upload() {
 
     local maintainer
     maintainer=$(grep "^Maintainer:" "$comp_dir/$debian_dir/control" 2>/dev/null | sed 's/^Maintainer: //')
-    [ -z "$maintainer" ] && maintainer="VersatusHPC <packages@versatushpc.org>"
+    [ -z "$maintainer" ] && maintainer="VersatusHPC <packages@versatushpc.com.br>"
 
     local pkgdir="$WORKDIR/$pkg_name"
     rm -rf "$pkgdir"

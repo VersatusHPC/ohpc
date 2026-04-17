@@ -3,4 +3,4 @@ mvapich2-gnu15-ohpc (2.3.7-1ohpc1~noble) noble; urgency=low
   * Initial Debian packaging for OpenHPC Ubuntu port.
   * MVAPICH2 2.3.7 built with gnu15 compiler family.
 
- -- VersatusHPC <packages@versatushpc.org>  Thu, 27 Mar 2026 18:00:00 +0000
+ -- VersatusHPC <packages@versatushpc.com.br>  Thu, 27 Mar 2026 18:00:00 +0000

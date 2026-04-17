@@ -1,6 +1,6 @@
 FROM docker.io/library/ubuntu:24.04
 
-LABEL maintainer="VersatusHPC <packages@versatushpc.org>"
+LABEL maintainer="VersatusHPC <packages@versatushpc.com.br>"
 LABEL description="OpenHPC build environment for Ubuntu 24.04 (noble)"
 
 ENV DEBIAN_FRONTEND=noninteractive
