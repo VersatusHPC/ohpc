@@ -1,5 +1,7 @@
 # OpenHPC Ubuntu Port — Maintainer Guide
 
+See `docs/ubuntu-port/UPSTREAM-DRIFT.md` for intentional Ubuntu deltas that must be reviewed during upstream rebases.
+
 ## How the Debian Packaging Works
 
 Each OpenHPC component has a `debian/` directory alongside its existing `SPECS/` directory.

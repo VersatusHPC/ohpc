@@ -25,8 +25,9 @@ For the Ubuntu port, the minimum post-publication runtime line is:
 1. Public APT repository installs signed metadata and package candidates.
 2. Warewulf boots one Ubuntu 24.04 compute image.
 3. Slurm, MUNGE, PMIx, HWLOC, and `/opt` sharing work on the compute node.
-4. GNU15 compiles and runs an MPI hello program through Slurm for OpenMPI, MPICH, and MVAPICH2.
-5. IMB `PingPong` runs through Slurm for the same three GNU15 MPI stacks.
+4. Compute nodes apply the OpenHPC Yama policy, `kernel.yama.ptrace_scope=0`.
+5. GNU15 compiles and runs an MPI hello program through Slurm for OpenMPI, MPICH, and MVAPICH2.
+6. IMB `PingPong` runs through Slurm for the same three GNU15 MPI stacks.
 
 This is the fast release gate. Broader library tests can expand from this line,
 but a repository snapshot should not be treated as usable if any item here
@@ -42,10 +43,11 @@ Do not publish a new public repository snapshot until these gates pass:
 4. Slurm sees the compute node as `idle`.
 5. MUNGE works from a job running on the compute node.
 6. PMIx and hwloc are visible to system daemons through `ldconfig`.
-7. OpenMPI runs through Slurm/PMIx.
-8. MPICH runs through Slurm/PMI2.
-9. MVAPICH2 runs through Slurm/PMI2.
-10. At least one MPI-dependent package runs through all three GNU15 MPI stacks.
+7. Compute nodes report `kernel.yama.ptrace_scope = 0`.
+8. OpenMPI runs through Slurm/PMIx.
+9. MPICH runs through Slurm/PMI2.
+10. MVAPICH2 runs through Slurm/PMI2 with CMA available.
+11. At least one MPI-dependent package runs through all three GNU15 MPI stacks.
 
 ## OBS Status Check
 
@@ -262,23 +264,27 @@ MVAPICH2 through Slurm/PMI2:
 source /etc/profile.d/lmod.sh
 module purge
 module load gnu15/15.2.0 mvapich2/2.3.7
-module show mvapich2/2.3.7 2>&1 | grep MV2_SMP_USE_CMA
+srun --input=none -N1 -n1 sysctl kernel.yama.ptrace_scope
+module show mvapich2/2.3.7 2>&1 | grep -q MV2_SMP_USE_CMA && exit 1
 mpicc ~/ohpc-smoke/mpi-hello.c -o ~/ohpc-smoke/mpi-hello-mvapich2
-srun --input=none --mpi=pmi2 -N1 -n2 ~/ohpc-smoke/mpi-hello-mvapich2 | sort
+MV2_SMP_USE_CMA=1 srun --input=none --mpi=pmi2 -N1 -n2 ~/ohpc-smoke/mpi-hello-mvapich2 | sort
 ```
 
 Expected:
 
 ```text
-setenv          MV2_SMP_USE_CMA     0
+kernel.yama.ptrace_scope = 0
 hello from rank 0/2 on c1
 hello from rank 1/2 on c1
 ```
 
-Ubuntu kernels commonly block MVAPICH2's CMA shared-memory path in this Slurm
-launch setup, which appears as `process_vm_readv: Operation not permitted`
-during `MPI_Init`. The Ubuntu MVAPICH2 modulefile disables that path with
-`MV2_SMP_USE_CMA=0`; missing that environment setting is a release blocker.
+Ubuntu defaults to `kernel.yama.ptrace_scope=1`, which blocks MVAPICH2's CMA
+shared-memory path in this Slurm launch setup with `process_vm_readv: Operation
+not permitted`. EL10 and openEuler 24.03 ship `elfutils-default-yama-scope`,
+which sets `kernel.yama.ptrace_scope=0`; Ubuntu compute nodes match that
+OpenHPC runtime policy through `ohpc-base-compute`. Missing that sysctl is a
+release blocker because it silently removes MVAPICH2's expected intra-node CMA
+fast path.
 
 ## MPI-Dependent Package Smoke Test
 

@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        if [ -w /proc/sys/kernel/yama/ptrace_scope ] && command -v sysctl >/dev/null 2>&1; then
+            sysctl -q -w kernel.yama.ptrace_scope=0 || true
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

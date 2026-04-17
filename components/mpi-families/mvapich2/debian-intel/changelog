@@ -1,3 +1,10 @@
+mvapich2-intel-ohpc (2.3.7-1ohpc3~noble) noble; urgency=low
+
+  * Restore MVAPICH2's default CMA behavior; Ubuntu compute nodes now set
+    kernel.yama.ptrace_scope=0 via ohpc-base-compute for EL/openEuler parity.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 20:20:00 +0000
+
 mvapich2-intel-ohpc (2.3.7-1ohpc2~noble) noble; urgency=low
 
   * Disable MVAPICH2 CMA by default in the modulefile for Ubuntu.
