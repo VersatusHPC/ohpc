@@ -103,7 +103,11 @@ sudo apt-get -y install --only-upgrade \
 ```
 
 Inside the Warewulf image, repeat the compute-node package upgrade and rebuild
-the image:
+the image. Use `wwctl image exec` rather than direct `chroot` for APT commands;
+Warewulf mounts `/dev`, `/proc`, `/sys`, and `/run` for the image execution
+environment. A direct chroot can corrupt a minimal OCI rootfs by creating
+`/dev/null` as a regular file when commands redirect to `>/dev/null` before a
+real device node exists.
 
 ```bash
 sudo wwctl image exec --build=false ubuntu-24.04 -- /bin/bash -ex <<'EOF'
@@ -113,6 +117,15 @@ apt-get -y install --only-upgrade \
 EOF
 sudo wwctl image build ubuntu-24.04
 sudo wwctl overlay build
+```
+
+If APT in an image reports that it cannot write to `/dev/null`, repair the image
+rootfs before retrying:
+
+```bash
+CHROOT=$(sudo wwctl image show ubuntu-24.04)
+sudo rm -f "$CHROOT/dev/null"
+sudo mknod -m 666 "$CHROOT/dev/null" c 1 3
 ```
 
 Reboot the compute VM/node after rebuilding the image.
