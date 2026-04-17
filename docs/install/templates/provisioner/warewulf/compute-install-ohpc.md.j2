@@ -18,7 +18,9 @@ We begin by installing a few common base packages:
 
 # Install compute node base meta-package
 wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
-{% if is_el %}
+{% if is_ubuntu %}
+  export DEBIAN_FRONTEND=noninteractive
+{% elif is_el %}
   dnf -y install epel-release
 {% elif is_openeuler %}
   dnf -y config-manager --add-repo {{ openeuler_ohpc_repo_server }}\
@@ -26,7 +28,7 @@ wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
 /{{ openeuler_ohpc_repo_file }}
   dnf -y install openeuler-extra-repos
 {% endif %}
-  dnf -y install ohpc-base-compute
+  {{ "apt-get -y install" if is_ubuntu else "dnf -y install" }} ohpc-base-compute
 EOF
 ```
 <!-- ohpc_end -->

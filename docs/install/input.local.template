@@ -133,6 +133,9 @@ kargs="${kargs:-acpi_pad.disable=1}"
 # Subnet netmask for IPoIB network
 ipoib_netmask="${ipoib_netmask:-255.255.0.0}"
 
+# Subnet prefix length for IPoIB network
+ipoib_prefix_length="${ipoib_prefix_length:-16}"
+
 # IPoIB address for head node
 sms_ipoib="${sms_ipoib:-192.168.0.1}"
 

@@ -23,6 +23,7 @@ install -d -m 0755 /var/lib/tftpboot
 ```
 <!-- ohpc_end -->
 
+{% if not is_ubuntu %}
 If SELinux is enabled, configure the appropriate file context for the `tftpboot` directory:
 
 <!-- ohpc_begin -->
@@ -35,3 +36,4 @@ restorecon -R -v /var/lib/tftpboot
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
+{% endif %}

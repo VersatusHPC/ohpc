@@ -31,8 +31,9 @@ yq -i '.nodeprofiles.default.kernel.args += ["rd.shell"]' \
 <!-- ohpc_comment Two-Stage provision to ramfs -->
 ```bash
 ## Install Dracut in the image
-wwctl image exec --build=false {{ baseos }} -- /usr/bin/dnf install -y \
-  warewulf-ohpc-dracut
+wwctl image exec --build=false {{ baseos }} -- \
+  {{ "/usr/bin/apt-get -y install" if is_ubuntu else "/usr/bin/dnf install -y" }} \
+  {{ warewulf_dracut_pkg }}
 
 ## Configure Dracut. Note the leading and trailing spaces
 # in the quotes in "add_dracutmodules"
@@ -55,7 +56,8 @@ provisioning (previous step) must also be enabled.  The compute node will use,
 <!-- ohpc_comment Configure two-stage provision-to-disk -->
 ```bash
 ## Install disk tools
-wwctl image exec --build=false {{ baseos }} -- /usr/bin/dnf install -y \
+wwctl image exec --build=false {{ baseos }} -- \
+  {{ "/usr/bin/apt-get -y install" if is_ubuntu else "/usr/bin/dnf install -y" }} \
   ignition gdisk
 
 ## Add ignition Dracut module.

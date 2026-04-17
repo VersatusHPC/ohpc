@@ -9,11 +9,11 @@ to serve as a local time server for the cluster, issue the following:
 <!-- ohpc_comment Enable NTP services on head node -->
 ```bash
 {{ pkg_install }} chrony
-systemctl enable chronyd.service
-echo "local stratum 10" >> /etc/chrony.conf
-echo "server ${ntp_server}" >> /etc/chrony.conf
-echo "allow all" >> /etc/chrony.conf
-systemctl restart chronyd
+systemctl enable {{ chrony_service }}.service
+echo "local stratum 10" >> {{ chrony_config }}
+echo "server ${ntp_server}" >> {{ chrony_config }}
+echo "allow all" >> {{ chrony_config }}
+systemctl restart {{ chrony_service }}
 ```
 <!-- ohpc_end -->
 

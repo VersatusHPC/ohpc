@@ -23,6 +23,24 @@ matrix on Ubuntu 24.04 LTS. Validation is performed in OBS project
 As of 2026-04-16, the Ubuntu OBS build is published with **296/296 packages
 succeeded**.
 
+Pre-built Debian packages are available at:
+<https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/>
+
+To enable the Ubuntu repository:
+
+```bash
+curl -fsSL \
+  https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg \
+  | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null
+curl -fsSL \
+  https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list \
+  | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null
+sudo apt update
+```
+
+The generated Ubuntu installation recipe lives under `docs/install` as
+`ubuntu24.04-x86_64-warewulf-slurm`.
+
 The port keeps the OpenHPC compiler/MPI package model, using Debian packaging
 under `components/**/debian*`, shared build helpers under `devel/`, and local
 OBS import/runtime tooling under `obs/`. Intel oneAPI dependencies are resolved
@@ -76,7 +94,7 @@ distributions:
 
 - The 2.x series targets EL8 and Leap15.
 - The 3.x series targets EL9, Leap 15 and openEuler 22.03.
-- The 4.x series targets EL10 and openEuler 24.03.
+- The 4.x series targets EL10, openEuler 24.03, and Ubuntu 24.04 in this fork.
 
 ### Getting started
 

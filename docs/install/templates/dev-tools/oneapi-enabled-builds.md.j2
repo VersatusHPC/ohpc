@@ -19,11 +19,15 @@ following:
 <!-- ohpc_if_set enable_intel_packages -->
 ```bash
 # Enable Intel oneAPI and install OpenHPC compatibility packages
+{% if is_ubuntu -%}
+{{ pkg_install }} intel-compilers-devel-ohpc intel-mpi-devel-ohpc
+{% else -%}
 {{ pkg_install }} intel-oneapi-toolkit-release-ohpc
 rpm --import \
 	https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 {{ pkg_install }} intel-compilers-devel-ohpc
 {{ pkg_install }} intel-mpi-devel-ohpc
+{% endif -%}
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
@@ -41,6 +45,11 @@ desired compute nodes.
 To enable all 3rd party builds available in OpenHPC that are compatible with the
 Intel(R) oneAPI classic compiler suite, issue the following:
 
+{% if is_ubuntu %}
+The Ubuntu repository includes Intel-family compatibility packages and selected
+Intel-family library builds. The package manifest lists the available package
+names for local selection.
+{% else %}
 <!-- ohpc_begin -->
 <!-- ohpc_if_set enable_intel_packages -->
 <!-- ohpc_if_set enable_opa -->
@@ -66,3 +75,4 @@ Intel(R) oneAPI classic compiler suite, issue the following:
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
+{% endif %}

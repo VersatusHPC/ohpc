@@ -20,6 +20,7 @@ is_el: false
 is_almalinux: false
 is_rocky: false
 is_openeuler: false
+is_ubuntu: false
 
 ## Arch
 is_x86_64: false
@@ -35,6 +36,18 @@ is_slurm: false
 
 ## Capabilities
 uses_dnf: true
+uses_apt: false
+
+## Package names with distro-specific spellings
+easybuild_pkg: "EasyBuild-ohpc"
+mpich_default_pkg: "mpich-ofi-gnu15-ohpc"
+mpich_ucx_pkg: "mpich-ucx-gnu15-ohpc"
+openmpi_default_pkg: "openmpi5-pmix-gnu15-ohpc"
+warewulf_dracut_pkg: "warewulf-ohpc-dracut"
+nfs_server_pkg: "nfs-utils"
+nfs_server_service: "nfs-server"
+chrony_service: "chronyd"
+chrony_config: "/etc/chrony.conf"
 
 ## Feature flags
 enable_infiniband: false

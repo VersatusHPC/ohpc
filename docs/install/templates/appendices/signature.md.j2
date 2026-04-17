@@ -1,8 +1,21 @@
 # Package Signatures
 
-All of the RPMs provided via the OpenHPC repository are signed with a GPG
+All of the {% if is_ubuntu %}repository metadata{% else %}RPMs{% endif %}
+provided via the OpenHPC repository are signed with a GPG
 signature. By default, the underlying package managers will verify these
 signatures during installation to ensure that packages have not been altered.
+{% if is_ubuntu %}
+The Ubuntu APT repository is signed with the VersatusHPC repository key:
+
+`Fingerprint: 29CB A5A9 CD31 FF9C 7BDD A4A2 8AA9 AD69 40E3 7E91`
+
+The following command can be used to inspect the public key:
+
+```bash
+curl -fsSL {{ ohpc_repo_server }}{{ ohpc_repo_path }}/versatushpc.gpg \
+	| gpg --show-keys --with-fingerprint
+```
+{% else %}
 The RPMs can also be manually verified and the public signing key fingerprint
 for the latest repository is shown below:
 
@@ -25,3 +38,4 @@ ohpc-release-4-1.el10.x86_64.rpm:
     MD5 digest: OK
 
 ```
+{% endif %}

@@ -31,6 +31,13 @@ Functions:
 {# Warewulf Macros #}
 {% if is_warewulf %}
 
+{% if is_ubuntu %}
+{%- macro compute_install(packages) -%}
+wwctl image exec --build=false {{ baseos }} -- /bin/bash -lc \
+  "apt-get -y install {{ packages if packages is string else packages | join(' ') }}"
+{%- endmacro -%}
+{% endif %}
+
 {%- macro compute_sed(regex, file) -%}
 sed -i '{{ regex }}' \
 	"$CHROOT{{ file }}"
@@ -91,4 +98,3 @@ C="{{ cmd }}" \
 {%- endmacro -%}
 
 {% endif %}
-

@@ -1,8 +1,37 @@
 ## Rebuilding Packages from Source
 
-OpenHPC packages can be rebuilt from source using the source RPMs available from
+OpenHPC packages can be rebuilt from source using the source {% if is_ubuntu
+%}packages{% else %}RPMs{% endif %} available from
 the OpenHPC repository. This allows administrators to customize package builds
-for their specific needs. One way to accomplish this is to install the
+for their specific needs. {% if is_ubuntu %}One way to accomplish this is to
+enable the source repository, download the Debian source package, and rebuild it
+locally. A brief example using the FFTW library is highlighted below.
+
+```bash
+# Enable OpenHPC source packages
+OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
+OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
+OHPC_KEYRING="{{ ohpc_apt_keyring }}"
+echo "deb-src [signed-by=${OHPC_KEYRING}] ${OHPC_UBUNTU_REPO}/ ./" \
+	> /etc/apt/sources.list.d/versatushpc-openhpc-src.list
+apt-get update
+
+# Install Debian packaging tools and FFTW build dependencies
+sudo apt-get -y install build-essential debhelper devscripts fakeroot
+sudo apt-get -y build-dep fftw-gnu15-openmpi5-ohpc
+
+# Download source package from the OpenHPC repository
+apt source fftw-gnu15-openmpi5-ohpc
+cd fftw-gnu15-openmpi5-ohpc-*
+
+# Modify Debian packaging or source as desired, then record a local revision
+dch --local +local "Local FFTW rebuild"
+
+# Rebuild binary packages and install the local package
+dpkg-buildpackage -us -uc -b
+sudo apt-get -y install ../fftw-gnu15-openmpi5-ohpc_*_*.deb
+```
+{% else %}One way to accomplish this is to install the
 appropriate source RPM, modify the spec file as needed, and rebuild to obtain an
 updated binary RPM. OpenHPC spec files contain macros to facilitate local
 customizations of compiler, compilation flags and MPI family. A brief example
@@ -47,3 +76,4 @@ $ module -t spider fftw
 fftw/3.3.10-static
 fftw/3.3.10
 ```
+{% endif %}

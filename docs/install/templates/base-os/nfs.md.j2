@@ -9,8 +9,8 @@ example configuration.
 <!-- ohpc_comment Setup NFS Server -->
 ```bash
 # Install and Start NFS server
-{{ pkg_install }} nfs-utils
-systemctl start nfs-server.service
+{{ pkg_install }} {{ nfs_server_pkg }}
+systemctl start {{ nfs_server_service }}.service
 
 # Create OpenHPC public packages directory
 mkdir -p /opt/ohpc/pub
@@ -21,7 +21,7 @@ echo "/opt/ohpc/pub *(ro,no_subtree_check,fsid=11)" >> /etc/exports
 exportfs -a
 
 # Restart and enable nfs server
-systemctl restart nfs-server
-systemctl enable nfs-server
+systemctl restart {{ nfs_server_service }}
+systemctl enable {{ nfs_server_service }}
 ```
 <!-- ohpc_end -->

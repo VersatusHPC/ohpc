@@ -7,10 +7,18 @@ drivers to the chosen *head node*.
 <!-- ohpc_comment Optionally add InfiniBand support services on head node -->
 <!-- ohpc_if_set enable_ib -->
 ```bash
+{% if is_ubuntu -%}
+{{ pkg_install }} {{ ib_head_packages }}
+{% else -%}
 {{ pkg_group_install }} "InfiniBand Support"
+{% endif -%}
 # Load IB services
 udevadm trigger --type=devices --action=add
+{% if is_ubuntu -%}
+systemctl restart rdma-hw.target || true
+{% else -%}
 systemctl restart rdma-load-modules@infiniband.service
+{% endif -%}
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
@@ -31,6 +39,11 @@ appropriate if system contains dual-ported or multiple HCAs).
 <!-- ohpc_if_set enable_ipoib -->
 <!-- ohpc_comment Enable ib0 -->
 ```bash
+{% if is_ubuntu -%}
+nmcli connection add type infiniband con-name ib0 ifname ib0 \
+	ipv4.addresses "${sms_ipoib}/${ipoib_prefix_length}" ipv4.method manual
+nmcli connection up ib0
+{% else -%}
 cp /opt/ohpc/pub/examples/network/centos/ifcfg-ib0 \
 	/etc/sysconfig/network-scripts
 
@@ -45,6 +58,7 @@ echo "[main]"   >  /etc/NetworkManager/conf.d/90-dns-none.conf
 echo "dns=none" >> /etc/NetworkManager/conf.d/90-dns-none.conf
 # Start up NetworkManager to initiate ib0
 systemctl start NetworkManager
+{% endif -%}
 
 ```
 <!-- ohpc_fi -->

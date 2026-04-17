@@ -11,6 +11,10 @@ follows:
 <!-- ohpc_begin -->
 <!-- ohpc_comment Disable firewall -->
 ```bash
+{% if is_ubuntu -%}
+ufw disable || true
+{% else -%}
 systemctl disable --now firewalld || true
+{% endif -%}
 ```
 <!-- ohpc_end -->

@@ -2,18 +2,27 @@
 <!-- ohpc_comment Add SLURM and other components to compute instance -->
 ```bash
 wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
+{% if is_ubuntu %}
+  export DEBIAN_FRONTEND=noninteractive
+  getent group munge >/dev/null || groupadd --system munge
+  getent passwd munge >/dev/null || useradd --system --gid munge \
+    --home-dir /var/lib/munge --shell /usr/sbin/nologin munge
+  getent group slurm >/dev/null || groupadd --system slurm
+  getent passwd slurm >/dev/null || useradd --system --gid slurm \
+    --home-dir /var/lib/slurm --shell /usr/sbin/nologin slurm
+{% endif %}
   # Add Slurm client support meta-package
-  dnf -y install ohpc-slurm-client
+  {{ "apt-get -y install" if is_ubuntu else "dnf -y install" }} ohpc-slurm-client
 
   # Enable services to start on boot
   systemctl enable munge.service
   systemctl enable slurmd.service
 
   # Add Network Time Protocol (NTP) support
-  dnf -y install chrony
+  {{ "apt-get -y install" if is_ubuntu else "dnf -y install" }} chrony
 
   # Include modules user environment
-  dnf -y install lmod-ohpc
+  {{ "apt-get -y install" if is_ubuntu else "dnf -y install" }} lmod-ohpc
 EOF
 ```
 <!-- ohpc_end -->

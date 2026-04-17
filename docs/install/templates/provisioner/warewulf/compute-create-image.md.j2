@@ -4,8 +4,13 @@ First, we create a minimal compute node image.  Warewulf supports using
 container images as the base file system for provisioning, and it can import
 these directly from an OCI registry like Docker Hub. Container images must be
 created especially for use with Warewulf since they need to include things like
-a kernel and an init system. In this example we will import our base image from
-a set maintained by the Warewulf community on the GitHub container registry.
+a kernel and an init system. {% if is_ubuntu -%}
+In this example we will import the official Ubuntu container image, then install
+the kernel and init-system packages needed for Warewulf provisioning.
+{% else -%}
+In this example we will import our base image from a set maintained by the
+Warewulf community on the GitHub container registry.
+{% endif %}
 
 The `wwctl image exec` command runs the commands below it, these commands also
 be run interactively one a time with the command `wwctl image shell {{ baseos
@@ -17,8 +22,13 @@ build` command.
 <!-- ohpc_comment Create compute image for Warewulf -->
 ```bash
 # Import the base image from Warewulf
+{% if is_ubuntu -%}
+wwctl image import docker://{{ distro_container_image }} \
+	{{ baseos }} --syncuser
+{% else -%}
 wwctl image import docker://ghcr.io/warewulf/warewulf-{{ distro_container_image }} \
 	{{ baseos }} --syncuser
+{% endif -%}
 
 # Define chroot location
 CHROOT=$(wwctl image show {{ baseos }})
@@ -30,10 +40,26 @@ export CHROOT
 # Enable OpenHPC inside image and update image.
 # Disable image build on exit, rebuild later.
 wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
+{% if is_ubuntu %}
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+  apt-get -y install ca-certificates curl gnupg systemd systemd-sysv \
+    udev kmod linux-image-generic initramfs-tools network-manager
+  OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
+  OHPC_UBUNTU_REPO="\${OHPC_REPO_ROOT}/Ubuntu_24.04"
+  install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
+  curl -fsSL "\${OHPC_REPO_ROOT}/versatushpc.gpg" \
+    -o {{ ohpc_apt_keyring }}
+  curl -fsSL "\${OHPC_UBUNTU_REPO}/versatushpc-openhpc.list" \
+    -o /etc/apt/sources.list.d/versatushpc-openhpc.list
+  apt-get update
+  apt-get -y upgrade
+{% else %}
   dnf -y install dnf-utils
   dnf -y install {{ ohpc_repo_server }}/OpenHPC/{{ ohpc_version_tree }}/{{ ostree }}/\
 {{ arch }}/ohpc-release-{{ ohpc_version_tree }}-1.{{ distro_tag }}.{{ arch }}.rpm
   dnf -y update
+{% endif %}
 EOF
 ```
 <!-- ohpc_end -->

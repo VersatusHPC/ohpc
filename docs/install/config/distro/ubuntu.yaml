@@ -1,0 +1,60 @@
+# Ubuntu 24.04 LTS configuration
+
+distro: "ubuntu"
+distro_family: "ubuntu"
+distro_version: "24.04"
+distro_name: "Ubuntu"
+distro_image: "ubuntu"
+is_ubuntu: true
+uses_dnf: false
+uses_apt: true
+
+# Computed values
+distro_full_name: "Ubuntu 24.04 LTS"
+ostree: "Ubuntu_24.04"
+distro_tag: "ubuntu24.04"
+baseos: "ubuntu-24.04"
+baseosshort: "ubuntu24.04"
+distro_container_image: "ubuntu:24.04"
+
+# OpenHPC repository
+ohpc_repo_server: "https://repos.versatushpc.com.br"
+ohpc_repo_path: "/openhpc/versatushpc-4"
+ohpc_apt_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/"
+ohpc_apt_key_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg"
+ohpc_apt_list_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list"
+ohpc_apt_keyring: "/usr/share/keyrings/versatushpc.gpg"
+
+# Package manager commands
+pkg_manager: "apt"
+pkg_install: "apt-get -y install"
+pkg_install_chroot: 'chroot "$CHROOT" apt-get -y install'
+pkg_group_install: "apt-get -y install"
+pkg_group_install_chroot: 'chroot "$CHROOT" apt-get -y install'
+pkg_add_repo: "add-apt-repository -y"
+pkg_add_repo_chroot: 'chroot "$CHROOT" add-apt-repository -y'
+pkg_clean: "apt-get clean && apt-get update"
+pkg_clean_chroot: 'chroot "$CHROOT" bash -lc "apt-get clean && apt-get update"'
+pkg_remove: "apt-get -y remove"
+pkg_upgrade: "apt-get -y upgrade"
+pkg_upgrade_chroot: 'chroot "$CHROOT" apt-get -y upgrade'
+pkg_update: "apt-get update"
+
+# Package names that differ from RPM builds
+easybuild_pkg: "easybuild-ohpc"
+mpich_default_pkg: "mpich-gnu15-ohpc"
+mpich_ucx_pkg: "mpich-ucx-gnu15-ohpc"
+openmpi_default_pkg: "openmpi5-gnu15-ohpc"
+warewulf_dracut_pkg: "warewulf-dracut-ohpc"
+nfs_server_pkg: "nfs-kernel-server"
+nfs_server_service: "nfs-server"
+chrony_service: "chrony"
+chrony_config: "/etc/chrony/chrony.conf"
+
+# Optional InfiniBand package sets for Ubuntu.
+ib_head_packages: "rdma-core ibverbs-providers infiniband-diags perftest opensm"
+ib_compute_packages: "rdma-core ibverbs-providers infiniband-diags perftest"
+
+# Ubuntu packaging currently provides MVAPICH2 libraries but not the EL
+# mvapich2 meta-package aliases.
+has_mvapich2_parallel_meta: false

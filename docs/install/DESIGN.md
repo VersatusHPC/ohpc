@@ -8,7 +8,7 @@ for OpenHPC installation recipes.
 - Make documentation easier to edit and contribute to
 - Normalize variable names and remove duplication
 - Support multiple provisioners (Warewulf, OpenCHAMI, Confluent) and schedulers (Slurm)
-- Support multiple distros (Rocky, AlmaLinux, openEuler, SLES) and
+- Support multiple distros (Rocky, AlmaLinux, openEuler, Ubuntu) and
   architectures (x86_64, aarch64)
 - Generate installation scripts directly from documentation
 - Single Python build tool with Makefile orchestration (no shell script pipelines)
@@ -61,7 +61,8 @@ config/
 │   ├── el10.yaml                # EL10 family: version + pkg commands + is_el: true
 │   ├── rocky.yaml               # Rocky: just name + image
 │   ├── almalinux.yaml           # AlmaLinux: just name + image
-│   └── openeuler.yaml           # openEuler: own pkg commands + distro info
+│   ├── openeuler.yaml           # openEuler: own pkg commands + distro info
+│   └── ubuntu.yaml              # Ubuntu: APT commands + Debian package names
 ├── arch/
 │   ├── x86_64.yaml              # is_x86_64: true
 │   └── aarch64.yaml             # is_aarch64: true
@@ -539,7 +540,8 @@ docs/install/
 │   ├── distro/
 │   │   ├── rocky/
 │   │   ├── almalinux/
-│   │   └── openeuler/
+│   │   ├── openeuler/
+│   │   └── ubuntu/
 │   └── figures/
 ├── manifests/                   # Package manifest data and config
 │   ├── config.yaml              # Manifest generation config
@@ -550,10 +552,12 @@ docs/install/
 │   │   └── meta-ohpc.md         # Generated meta-package table
 │   ├── el10-aarch64/
 │   ├── oe2403-x86_64/
-│   └── oe2403-aarch64/
+│   ├── oe2403-aarch64/
+│   └── ubuntu24.04-x86_64/
 ├── recipes/                     # Recipe YAML files (source only)
-│   ├── rocky10-x86_64-warewulf-slurm.yaml
-│   ├── almalinux10-x86_64-warewulf-slurm.yaml
+│   ├── rocky10-x86_64-warewulf-slurm.conf
+│   ├── almalinux10-x86_64-warewulf-slurm.conf
+│   ├── ubuntu24.04-x86_64-warewulf-slurm.conf
 │   └── ...
 └── build/                       # Generated output (gitignored)
     ├── header-includes.tex      # Rendered from pandoc/header-includes.tex.j2
@@ -592,8 +596,8 @@ docs/install/
 - Prefix distro info with `distro_`: `distro_name`, `distro_version`
 - Prefix feature flags with `enable_`: `enable_infiniband`, `enable_clustershell`
 - Prefix boolean type flags with `is_`: `is_x86_64`, `is_warewulf`, `is_el`
-- Capability flags: `uses_dnf` (set in distro configs, used instead of
-  `is_el or is_openeuler`)
+- Capability flags: `uses_dnf` and `uses_apt` (set in distro configs, used
+  instead of distro-family conditionals where possible)
 - Display names: `provisioner_name`, `scheduler_name` (used in page
   headers and titles)
 
@@ -717,10 +721,10 @@ python3 tests/ci/run_build.py $USER components/admin/docs/SPECS/docs.spec
 
 ### Recipe Naming
 
-Recipes are named `{distro}{version}-{arch}-{provisioner}-{scheduler}.yaml`
-and live in `recipes/`. See existing recipes for examples. The 14 current
+Recipes are named `{distro}{version}-{arch}-{provisioner}-{scheduler}.conf`
+and live in `recipes/`. See existing recipes for examples. The 15 current
 recipes cover Warewulf, Confluent, and OpenCHAMI across Rocky, AlmaLinux,
-and openEuler on x86\_64 and aarch64.
+openEuler, and Ubuntu on x86\_64 and aarch64 where supported.
 
 ### Manifest Directory Naming
 

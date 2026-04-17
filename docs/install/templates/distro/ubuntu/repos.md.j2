@@ -1,0 +1,19 @@
+## Enable Ubuntu Package Repositories
+
+In addition to the OpenHPC package repository, the *head node* also requires
+access to the standard Ubuntu repositories in order to resolve base operating
+system dependencies. This recipe assumes a standard {{ distro_full_name }}
+installation with the `main`, `universe`, and `multiverse` components enabled.
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Enable Ubuntu package repositories -->
+```bash
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get -y install \
+	ca-certificates curl gnupg software-properties-common
+add-apt-repository -y universe
+add-apt-repository -y multiverse
+apt-get update
+```
+<!-- ohpc_end -->

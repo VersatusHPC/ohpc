@@ -8,7 +8,11 @@ and PSM support using base distro-provided drivers to the compute image.
 <!-- ohpc_if_set enable_ib -->
 ```bash
 # Add IB support and enable
+{% if is_ubuntu -%}
+{{ compute_install(ib_compute_packages.split()) }}
+{% else -%}
 {{ pkg_group_install_chroot }} "InfiniBand Support"
+{% endif -%}
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->

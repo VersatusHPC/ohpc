@@ -26,8 +26,12 @@ multiple MPICH variants or MVAPICH2. Relevant lmod-default packages names are as
 follows:
 {% endif %}
 
+{% if is_ubuntu %}
+* lmod-defaults-{{ gnu_version }}-{{ openmpi_version }}-ohpc
+{% else %}
 * lmod-defaults-{{ gnu_version }}-mpich-ofi-ohpc
 * lmod-defaults-{{ gnu_version }}-mpich-ucx-ohpc
+{% endif %}
 {% if is_x86_64 %}
 * lmod-defaults-{{ gnu_version }}-mvapich2-ohpc
 {% endif %}

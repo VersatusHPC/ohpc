@@ -7,9 +7,17 @@
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_if_set enable_ib -->
+{% if has_mvapich2_parallel_meta | default(true) -%}
 <!-- ohpc_command {{ pkg_install }} ohpc-{{ gnu_version }}-mvapich2-parallel-libs -->
+{% else -%}
+<!-- ohpc_command {{ pkg_install }} mvapich2-{{ gnu_version }}-ohpc -->
+{% endif -%}
 <!-- ohpc_fi -->
 <!-- ohpc_if_set enable_opa -->
+{% if has_mvapich2_parallel_meta | default(true) -%}
 <!-- ohpc_command {{ pkg_install }} ohpc-{{ gnu_version }}-mvapich2-parallel-libs -->
+{% else -%}
+<!-- ohpc_command {{ pkg_install }} mvapich2-{{ gnu_version }}-ohpc -->
+{% endif -%}
 <!-- ohpc_fi -->
 <!-- ohpc_end -->

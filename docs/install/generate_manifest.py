@@ -31,6 +31,7 @@ import sys
 import yaml
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 
 # ---------------------------------------------------------------------------
@@ -225,8 +226,8 @@ def generate_package_table(groups: list[PackageGroup]) -> str:
         return ""
 
     lines = [
-        "| **RPM Package Name** | **Version** | **Info/URL** |",
-        "|----------------------|-------------|--------------|",
+        "| **Package Name** | **Version** | **Info/URL** |",
+        "|------------------|-------------|--------------|",
     ]
 
     for group in groups:
@@ -472,6 +473,120 @@ def generate_all_files(manifest_dir: Path, version: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# .all File Generation from Debian Packages metadata
+# ---------------------------------------------------------------------------
+
+def parse_deb822_packages(text: str) -> list[dict[str, str]]:
+    """Parse Debian Packages metadata into a list of field dictionaries."""
+    records = []
+    current: dict[str, str] = {}
+    last_key = None
+
+    for raw_line in text.splitlines():
+        if not raw_line:
+            if current:
+                records.append(current)
+                current = {}
+                last_key = None
+            continue
+        if raw_line.startswith(" ") and last_key:
+            current[last_key] += "\n" + raw_line[1:]
+            continue
+        if ":" not in raw_line:
+            continue
+        key, value = raw_line.split(":", 1)
+        current[key] = value.strip()
+        last_key = key
+
+    if current:
+        records.append(current)
+
+    return records
+
+
+def first_description_line(description: str) -> str:
+    """Return the short package description without OpenHPC suffix noise."""
+    first = description.splitlines()[0].strip()
+    first = re.sub(r"\s*\(OpenHPC\)$", "", first)
+    return first
+
+
+def debian_upstream_version(version: str) -> str:
+    """Strip epoch and Debian revision from a Debian version."""
+    if ":" in version:
+        version = version.split(":", 1)[1]
+    return version.split("-", 1)[0]
+
+
+def load_component_category_map() -> dict[str, str]:
+    """Map Debian binary package names to OpenHPC component categories."""
+    repo_root = Path(__file__).resolve().parents[2]
+    components = repo_root / "components"
+    package_categories: dict[str, str] = {}
+    if not components.is_dir():
+        return package_categories
+
+    for control in components.glob("*/*/debian*/control"):
+        parts = control.relative_to(repo_root).parts
+        if len(parts) < 4:
+            continue
+        category = parts[1]
+        with open(control, "r", encoding="utf-8") as f:
+            for line in f:
+                match = re.match(r"^Package:\s*(\S+)\s*$", line)
+                if match:
+                    package_categories[match.group(1).lower()] = category
+
+    return package_categories
+
+
+def generate_apt_all_files(manifest_dir: Path, packages_url: str) -> None:
+    """Generate pkg-ohpc.all and meta-ohpc.all from a Debian Packages file."""
+    print(f"Fetching APT package metadata: {packages_url}")
+    request = Request(packages_url, headers={"User-Agent": "OpenHPC-docs"})
+    with urlopen(request) as response:
+        packages_text = response.read().decode("utf-8")
+
+    records = parse_deb822_packages(packages_text)
+    category_map = load_component_category_map()
+
+    pkg_lines = []
+    meta_lines = []
+    for record in records:
+        name = record.get("Package", "").lower()
+        if not name:
+            continue
+        version = debian_upstream_version(record.get("Version", "0"))
+        url = record.get("Homepage", "https://github.com/openhpc/ohpc")
+        summary = first_description_line(record.get("Description", name))
+
+        if name.startswith("ohpc-") and not name.endswith("-ohpc"):
+            if name not in {"ohpc-release", "ohpc-filesystem", "ohpc-buildroot"}:
+                meta_lines.append(f"{name} {summary}")
+            if name != "ohpc-release":
+                continue
+
+        if not (name.endswith("-ohpc") or name == "ohpc-release"):
+            continue
+
+        category = category_map.get(name, "distro-packages")
+        pkg_lines.append(f"{name} {version} {url} ohpc/{category} {summary}")
+
+    pkg_lines = sorted(set(pkg_lines))
+    meta_lines = sorted(set(meta_lines))
+
+    pkg_path = manifest_dir / "pkg-ohpc.all"
+    with open(pkg_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(pkg_lines) + "\n")
+    print(f"Generated: {pkg_path} ({len(pkg_lines)} packages)")
+
+    meta_path = manifest_dir / "meta-ohpc.all"
+    with open(meta_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(meta_lines) + "\n")
+    print(f"Generated: {meta_path} ({len(meta_lines)} meta-packages)")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -496,6 +611,16 @@ Examples:
         help="Generate .all files by querying dnf (requires dnf on target system)",
     )
     parser.add_argument(
+        "--generate-apt",
+        action="store_true",
+        help="Generate .all files from a Debian Packages file",
+    )
+    parser.add_argument(
+        "--apt-packages-url",
+        default="https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/Packages",
+        help="URL of the Debian Packages metadata file for --generate-apt",
+    )
+    parser.add_argument(
         "--version",
         help="OpenHPC version (e.g., 4.0) - required with --generate-all",
     )
@@ -515,6 +640,9 @@ Examples:
             print("Error: --version is required with --generate-all", file=sys.stderr)
             sys.exit(1)
         generate_all_files(manifest_dir, args.version)
+        print()
+    if args.generate_apt:
+        generate_apt_all_files(manifest_dir, args.apt_packages_url)
         print()
 
     # Check that .all files exist

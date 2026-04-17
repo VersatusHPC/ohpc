@@ -6,11 +6,18 @@ later to provision `ib0` network settings.
 
 <!-- ohpc_begin -->
 <!-- ohpc_if_set enable_ipoib -->
+{% if is_ubuntu %}
+```bash
+echo "Ubuntu Warewulf IPoIB overlay template is not included in this recipe."
+echo "Configure IPoIB with a site-local NetworkManager overlay if required."
+```
+{% else %}
 ```bash
 # Import the template file for the ib interface
 wwctl overlay import --parents nodeconfig \
 	/opt/ohpc/pub/examples/network/centos/ifcfg-ib0.ww \
 	/etc/sysconfig/network-scripts/ifcfg-ib0.ww
 ```
+{% endif %}
 <!-- ohpc_fi -->
 <!-- ohpc_end -->

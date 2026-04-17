@@ -51,11 +51,20 @@ updates are pre-configured.
 2. Upgrade head node
 
 ```bash
+{% if is_ubuntu %}
+dpkg-query -W -f='${binary:Package}\n' '*-ohpc' 2>/dev/null | \
+	xargs -r apt-get -y install --only-upgrade
+
+# Any new Base OS provided dependencies can be installed by
+# updating the ohpc-base metapackage
+apt-get -y install ohpc-base
+{% else %}
 {{ pkg_upgrade }} "*-ohpc"
 
 # Any new Base OS provided dependencies can be installed by
 # updating the ohpc-base metapackage
 {{ pkg_upgrade }} "ohpc-base"
+{% endif %}
 ```
 
 {% if is_openchami %}
@@ -84,11 +93,21 @@ apply the changes.
 3. Upgrade packages on compute nodes
 
 ```bash
+{% if is_ubuntu %}
+chroot "$CHROOT" bash -lc \
+	"dpkg-query -W -f='\${binary:Package}\n' '*-ohpc' 2>/dev/null | \
+	xargs -r apt-get -y install --only-upgrade"
+
+# Any new compute-node Base OS provided dependencies can be installed by
+# updating the ohpc-base-compute metapackage
+chroot "$CHROOT" apt-get -y install ohpc-base-compute
+{% else %}
 {{ pkg_upgrade_chroot }} "*-ohpc"
 
 # Any new compute-node Base OS provided dependencies can be installed by
 # updating the ohpc-base-compute metapackage
 {{ pkg_upgrade_chroot }} "ohpc-base-compute"
+{% endif %}
 ```
 
 Note that to update running services such as a resource manager, a service
@@ -97,11 +116,21 @@ restart is required on the compute nodes.
 3. Upgrade packages in compute image
 
 ```bash
+{% if is_ubuntu %}
+chroot "$CHROOT" bash -lc \
+	"dpkg-query -W -f='\${binary:Package}\n' '*-ohpc' 2>/dev/null | \
+	xargs -r apt-get -y install --only-upgrade"
+
+# Any new compute-node Base OS provided dependencies can be installed by
+# updating the ohpc-base-compute metapackage
+chroot "$CHROOT" apt-get -y install ohpc-base-compute
+{% else %}
 {{ pkg_upgrade_chroot }} "*-ohpc"
 
 # Any new compute-node Base OS provided dependencies can be installed by
 # updating the ohpc-base-compute metapackage
 {{ pkg_upgrade_chroot }} "ohpc-base-compute"
+{% endif %}
 ```
 
 4. Rebuild image(s)

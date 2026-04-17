@@ -10,14 +10,22 @@ permutations may be available for components where there are known license
 incompatibilities. The general naming convention for builds provided by OpenHPC
 is to append the compiler and MPI family name that the library was built against
 directly into the package name. For example, libraries that do not require MPI
-as part of the build process adopt the following RPM name:
+as part of the build process adopt the following package name:
 
+{% if is_ubuntu %}
+`package-<compiler_family>-ohpc`
+{% else %}
 `package-<compiler_family>-ohpc-<package_version>-<release>.rpm`
+{% endif %}
 
 Packages that do require MPI as part of the build expand upon this convention to
 additionally include the MPI family name as follows:
 
+{% if is_ubuntu %}
+`package-<compiler_family>-<mpi_family>-ohpc`
+{% else %}
 `package-<compiler_family>-<mpi_family>-ohpc-<package_version>-<release>.rpm`
+{% endif %}
 
 To illustrate this further, the command below queries the locally configured
 repositories to identify all of the available PETSc packages that were built
