@@ -67,6 +67,14 @@ override_dh_auto_install:
 override_dh_auto_clean:
 	rm -rf $(SRCDIR)
 
+override_dh_fixperms:
+	dh_fixperms
+	# dh_fixperms resets files under /usr/share to 0644; these overlays
+	# must remain private for OpenSSH and NetworkManager on compute nodes.
+	chmod 0600 $(PKG)/usr/share/warewulf/overlays/NetworkManager/rootfs/etc/NetworkManager/system-connections/ww4-managed.ww
+	chmod 0600 $(PKG)/usr/share/warewulf/overlays/ssh.host_keys/rootfs/etc/ssh/ssh_host_*_key.ww
+	chmod 0644 $(PKG)/usr/share/warewulf/overlays/ssh.host_keys/rootfs/etc/ssh/ssh_host_*_key.pub.ww
+
 override_dh_usrlocal:
 
 override_dh_shlibdeps:

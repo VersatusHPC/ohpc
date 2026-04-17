@@ -1,5 +1,11 @@
+warewulf-ohpc (4.6.5-1ohpc2~noble) noble; urgency=low
+
+  * Preserve upstream private overlay modes after dh_fixperms.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 00:00:00 +0000
+
 warewulf-ohpc (4.6.5-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 
- -- VersatusHPC <packages@versatushpc.org>  Thu, 27 Mar 2026 18:00:00 +0000
+ -- VersatusHPC <packages@versatushpc.com.br>  Thu, 27 Mar 2026 18:00:00 +0000
