@@ -834,12 +834,12 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-slurm-client
 %files -n %{PROJ_NAME}-slurm-server
 %files -n %{PROJ_NAME}-warewulf
-%if !0%{?openEuler}
 # x86_64 specific groups
 %ifnarch aarch64
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
+%if !0%{?openEuler}
 %files -n %{PROJ_NAME}-intel-io-libs
 %files -n %{PROJ_NAME}-intel-impi-io-libs
 %files -n %{PROJ_NAME}-intel-mpich-io-libs
@@ -856,8 +856,10 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-intel-%{mpi_family}-perf-tools
 %files -n %{PROJ_NAME}-intel-python3-libs
 %files -n %{PROJ_NAME}-intel-serial-libs
+%endif
 %else
 # aarch64 specific groups
+%if !0%{?openEuler}
 %files -n %{PROJ_NAME}-arm1-serial-libs
 %files -n %{PROJ_NAME}-arm1-io-libs
 %files -n %{PROJ_NAME}-arm1-perf-tools
