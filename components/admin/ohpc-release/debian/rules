@@ -10,7 +10,7 @@ override_dh_auto_build:
 override_dh_auto_install:
 	# /etc/ohpc-release identification file
 	mkdir -p $(PKG)/etc
-	echo "OpenHPC release 4.1 (VersatusHPC)" > $(PKG)/etc/ohpc-release
+	echo "OpenHPC release 4.0 (VersatusHPC)" > $(PKG)/etc/ohpc-release
 	echo "HOME_URL=https://github.com/VersatusHPC/ohpc" >> $(PKG)/etc/ohpc-release
 	echo "BUG_REPORT_URL=https://github.com/VersatusHPC/ohpc/issues" >> $(PKG)/etc/ohpc-release
 	# APT repository configuration

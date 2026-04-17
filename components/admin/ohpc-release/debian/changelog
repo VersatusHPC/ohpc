@@ -1,11 +1,14 @@
-ohpc-release (4.1-1ohpc2~noble) noble; urgency=low
+ohpc-release (1:4.0-1ohpc3~noble) noble; urgency=low
 
+  * Correct the Debian release version back to OpenHPC 4.0 GA semantics.
+  * Keep a Debian epoch so systems that saw the accidental 4.1 package
+    upgrade cleanly to the corrected 4.0 release metadata.
   * Update the Ubuntu APT source example for the public VersatusHPC repository
     URL and keyring name.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 00:00:00 +0000
 
-ohpc-release (4.1-1ohpc1~noble) noble; urgency=low
+ohpc-release (4.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
   * APT repository configuration for VersatusHPC.

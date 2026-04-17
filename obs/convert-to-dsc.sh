@@ -40,6 +40,9 @@ convert_and_upload() {
     version=$(head -1 "$comp_dir/$debian_dir/changelog" 2>/dev/null | sed 's/.*(\(.*\)).*/\1/')
     [ -z "$version" ] && return
 
+    local file_version
+    file_version="${version#*:}"
+
     local arch
     arch=$(grep "^Architecture:" "$comp_dir/$debian_dir/control" 2>/dev/null | head -1 | awk '{print $2}')
     [ -z "$arch" ] && arch="any"
@@ -56,37 +59,37 @@ convert_and_upload() {
 
     local pkgdir="$WORKDIR/$pkg_name"
     rm -rf "$pkgdir"
-    mkdir -p "$pkgdir/${pkg_name}-${version}/debian"
+    mkdir -p "$pkgdir/${pkg_name}-${file_version}/debian"
 
     # Copy debian files
-    cp -a "$comp_dir/$debian_dir"/* "$pkgdir/${pkg_name}-${version}/debian/"
+    cp -a "$comp_dir/$debian_dir"/* "$pkgdir/${pkg_name}-${file_version}/debian/"
 
     # Copy SOURCES if they exist (dereference symlinks with -L)
     if [ -d "$comp_dir/SOURCES" ]; then
-        cp -aL "$comp_dir/SOURCES" "$pkgdir/${pkg_name}-${version}/"
+        cp -aL "$comp_dir/SOURCES" "$pkgdir/${pkg_name}-${file_version}/"
     fi
 
     # Copy devel/ helper scripts and fix absolute /build/ paths in rules
-    mkdir -p "$pkgdir/${pkg_name}-${version}/devel"
-    cp "$REPO_ROOT/devel/build-comp.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
-    cp "$REPO_ROOT/devel/build-mpi.sh" "$pkgdir/${pkg_name}-${version}/devel/" 2>/dev/null || true
+    mkdir -p "$pkgdir/${pkg_name}-${file_version}/devel"
+    cp "$REPO_ROOT/devel/build-comp.sh" "$pkgdir/${pkg_name}-${file_version}/devel/" 2>/dev/null || true
+    cp "$REPO_ROOT/devel/build-mpi.sh" "$pkgdir/${pkg_name}-${file_version}/devel/" 2>/dev/null || true
     # OBS builds from /usr/src/packages/BUILD/ — use absolute path to devel/
-    sed -i 's|/build/devel/|/usr/src/packages/BUILD/devel/|g' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
+    sed -i 's|/build/devel/|/usr/src/packages/BUILD/devel/|g' "$pkgdir/${pkg_name}-${file_version}/debian/rules" 2>/dev/null || true
     # Ensure COMPILER_FAMILY and MPI_FAMILY are exported to the environment
     # (OBS doesn't pass them as env vars like our container builds do)
-    sed -i 's/^COMPILER_FAMILY\b/export COMPILER_FAMILY/' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
-    sed -i 's/^MPI_FAMILY\b/export MPI_FAMILY/' "$pkgdir/${pkg_name}-${version}/debian/rules" 2>/dev/null || true
+    sed -i 's/^COMPILER_FAMILY\b/export COMPILER_FAMILY/' "$pkgdir/${pkg_name}-${file_version}/debian/rules" 2>/dev/null || true
+    sed -i 's/^MPI_FAMILY\b/export MPI_FAMILY/' "$pkgdir/${pkg_name}-${file_version}/debian/rules" 2>/dev/null || true
 
     # Create the source tarball
     cd "$pkgdir"
-    tar czf "${pkg_name}_${version}.tar.gz" "${pkg_name}-${version}/" 2>/dev/null
+    tar czf "${pkg_name}_${file_version}.tar.gz" "${pkg_name}-${file_version}/" 2>/dev/null
 
     # Create .dsc file
     local tarball_md5 tarball_size
-    tarball_md5=$(md5sum "${pkg_name}_${version}.tar.gz" | awk '{print $1}')
-    tarball_size=$(stat -c %s "${pkg_name}_${version}.tar.gz")
+    tarball_md5=$(md5sum "${pkg_name}_${file_version}.tar.gz" | awk '{print $1}')
+    tarball_size=$(stat -c %s "${pkg_name}_${file_version}.tar.gz")
 
-    cat > "${pkg_name}_${version}.dsc" << EOF
+    cat > "${pkg_name}_${file_version}.dsc" << EOF
 Format: 3.0 (native)
 Source: $pkg_name
 Binary: $pkg_name
@@ -95,7 +98,7 @@ Version: $version
 Maintainer: $maintainer
 Build-Depends: $build_deps
 Files:
- $tarball_md5 $tarball_size ${pkg_name}_${version}.tar.gz
+ $tarball_md5 $tarball_size ${pkg_name}_${file_version}.tar.gz
 EOF
 
     # Ensure OBS package exists
@@ -113,13 +116,13 @@ EOF
     done
 
     # Upload .dsc and .tar.gz
-    obs_request "uploading ${pkg_name}_${version}.dsc" \
-        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.dsc" \
-        --data-binary "@${pkg_name}_${version}.dsc" || return 1
+    obs_request "uploading ${pkg_name}_${file_version}.dsc" \
+        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${file_version}.dsc" \
+        --data-binary "@${pkg_name}_${file_version}.dsc" || return 1
 
-    obs_request "uploading ${pkg_name}_${version}.tar.gz" \
-        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${version}.tar.gz" \
-        --data-binary "@${pkg_name}_${version}.tar.gz" || return 1
+    obs_request "uploading ${pkg_name}_${file_version}.tar.gz" \
+        -X PUT "$OBS_SRC/source/$PROJECT/$pkg_name/${pkg_name}_${file_version}.tar.gz" \
+        --data-binary "@${pkg_name}_${file_version}.tar.gz" || return 1
 
     COUNT=$((COUNT + 1))
     printf "\r  [%3d] %-50s" "$COUNT" "$pkg_name"
