@@ -25,6 +25,9 @@ override_dh_auto_build:
 override_dh_auto_install:
 	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install
 	find $(PKG) -name '*.la' -delete
+	# Slurm loads PMIx at daemon startup, outside any user module environment.
+	mkdir -p $(PKG)/etc/ld.so.conf.d
+	echo "$(INSTALL_PATH)/lib" > $(PKG)/etc/ld.so.conf.d/ohpc-pmix.conf
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/modulefiles/pmix
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/modulefiles/pmix/$(PMIX_VERSION)

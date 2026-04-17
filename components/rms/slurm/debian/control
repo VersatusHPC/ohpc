@@ -1,7 +1,7 @@
 Source: slurm-ohpc
 Section: science
 Priority: optional
-Maintainer: VersatusHPC <packages@versatushpc.org>
+Maintainer: VersatusHPC <packages@versatushpc.com.br>
 Build-Depends: debhelper-compat (= 13),
                ohpc-buildroot,
                g++,
@@ -33,7 +33,7 @@ Homepage: https://slurm.schedmd.com/
 
 Package: slurm-ohpc
 Architecture: any
-Depends: munge-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Depends: munge-ohpc, pmix-ohpc, ${shlibs:Depends}, ${misc:Depends}
 Description: Slurm Workload Manager (OpenHPC)
  Slurm is a highly scalable cluster management and job scheduling system.
  This package contains the core Slurm binaries and libraries.
@@ -54,7 +54,7 @@ Description: Slurm controller daemon (OpenHPC)
 
 Package: slurm-slurmd-ohpc
 Architecture: any
-Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: slurm-ohpc (= ${binary:Version}), pmix-ohpc, ${shlibs:Depends}, ${misc:Depends}
 Description: Slurm compute node daemon (OpenHPC)
  The slurmd daemon runs on each compute node.
 

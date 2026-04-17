@@ -1,7 +1,7 @@
 Source: ohpc-meta-packages
 Section: science
 Priority: optional
-Maintainer: VersatusHPC <packages@versatushpc.org>
+Maintainer: VersatusHPC <packages@versatushpc.com.br>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.2
 Homepage: https://github.com/openhpc/ohpc
@@ -50,6 +50,7 @@ Description: OpenHPC base packages
 Package: ohpc-base-compute
 Architecture: all
 Depends: binutils,
+         libevent-pthreads-2.1-7t64,
          libicu-dev,
          libunwind-dev,
          libfabric1,

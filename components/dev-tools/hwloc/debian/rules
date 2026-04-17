@@ -22,6 +22,9 @@ override_dh_auto_build:
 override_dh_auto_install:
 	cd $(SRCDIR) && $(MAKE) DESTDIR=$(PKG) install
 	find $(PKG) -name '*.la' -delete
+	# Make the fixed OHPC hwloc library path visible to system daemons.
+	mkdir -p $(PKG)/etc/ld.so.conf.d
+	echo "$(INSTALL_PATH)/lib" > $(PKG)/etc/ld.so.conf.d/ohpc-hwloc.conf
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/modulefiles/hwloc
 	install -m 644 debian/modulefile $(PKG)/opt/ohpc/pub/modulefiles/hwloc/$(HWLOC_VERSION)

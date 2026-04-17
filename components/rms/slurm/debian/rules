@@ -76,6 +76,7 @@ override_dh_auto_install:
 	mkdir -p $(CURDIR)/debian/slurm-slurmd-ohpc$(INSTALL_PATH)/sbin
 	mkdir -p $(CURDIR)/debian/slurm-slurmd-ohpc/lib/systemd/system
 	cp -a $(PKGDIR)$(INSTALL_PATH)/sbin/slurmd $(CURDIR)/debian/slurm-slurmd-ohpc$(INSTALL_PATH)/sbin/ 2>/dev/null || true
+	cp -a $(PKGDIR)$(INSTALL_PATH)/sbin/slurmstepd $(CURDIR)/debian/slurm-slurmd-ohpc$(INSTALL_PATH)/sbin/ 2>/dev/null || true
 	cp -a $(PKGDIR)/lib/systemd/system/slurmd.service $(CURDIR)/debian/slurm-slurmd-ohpc/lib/systemd/system/ 2>/dev/null || true
 	# slurm-slurmdbd-ohpc
 	mkdir -p $(CURDIR)/debian/slurm-slurmdbd-ohpc$(INSTALL_PATH)/sbin

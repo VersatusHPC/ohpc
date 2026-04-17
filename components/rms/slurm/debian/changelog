@@ -1,5 +1,12 @@
+slurm-ohpc (25.05.6-1ohpc2~noble) noble; urgency=low
+
+  * Include slurmstepd in the slurm-slurmd binary package.
+  * Add the PMIx runtime dependency required by Slurm's PMIx plugin.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 00:00:00 +0000
+
 slurm-ohpc (25.05.6-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 
- -- VersatusHPC <packages@versatushpc.org>  Thu, 27 Mar 2026 18:00:00 +0000
+ -- VersatusHPC <packages@versatushpc.com.br>  Thu, 27 Mar 2026 18:00:00 +0000
