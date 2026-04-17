@@ -20,5 +20,6 @@ prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7/lib
 prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/gnu15-mvapich2
 prepend-path    MPI_DIR             /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7
 prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7/lib/pkgconfig
+setenv          MV2_SMP_USE_CMA     0
 
 family "MPI"

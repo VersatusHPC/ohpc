@@ -18,6 +18,20 @@ The checks below do not prove every scientific library is correct. They prove
 that the repository can deploy a usable Ubuntu head/compute node pair and run
 the key OpenHPC workflows that most downstream packages depend on.
 
+## Sparse Runtime Coverage Line
+
+For the Ubuntu port, the minimum post-publication runtime line is:
+
+1. Public APT repository installs signed metadata and package candidates.
+2. Warewulf boots one Ubuntu 24.04 compute image.
+3. Slurm, MUNGE, PMIx, HWLOC, and `/opt` sharing work on the compute node.
+4. GNU15 compiles and runs an MPI hello program through Slurm for OpenMPI, MPICH, and MVAPICH2.
+5. IMB `PingPong` runs through Slurm for the same three GNU15 MPI stacks.
+
+This is the fast release gate. Broader library tests can expand from this line,
+but a repository snapshot should not be treated as usable if any item here
+fails.
+
 ## Release Gate
 
 Do not publish a new public repository snapshot until these gates pass:
@@ -30,7 +44,8 @@ Do not publish a new public repository snapshot until these gates pass:
 6. PMIx and hwloc are visible to system daemons through `ldconfig`.
 7. OpenMPI runs through Slurm/PMIx.
 8. MPICH runs through Slurm/PMI2.
-9. At least one MPI-dependent package runs through both MPI stacks.
+9. MVAPICH2 runs through Slurm/PMI2.
+10. At least one MPI-dependent package runs through all three GNU15 MPI stacks.
 
 ## OBS Status Check
 
@@ -241,6 +256,30 @@ hello from rank 0/2 on c1
 hello from rank 1/2 on c1
 ```
 
+MVAPICH2 through Slurm/PMI2:
+
+```bash
+source /etc/profile.d/lmod.sh
+module purge
+module load gnu15/15.2.0 mvapich2/2.3.7
+module show mvapich2/2.3.7 2>&1 | grep MV2_SMP_USE_CMA
+mpicc ~/ohpc-smoke/mpi-hello.c -o ~/ohpc-smoke/mpi-hello-mvapich2
+srun --input=none --mpi=pmi2 -N1 -n2 ~/ohpc-smoke/mpi-hello-mvapich2 | sort
+```
+
+Expected:
+
+```text
+setenv          MV2_SMP_USE_CMA     0
+hello from rank 0/2 on c1
+hello from rank 1/2 on c1
+```
+
+Ubuntu kernels commonly block MVAPICH2's CMA shared-memory path in this Slurm
+launch setup, which appears as `process_vm_readv: Operation not permitted`
+during `MPI_Init`. The Ubuntu MVAPICH2 modulefile disables that path with
+`MV2_SMP_USE_CMA=0`; missing that environment setting is a release blocker.
+
 ## MPI-Dependent Package Smoke Test
 
 IMB is a useful fast canary because it validates MPI plus at least one
@@ -256,11 +295,15 @@ srun --input=none --mpi=pmix -N1 -n2 IMB-MPI1 PingPong -msglog 0:3
 module purge
 module load gnu15/15.2.0 mpich/5.0.0-ofi imb/2021.10
 srun --input=none --mpi=pmi2 -N1 -n2 IMB-MPI1 PingPong -msglog 0:3
+
+module purge
+module load gnu15/15.2.0 mvapich2/2.3.7 imb/2021.10
+srun --input=none --mpi=pmi2 -N1 -n2 IMB-MPI1 PingPong -msglog 0:3
 ```
 
 Expected:
 
-- Both runs complete and enter `MPI_Finalize`.
+- All three runs complete and enter `MPI_Finalize`.
 - Non-zero latency is reported for message sizes 0 through 8 bytes.
 
 ## Expected Non-Blocker: MPICH Hydra over SSH

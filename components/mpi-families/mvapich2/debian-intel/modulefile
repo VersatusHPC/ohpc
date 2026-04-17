@@ -20,5 +20,6 @@ prepend-path    MANPATH             /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/share
 prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/lib
 prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/intel-mvapich2
 prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mvapich2-intel/2.3.7/lib/pkgconfig
+setenv          MV2_SMP_USE_CMA     0
 
 family "MPI"
