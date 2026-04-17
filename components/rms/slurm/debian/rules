@@ -17,6 +17,7 @@ SRCDIR        := $(CURDIR)/slurm-$(SLURM_VERSION)
 PKGDIR        := $(CURDIR)/debian/tmp
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+PAM_PATH      = /lib/$(DEB_HOST_MULTIARCH)/security
 
 %:
 	dh $@
@@ -36,6 +37,7 @@ override_dh_auto_configure:
 		--enable-multiple-slurmd \
 		--with-pmix=$(PMIX_PATH) \
 		--with-hwloc=$(HWLOC_PATH) \
+		--with-pam_dir=$(PAM_PATH) \
 		--with-munge \
 		--disable-slurmrestd \
 		--without-x11 || { cat $(SRCDIR)/config.log | tail -100; exit 1; }
@@ -58,7 +60,13 @@ override_dh_auto_install:
 	cp -a $(PKGDIR)$(INSTALL_PATH)/bin/s* $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/bin/ 2>/dev/null || true
 	cp -a $(PKGDIR)$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/libslurm*.so* $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/ 2>/dev/null || true
 	cp -a $(PKGDIR)$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/ 2>/dev/null || true
-	cp -a $(PKGDIR)/etc/slurm/* $(CURDIR)/debian/slurm-ohpc/etc/slurm/ 2>/dev/null || true
+	find $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm -name '*.a' -delete 2>/dev/null || true
+	rm -f $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/accounting_storage_mysql.so
+	rm -f $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/job_submit_pbs.so
+	rm -f $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/spank_pbs.so
+	mkdir -p $(CURDIR)/debian/slurm-example-configs-ohpc/etc/slurm
+	cp -a $(SRCDIR)/etc/*.example $(CURDIR)/debian/slurm-example-configs-ohpc/etc/slurm/ 2>/dev/null || true
+	cp -a $(PKGDIR)/etc/slurm/* $(CURDIR)/debian/slurm-example-configs-ohpc/etc/slurm/ 2>/dev/null || true
 	# Man pages
 	if [ -d $(PKGDIR)$(INSTALL_PATH)/share/man ]; then \
 		mkdir -p $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/share; \
@@ -82,10 +90,36 @@ override_dh_auto_install:
 	mkdir -p $(CURDIR)/debian/slurm-slurmdbd-ohpc$(INSTALL_PATH)/sbin
 	mkdir -p $(CURDIR)/debian/slurm-slurmdbd-ohpc/lib/systemd/system
 	cp -a $(PKGDIR)$(INSTALL_PATH)/sbin/slurmdbd $(CURDIR)/debian/slurm-slurmdbd-ohpc$(INSTALL_PATH)/sbin/ 2>/dev/null || true
+	mkdir -p $(CURDIR)/debian/slurm-slurmdbd-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm
+	cp -a $(PKGDIR)$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/accounting_storage_mysql.so $(CURDIR)/debian/slurm-slurmdbd-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/ 2>/dev/null || true
 	cp -a $(PKGDIR)/lib/systemd/system/slurmdbd.service $(CURDIR)/debian/slurm-slurmdbd-ohpc/lib/systemd/system/ 2>/dev/null || true
 	# slurm-libpmi-ohpc
 	mkdir -p $(CURDIR)/debian/slurm-libpmi-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)
 	cp -a $(PKGDIR)$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/libpmi*.so* $(CURDIR)/debian/slurm-libpmi-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/ 2>/dev/null || true
+	# slurm-contribs-ohpc
+	mkdir -p $(CURDIR)/debian/slurm-contribs-ohpc$(INSTALL_PATH)/bin
+	for f in seff sjobexitmod sjstat smail; do cp -a $(PKGDIR)$(INSTALL_PATH)/bin/$$f $(CURDIR)/debian/slurm-contribs-ohpc$(INSTALL_PATH)/bin/ 2>/dev/null || true; rm -f $(CURDIR)/debian/slurm-ohpc$(INSTALL_PATH)/bin/$$f; done
+	# slurm-openlava-ohpc
+	mkdir -p $(CURDIR)/debian/slurm-openlava-ohpc$(INSTALL_PATH)/bin
+	for f in bjobs bkill bsub lsid; do cp -a $(PKGDIR)$(INSTALL_PATH)/bin/$$f $(CURDIR)/debian/slurm-openlava-ohpc$(INSTALL_PATH)/bin/ 2>/dev/null || true; done
+	# slurm-perlapi-ohpc
+	mkdir -p $(CURDIR)/debian/slurm-perlapi-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/perl
+	cp -a $(PKGDIR)$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/perl/* $(CURDIR)/debian/slurm-perlapi-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/perl/ 2>/dev/null || true
+	find $(CURDIR)/debian/slurm-perlapi-ohpc -name perllocal.pod -delete 2>/dev/null || true
+	find $(CURDIR)/debian/slurm-perlapi-ohpc -name .packlist -delete 2>/dev/null || true
+	# slurm-sackd-ohpc
+	mkdir -p $(CURDIR)/debian/slurm-sackd-ohpc$(INSTALL_PATH)/sbin
+	mkdir -p $(CURDIR)/debian/slurm-sackd-ohpc/lib/systemd/system
+	cp -a $(PKGDIR)$(INSTALL_PATH)/sbin/sackd $(CURDIR)/debian/slurm-sackd-ohpc$(INSTALL_PATH)/sbin/ 2>/dev/null || true
+	cp -a $(PKGDIR)/lib/systemd/system/sackd.service $(CURDIR)/debian/slurm-sackd-ohpc/lib/systemd/system/ 2>/dev/null || true
+	# slurm-torque-ohpc
+	mkdir -p $(CURDIR)/debian/slurm-torque-ohpc$(INSTALL_PATH)/bin
+	mkdir -p $(CURDIR)/debian/slurm-torque-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm
+	for f in pbsnodes qalter qdel qhold qrerun qrls qstat qsub mpiexec generate_pbs_nodefile; do cp -a $(PKGDIR)$(INSTALL_PATH)/bin/$$f $(CURDIR)/debian/slurm-torque-ohpc$(INSTALL_PATH)/bin/ 2>/dev/null || true; done
+	for f in job_submit_pbs.so spank_pbs.so; do cp -a $(PKGDIR)$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/$$f $(CURDIR)/debian/slurm-torque-ohpc$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH)/slurm/ 2>/dev/null || true; done
+	# slurm-pam-slurm-ohpc
+	mkdir -p $(CURDIR)/debian/slurm-pam-slurm-ohpc$(PAM_PATH)
+	cp -a $(PKGDIR)$(PAM_PATH)/pam_slurm*.so $(CURDIR)/debian/slurm-pam-slurm-ohpc$(PAM_PATH)/ 2>/dev/null || true
 	# slurm-slurmrestd-ohpc
 	mkdir -p $(CURDIR)/debian/slurm-slurmrestd-ohpc$(INSTALL_PATH)/sbin
 	mkdir -p $(CURDIR)/debian/slurm-slurmrestd-ohpc/lib/systemd/system
