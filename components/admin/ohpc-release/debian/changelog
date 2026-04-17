@@ -1,3 +1,10 @@
+ohpc-release (4.1-1ohpc2~noble) noble; urgency=low
+
+  * Update the Ubuntu APT source example for the public VersatusHPC repository
+    URL and keyring name.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 00:00:00 +0000
+
 ohpc-release (4.1-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
