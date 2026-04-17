@@ -16,7 +16,7 @@ configuring Warewulf `yaml` files.
 : "${internal_network:?ERROR: internal_network not set}"
 
 # Install Warewulf
-{{ pkg_install }} warewulf-ohpc yq
+{{ pkg_install }} warewulf-ohpc yq{% if is_ubuntu %} ipxe{% endif %}
 
 # Create the tftpboot directory (not created by dnsmasq)
 install -d -m 0755 /var/lib/tftpboot

@@ -15,6 +15,12 @@ echo 'module(load="imudp")' >> /etc/rsyslog.d/ohpc.conf
 echo 'input(type="imudp" port="514")' >> /etc/rsyslog.d/ohpc.conf
 systemctl restart rsyslog
 
+{% if is_ubuntu %}
+# Install rsyslog in the minimal Ubuntu compute image.
+{{ compute_install("rsyslog") }}
+{{ compute_run("install -d -m 0755 /etc/rsyslog.d") }}
+
+{% endif %}
 # Define compute node forwarding destination
 {{ compute_run("echo '*.* @${sms_ip}:514' > /etc/rsyslog.d/ohpc-forward.conf") }}
 

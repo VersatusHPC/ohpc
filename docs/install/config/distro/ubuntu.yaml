@@ -8,6 +8,7 @@ distro_image: "ubuntu"
 is_ubuntu: true
 uses_dnf: false
 uses_apt: true
+yq_inplace: "yq -y -i"
 
 # Computed values
 distro_full_name: "Ubuntu 24.04 LTS"

@@ -21,7 +21,7 @@ it is helpful to add `rd.shell` to the kernel arguments.
 <!-- ohpc_begin -->
 ```bash
 ## Add rd.shell to kernel arguments in the "default" profile.
-yq -i '.nodeprofiles.default.kernel.args += ["rd.shell"]' \
+{{ yq_inplace }} '.nodeprofiles.default.kernel.args += ["rd.shell"]' \
   /etc/warewulf/nodes.conf
 ```
 <!-- ohpc_end -->

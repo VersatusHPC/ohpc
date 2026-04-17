@@ -28,7 +28,11 @@ wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
 /{{ openeuler_ohpc_repo_file }}
   dnf -y install openeuler-extra-repos
 {% endif %}
-  {{ "apt-get -y install" if is_ubuntu else "dnf -y install" }} ohpc-base-compute
+  {{ "apt-get -y install" if is_ubuntu else "dnf -y install" }} \
+    ohpc-base-compute{% if is_ubuntu %} openssh-server{% endif %}
+{% if is_ubuntu %}
+  systemctl enable ssh.service
+{% endif %}
 EOF
 ```
 <!-- ohpc_end -->

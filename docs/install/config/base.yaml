@@ -37,6 +37,7 @@ is_slurm: false
 ## Capabilities
 uses_dnf: true
 uses_apt: false
+yq_inplace: "yq -i"
 
 ## Package names with distro-specific spellings
 easybuild_pkg: "EasyBuild-ohpc"
