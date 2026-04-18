@@ -77,6 +77,8 @@ require_command podman
 require_command tar
 require_command xz
 require_command xzgrep
+require_command zstd
+require_command ar
 require_command gpg
 require_command ssh
 require_command lftp
@@ -107,6 +109,158 @@ if ! gpg --list-secret-keys "${GPG_KEY_NAME}" >/dev/null 2>&1; then
     echo "Import the VersatusHPC repository signing secret key before publishing." >&2
     exit 1
 fi
+
+
+extract_control_tar() {
+    local control_archive="$1"
+    local target_dir="$2"
+
+    case "${control_archive}" in
+        *.tar.zst)
+            tar --zstd -xf "${control_archive}" -C "${target_dir}"
+            ;;
+        *.tar.xz)
+            tar -xJf "${control_archive}" -C "${target_dir}"
+            ;;
+        *.tar.gz)
+            tar -xzf "${control_archive}" -C "${target_dir}"
+            ;;
+        *.tar.bz2)
+            tar -xjf "${control_archive}" -C "${target_dir}"
+            ;;
+        *)
+            echo "Error: unsupported Debian control archive: ${control_archive}" >&2
+            return 1
+            ;;
+    esac
+}
+
+compress_control_tar() {
+    local input_tar="$1"
+    local output_archive="$2"
+
+    case "${output_archive}" in
+        *.tar.zst)
+            zstd -q -19 -f "${input_tar}" -o "${output_archive}"
+            ;;
+        *.tar.xz)
+            xz -c -9 "${input_tar}" > "${output_archive}"
+            ;;
+        *.tar.gz)
+            gzip -n -c -9 "${input_tar}" > "${output_archive}"
+            ;;
+        *.tar.bz2)
+            bzip2 -c -9 "${input_tar}" > "${output_archive}"
+            ;;
+        *)
+            echo "Error: unsupported Debian control archive: ${output_archive}" >&2
+            return 1
+            ;;
+    esac
+}
+
+normalize_deb_control_metadata() {
+    local repo="$1"
+    local normalized_debs=0
+    local deb tmpdir control_member data_member control_path
+
+    echo "==> Normalizing binary package control metadata"
+    while IFS= read -r deb; do
+        control_member="$(ar t "${deb}" | awk '/^control\.tar\./ { print; exit }')"
+        data_member="$(ar t "${deb}" | awk '/^data\.tar\./ { print; exit }')"
+        if [[ -z "${control_member}" || -z "${data_member}" ]]; then
+            echo "Error: invalid Debian archive layout: ${deb}" >&2
+            return 1
+        fi
+
+        tmpdir="$(mktemp -d)"
+        ar p "${deb}" debian-binary > "${tmpdir}/debian-binary"
+        ar p "${deb}" "${control_member}" > "${tmpdir}/${control_member}"
+        mkdir -p "${tmpdir}/control"
+        extract_control_tar "${tmpdir}/${control_member}" "${tmpdir}/control"
+
+        control_path="${tmpdir}/control/control"
+        if [[ ! -f "${control_path}" ]]; then
+            echo "Error: Debian control file missing in ${deb}" >&2
+            rm -rf "${tmpdir}"
+            return 1
+        fi
+
+        if ! grep -Fq "${MAINTAINER_EMAIL_FROM}" "${control_path}"; then
+            rm -rf "${tmpdir}"
+            continue
+        fi
+
+        sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" "${control_path}"
+        (cd "${tmpdir}/control" && tar --sort=name --mtime='@0' \
+            --owner=0 --group=0 --numeric-owner -cf "${tmpdir}/control.tar" .)
+        rm -f "${tmpdir:?}/${control_member}"
+        compress_control_tar "${tmpdir}/control.tar" "${tmpdir}/${control_member}"
+        ar p "${deb}" "${data_member}" > "${tmpdir}/${data_member}"
+        (cd "${tmpdir}" && ar cr "${deb}.tmp" debian-binary "${control_member}" "${data_member}")
+        mv -f "${deb}.tmp" "${deb}"
+        rm -rf "${tmpdir}"
+        normalized_debs=$((normalized_debs + 1))
+    done < <(find "${repo}" -type f -name '*.deb' | sort)
+    echo "    normalized binary packages: ${normalized_debs}"
+}
+
+normalize_packages_metadata() {
+    local repo="$1"
+
+    [[ -f "${repo}/Packages" ]] || return 0
+
+    awk -v repo="${repo}" \
+        -v from="${MAINTAINER_EMAIL_FROM}" \
+        -v to="${MAINTAINER_EMAIL_TO}" '
+        function checksum(command, file,    output, parts) {
+            command = command " \"" repo "/" file "\""
+            command | getline output
+            close(command)
+            split(output, parts, /[[:space:]]+/)
+            return parts[1]
+        }
+        function size(file,    command, output) {
+            command = "stat -c %s \"" repo "/" file "\""
+            command | getline output
+            close(command)
+            return output
+        }
+        /^Filename:/ {
+            filename = $2
+            print
+            next
+        }
+        /^Maintainer:/ {
+            gsub(from, to)
+            print
+            next
+        }
+        /^Size:/ && filename != "" {
+            printf "Size: %s\n", size(filename)
+            next
+        }
+        /^MD5sum:/ && filename != "" {
+            printf "MD5sum: %s\n", checksum("md5sum", filename)
+            next
+        }
+        /^SHA1:/ && filename != "" {
+            printf "SHA1: %s\n", checksum("sha1sum", filename)
+            next
+        }
+        /^SHA256:/ && filename != "" {
+            printf "SHA256: %s\n", checksum("sha256sum", filename)
+            next
+        }
+        /^$/ {
+            filename = ""
+            print
+            next
+        }
+        { print }
+    ' "${repo}/Packages" > "${repo}/Packages.tmp"
+    mv "${repo}/Packages.tmp" "${repo}/Packages"
+}
 
 
 normalize_source_metadata() {
@@ -320,10 +474,8 @@ cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
 cp "${LOCAL_REPO_SCRIPT}" "${STAGING_REPO}/make_repo.sh"
 chmod 0755 "${STAGING_REPO}/make_repo.sh"
 
-if [[ -f "${STAGING_REPO}/Packages" ]]; then
-    echo "==> Normalizing binary package metadata"
-    sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" "${STAGING_REPO}/Packages"
-fi
+normalize_deb_control_metadata "${STAGING_REPO}"
+normalize_packages_metadata "${STAGING_REPO}"
 normalize_source_metadata "${STAGING_REPO}" "${SOURCE_SUBDIR}"
 rm -f "${STAGING_REPO}/Packages.gz" "${STAGING_REPO}/Sources.gz"
 

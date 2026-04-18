@@ -120,6 +120,28 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   200 for the `source/` copies, and a clean Ubuntu 24.04 container downloaded
   and extracted source with `packages@versatushpc.com.br`.
 
+## RC8
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc8`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository:
+  `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC7: the public mirror publisher now normalizes maintainer
+  addresses inside binary `.deb` control metadata, then refreshes `Packages`
+  sizes and checksums after any `.deb` rewrite. Public binary, source, and APT
+  metadata now consistently use the `versatushpc.com.br` maintainer domain.
+- Validation: a fresh dry run from OBS normalized 292 binary packages and 281
+  source archives; all 341 staged `.deb` control files had zero old-domain
+  matches; staged `Packages` and `Sources` checksum validation passed; public
+  `Packages` and `Sources` matched staging; the public mirror still returns
+  404 for root-level source artifacts and 200 for the `source/` copies; a live
+  public `.deb` download reported
+  `Maintainer: VersatusHPC <packages@versatushpc.com.br>`.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and
