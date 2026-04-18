@@ -145,12 +145,9 @@ echo "==> Adding xz-compressed APT indexes"
     awk '/^(MD5Sum|SHA1|SHA256):/ { skip=1; next } skip && /^[[:space:]]/ { next } { skip=0; print }' \
         Release > "${tmp_release}"
 
-    index_files=(Packages Packages.gz Packages.xz)
+    index_files=(Packages Packages.xz)
     if [[ -f Sources ]]; then
         index_files+=(Sources)
-    fi
-    if [[ -f Sources.gz ]]; then
-        index_files+=(Sources.gz)
     fi
     if [[ -f Sources.xz ]]; then
         index_files+=(Sources.xz)
@@ -233,7 +230,7 @@ echo "    Total size:        $(du -sh "${STAGING_REPO}" | awk '{print $1}')"
 echo "    .deb packages:     $(find "${STAGING_REPO}" -type f -name '*.deb' | wc -l)"
 echo "    amd64 packages:    $(find "${STAGING_REPO}/amd64" -type f -name '*.deb' 2>/dev/null | wc -l)"
 echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 2>/dev/null | wc -l)"
-echo "    Metadata:          Release InRelease Release.gpg Packages.gz Packages.xz"
+echo "    Metadata:          Release InRelease Release.gpg Packages Packages.xz"
 echo "    Local mirror tar:  ${DIST_DIR}/${DIST_ARCHIVE}"
 echo ""
 echo "    Users enable the repo with:"
