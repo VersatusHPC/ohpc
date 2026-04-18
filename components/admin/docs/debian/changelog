@@ -1,3 +1,9 @@
+docs-ohpc (4.0.0-1ohpc6~noble) noble; urgency=low
+
+  * Keep Ubuntu local mirror tarball references under Ubuntu_24.04.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 18:05:56 -0300
+
 docs-ohpc (4.0.0-1ohpc5~noble) noble; urgency=low
 
   * Polish Ubuntu repository setup and optional NVIDIA GPU recipe.
