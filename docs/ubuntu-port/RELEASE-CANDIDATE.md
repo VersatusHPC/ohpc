@@ -30,7 +30,6 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   rebuilt/rebooted the `c1` compute image from the public mirror, then ran
   `scripts/validate-ubuntu-runtime.sh --with-intel` successfully.
 
-
 ## RC3
 
 - Tag: `versatushpc-4.0.0-ubuntu24.04-rc3`
@@ -64,6 +63,25 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
 - Validation: a fresh Ubuntu 24.04 container enabled the public HTTPS APT
   repository and resolved the current `cuda-repo-ohpc`,
   `cuda-devel-ohpc`, and `docs-ohpc` package candidates from the live mirror.
+
+## RC5
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc5`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository: `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC4: CI now runs on `versatushpc/4.x` using VersatusHPC-owned
+  GHCR container images; the public mirror keeps Ubuntu-specific local mirror
+  artifacts under `Ubuntu_24.04/`; `docs-ohpc` was rebuilt as
+  `4.0.0-1ohpc6~noble` with the corrected local mirror URL in the Ubuntu PDF.
+- Validation: GitHub Actions Lint, Validate, Build Container, and downstream
+  analysis passed on the RC5 commit; OBS rebuilt and published `docs-ohpc`;
+  the public mirror exposes `docs-ohpc` `4.0.0-1ohpc6~noble`, returns 404 for
+  root-level Ubuntu `make_repo.sh` and `dist/`, and returns 200 for the
+  `Ubuntu_24.04/` copies.
 
 ## Runtime Gate Passed
 
