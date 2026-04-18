@@ -1,3 +1,9 @@
+docs-ohpc (4.0.0-1ohpc2~noble) noble; urgency=low
+
+  * Build and install Ubuntu Warewulf/Slurm install guide artifacts.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 12:50:00 -0300
+
 docs-ohpc (4.0.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.

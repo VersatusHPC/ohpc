@@ -1,20 +1,46 @@
 #!/usr/bin/make -f
 
-VERSION  := 4.0.0
-OHPC_PUB := /opt/ohpc/pub
-PKG      := $(CURDIR)/debian/docs-ohpc
+VERSION     := 4.0.0
+OHPC_PUB    := /opt/ohpc/pub
+PKG         := $(CURDIR)/debian/docs-ohpc
+RECIPE_NAME := ubuntu24.04-x86_64-warewulf-slurm
+RECIPE_DEST := $(PKG)$(OHPC_PUB)/doc/recipes/ubuntu24.04/x86_64/warewulf/slurm
+
+ifneq ($(wildcard $(CURDIR)/docs/install/Makefile),)
+DOCS_ROOT := $(CURDIR)/docs
+else
+DOCS_ROOT := $(abspath $(CURDIR)/../../../docs)
+endif
+
+RECIPE_BASE := $(DOCS_ROOT)/install
+VC_REVISION := $(shell cat $(DOCS_ROOT)/.ohpc-revision 2>/dev/null || git -C $(DOCS_ROOT)/.. log -1 HEAD --pretty=format:%H 2>/dev/null || echo non-git-checkout)
+VC_DATE     := $(shell cat $(DOCS_ROOT)/.ohpc-date 2>/dev/null || git -C $(DOCS_ROOT)/.. log -1 HEAD --pretty=format:%as 2>/dev/null || date -I)
 
 %:
 	dh $@
 
 override_dh_auto_configure:
+
 override_dh_auto_build:
+	$(MAKE) -C $(RECIPE_BASE) PYTHON=python3 \
+		VC_REVISION=$(VC_REVISION) VC_DATE=$(VC_DATE) \
+		build/$(RECIPE_NAME).md \
+		build/$(RECIPE_NAME).sh \
+		build/$(RECIPE_NAME).pdf \
+		build/$(RECIPE_NAME).html
 
 override_dh_auto_install:
 	mkdir -p $(PKG)$(OHPC_PUB)/doc
-	install -m 0644 ../../ChangeLog $(PKG)$(OHPC_PUB)/doc/ChangeLog 2>/dev/null || true
-	install -m 0644 ../../Release_Notes.txt $(PKG)$(OHPC_PUB)/doc/Release_Notes.txt 2>/dev/null || true
+	install -m 0644 $(DOCS_ROOT)/ChangeLog $(PKG)$(OHPC_PUB)/doc/ChangeLog 2>/dev/null || true
+	install -m 0644 $(DOCS_ROOT)/Release_Notes.txt $(PKG)$(OHPC_PUB)/doc/Release_Notes.txt 2>/dev/null || true
+	install -m 0644 -p -D $(RECIPE_BASE)/build/$(RECIPE_NAME).pdf $(RECIPE_DEST)/Install_guide.pdf
+	install -m 0644 -p -D $(RECIPE_BASE)/build/$(RECIPE_NAME).md $(RECIPE_DEST)/Install_guide.md
+	install -m 0644 -p -D $(RECIPE_BASE)/build/$(RECIPE_NAME).html $(RECIPE_DEST)/Install_guide.html
+	install -m 0755 -p -D $(RECIPE_BASE)/build/$(RECIPE_NAME).sh $(RECIPE_DEST)/recipe.sh
+	install -m 0644 -p -D $(RECIPE_BASE)/input.local.template $(PKG)$(OHPC_PUB)/doc/recipes/ubuntu24.04/input.local
 
 override_dh_auto_clean:
+
 override_dh_usrlocal:
+
 override_dh_auto_test:

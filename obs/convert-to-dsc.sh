@@ -69,6 +69,23 @@ convert_and_upload() {
         cp -aL "$comp_dir/SOURCES" "$pkgdir/${pkg_name}-${file_version}/"
     fi
 
+    # docs-ohpc needs the generated install-guide source tree. RPM builds get
+    # this through SOURCES/get_source.sh; the Debian OBS importer creates the
+    # native tarball directly, so include the same documentation inputs here.
+    if [ "$pkg_name" = "docs-ohpc" ]; then
+        mkdir -p "$pkgdir/${pkg_name}-${file_version}/docs"
+        cp -a "$REPO_ROOT/docs/install" "$pkgdir/${pkg_name}-${file_version}/docs/"
+        rm -rf "$pkgdir/${pkg_name}-${file_version}/docs/install/.venv" \
+               "$pkgdir/${pkg_name}-${file_version}/docs/install/build" \
+               "$pkgdir/${pkg_name}-${file_version}/docs/install/__pycache__"
+        cp "$REPO_ROOT/docs/ChangeLog" "$pkgdir/${pkg_name}-${file_version}/docs/" 2>/dev/null || true
+        cp "$REPO_ROOT/docs/Release_Notes.txt" "$pkgdir/${pkg_name}-${file_version}/docs/" 2>/dev/null || true
+        git -C "$REPO_ROOT" log -1 --pretty=format:%H > \
+            "$pkgdir/${pkg_name}-${file_version}/docs/.ohpc-revision" 2>/dev/null || true
+        git -C "$REPO_ROOT" log -1 --pretty=format:%as > \
+            "$pkgdir/${pkg_name}-${file_version}/docs/.ohpc-date" 2>/dev/null || true
+    fi
+
     # Copy devel/ helper scripts and fix absolute /build/ paths in rules
     mkdir -p "$pkgdir/${pkg_name}-${file_version}/devel"
     cp "$REPO_ROOT/devel/build-comp.sh" "$pkgdir/${pkg_name}-${file_version}/devel/" 2>/dev/null || true

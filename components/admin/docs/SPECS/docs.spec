@@ -96,6 +96,7 @@ for recipe_name in \
 	"almalinux10-aarch64-openchami-slurm" \
 	"openeuler24.03-x86_64-warewulf-slurm" \
 	"openeuler24.03-aarch64-warewulf-slurm" \
+	"ubuntu24.04-x86_64-warewulf-slurm" \
 ; do
 	# Parse: distro-arch-provisioner-scheduler -> distro/arch/provisioner/scheduler
 	distro=$(echo "${recipe_name}" | cut -d- -f1)
@@ -111,7 +112,7 @@ for recipe_name in \
 done
 
 # Install input.local templates
-for distro in "almalinux10" "rocky10" "openeuler24.03"; do
+for distro in "almalinux10" "rocky10" "openeuler24.03" "ubuntu24.04"; do
 	install -m 0644 -p -D "%{recipe_base}/input.local.template" "%{recipe_dest}/${distro}/input.local"
 done
 
