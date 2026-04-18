@@ -49,6 +49,22 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   NVIDIA APT repositories; public `InRelease` signature and `Packages.xz`
   checksum were verified after publication.
 
+## RC4
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc4`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository: `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC3: the public mirror publisher no longer advertises gzip APT
+  indexes in `Release`, avoiding stale CDN `Packages.gz` cache hits after a
+  repository refresh. The mirror still publishes uncompressed and xz indexes.
+- Validation: a fresh Ubuntu 24.04 container enabled the public HTTPS APT
+  repository and resolved the current `cuda-repo-ohpc`,
+  `cuda-devel-ohpc`, and `docs-ohpc` package candidates from the live mirror.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and
