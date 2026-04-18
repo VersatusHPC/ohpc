@@ -1,3 +1,9 @@
+warewulf-ohpc (4.6.5-1ohpc3~noble) noble; urgency=low
+
+  * Ship Ubuntu defaults for dnsmasq-backed provisioning and iPXE paths.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 +0000
+
 warewulf-ohpc (4.6.5-1ohpc2~noble) noble; urgency=low
 
   * Preserve upstream private overlay modes after dh_fixperms.

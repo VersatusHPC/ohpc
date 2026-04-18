@@ -9,7 +9,8 @@ and PSM support using base distro-provided drivers to the compute image.
 % ohpc_indent 5
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
 # Add IB support
-[sms](*\#*) (*\chrootinstall*) rdma-core ibverbs-providers infiniband-diags perftest
+[sms](*\#*) (*\chrootinstall*) rdma-core ibverbs-providers \
+             infiniband-diags perftest
 \end{lstlisting}
 % ohpc_indent 0
 % ohpc_command fi

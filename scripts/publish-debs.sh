@@ -167,6 +167,6 @@ echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 
 echo "    Metadata:          Release InRelease Release.gpg Packages.gz"
 echo ""
 echo "    Users enable the repo with:"
-echo "      curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null"
-echo "      curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null"
+echo "      curl -fsSLO https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/all/ohpc-release_4.0-1ohpc4~noble_all.deb"
+echo "      sudo apt -y install ./ohpc-release_4.0-1ohpc4~noble_all.deb"
 echo "      sudo apt update"

@@ -14,11 +14,11 @@ OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
 OHPC_KEYRING="{{ ohpc_apt_keyring }}"
 echo "deb-src [signed-by=${OHPC_KEYRING}] ${OHPC_UBUNTU_REPO}/ ./" \
 	> /etc/apt/sources.list.d/versatushpc-openhpc-src.list
-apt-get update
+apt update
 
 # Install Debian packaging tools and FFTW build dependencies
-sudo apt-get -y install build-essential debhelper devscripts fakeroot
-sudo apt-get -y build-dep fftw-gnu15-openmpi5-ohpc
+sudo apt -y install build-essential debhelper devscripts fakeroot
+sudo apt -y build-dep fftw-gnu15-openmpi5-ohpc
 
 # Download source package from the OpenHPC repository
 apt source fftw-gnu15-openmpi5-ohpc
@@ -29,7 +29,7 @@ dch --local +local "Local FFTW rebuild"
 
 # Rebuild binary packages and install the local package
 dpkg-buildpackage -us -uc -b
-sudo apt-get -y install ../fftw-gnu15-openmpi5-ohpc_*_*.deb
+sudo apt -y install ../fftw-gnu15-openmpi5-ohpc_*_*.deb
 ```
 {% else %}One way to accomplish this is to install the
 appropriate source RPM, modify the spec file as needed, and rebuild to obtain an

@@ -124,7 +124,7 @@ Then use `:z` (shared) mount label. Do NOT use `:Z` (private) for parallel build
 ## OBS Migration Notes
 
 When moving to OBS:
-1. OBS handles build dependencies automatically — no need for manual apt-get install
+1. OBS handles build dependencies automatically — no need for manual apt install
 2. OBS uses its own chroot/container — SELinux issues go away
 3. The `build-comp.sh` / `build-mpi.sh` pattern needs to work inside OBS's build env
 4. dpkg-buildpackage flags are controlled by OBS — may need project-level config

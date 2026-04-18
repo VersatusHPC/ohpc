@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+if getent passwd munge >/dev/null && getent group munge >/dev/null; then
+    install -d -m 0700 -o munge -g munge /etc/munge
+    install -d -m 0711 -o munge -g munge /var/lib/munge
+    install -d -m 0700 -o munge -g munge /var/log/munge
+    install -d -m 0755 -o munge -g munge /run/munge
+
+    if [ ! -f /etc/munge/munge.key ] && [ -c /dev/urandom ]; then
+        umask 077
+        dd if=/dev/urandom of=/etc/munge/munge.key bs=1 count=1024 status=none
+    fi
+
+    if [ -f /etc/munge/munge.key ]; then
+        chown munge:munge /etc/munge/munge.key
+        chmod 0400 /etc/munge/munge.key
+    fi
+fi
+
+#DEBHELPER#
+
+exit 0

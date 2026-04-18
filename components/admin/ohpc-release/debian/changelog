@@ -1,3 +1,9 @@
+ohpc-release (1:4.0-1ohpc4~noble) noble; urgency=low
+
+  * Install the VersatusHPC APT source list and repository key.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 +0000
+
 ohpc-release (1:4.0-1ohpc3~noble) noble; urgency=low
 
   * Correct the Debian release version back to OpenHPC 4.0 GA semantics.

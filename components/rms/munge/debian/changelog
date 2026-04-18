@@ -1,3 +1,10 @@
+munge-ohpc (0.5.13-1ohpc2~noble) noble; urgency=low
+
+  * Add Debian maintainer scripts for the munge service user, key, and state
+    directories.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 +0000
+
 munge-ohpc (0.5.13-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.

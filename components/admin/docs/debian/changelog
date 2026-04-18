@@ -1,3 +1,9 @@
+docs-ohpc (4.0.0-1ohpc4~noble) noble; urgency=low
+
+  * Align the Ubuntu Warewulf/Slurm guide with package-owned setup steps.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 -0300
+
 docs-ohpc (4.0.0-1ohpc3~noble) noble; urgency=low
 
   * Build the Ubuntu Warewulf/Slurm install guide from the upstream-style

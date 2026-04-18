@@ -34,7 +34,7 @@ Functions:
 {% if is_ubuntu %}
 {%- macro compute_install(packages) -%}
 wwctl image exec --build=false {{ baseos }} -- /bin/bash -lc \
-  "apt-get -y install {{ packages if packages is string else packages | join(' ') }}"
+  "apt -y install {{ packages if packages is string else packages | join(' ') }}"
 {%- endmacro -%}
 {% endif %}
 

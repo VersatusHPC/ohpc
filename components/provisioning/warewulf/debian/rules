@@ -43,7 +43,7 @@ override_dh_auto_build:
 		BASHCOMPDIR=/etc/bash_completion.d/ \
 		FIREWALLDDIR=/usr/lib/firewalld/services \
 		WWCLIENTDIR=/warewulf \
-		IPXESOURCE=/usr/share/ipxe \
+		IPXESOURCE=/usr/lib/ipxe \
 		DRACUTMODDIR=/usr/lib/dracut/modules.d \
 		CACHEDIR=/var/cache && \
 	make build
@@ -63,6 +63,15 @@ override_dh_auto_install:
 	mkdir -p $(PKG)$(STATEDIR)/warewulf/overlays
 	# Create tftpboot directory
 	mkdir -p $(PKG)$(TFTPDIR)
+	install -m 0644 SOURCES/warewulf.conf-ubuntu \
+		$(PKG)/etc/warewulf/warewulf.conf
+	install -d -m 0755 $(PKG)/etc/dnsmasq.d
+	printf '%s\\n' \
+		'# Installed by warewulf-ohpc for DHCP/TFTP provisioning.' \
+		'# Disable DNS service so dnsmasq can coexist with systemd-resolved.' \
+		'port=0' \
+		'bind-interfaces' \
+		> $(PKG)/etc/dnsmasq.d/warewulf-ohpc.conf
 
 override_dh_auto_clean:
 	rm -rf $(SRCDIR)

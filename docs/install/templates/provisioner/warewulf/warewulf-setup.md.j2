@@ -16,23 +16,6 @@ second private interface (refer to Figure 1).
 	/etc/warewulf/warewulf.conf
 {{ yq_inplace }} '.dhcp["range end"] = "static"' /etc/warewulf/warewulf.conf
 {{ yq_inplace }} '.dhcp.template = "static"' /etc/warewulf/warewulf.conf
-{% if is_ubuntu %}
-{{ yq_inplace }} '.dhcp["systemd name"] = "dnsmasq"' /etc/warewulf/warewulf.conf
-{{ yq_inplace }} '.tftp["systemd name"] = "dnsmasq"' \
-	/etc/warewulf/warewulf.conf
-{{ yq_inplace }} '.paths.ipxesource = "/usr/lib/ipxe"' \
-	/etc/warewulf/warewulf.conf
-{{ yq_inplace }} '.tftp.ipxe["00:00"] = "undionly.kpxe"' \
-	/etc/warewulf/warewulf.conf
-{{ yq_inplace }} '.tftp.ipxe["00:07"] = "snponly.efi"' \
-	/etc/warewulf/warewulf.conf
-{{ yq_inplace }} '.tftp.ipxe["00:09"] = "snponly.efi"' \
-	/etc/warewulf/warewulf.conf
-systemctl disable --now tftpd-hpa 2>/dev/null || true
-echo "bind-interfaces" > /etc/dnsmasq.d/ww4-bind.conf
-echo "port=0" > /etc/dnsmasq.d/ww4-port.conf
-{% endif %}
-
 # Edit the nodes.conf to mount /opt on boot
 sed -i "s/defaults,noauto,nofail,ro/defaults,nofail,ro/" \
 	/etc/warewulf/nodes.conf
@@ -53,16 +36,6 @@ wwctl profile add nodes --profile default --comment "Nodes profile"
 wwctl overlay create nodeconfig
 wwctl profile set --yes nodes --system-overlays nodeconfig \
 	--runtime-overlays syncuser
-{% if is_ubuntu %}
-# Ubuntu NetworkManager and OpenSSH ignore private config with loose permissions.
-wwctl overlay chmod NetworkManager \
-	/etc/NetworkManager/system-connections/ww4-managed.ww 0600
-for key in dsa ecdsa ed25519 rsa; do
-	wwctl overlay chmod ssh.host_keys \
-		/etc/ssh/ssh_host_${key}_key.ww 0600
-done
-{% endif %}
-
 # Set default network configuration
 wwctl profile set -y nodes --netname=default --netdev="${eth_provision}"
 wwctl profile set -y nodes --netname=default --netmask="${internal_netmask}"

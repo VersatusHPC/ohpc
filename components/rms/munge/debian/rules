@@ -46,6 +46,13 @@ override_dh_auto_install:
 	cp -a $(PKGDIR)/usr/sbin/munged* $(CURDIR)/debian/munge-ohpc/usr/sbin/ 2>/dev/null || true
 	cp -a $(PKGDIR)/etc/munge* $(CURDIR)/debian/munge-ohpc/etc/ 2>/dev/null || true
 	cp -a $(PKGDIR)/var/* $(CURDIR)/debian/munge-ohpc/var/ 2>/dev/null || true
+	if [ -d $(PKGDIR)/usr/lib/tmpfiles.d ]; then \
+		mkdir -p $(CURDIR)/debian/munge-ohpc/usr/lib; \
+		cp -a $(PKGDIR)/usr/lib/tmpfiles.d $(CURDIR)/debian/munge-ohpc/usr/lib/; \
+	fi
+	install -d -m 0700 $(CURDIR)/debian/munge-ohpc/etc/munge
+	install -d -m 0711 $(CURDIR)/debian/munge-ohpc/var/lib/munge
+	install -d -m 0700 $(CURDIR)/debian/munge-ohpc/var/log/munge
 	# Man pages
 	if [ -d $(PKGDIR)/usr/share/man ]; then \
 		mkdir -p $(CURDIR)/debian/munge-ohpc/usr/share; \

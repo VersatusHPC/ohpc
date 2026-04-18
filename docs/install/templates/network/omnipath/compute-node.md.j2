@@ -1,7 +1,13 @@
 ## Enable Omni-Path drivers
 
+{% if is_ubuntu -%}
+Ubuntu 24.04 does not currently provide the Omni-Path package set used by the
+upstream EL and openEuler recipes. Sites that require Omni-Path should add a
+vendor-supported Ubuntu package repository before enabling this optional path in
+compute images.
+{% else -%}
 If your compute resources support Omni-Path, the following commands add OPA
-support using base distro-provided drivers to the compute image.
+drivers to the chosen compute image.
 
 <!-- ohpc_begin -->
 <!-- ohpc_comment Add Omni-Path drivers to compute image -->
@@ -13,3 +19,4 @@ support using base distro-provided drivers to the compute image.
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
+{% endif -%}

@@ -2,7 +2,8 @@ Source: ohpc-release
 Section: science
 Priority: optional
 Maintainer: VersatusHPC <packages@versatushpc.com.br>
-Build-Depends: debhelper-compat (= 13)
+Build-Depends: debhelper-compat (= 13),
+               gnupg
 Standards-Version: 4.6.2
 Homepage: https://github.com/VersatusHPC/ohpc
 

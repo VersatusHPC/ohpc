@@ -1,5 +1,10 @@
 ## Optionally add Omni-Path support services on *head node*
 
+{% if is_ubuntu -%}
+Ubuntu 24.04 does not currently provide the Omni-Path package set used by the
+upstream EL and openEuler recipes. Sites that require Omni-Path should add a
+vendor-supported Ubuntu package repository before enabling this optional path.
+{% else -%}
 The following command adds Omni-Path support using base distro-provided drivers
 to the chosen *head node*.
 
@@ -13,3 +18,4 @@ to the chosen *head node*.
 <!-- ohpc_end -->
 
 {% include 'network/omnipath/opafm.md.j2' %}
+{% endif -%}

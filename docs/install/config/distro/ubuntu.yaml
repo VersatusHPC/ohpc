@@ -25,24 +25,25 @@ ohpc_apt_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubunt
 ohpc_apt_key_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg"
 ohpc_apt_list_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list"
 ohpc_apt_keyring: "/usr/share/keyrings/versatushpc.gpg"
+ohpc_release_deb: "ohpc-release_4.0-1ohpc4~noble_all.deb"
 
 # Package manager commands
 pkg_manager: "apt"
-pkg_install: "apt-get -y install"
+pkg_install: "apt -y install"
 # Use wwctl image exec for Ubuntu image package-manager operations so /dev,
 # /proc, /sys, and /run are mounted. Direct chroot can corrupt minimal OCI
 # images by creating /dev/null as a regular file before the device node exists.
-pkg_install_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt-get -y install'
-pkg_group_install: "apt-get -y install"
-pkg_group_install_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt-get -y install'
+pkg_install_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt -y install'
+pkg_group_install: "apt -y install"
+pkg_group_install_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt -y install'
 pkg_add_repo: "add-apt-repository -y"
 pkg_add_repo_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- add-apt-repository -y'
-pkg_clean: "apt-get clean && apt-get update"
-pkg_clean_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- /bin/bash -lc "apt-get clean && apt-get update"'
-pkg_remove: "apt-get -y remove"
-pkg_upgrade: "apt-get -y upgrade"
-pkg_upgrade_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt-get -y upgrade'
-pkg_update: "apt-get update"
+pkg_clean: "apt clean && apt update"
+pkg_clean_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- /bin/bash -lc "apt clean && apt update"'
+pkg_remove: "apt -y remove"
+pkg_upgrade: "apt -y upgrade"
+pkg_upgrade_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt -y upgrade'
+pkg_update: "apt update"
 
 # Package names that differ from RPM builds
 easybuild_pkg: "easybuild-ohpc"

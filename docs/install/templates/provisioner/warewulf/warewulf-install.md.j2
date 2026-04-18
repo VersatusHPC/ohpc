@@ -6,7 +6,6 @@ reflect the environment. The `yq` package is also installed to aid in
 configuring Warewulf `yaml` files.
 
 <!-- FIXME: remove semanage when fixed in Warewulf -->
-<!-- FIXME: remove /var/lib/tftpboot when fixed in Warewulf -->
 
 <!-- ohpc_begin -->
 <!-- ohpc_comment Add baseline OpenHPC -->
@@ -17,9 +16,10 @@ configuring Warewulf `yaml` files.
 
 # Install Warewulf
 {{ pkg_install }} warewulf-ohpc yq{% if is_ubuntu %} ipxe{% endif %}
-
+{% if not is_ubuntu %}
 # Create the tftpboot directory (not created by dnsmasq)
 install -d -m 0755 /var/lib/tftpboot
+{% endif %}
 ```
 <!-- ohpc_end -->
 

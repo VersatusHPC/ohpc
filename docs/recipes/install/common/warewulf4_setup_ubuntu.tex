@@ -9,15 +9,6 @@
 [sms](*\#*) yq -y -i '.dhcp["range start"] = "'${internal_network}'"' /etc/warewulf/warewulf.conf
 [sms](*\#*) yq -y -i '.dhcp["range end"] = "static"' /etc/warewulf/warewulf.conf
 [sms](*\#*) yq -y -i '.dhcp.template = "static"' /etc/warewulf/warewulf.conf
-[sms](*\#*) yq -y -i '.dhcp["systemd name"] = "dnsmasq"' /etc/warewulf/warewulf.conf
-[sms](*\#*) yq -y -i '.tftp["systemd name"] = "dnsmasq"' /etc/warewulf/warewulf.conf
-[sms](*\#*) yq -y -i '.paths.ipxesource = "/usr/lib/ipxe"' /etc/warewulf/warewulf.conf
-[sms](*\#*) yq -y -i '.tftp.ipxe["00:00"] = "undionly.kpxe"' /etc/warewulf/warewulf.conf
-[sms](*\#*) yq -y -i '.tftp.ipxe["00:07"] = "snponly.efi"' /etc/warewulf/warewulf.conf
-[sms](*\#*) yq -y -i '.tftp.ipxe["00:09"] = "snponly.efi"' /etc/warewulf/warewulf.conf
-[sms](*\#*) systemctl disable --now tftpd-hpa 2>/dev/null || true
-[sms](*\#*) echo "bind-interfaces" > /etc/dnsmasq.d/ww4-bind.conf
-[sms](*\#*) echo "port=0" > /etc/dnsmasq.d/ww4-port.conf
 
 # Edit the nodes.conf to mount /opt on boot
 [sms](*\#*) perl -pi -e "s/defaults,noauto,nofail,ro/defaults,nofail,ro/" /etc/warewulf/nodes.conf
@@ -35,13 +26,6 @@
 # Create a new "nodeconfig" overlay to store node configuration files and use the syncuser overlay.
 [sms](*\#*) wwctl overlay create nodeconfig
 [sms](*\#*) wwctl profile set --yes nodes --system-overlays nodeconfig --runtime-overlays syncuser
-
-# Ubuntu NetworkManager and OpenSSH ignore private config with loose permissions.
-[sms](*\#*) wwctl overlay chmod NetworkManager \
-             /etc/NetworkManager/system-connections/ww4-managed.ww 0600
-[sms](*\#*) for key in dsa ecdsa ed25519 rsa; do \
-             wwctl overlay chmod ssh.host_keys /etc/ssh/ssh_host_${key}_key.ww 0600; \
-             done
 
 # Set default network configuration
 [sms](*\#*) wwctl profile set -y nodes --netname=default --netdev=${eth_provision}

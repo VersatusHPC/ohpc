@@ -5,7 +5,7 @@
  Group=munge
  Restart=on-abort
 +PermissionsStartOnly=true
-+ExecStartPre=-/usr/bin/mkdir -m 0755 -p /var/log/munge
++ExecStartPre=-/usr/bin/mkdir -m 0700 -p /var/log/munge
 +ExecStartPre=-/usr/bin/chown -R munge:munge /var/log/munge
 +ExecStartPre=-/usr/bin/mkdir -m 0755 -p /var/run/munge
 +ExecStartPre=-/usr/bin/chown -R munge:munge /var/run/munge

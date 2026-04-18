@@ -12,77 +12,10 @@ also needs to be running on all hosts within the resource management pool.
 # Install slurm server meta-package
 {{ pkg_install }} ohpc-slurm-server
 
-{% if is_ubuntu -%}
-# Create service users expected by the OpenHPC Slurm and MUNGE units
-getent group munge >/dev/null || groupadd --system munge
-getent passwd munge >/dev/null || \
-	useradd --system --gid munge --home-dir /var/lib/munge \
-	--shell /usr/sbin/nologin munge
-getent group slurm >/dev/null || groupadd --system slurm
-getent passwd slurm >/dev/null || \
-	useradd --system --gid slurm --home-dir /var/lib/slurm \
-	--shell /usr/sbin/nologin slurm
-
-# Create a shared MUNGE key if one was not created by local policy
-install -d -m 0700 -o munge -g munge /etc/munge
-if [ ! -f /etc/munge/munge.key ]; then
-	dd if=/dev/urandom of=/etc/munge/munge.key bs=1 count=1024
-	chown munge:munge /etc/munge/munge.key
-	chmod 0400 /etc/munge/munge.key
-fi
-
-# Ensure systemd creates MUNGE runtime, state, and log directories
-install -d -m 0755 /etc/systemd/system/munge.service.d
-cat > /etc/systemd/system/munge.service.d/openhpc-ubuntu.conf << EOF
-[Service]
-RuntimeDirectory=munge
-RuntimeDirectoryMode=0755
-StateDirectory=munge
-StateDirectoryMode=0700
-LogsDirectory=munge
-LogsDirectoryMode=0700
-EOF
-systemctl daemon-reload
-
-# Use a minimal OpenHPC Slurm configuration
-install -d -m 0755 /etc/slurm
-install -d -m 0755 -o slurm -g slurm /var/spool/slurmctld /var/spool/slurmd
-cat > /etc/slurm/slurm.conf << EOF
-ClusterName=ohpc
-SlurmctldHost=${sms_name}
-AuthType=auth/munge
-CryptoType=crypto/munge
-SlurmUser=slurm
-StateSaveLocation=/var/spool/slurmctld
-SlurmdSpoolDir=/var/spool/slurmd
-SwitchType=switch/none
-MpiDefault=none
-ProctrackType=proctrack/cgroup
-ReturnToService=1
-TaskPlugin=task/affinity
-SelectType=select/cons_tres
-SelectTypeParameters=CR_Core_Memory
-AccountingStorageType=accounting_storage/none
-JobCompType=jobcomp/filetxt
-JobCompLoc=/var/log/slurm_jobcomp.log
-SlurmctldParameters=enable_configless
-NodeName=c[1-4] Sockets=2 CoresPerSocket=8 ThreadsPerCore=2 State=UNKNOWN
-EOF
-echo "PartitionName=normal Nodes=c[1-4] Default=YES MaxTime=24:00:00" \
-	"State=UP Oversubscribe=EXCLUSIVE" >> /etc/slurm/slurm.conf
-cat > /etc/slurm/cgroup.conf << EOF
-ConstrainCores=yes
-ConstrainRAMSpace=yes
-EOF
-touch /var/log/slurm_jobcomp.log
-chown slurm:slurm /var/log/slurm_jobcomp.log
-chmod 0644 /var/log/slurm_jobcomp.log
-{% else -%}
 # Use ohpc-provided file for starting SLURM configuration
 cp /etc/slurm/slurm.conf.ohpc /etc/slurm/slurm.conf
 # Setup default cgroups file
 cp /etc/slurm/cgroup.conf.example /etc/slurm/cgroup.conf
-{% endif -%}
 
 # Identify resource manager hostname on head node
 sed -i "s/SlurmctldHost=\S\+/SlurmctldHost=${sms_name}/" \

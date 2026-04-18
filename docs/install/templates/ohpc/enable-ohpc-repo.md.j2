@@ -21,13 +21,13 @@ the repository. The example which follows illustrates installation of the
 ```bash
 OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
 OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
-install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
-curl -fsSL "${OHPC_REPO_ROOT}/versatushpc.gpg" \
-	-o {{ ohpc_apt_keyring }}
-curl -fsSL "${OHPC_UBUNTU_REPO}/versatushpc-openhpc.list" \
-	-o /etc/apt/sources.list.d/versatushpc-openhpc.list
-apt-get update
-{{ pkg_install }} ohpc-release
+OHPC_RELEASE_DEB="{{ ohpc_release_deb }}"
+apt update
+apt -y install ca-certificates curl
+curl -fsSLO "${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}"
+apt -y install "./${OHPC_RELEASE_DEB}"
+rm -f "${OHPC_RELEASE_DEB}"
+apt update
 ```
 {% elif uses_dnf %}
 ```bash

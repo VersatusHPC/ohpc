@@ -25,17 +25,15 @@ the image from rebuilding (it will show an error) and rebuild later with the
 
 # Enable OpenHPC inside image and update image. Disable image build on exit, rebuild later.
 [sms](*\#*) wwctl image exec --build=false BOSVER -- /bin/bash -ex <<- EOF
-  export DEBIAN_FRONTEND=noninteractive
   apt update
-  apt -y install ca-certificates curl gnupg systemd systemd-sysv \
+  apt -y install ca-certificates curl systemd systemd-sysv \
     udev kmod linux-image-generic initramfs-tools network-manager openssh-server
   OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
   OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/Ubuntu_24.04
-  install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
-  curl -fsSL ${OHPC_REPO_ROOT}/versatushpc.gpg \
-    -o /usr/share/keyrings/versatushpc.gpg
-  curl -fsSL ${OHPC_UBUNTU_REPO}/versatushpc-openhpc.list \
-    -o /etc/apt/sources.list.d/versatushpc-openhpc.list
+  OHPC_RELEASE_DEB=ohpc-release_4.0-1ohpc4~noble_all.deb
+  curl -fsSLO ${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}
+  apt -y install ./${OHPC_RELEASE_DEB}
+  rm -f ${OHPC_RELEASE_DEB}
   apt update
   apt -y upgrade
 EOF

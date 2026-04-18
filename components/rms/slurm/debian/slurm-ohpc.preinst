@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+ensure_group() {
+    if ! getent group slurm >/dev/null; then
+        if getent group 202 >/dev/null; then
+            groupadd --system slurm
+        else
+            groupadd --system --gid 202 slurm
+        fi
+    fi
+}
+
+ensure_user() {
+    if ! getent passwd slurm >/dev/null; then
+        if getent passwd 202 >/dev/null; then
+            useradd --system --gid slurm --home-dir /etc/slurm \
+                --shell /usr/sbin/nologin --comment "SLURM resource manager" slurm
+        else
+            useradd --system --uid 202 --gid slurm --home-dir /etc/slurm \
+                --shell /usr/sbin/nologin --comment "SLURM resource manager" slurm
+        fi
+    fi
+}
+
+case "$1" in
+    install|upgrade)
+        ensure_group
+        ensure_user
+        ;;
+esac
+
+exit 0

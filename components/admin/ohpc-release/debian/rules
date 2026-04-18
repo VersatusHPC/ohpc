@@ -15,10 +15,11 @@ override_dh_auto_install:
 	echo "BUG_REPORT_URL=https://github.com/VersatusHPC/ohpc/issues" >> $(PKG)/etc/ohpc-release
 	# APT repository configuration
 	mkdir -p $(PKG)/etc/apt/sources.list.d
-	echo "# OpenHPC repository for Ubuntu" > $(PKG)/etc/apt/sources.list.d/ohpc.list
-	echo "# Uncomment and configure when the public repository is available" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
-	echo "# deb [signed-by=/usr/share/keyrings/versatushpc.gpg] https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/ ./" >> $(PKG)/etc/apt/sources.list.d/ohpc.list
-	# GPG keyring directory (key to be added when available)
+	install -m 0644 SOURCES/versatushpc-openhpc.list \
+		$(PKG)/etc/apt/sources.list.d/versatushpc-openhpc.list
+	# GPG keyring
 	mkdir -p $(PKG)/usr/share/keyrings
+	gpg --dearmor --yes --output $(PKG)/usr/share/keyrings/versatushpc.gpg \
+		SOURCES/RPM-GPG-KEY-VersatusHPC
 
 override_dh_usrlocal:

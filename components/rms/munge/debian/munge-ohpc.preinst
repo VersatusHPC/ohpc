@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+ensure_group() {
+    if ! getent group munge >/dev/null; then
+        if getent group 201 >/dev/null; then
+            groupadd --system munge
+        else
+            groupadd --system --gid 201 munge
+        fi
+    fi
+}
+
+ensure_user() {
+    if ! getent passwd munge >/dev/null; then
+        if getent passwd 201 >/dev/null; then
+            useradd --system --gid munge --home-dir /etc/munge \
+                --shell /usr/sbin/nologin --comment "MUNGE authentication service" munge
+        else
+            useradd --system --uid 201 --gid munge --home-dir /etc/munge \
+                --shell /usr/sbin/nologin --comment "MUNGE authentication service" munge
+        fi
+    fi
+}
+
+case "$1" in
+    install|upgrade)
+        ensure_group
+        ensure_user
+        ;;
+esac
+
+exit 0

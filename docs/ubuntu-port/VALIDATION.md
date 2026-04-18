@@ -131,7 +131,7 @@ On the head node:
 sudo apt update
 apt-cache policy warewulf-ohpc slurm-ohpc slurm-slurmd-ohpc \
   pmix-ohpc hwloc-ohpc ohpc-base-compute ohpc-release
-sudo apt-get -y install --only-upgrade \
+sudo apt -y install --only-upgrade \
   warewulf-ohpc slurm-ohpc slurm-slurmctld-ohpc slurm-slurmd-ohpc \
   pmix-ohpc hwloc-ohpc ohpc-base-compute ohpc-release
 ```
@@ -145,9 +145,9 @@ real device node exists.
 
 ```bash
 sudo wwctl image exec --build=false ubuntu-24.04 -- /bin/bash -ex <<'EOF'
-apt-get update
-apt-get -y install --only-upgrade \
-  slurm-slurmd-ohpc pmix-ohpc hwloc-ohpc ohpc-base-compute openssh-server
+apt update
+apt -y install --only-upgrade \
+  slurm-slurmd-ohpc pmix-ohpc hwloc-ohpc ohpc-base-compute
 EOF
 sudo wwctl image build ubuntu-24.04
 sudo wwctl overlay build

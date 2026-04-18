@@ -1,3 +1,7 @@
+{% if is_ubuntu -%}
+Ubuntu 24.04 does not currently provide the Omni-Path fabric manager package
+used by the upstream EL and openEuler recipes.
+{% else -%}
 ::: {.tip}
 **Note:** OmniPath networks require a subnet management service that can
 typically be run on either an administrative node, or on the switch itself. The
@@ -14,3 +18,4 @@ you choose to run it on the *head node*.
 <!-- ohpc_command systemctl start opafm -->
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
+{% endif -%}

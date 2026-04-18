@@ -9,37 +9,6 @@ the corresponding compute image in a subsequent step.
 # Install slurm server meta-package
 [sms](*\#*) (*\install*) ohpc-slurm-server
 
-# Create service users expected by the OpenHPC Slurm and MUNGE units
-[sms](*\#*) getent group munge >/dev/null || groupadd --system munge
-[sms](*\#*) getent passwd munge >/dev/null || \
-             useradd --system --gid munge --home-dir /var/lib/munge \
-             --shell /usr/sbin/nologin munge
-[sms](*\#*) getent group slurm >/dev/null || groupadd --system slurm
-[sms](*\#*) getent passwd slurm >/dev/null || \
-             useradd --system --gid slurm --home-dir /var/lib/slurm \
-             --shell /usr/sbin/nologin slurm
-
-# Create a shared MUNGE key if one was not created by local policy
-[sms](*\#*) install -d -m 0700 -o munge -g munge /etc/munge
-[sms](*\#*) if [ ! -f /etc/munge/munge.key ]; then \
-             dd if=/dev/urandom of=/etc/munge/munge.key bs=1 count=1024; \
-             chown munge:munge /etc/munge/munge.key; \
-             chmod 0400 /etc/munge/munge.key; \
-             fi
-
-# Ensure systemd creates MUNGE runtime, state, and log directories
-[sms](*\#*) install -d -m 0755 /etc/systemd/system/munge.service.d
-[sms](*\#*) cat > /etc/systemd/system/munge.service.d/openhpc-ubuntu.conf <<- EOF
-[Service]
-RuntimeDirectory=munge
-RuntimeDirectoryMode=0755
-StateDirectory=munge
-StateDirectoryMode=0700
-LogsDirectory=munge
-LogsDirectoryMode=0700
-EOF
-[sms](*\#*) systemctl daemon-reload
-
 # Use ohpc-provided file for starting SLURM configuration
 [sms](*\#*) cp /etc/slurm/slurm.conf.ohpc /etc/slurm/slurm.conf
 # Setup default cgroups file

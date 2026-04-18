@@ -32,7 +32,7 @@ it is helpful to add `rd.shell` to the kernel arguments.
 ```bash
 ## Install Dracut in the image
 wwctl image exec --build=false {{ baseos }} -- \
-  {{ "/usr/bin/apt-get -y install" if is_ubuntu else "/usr/bin/dnf install -y" }} \
+  {{ "/usr/bin/apt -y install" if is_ubuntu else "/usr/bin/dnf install -y" }} \
   {{ warewulf_dracut_pkg }}
 
 ## Configure Dracut. Note the leading and trailing spaces
@@ -57,7 +57,7 @@ provisioning (previous step) must also be enabled.  The compute node will use,
 ```bash
 ## Install disk tools
 wwctl image exec --build=false {{ baseos }} -- \
-  {{ "/usr/bin/apt-get -y install" if is_ubuntu else "/usr/bin/dnf install -y" }} \
+  {{ "/usr/bin/apt -y install" if is_ubuntu else "/usr/bin/dnf install -y" }} \
   ignition gdisk
 
 ## Add ignition Dracut module.

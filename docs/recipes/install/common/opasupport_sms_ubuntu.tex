@@ -1,15 +1,4 @@
-The Ubuntu recipe keeps the upstream optional \OmniPath{} section, but Ubuntu
-24.04 does not provide the EL Omni-Path package set used by the RPM recipes.
-Sites that require Omni-Path should add the vendor-supported Ubuntu packages or
-a local repository before enabling this option.
-
-% begin_ohpc_run
-% ohpc_comment_header Optionally add Omni-Path support services on master node \ref{sec:add_opa}
-% ohpc_command if [[ ${enable_opa} -eq 1 ]];then
-% ohpc_indent 5
-\begin{lstlisting}[language=bash,keywords={}]
-[sms](*\#*) echo "Install site-provided Omni-Path packages for Ubuntu before enabling OPA."
-\end{lstlisting}
-% ohpc_indent 0
-% ohpc_command fi
-% end_ohpc_run
+Ubuntu 24.04 does not currently provide the Omni-Path package set used by the
+upstream EL and openEuler recipes. Sites that require Omni-Path should add
+vendor-supported Ubuntu packages or a local repository before enabling this
+option.

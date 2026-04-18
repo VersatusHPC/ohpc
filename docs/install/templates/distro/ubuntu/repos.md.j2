@@ -8,12 +8,11 @@ installation with the `main`, `universe`, and `multiverse` components enabled.
 <!-- ohpc_begin -->
 <!-- ohpc_comment Enable Ubuntu package repositories -->
 ```bash
-export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get -y install \
+apt update
+apt -y install \
 	ca-certificates curl gnupg software-properties-common
 add-apt-repository -y universe
 add-apt-repository -y multiverse
-apt-get update
+apt update
 ```
 <!-- ohpc_end -->

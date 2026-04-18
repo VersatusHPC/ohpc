@@ -14,8 +14,8 @@ Homepage: https://github.com/warewulf/warewulf
 
 Package: warewulf-ohpc
 Architecture: any
-Depends: ohpc-filesystem, nfs-kernel-server, ${shlibs:Depends}, ${misc:Depends}
-Recommends: logrotate, ipmitool, dnsmasq | isc-dhcp-server, tftpd-hpa
+Depends: ohpc-filesystem, nfs-kernel-server, dnsmasq, ipxe, ${shlibs:Depends}, ${misc:Depends}
+Recommends: logrotate, ipmitool
 Conflicts: warewulf-common, warewulf-cluster, warewulf-vnfs, warewulf-provision, warewulf-ipmi
 Description: A provisioning system for large clusters of bare metal and/or virtual systems (OpenHPC)
  Warewulf is a stateless and diskless provisioning system for large clusters

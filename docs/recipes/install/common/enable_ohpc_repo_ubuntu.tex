@@ -1,9 +1,7 @@
-To begin, enable use of the \OHPC{} repository by adding it to the local list
-of available package repositories. Note that this requires network access from
-your {\em master} server to the \OHPC{} repository, or alternatively, that
-the \OHPC{} repository be mirrored locally. For Ubuntu, the repository is a
-signed APT repository and the example which follows installs the repository
-key and source list from the VersatusHPC mirror.
+To begin, enable use of the \texttt{VersatusHPC} \texttt{\baseOS{}}
+repository by installing the OpenHPC release package. This mirrors the upstream release-package
+workflow: the release package installs the repository configuration and signing
+key, then APT metadata is refreshed from the enabled repository.
 
 % begin_ohpc_run
 % ohpc_comment_header Install OpenHPC ohpc-release \ref{sec:enable_repo}
@@ -11,13 +9,13 @@ key and source list from the VersatusHPC mirror.
     literate={-}{-}1]
 [sms](*\#*) export OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
 [sms](*\#*) export OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/Ubuntu_24.04
-[sms](*\#*) install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
-[sms](*\#*) curl -fsSL ${OHPC_REPO_ROOT}/versatushpc.gpg \
-             -o /usr/share/keyrings/versatushpc.gpg
-[sms](*\#*) curl -fsSL ${OHPC_UBUNTU_REPO}/versatushpc-openhpc.list \
-             -o /etc/apt/sources.list.d/versatushpc-openhpc.list
+[sms](*\#*) export OHPC_RELEASE_DEB=ohpc-release_4.0-1ohpc4~noble_all.deb
 [sms](*\#*) apt update
-[sms](*\#*) (*\install*) ohpc-release
+[sms](*\#*) apt -y install ca-certificates curl
+[sms](*\#*) curl -fsSLO ${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}
+[sms](*\#*) apt -y install ./${OHPC_RELEASE_DEB}
+[sms](*\#*) rm -f ${OHPC_RELEASE_DEB}
+[sms](*\#*) apt update
 \end{lstlisting}
 % end_ohpc_run
 

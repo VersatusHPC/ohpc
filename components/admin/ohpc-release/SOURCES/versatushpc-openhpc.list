@@ -1,0 +1,2 @@
+# VersatusHPC OpenHPC 4.x for Ubuntu 24.04 LTS
+deb [signed-by=/usr/share/keyrings/versatushpc.gpg] https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/ ./

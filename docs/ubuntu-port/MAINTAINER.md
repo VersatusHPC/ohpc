@@ -27,8 +27,8 @@ podman run --rm \
   ohpc-build-ubuntu:noble \
   bash -c "
     echo 'deb [trusted=yes] file:///opt/ohpc-repo noble main' > /etc/apt/sources.list.d/ohpc.list
-    apt-get update -qq
-    apt-get install -y <build-dependencies>
+    apt update -qq
+    apt install -y <build-dependencies>
     cd /build/components/<category>/<package>
     dpkg-buildpackage -b -nc -d -us -uc
   "
