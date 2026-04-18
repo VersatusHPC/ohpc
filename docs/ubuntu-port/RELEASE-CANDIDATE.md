@@ -101,6 +101,25 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   Ubuntu 24.04 container resolved `docs-ohpc`, read source metadata with the
   corrected maintainer address, and downloaded a source package from `source/`.
 
+## RC7
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc7`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository:
+  `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC6: the public mirror publisher now normalizes maintainer
+  addresses inside published Debian source archives and refreshes `.dsc` and
+  `Sources` checksums after the rewrite. Public source payloads now use the
+  `versatushpc.com.br` maintainer domain.
+- Validation: staged and public `Sources` checksum validation passed; the
+  public mirror returns 404 for root-level `.dsc` and source tarballs, returns
+  200 for the `source/` copies, and a clean Ubuntu 24.04 container downloaded
+  and extracted source with `packages@versatushpc.com.br`.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and

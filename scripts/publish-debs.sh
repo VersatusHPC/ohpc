@@ -76,6 +76,7 @@ require_command sudo
 require_command podman
 require_command tar
 require_command xz
+require_command xzgrep
 require_command gpg
 require_command ssh
 require_command lftp
@@ -146,8 +147,84 @@ normalize_source_metadata() {
             -name '*.diff.gz' \
         \) -delete
 
+        local normalized_archives=0
+        while IFS= read -r archive; do
+            if ! xzgrep -a -F -q "${MAINTAINER_EMAIL_FROM}" "${archive}"; then
+                continue
+            fi
+
+            tmpdir="$(mktemp -d)"
+            tar -xJf "${archive}" -C "${tmpdir}"
+            match_file="${tmpdir}/.email-matches"
+            grep -Rsl "${MAINTAINER_EMAIL_FROM}" "${tmpdir}" > "${match_file}" || true
+            if [[ -s "${match_file}" ]]; then
+                xargs -r sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" < "${match_file}"
+            fi
+            rm -f "${match_file}"
+            mapfile -t archive_entries < <(find "${tmpdir}" -mindepth 1 -maxdepth 1 \
+                -printf '%f\n' | sort)
+            tar -C "${tmpdir}" -cJf "${archive}.tmp" "${archive_entries[@]}"
+            mv -f "${archive}.tmp" "${archive}"
+            rm -rf "${tmpdir}"
+            normalized_archives=$((normalized_archives + 1))
+        done < <(find "${source_dir}" -maxdepth 1 -type f -name '*.tar.xz' | sort)
+        echo "    normalized source archives: ${normalized_archives}"
+
         find "${source_dir}" -maxdepth 1 -type f -name '*.dsc' \
             -exec sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" {} +
+
+        for dsc in "${source_dir}"/*.dsc; do
+            [[ -f "${dsc}" ]] || continue
+            awk -v dir="${source_dir}" '
+                function checksum(command, file,    output, parts) {
+                    command = command " \"" dir "/" file "\""
+                    command | getline output
+                    close(command)
+                    split(output, parts, /[[:space:]]+/)
+                    return parts[1]
+                }
+                function size(file,    command, output) {
+                    command = "stat -c %s \"" dir "/" file "\""
+                    command | getline output
+                    close(command)
+                    return output
+                }
+                /^Files:/ {
+                    section = "Files"
+                    print
+                    next
+                }
+                /^Checksums-Sha1:/ {
+                    section = "Checksums-Sha1"
+                    print
+                    next
+                }
+                /^Checksums-Sha256:/ {
+                    section = "Checksums-Sha256"
+                    print
+                    next
+                }
+                /^[^[:space:]]/ {
+                    section = ""
+                }
+                /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+$/ {
+                    file = $3
+                    file_size = size(file)
+                    if (section == "Files") {
+                        printf " %s %s %s\n", checksum("md5sum", file), file_size, file
+                    } else if (section == "Checksums-Sha1") {
+                        printf " %s %s %s\n", checksum("sha1sum", file), file_size, file
+                    } else if (section == "Checksums-Sha256") {
+                        printf " %s %s %s\n", checksum("sha256sum", file), file_size, file
+                    } else {
+                        print
+                    }
+                    next
+                }
+                { print }
+            ' "${dsc}" > "${dsc}.tmp"
+            mv "${dsc}.tmp" "${dsc}"
+        done
 
         awk -v dir="${source_dir}" \
             -v from="${MAINTAINER_EMAIL_FROM}" \
@@ -192,7 +269,7 @@ normalize_source_metadata() {
             /^[^[:space:]]/ {
                 section = ""
             }
-            /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+\.dsc$/ {
+            /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+$/ {
                 file = $3
                 file_size = size(file)
                 if (section == "Files") {
