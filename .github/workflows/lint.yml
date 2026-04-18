@@ -35,7 +35,7 @@ jobs:
     name: Run ${{ matrix.step }} linter
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/openhpc/ohpc-lint:latest
+      image: ghcr.io/versatushpc/ohpc-lint:latest
     steps:
     - uses: actions/checkout@v4
     - name: Run ${{ matrix.step }}

@@ -18,7 +18,7 @@ jobs:
     name: Analyze Package Build Order
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/openhpc/ohpc-analysis:latest
+      image: ghcr.io/versatushpc/ohpc-analysis:latest
 
     steps:
     - name: Checkout code

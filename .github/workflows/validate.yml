@@ -27,7 +27,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/openhpc/ohpc-analysis:latest
+      image: ghcr.io/versatushpc/ohpc-analysis:latest
 
     steps:
     - uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Build on RHEL (${{ matrix.arch }}/${{ matrix.compiler }})
     container:
-      image: ghcr.io/openhpc/ohpc-validate-almalinux:latest
+      image: ghcr.io/versatushpc/ohpc-validate-almalinux:latest
       volumes:
         - /usr:/host/usr
         - /opt:/host/opt
@@ -141,7 +141,7 @@ jobs:
       JOB_SKIP_CI_SPECS: |
         components/perf-tools/likwid/SPECS/likwid.spec
     container:
-      image: ghcr.io/openhpc/ohpc-validate-almalinux:latest
+      image: ghcr.io/versatushpc/ohpc-validate-almalinux:latest
       options: --privileged --security-opt seccomp=unconfined --security-opt apparmor=unconfined
       volumes:
         - /usr:/host/usr
@@ -249,7 +249,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Build on openEuler (${{ matrix.arch }})
     container:
-      image: ghcr.io/openhpc/ohpc-validate-openeuler:latest
+      image: ghcr.io/versatushpc/ohpc-validate-openeuler:latest
     steps:
     - name: Update packages
       run: dnf -y update
@@ -312,7 +312,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Test on openEuler (${{ matrix.arch }}/${{ matrix.compiler }})
     container:
-      image: ghcr.io/openhpc/ohpc-validate-openeuler:latest
+      image: ghcr.io/versatushpc/ohpc-validate-openeuler:latest
       options: --privileged --security-opt seccomp=unconfined --security-opt apparmor=unconfined
     needs: build_on_openEuler
     steps:
@@ -389,7 +389,7 @@ jobs:
       matrix:
         parser: ["python", "perl"]
     container:
-      image: ghcr.io/openhpc/ohpc-lint:latest
+      image: ghcr.io/versatushpc/ohpc-lint:latest
     steps:
     - uses: actions/checkout@v4
     - name: Run bats tests
