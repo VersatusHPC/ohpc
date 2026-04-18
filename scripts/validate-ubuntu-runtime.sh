@@ -15,7 +15,7 @@ Run the small Ubuntu OpenHPC runtime gate from an installed SMS/head node.
 
 Options:
   --compute-node NAME   Slurm compute node to target (default: c1)
-  --with-intel         Require and run Intel oneAPI + Intel MPI validation
+  --with-intel         Require and run Intel/mixed compiler+MPI validation
   --skip-intel         Do not run Intel validation
   --install-intel      Install Intel validation packages before testing
   --upgrade-core       Upgrade selected core OpenHPC packages before testing
@@ -124,14 +124,15 @@ int main(int argc, char **argv) {
 EOF
 }
 
-run_gnu_mpi_stack() {
-    local name=$1 mpi_module=$2 slurm_mpi=$3 force_cma=${4:-0}
-    local exe="$workdir/mpi-hello-${name}"
+run_mpi_stack() {
+    local compiler_name=$1 compiler_module=$2 mpi_name=$3 mpi_module=$4 slurm_mpi=$5 force_cma=${6:-0}
+    local label="${compiler_name} ${mpi_name}"
+    local exe="$workdir/mpi-hello-${compiler_name}-${mpi_name}"
 
-    section "GNU15 ${name} hello"
+    section "${label} hello"
     module purge
-    module load gnu15/15.2.0 "$mpi_module"
-    if [ "$name" = mvapich2 ]; then
+    module load "$compiler_module" "$mpi_module"
+    if [ "$mpi_name" = mvapich2 ]; then
         if module show "$mpi_module" 2>&1 | grep -q MV2_SMP_USE_CMA; then
             die "MVAPICH2 module still sets MV2_SMP_USE_CMA"
         fi
@@ -143,7 +144,7 @@ run_gnu_mpi_stack() {
         srun_node --mpi="$slurm_mpi" -N1 -n2 "$exe" | sort
     fi
 
-    section "GNU15 ${name} IMB PingPong"
+    section "${label} IMB PingPong"
     module load imb/2021.10
     if [ "$force_cma" = 1 ]; then
         MV2_SMP_USE_CMA=1 srun_node --mpi="$slurm_mpi" -N1 -n2 IMB-MPI1 PingPong -msglog 0:3 \
@@ -163,17 +164,11 @@ run_intel_stack() {
     icx --version | sed -n '1,3p'
     mpicc -show 2>/dev/null || true
 
-    section "Intel + IMPI hello"
-    local exe="$workdir/mpi-hello-intel-impi"
-    mpicc "$workdir/mpi-hello.c" -o "$exe"
-    srun_node --mpi=pmi2 -N1 -n2 "$exe" | sort
-
-    if module -t avail imb/2021.10 2>&1 | grep -q '^imb/2021.10'; then
-        section "Intel + IMPI IMB PingPong"
-        module load imb/2021.10
-        srun_node --mpi=pmi2 -N1 -n2 IMB-MPI1 PingPong -msglog 0:3 \
-            | awk '/bytes|^[[:space:]]+[0-9]+[[:space:]]/{print}'
-    fi
+    run_mpi_stack Intel intel/2025.0.4 IMPI impi/2021.14 pmi2
+    run_mpi_stack GNU15 gnu15/15.2.0 IMPI impi/2021.14 pmi2
+    run_mpi_stack Intel intel/2025.0.4 openmpi5 openmpi5/5.0.10 pmix
+    run_mpi_stack Intel intel/2025.0.4 mpich mpich/5.0.0-ofi pmi2
+    run_mpi_stack Intel intel/2025.0.4 mvapich2 mvapich2/2.3.7 pmi2 1
 }
 
 need_cmd apt-cache
@@ -197,9 +192,17 @@ candidate_required mvapich2-gnu15-ohpc
 candidate_required imb-gnu15-openmpi5-ohpc
 candidate_required imb-gnu15-mpich-ohpc
 candidate_required imb-gnu15-mvapich2-ohpc
+candidate_required imb-gnu15-impi-ohpc
 candidate_required intel-oneapi-toolkit-release-ohpc
 candidate_required intel-compilers-devel-ohpc
 candidate_required intel-mpi-devel-ohpc
+candidate_required openmpi5-intel-ohpc
+candidate_required mpich-intel-ohpc
+candidate_required mvapich2-intel-ohpc
+candidate_required imb-intel-impi-ohpc
+candidate_required imb-intel-openmpi5-ohpc
+candidate_required imb-intel-mpich-ohpc
+candidate_required imb-intel-mvapich2-ohpc
 
 if [ "$upgrade_core" = 1 ]; then
     section "Core package upgrade"
@@ -214,7 +217,10 @@ if [ "$install_intel" = 1 ]; then
     sudo_n apt-get -y install intel-oneapi-toolkit-release-ohpc
     sudo_n apt-get update
     sudo_n apt-get -y install \
-        intel-compilers-devel-ohpc intel-mpi-devel-ohpc imb-intel-impi-ohpc
+        intel-compilers-devel-ohpc intel-mpi-devel-ohpc \
+        openmpi5-intel-ohpc mpich-intel-ohpc mvapich2-intel-ohpc \
+        imb-intel-impi-ohpc imb-gnu15-impi-ohpc \
+        imb-intel-openmpi5-ohpc imb-intel-mpich-ohpc imb-intel-mvapich2-ohpc
 fi
 
 load_lmod
@@ -239,9 +245,9 @@ section "MUNGE and linker"
 srun_node -N1 -n1 bash -lc 'munge -n | unmunge | grep "STATUS: *Success"'
 srun_node -N1 -n1 bash -lc 'ldconfig -p | grep -E "libpmix|libhwloc"'
 
-run_gnu_mpi_stack openmpi openmpi5/5.0.10 pmix
-run_gnu_mpi_stack mpich mpich/5.0.0-ofi pmi2
-run_gnu_mpi_stack mvapich2 mvapich2/2.3.7 pmi2 1
+run_mpi_stack GNU15 gnu15/15.2.0 openmpi5 openmpi5/5.0.10 pmix
+run_mpi_stack GNU15 gnu15/15.2.0 mpich mpich/5.0.0-ofi pmi2
+run_mpi_stack GNU15 gnu15/15.2.0 mvapich2 mvapich2/2.3.7 pmi2 1
 
 if [ "$run_intel" = auto ]; then
     if module -t avail intel 2>&1 | grep -q '^intel' && module -t avail impi 2>&1 | grep -q '^impi'; then

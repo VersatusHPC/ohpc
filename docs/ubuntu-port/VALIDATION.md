@@ -26,8 +26,9 @@ For the Ubuntu port, the minimum post-publication runtime line is:
 2. Warewulf boots one Ubuntu 24.04 compute image.
 3. Slurm, MUNGE, PMIx, HWLOC, and `/opt` sharing work on the compute node.
 4. Compute nodes apply the OpenHPC Yama policy, `kernel.yama.ptrace_scope=0`.
-5. GNU15 compiles and runs an MPI hello program through Slurm for OpenMPI, MPICH, and MVAPICH2.
-6. IMB `PingPong` runs through Slurm for the same three GNU15 MPI stacks.
+5. GNU15 compiles and runs an MPI hello program through Slurm for OpenMPI, MPICH, MVAPICH2, and IMPI.
+6. Intel compiles and runs an MPI hello program through Slurm for OpenMPI, MPICH, MVAPICH2, and IMPI.
+7. IMB `PingPong` runs through Slurm for the same GNU15 and Intel MPI stack matrix.
 
 This is the fast release gate. Broader library tests can expand from this line,
 but a repository snapshot should not be treated as usable if any item here
@@ -49,8 +50,8 @@ Do not publish a new public repository snapshot until these gates pass:
 10. MVAPICH2 runs through Slurm/PMI2 with CMA available.
 11. At least one MPI-dependent package runs through all three GNU15 MPI stacks.
 12. On x86_64 release candidates, Intel oneAPI compatibility packages install,
-    `intel`/`impi` modules load, and an Intel+IMPI hello program runs through
-    Slurm.
+    GNU15+IMPI and Intel+OpenMPI/MPICH/MVAPICH2/IMPI modules load, and hello
+    plus IMB `PingPong` run through Slurm for that mixed matrix.
 
 ## Automated Runtime Gate
 
@@ -70,7 +71,8 @@ state, MUNGE, PMIx/HWLOC linker visibility, GNU15 OpenMPI, GNU15 MPICH, GNU15
 MVAPICH2 with CMA, and IMB `PingPong` for the same three MPI stacks.
 
 For the x86_64 Intel gate, install the Intel validation packages and run the
-Intel module/compiler/IMPI smoke test:
+mixed compiler/MPI smoke matrix: GNU15+IMPI, Intel+IMPI, Intel+OpenMPI5,
+Intel+MPICH, and Intel+MVAPICH2:
 
 ```bash
 scp scripts/validate-ubuntu-runtime.sh <sms-host>:/tmp/
