@@ -30,6 +30,25 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   rebuilt/rebooted the `c1` compute image from the public mirror, then ran
   `scripts/validate-ubuntu-runtime.sh --with-intel` successfully.
 
+
+## RC3
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc3`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository: `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC2: `cuda-repo-ohpc` now installs NVIDIA CUDA and HPC SDK
+  APT source files and scoped keyrings; the Ubuntu GPU recipe uses
+  `cuda-drivers`; the public mirror includes `make_repo.sh`, a local mirror
+  tarball, and `Packages.xz`/`Sources.xz` indexes.
+- Validation: `cuda-devel-ohpc` built in a clean Ubuntu 24.04 container;
+  installing `cuda-repo-ohpc` exposed `nvhpc-25-9` and `cuda-drivers` from
+  NVIDIA APT repositories; public `InRelease` signature and `Packages.xz`
+  checksum were verified after publication.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and
