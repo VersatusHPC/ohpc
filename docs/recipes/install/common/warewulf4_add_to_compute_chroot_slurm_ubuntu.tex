@@ -1,0 +1,38 @@
+% begin_ohpc_run
+% ohpc_validation_comment Add SLURM and other components to compute instance
+\begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true,keepspaces,literate={BOSVER}{\baseos{}}1]
+  [sms](*\#*) wwctl image exec --build=false BOSVER -- /bin/bash -ex <<- EOF
+    export DEBIAN_FRONTEND=noninteractive
+    getent group munge >/dev/null || groupadd --system munge
+    getent passwd munge >/dev/null || useradd --system --gid munge \
+      --home-dir /var/lib/munge --shell /usr/sbin/nologin munge
+    getent group slurm >/dev/null || groupadd --system slurm
+    getent passwd slurm >/dev/null || useradd --system --gid slurm \
+      --home-dir /var/lib/slurm --shell /usr/sbin/nologin slurm
+    install -d -m 0755 /etc/systemd/system/munge.service.d
+    cat > /etc/systemd/system/munge.service.d/openhpc-ubuntu.conf << EOM
+[Service]
+RuntimeDirectory=munge
+RuntimeDirectoryMode=0755
+StateDirectory=munge
+StateDirectoryMode=0700
+LogsDirectory=munge
+LogsDirectoryMode=0700
+EOM
+    install -d -o munge -g munge -m 0700 /var/log/munge /var/lib/munge
+
+    # Add Slurm client support meta-package
+    apt -y install ohpc-slurm-client
+
+    # Enable services to start on boot
+    systemctl enable munge.service
+    systemctl enable slurmd.service
+
+    # Add Network Time Protocol (NTP) support
+    apt -y install chrony
+
+    # Include modules user environment
+    apt -y install lmod-ohpc
+  EOF
+\end{lstlisting}
+% end_ohpc_run

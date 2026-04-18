@@ -69,15 +69,19 @@ convert_and_upload() {
         cp -aL "$comp_dir/SOURCES" "$pkgdir/${pkg_name}-${file_version}/"
     fi
 
-    # docs-ohpc needs the generated install-guide source tree. RPM builds get
-    # this through SOURCES/get_source.sh; the Debian OBS importer creates the
-    # native tarball directly, so include the same documentation inputs here.
+    # docs-ohpc needs the upstream-style LaTeX recipe sources. RPM builds get
+    # documentation inputs through SOURCES/get_source.sh; the Debian OBS importer
+    # creates the native tarball directly, so include the required recipe tree.
     if [ "$pkg_name" = "docs-ohpc" ]; then
-        mkdir -p "$pkgdir/${pkg_name}-${file_version}/docs"
-        cp -a "$REPO_ROOT/docs/install" "$pkgdir/${pkg_name}-${file_version}/docs/"
-        rm -rf "$pkgdir/${pkg_name}-${file_version}/docs/install/.venv" \
-               "$pkgdir/${pkg_name}-${file_version}/docs/install/build" \
-               "$pkgdir/${pkg_name}-${file_version}/docs/install/__pycache__"
+        mkdir -p "$pkgdir/${pkg_name}-${file_version}/docs/recipes/install"
+        cp -a "$REPO_ROOT/docs/recipes/install/common" \
+              "$REPO_ROOT/docs/recipes/install/parse_doc.pl" \
+              "$REPO_ROOT/docs/recipes/install/ubuntu24.04" \
+              "$pkgdir/${pkg_name}-${file_version}/docs/recipes/install/"
+        find "$pkgdir/${pkg_name}-${file_version}/docs/recipes/install" -type f \
+            \( -name 'steps.aux' -o -name 'steps.fdb_latexmk' -o -name 'steps.fls' \
+               -o -name 'steps.log' -o -name 'steps.out' -o -name 'steps.pdf' \
+               -o -name 'steps.toc' -o -name 'vc.tex' -o -name 'recipe.sh' \) -delete
         cp "$REPO_ROOT/docs/ChangeLog" "$pkgdir/${pkg_name}-${file_version}/docs/" 2>/dev/null || true
         cp "$REPO_ROOT/docs/Release_Notes.txt" "$pkgdir/${pkg_name}-${file_version}/docs/" 2>/dev/null || true
         git -C "$REPO_ROOT" log -1 --pretty=format:%H > \

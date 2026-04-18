@@ -41,9 +41,9 @@ curl -fsSL \
 sudo apt update
 ```
 
-The generated Ubuntu installation recipe lives under `docs/install` as
-`ubuntu24.04-x86_64-warewulf-slurm`. The fast runtime release gate is
-documented in `docs/ubuntu-port/VALIDATION.md` and automated by
+The Ubuntu installation recipe follows the upstream LaTeX manual layout under
+`docs/recipes/install/ubuntu24.04/x86_64/warewulf4/slurm`. The fast runtime
+release gate is documented in `docs/ubuntu-port/VALIDATION.md` and automated by
 `scripts/validate-ubuntu-runtime.sh`.
 
 The port keeps the OpenHPC compiler/MPI package model, using Debian packaging

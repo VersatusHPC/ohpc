@@ -1,0 +1,16 @@
+\noindent Finally, to add {\em optional} support for controlling IPoIB
+interfaces (see \S\ref{sec:add_ofed}), add a site-local NetworkManager or
+Netplan configuration template to the Warewulf overlay that matches the Ubuntu
+network naming used by your compute nodes.
+
+% begin_ohpc_run
+% ohpc_validation_newline
+% ohpc_command if [[ ${enable_ipoib} -eq 1 ]];then
+% ohpc_indent 5
+\begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true]
+# Import a site-local Ubuntu IPoIB template if one is used locally
+[sms](*\#*) echo "Add Ubuntu IPoIB overlay template for ib0 here."
+\end{lstlisting}
+% ohpc_indent 0
+% ohpc_command fi
+% end_ohpc_run

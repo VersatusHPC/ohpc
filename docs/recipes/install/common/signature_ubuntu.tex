@@ -1,0 +1,19 @@
+\clearpage
+\subsection{Package Signatures}
+
+All of the repository metadata provided via the Ubuntu \OHPC{} repository is
+signed with a GPG signature. By default, APT verifies this signature during
+metadata refresh to ensure that packages have not been altered. The repository
+key used by the Ubuntu port is installed at \texttt{/usr/share/keyrings/versatushpc.gpg}.
+
+\begin{lstlisting}[language=bash,keywords={}]
+[sms](*\#*) gpg --show-keys --fingerprint /usr/share/keyrings/versatushpc.gpg
+\end{lstlisting}
+
+\noindent The following command can be used to verify repository metadata once it
+has been downloaded locally by confirming that APT accepts the configured source.
+
+\begin{lstlisting}[language=bash,keywords={}]
+[sms](*\#*) apt update
+[sms](*\#*) apt-cache policy docs-ohpc
+\end{lstlisting}

@@ -1,0 +1,32 @@
+Users of \OHPC{} may find it desirable to rebuild one of the supplied packages
+to apply build customizations or satisfy local requirements. On Ubuntu, this can
+be accomplished by enabling source repositories, installing build dependencies,
+and rebuilding the Debian source package. A brief example using the FFTW library
+is highlighted below.
+
+\begin{lstlisting}[language=bash,keywords={},basicstyle=\fontencoding{T1}\footnotesize\ttfamily,
+    literate={ARCH}{\arch{}}1 {-}{-}1]
+# Enable source entries for the OpenHPC repository
+[test@sms ~]$ sudo sed -i 's/^Types: deb$/Types: deb deb-src/' \
+        /etc/apt/sources.list.d/versatushpc-openhpc.sources
+[test@sms ~]$ sudo apt update
+
+# Install Debian package build tools
+[test@sms ~]$ sudo apt -y install build-essential debhelper devscripts fakeroot
+
+# Install FFTW's build dependencies and download source
+[test@sms ~]$ sudo apt -y build-dep fftw-gnu15-openmpi5-ohpc
+[test@sms ~]$ apt source fftw-gnu15-openmpi5-ohpc
+
+# Modify packaging as desired
+[test@sms ~]$ cd fftw-gnu15-openmpi5-ohpc-*
+[test@sms ~/fftw-gnu15-openmpi5-ohpc-*]$ perl -pi -e "s/enable-static=no/enable-static=yes/" debian/rules
+
+# Increment Debian revision and rebuild binary packages
+[test@sms ~/fftw-gnu15-openmpi5-ohpc-*]$ dch --local +static "Enable static FFTW build"
+[test@sms ~/fftw-gnu15-openmpi5-ohpc-*]$ dpkg-buildpackage -us -uc -b
+
+# Install the new package
+[test@sms ~/fftw-gnu15-openmpi5-ohpc-*]$ sudo apt -y install \
+        ../fftw-gnu15-openmpi5-ohpc_*_ARCH.deb
+\end{lstlisting}

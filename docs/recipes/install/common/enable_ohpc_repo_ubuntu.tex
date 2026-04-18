@@ -1,0 +1,33 @@
+To begin, enable use of the \OHPC{} repository by adding it to the local list
+of available package repositories. Note that this requires network access from
+your {\em master} server to the \OHPC{} repository, or alternatively, that
+the \OHPC{} repository be mirrored locally. For Ubuntu, the repository is a
+signed APT repository and the example which follows installs the repository
+key and source list from the VersatusHPC mirror.
+
+% begin_ohpc_run
+% ohpc_comment_header Install OpenHPC ohpc-release \ref{sec:enable_repo}
+\begin{lstlisting}[language=bash,keywords={},basicstyle=\fontencoding{T1}\fontsize{7.6}{10}\ttfamily,
+    literate={-}{-}1]
+[sms](*\#*) export OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
+[sms](*\#*) export OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/Ubuntu_24.04
+[sms](*\#*) install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
+[sms](*\#*) curl -fsSL ${OHPC_REPO_ROOT}/versatushpc.gpg \
+             -o /usr/share/keyrings/versatushpc.gpg
+[sms](*\#*) curl -fsSL ${OHPC_UBUNTU_REPO}/versatushpc-openhpc.list \
+             -o /etc/apt/sources.list.d/versatushpc-openhpc.list
+[sms](*\#*) apt update
+[sms](*\#*) (*\install*) ohpc-release
+\end{lstlisting}
+% end_ohpc_run
+
+\begin{center}
+\begin{tcolorbox}[]
+\small Many sites may find it useful or necessary to maintain a local copy of the
+\OHPC{} repositories. For Ubuntu, mirror the signed APT repository rooted at
+\href{https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/}
+{\color{blue}{https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu\_24.04/}}
+and update \texttt{/etc/apt/sources.list.d/versatushpc-openhpc.list} to point at
+the local mirror.
+\end{tcolorbox}
+\end{center}

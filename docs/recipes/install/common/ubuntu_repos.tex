@@ -1,0 +1,18 @@
+In addition to the \OHPC{} package repository, the {\em master} host also
+requires access to the standard base OS distro repositories in order to resolve
+necessary dependencies. For \baseOS{}, this recipe assumes a standard
+installation with the \texttt{main}, \texttt{universe}, and \texttt{multiverse}
+components enabled.
+
+% begin_ohpc_run
+% ohpc_validation_newline
+% ohpc_validation_comment Enable Ubuntu package repositories
+\begin{lstlisting}[language=bash,keywords={},upquote=true]
+[sms](*\#*) export DEBIAN_FRONTEND=noninteractive
+[sms](*\#*) apt update
+[sms](*\#*) (*\install*) ca-certificates curl gnupg software-properties-common
+[sms](*\#*) add-apt-repository -y universe
+[sms](*\#*) add-apt-repository -y multiverse
+[sms](*\#*) apt update
+\end{lstlisting}
+% end_ohpc_run

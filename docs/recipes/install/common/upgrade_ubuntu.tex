@@ -1,0 +1,40 @@
+\subsection{Upgrading OpenHPC Packages}  \label{appendix:upgrade}
+
+As newer \OHPC{} releases are made available, users are encouraged to upgrade
+their locally installed packages against the latest repository versions to
+obtain access to bug fixes and newer component versions. This can be
+accomplished with the underlying package manager as \OHPC{} packaging maintains
+versioning state across releases.
+
+\begin{enumerate*}
+\item (Optional) Ensure repo metadata is current on the SMS node and in the
+compute image.
+
+\begin{lstlisting}[language=bash,keywords={}]
+[sms](*\#*)  (*\clean*)
+[sms](*\#*)  (*\chrootclean*)
+\end{lstlisting}
+
+\item Upgrade master (SMS) node
+
+\begin{lstlisting}[language=bash,keywords={}]
+[sms](*\#*)  (*\upgrade*) "*-ohpc"
+[sms](*\#*)  (*\upgrade*) "ohpc-base"
+\end{lstlisting}
+
+\item Upgrade packages in compute image
+
+\begin{lstlisting}[language=bash,keywords={}]
+[sms](*\#*)  (*\chrootupgrade*) "*-ohpc"
+[sms](*\#*)  (*\chrootupgrade*) "ohpc-base-compute"
+\end{lstlisting}
+
+\item Rebuild image(s)
+
+\begin{lstlisting}[language=bash,keywords={},literate={BOSVER}{\baseos{}}1]
+[sms](*\#*) wwctl image build BOSVER
+\end{lstlisting}
+\end{enumerate*}
+
+\noindent In the case where packages were upgraded within the compute image,
+you will need to reboot the compute nodes when convenient to enable the changes.

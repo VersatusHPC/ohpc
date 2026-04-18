@@ -1,0 +1,55 @@
+For MPI development and runtime support, \OHPC{} provides pre-packaged builds
+for a variety of MPI families and transport layers. Currently available options
+and their applicability to various network transports are summarized in
+Table~\ref{table:mpi}. The command that follows installs a starting set of MPI
+families that are compatible with both ethernet and high-speed fabrics.
+
+\begin{table}[h]
+\caption{Available MPI variants} \label{table:mpi}
+\centering
+\begin{tabular}{@{\hspace*{0.2cm}} *4l @{}}    \toprule
+                                  & Ethernet (TCP)                 & \InfiniBand{}                  & \IntelR{} Omni-Path            \\ \midrule
+\rowcolor{black!10} MPICH (ofi) & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} \\
+ MPICH (ucx)       & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} \\
+\rowcolor{black!10} MVAPICH2     &                                  & \multicolumn{1}{c}{\checkmark} &                                  \\
+OpenMPI (ofi/ucx)  & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} & \multicolumn{1}{c}{\checkmark} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+% begin_ohpc_run
+% ohpc_comment_header Install MPI Stacks \ref{sec:mpi}
+% ohpc_command if [[ ${enable_mpi_defaults} -eq 1 ]];then
+% ohpc_indent 5
+\begin{lstlisting}[language=bash]
+[sms](*\#*) (*\install*) openmpi5-gnu15-ohpc mpich-gnu15-ohpc
+\end{lstlisting}
+% ohpc_indent 0
+% ohpc_command fi
+% end_ohpc_run
+
+Note that OpenHPC 2.x introduces the use of two related transport layers for
+the MPICH and OpenMPI builds that support a variety of underlying
+fabrics: \href{https://www.openucx.org}{UCX} (Unified Communication X)
+and \href{https://ofiwg.github.io/libfabric/}{OFI} (OpenFabrics interfaces).
+For MPICH, separate builds are provided and users can switch between the two via
+normal module command semantics. Alternatively, a site can choose to install the
+{\texttt ucx} variant instead as a drop-in MPICH replacement:
+
+\begin{lstlisting}[language=bash]
+[sms](*\#*) (*\install*) mpich-ucx-gnu15-ohpc
+\end{lstlisting}
+
+If your system includes \InfiniBand{} and you enabled underlying support in
+\S\ref{sec:add_ofed} and \S\ref{sec:addl_customizations}, an additional
+MVAPICH2 family is available for use:
+
+% begin_ohpc_run
+% ohpc_validation_newline
+% ohpc_command if [[ ${enable_ib} -eq 1 ]];then
+% ohpc_indent 5
+\begin{lstlisting}[language=bash]
+[sms](*\#*) (*\install*) mvapich2-gnu15-ohpc
+\end{lstlisting}
+% ohpc_indent 0
+% ohpc_command fi
+% end_ohpc_run

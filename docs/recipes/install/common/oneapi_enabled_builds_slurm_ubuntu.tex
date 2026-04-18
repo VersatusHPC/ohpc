@@ -1,0 +1,37 @@
+In addition to the 3rd party development libraries built using the open source
+toolchains mentioned in \S\ref{sec:3rdparty}, \OHPC{} also provides {\em
+  optional} compatible builds for use with the compilers and MPI stack included
+in newer versions of the \IntelR{}~oneAPI HPC Toolkit. These packages provide a
+similar hierarchical user environment experience as other compiler and MPI
+families present in \OHPC{}.
+
+To take advantage of the available builds, install the compatibility packages
+that integrate oneAPI-generated compiler and MPI modulefiles within the standard
+\OHPC{} user environment. On Ubuntu these compatibility packages configure the
+Intel APT repository and install the required oneAPI packages through APT.
+
+% begin_ohpc_run
+% ohpc_comment_header Install Intel oneAPI tools \ref{sec:3rdparty_intel}
+% ohpc_command if [[ ${enable_intel_packages} -eq 1 ]];then
+% ohpc_indent 5
+\begin{lstlisting}[language=bash,keywords={},upquote=true,keepspaces]
+# Enable Intel oneAPI and install OpenHPC compatibility packages
+[sms](*\#*) (*\install*) intel-compilers-devel-ohpc intel-mpi-devel-ohpc
+\end{lstlisting}
+% ohpc_indent 0
+% ohpc_command fi
+% end_ohpc_run
+
+\begin{center}
+\begin{tcolorbox}[]
+As noted in \S\ref{sec:master_customization}, the default installation path for
+\OHPC{} (\texttt{/opt/ohpc/pub}) is exported over NFS from the {\em master} to the
+compute nodes, but the \IntelR{} oneAPI HPC Toolkit packages install to a top-level path of
+\texttt{/opt/intel}. To make the \IntelR{} compilers available to the compute
+nodes one must add an additional NFS export for \texttt{/opt/intel} that is mounted
+on desired compute nodes.
+\end{tcolorbox}
+\end{center}
+
+\noindent The Ubuntu package manifest in Appendix~\ref{appendix:manifest} lists
+the Intel-family library builds available for local selection.

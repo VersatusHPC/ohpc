@@ -1,0 +1,25 @@
+The following command adds \InfiniBand{} support using base distro-provided
+drivers to the chosen {\em master} host.
+
+% begin_ohpc_run
+% ohpc_comment_header Optionally add InfiniBand support services on master node \ref{sec:add_ofed}
+% ohpc_command if [[ ${enable_ib} -eq 1 ]];then
+% ohpc_indent 5
+\begin{lstlisting}[language=bash,keywords={}]
+[sms](*\#*) (*\install*) rdma-core ibverbs-providers infiniband-diags perftest opensm
+# Load IB services
+[sms](*\#*) udevadm trigger --type=devices --action=add
+[sms](*\#*) systemctl restart rdma-load-modules@infiniband.service 2>/dev/null || true
+\end{lstlisting}
+% ohpc_indent 0
+% ohpc_command fi
+% end_ohpc_run
+
+\input{common/opensm}
+
+With the \InfiniBand{} drivers included, you can also enable (optional) IPoIB functionality
+which provides a mechanism to send IP packets over the IB network. If you plan
+to mount a \Lustre{} file system over \InfiniBand{} (see \S\ref{sec:lustre_client}
+for additional details), then having IPoIB enabled is a requirement for the
+\Lustre{} client. Configure the IPoIB interface according to local network policy
+and the interface names assigned by Ubuntu.

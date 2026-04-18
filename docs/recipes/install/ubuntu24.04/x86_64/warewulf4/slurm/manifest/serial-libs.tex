@@ -1,0 +1,121 @@
+\newcolumntype{C}[1]{>{\centering}p{#1}}
+\newcolumntype{L}[1]{>{\raggedleft}p{#1}}
+\newcolumntype{C}[1]{>{\centering}p{#1}}
+\newcolumntype{L}[1]{>{\raggedleft}p{#1}}
+\small
+\begin{tabularx}{\textwidth}{L{\firstColWidth{}}|C{\secondColWidth{}}|X}
+\toprule
+{\bf RPM Package Name} & {\bf Version} & {\bf Info/URL}  \\
+\midrule
+
+% <-- begin entry for cubelib
+cubelib-gnu15-ohpc &
+\multirow{2}{*}{4.9.1} &
+\multirow{2}{\linewidth}{CUBE high performance analysis library (gnu15, OpenHPC). \newline {\color{logoblue} \url{https://www.scalasca.org/scalasca/software/cube-4.x}}}\\
+cubelib-intel-ohpc &
+& \\
+\hline
+% <-- end entry for cubelib
+
+% <-- begin entry for gotcha
+gotcha-gnu15-ohpc &
+\multirow{2}{*}{1.0.8} &
+\multirow{2}{\linewidth}{A library for wrapping function calls in shared libraries (gnu15, OpenHPC).  {\color{logoblue} \url{https://github.com/LLNL/GOTCHA}}}\\
+gotcha-intel-ohpc &
+& \\
+\hline
+% <-- end entry for gotcha
+
+% <-- begin entry for gsl
+gsl-gnu15-ohpc &
+\multirow{2}{*}{2.8} &
+\multirow{2}{\linewidth}{GNU Scientific Library (gnu15, OpenHPC). \newline {\color{logoblue} \url{http://www.gnu.org/software/gsl}}}\\
+gsl-intel-ohpc &
+& \\
+\hline
+% <-- end entry for gsl
+
+% <-- begin entry for metis
+metis-gnu15-ohpc &
+\multirow{2}{*}{5.1.0} &
+\multirow{2}{\linewidth}{Serial Graph Partitioning and Fill-reducing Matrix Ordering (gnu15, OpenHPC).  {\color{logoblue} \url{http://glaros.dtc.umn.edu/gkhome/metis/metis/overview}}}\\
+metis-intel-ohpc &
+& \\
+\hline
+% <-- end entry for metis
+
+% <-- begin entry for opari2
+opari2-gnu15-ohpc &
+\multirow{2}{*}{2.0.9} &
+\multirow{2}{\linewidth}{An OpenMP runtime performance measurement instrumenter (gnu15, OpenHPC).  {\color{logoblue} \url{https://www.vi-hps.org/projects/score-p}}}\\
+opari2-intel-ohpc &
+& \\
+\hline
+% <-- end entry for opari2
+
+% <-- begin entry for openblas
+openblas-gnu15-ohpc &
+\multirow{2}{*}{0.3.32} &
+\multirow{2}{\linewidth}{An optimized BLAS library based on GotoBLAS2 (gnu15, OpenHPC).  {\color{logoblue} \url{http://www.openblas.net}}}\\
+openblas-intel-ohpc &
+& \\
+\hline
+% <-- end entry for openblas
+
+% <-- begin entry for plasma
+plasma-gnu15-ohpc &
+\multirow{2}{*}{25.5.27} &
+\multirow{2}{\linewidth}{Parallel Linear Algebra Software for Multicore Architectures (gnu15, OpenHPC).  {\color{logoblue} \url{https://github.com/icl-utk-edu/plasma}}}\\
+plasma-intel-ohpc &
+& \\
+\hline
+% <-- end entry for plasma
+
+% <-- begin entry for ptscotch
+ptscotch-gnu15-impi-ohpc &
+\multirow{8}{*}{7.0.10} &
+\multirow{8}{\linewidth}{Graph, mesh and hypergraph partitioning library - MPI variant (gnu15 + impi, OpenHPC). \newline {\color{logoblue} \url{https://gitlab.inria.fr/scotch/scotch}}}\\
+ptscotch-gnu15-mpich-ohpc &
+& \\
+ptscotch-gnu15-mvapich2-ohpc &
+& \\
+ptscotch-gnu15-openmpi5-ohpc &
+& \\
+ptscotch-intel-impi-ohpc &
+& \\
+ptscotch-intel-mpich-ohpc &
+& \\
+ptscotch-intel-mvapich2-ohpc &
+& \\
+ptscotch-intel-openmpi5-ohpc &
+& \\
+\hline
+% <-- end entry for ptscotch
+
+% <-- begin entry for r
+r-gnu15-ohpc &
+\multirow{1}{*}{4.5.3} &
+\multirow{1}{\linewidth}{R language for statistical computing (gnu15, OpenHPC). \newline {\color{logoblue} \url{http://www.r-project.org}}}\\
+\hline
+% <-- end entry for r
+
+% <-- begin entry for scotch
+scotch-gnu15-ohpc &
+\multirow{2}{*}{7.0.10} &
+\multirow{2}{\linewidth}{Graph, mesh and hypergraph partitioning library (gnu15, OpenHPC).  {\color{logoblue} \url{https://gitlab.inria.fr/scotch/scotch}}}\\
+scotch-intel-ohpc &
+& \\
+\hline
+% <-- end entry for scotch
+
+% <-- begin entry for superlu
+superlu-gnu15-ohpc &
+\multirow{2}{*}{7.0.1} &
+\multirow{2}{\linewidth}{A general purpose library for the direct solution of linear equations (gnu15, OpenHPC).  {\color{logoblue} \url{http://crd.lbl.gov/~xiaoye/SuperLU}}}\\
+superlu-intel-ohpc &
+& \\
+\hline
+% <-- end entry for superlu
+
+\bottomrule
+\end{tabularx}

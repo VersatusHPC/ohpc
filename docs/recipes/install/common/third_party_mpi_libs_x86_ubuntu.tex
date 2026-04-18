@@ -1,0 +1,11 @@
+% begin_ohpc_run
+% ohpc_command if [[ ${enable_mpi_defaults} -eq 1 ]];then
+% ohpc_indent 5
+\begin{lstlisting}[language=bash,keywords={},upquote=true,keepspaces]
+# Install parallel lib meta-packages for available default MPI toolchains
+[sms](*\#*) (*\install*) ohpc-gnu15-mpich-parallel-libs
+[sms](*\#*) (*\install*) ohpc-gnu15-openmpi5-parallel-libs
+\end{lstlisting}
+% ohpc_indent 0
+% ohpc_command fi
+% end_ohpc_run

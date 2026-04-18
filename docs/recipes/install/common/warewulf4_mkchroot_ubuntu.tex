@@ -1,0 +1,43 @@
+With the provisioning services enabled, the next step is to define and
+customize a system image that can subsequently be used to provision one or more
+{\em compute} nodes. The following subsections highlight this process.
+
+\subsubsection{Build initial BOS image} \label{sec:assemble_bos}
+\Warewulf{} 4 supports using container images as the base file system for
+provisioning, and it can import these directly from an OCI registry like
+Docker Hub. In this example we import the official Ubuntu container image and
+install the kernel and init-system packages needed for Warewulf provisioning.
+
+The \texttt{wwctl image exec} command runs the commands below it, these commands
+also be run interactively one a time with the command \texttt{wwctl image
+shell \baseos{}}. You can add \texttt{/bin/false} as the last command to prevent
+the image from rebuilding (it will show an error) and rebuild later with the
+\texttt{wwctl image build} command.
+
+% begin_ohpc_run
+% ohpc_comment_header Create compute image for Warewulf \ref{sec:assemble_bos}
+\begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true,keepspaces,literate={BOSVER}{\baseos{}}1 {OSIMAGE}{\osimage{}}1]
+# Import the base image
+[sms](*\#*) wwctl image import docker://OSIMAGE BOSVER --syncuser
+
+# Define chroot location
+[sms](*\#*) export CHROOT=$(wwctl image show BOSVER)
+
+# Enable OpenHPC inside image and update image. Disable image build on exit, rebuild later.
+[sms](*\#*) wwctl image exec --build=false BOSVER -- /bin/bash -ex <<- EOF
+  export DEBIAN_FRONTEND=noninteractive
+  apt update
+  apt -y install ca-certificates curl gnupg systemd systemd-sysv \
+    udev kmod linux-image-generic initramfs-tools network-manager openssh-server
+  OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
+  OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/Ubuntu_24.04
+  install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
+  curl -fsSL ${OHPC_REPO_ROOT}/versatushpc.gpg \
+    -o /usr/share/keyrings/versatushpc.gpg
+  curl -fsSL ${OHPC_UBUNTU_REPO}/versatushpc-openhpc.list \
+    -o /etc/apt/sources.list.d/versatushpc-openhpc.list
+  apt update
+  apt -y upgrade
+EOF
+\end{lstlisting}
+% end_ohpc_run
