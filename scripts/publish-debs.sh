@@ -34,6 +34,9 @@ LOCAL_REPO_SCRIPT="${LOCAL_REPO_SCRIPT:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/ma
 OHPC_VERSION="${OHPC_VERSION:-4.0}"
 DIST_DIR="${STAGING_REPO}/dist/${OHPC_VERSION}"
 DIST_ARCHIVE="${DIST_ARCHIVE:-OpenHPC-${OHPC_VERSION}.${OBS_REPO_NAME}.x86_64.tar}"
+SOURCE_SUBDIR="${SOURCE_SUBDIR:-source}"
+MAINTAINER_EMAIL_FROM="${MAINTAINER_EMAIL_FROM:-packages@versatushpc.org}"
+MAINTAINER_EMAIL_TO="${MAINTAINER_EMAIL_TO:-packages@versatushpc.com.br}"
 
 # Remote mirror settings.
 REMOTE_USER="${REMOTE_USER:-reposync}"
@@ -104,6 +107,111 @@ if ! gpg --list-secret-keys "${GPG_KEY_NAME}" >/dev/null 2>&1; then
     exit 1
 fi
 
+
+normalize_source_metadata() {
+    local repo="$1"
+    local source_dir="$2"
+
+    [[ -f "${repo}/Sources" ]] || return 0
+
+    echo "==> Moving Debian source artifacts into ${source_dir}/"
+    (
+        cd "${repo}"
+        mkdir -p "${source_dir}"
+
+        awk '
+            /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+$/ {
+                file = $3
+                if (file ~ /\.(dsc|tar\.(gz|xz|bz2)|orig\.tar\.(gz|xz|bz2)|debian\.tar\.(gz|xz|bz2)|diff\.gz)$/) {
+                    print file
+                }
+            }
+        ' Sources | sort -u > .source-files
+
+        while IFS= read -r file; do
+            [[ -n "${file}" && -f "${file}" ]] || continue
+            mv -f "${file}" "${source_dir}/${file}"
+        done < .source-files
+        rm -f .source-files
+
+        # OBS also leaves importer-side .tar.gz files in the published tree.
+        # They are not referenced by Sources or .dsc, so keep them private.
+        find . -maxdepth 1 -type f \( \
+            -name '*.dsc' -o \
+            -name '*.tar.gz' -o \
+            -name '*.tar.xz' -o \
+            -name '*.tar.bz2' -o \
+            -name '*.orig.tar.*' -o \
+            -name '*.debian.tar.*' -o \
+            -name '*.diff.gz' \
+        \) -delete
+
+        find "${source_dir}" -maxdepth 1 -type f -name '*.dsc' \
+            -exec sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" {} +
+
+        awk -v dir="${source_dir}" \
+            -v from="${MAINTAINER_EMAIL_FROM}" \
+            -v to="${MAINTAINER_EMAIL_TO}" '
+            function checksum(command, file,    output, parts) {
+                command = command " \"" dir "/" file "\""
+                command | getline output
+                close(command)
+                split(output, parts, /[[:space:]]+/)
+                return parts[1]
+            }
+            function size(file,    command, output) {
+                command = "stat -c %s \"" dir "/" file "\""
+                command | getline output
+                close(command)
+                return output
+            }
+            /^Maintainer:/ {
+                gsub(from, to)
+                print
+                next
+            }
+            /^Directory:/ {
+                print "Directory: " dir
+                next
+            }
+            /^Files:/ {
+                section = "Files"
+                print
+                next
+            }
+            /^Checksums-Sha1:/ {
+                section = "Checksums-Sha1"
+                print
+                next
+            }
+            /^Checksums-Sha256:/ {
+                section = "Checksums-Sha256"
+                print
+                next
+            }
+            /^[^[:space:]]/ {
+                section = ""
+            }
+            /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+\.dsc$/ {
+                file = $3
+                file_size = size(file)
+                if (section == "Files") {
+                    printf " %s %s %s\n", checksum("md5sum", file), file_size, file
+                } else if (section == "Checksums-Sha1") {
+                    printf " %s %s %s\n", checksum("sha1sum", file), file_size, file
+                } else if (section == "Checksums-Sha256") {
+                    printf " %s %s %s\n", checksum("sha256sum", file), file_size, file
+                } else {
+                    print
+                }
+                next
+            }
+            { print }
+        ' Sources > Sources.tmp
+        mv Sources.tmp Sources
+    )
+}
+
 if [[ -z "${SKIP_STAGE}" ]]; then
     echo "==> Staging OBS Debian repository from ${OBS_CONTAINER}:${OBS_REPO_PATH}"
     rm -rf "${STAGING_REPO}"
@@ -134,6 +242,13 @@ cp "${STAGING_ROOT}/versatushpc.gpg" "${STAGING_REPO}/versatushpc.gpg"
 cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
 cp "${LOCAL_REPO_SCRIPT}" "${STAGING_REPO}/make_repo.sh"
 chmod 0755 "${STAGING_REPO}/make_repo.sh"
+
+if [[ -f "${STAGING_REPO}/Packages" ]]; then
+    echo "==> Normalizing binary package metadata"
+    sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" "${STAGING_REPO}/Packages"
+fi
+normalize_source_metadata "${STAGING_REPO}" "${SOURCE_SUBDIR}"
+rm -f "${STAGING_REPO}/Packages.gz" "${STAGING_REPO}/Sources.gz"
 
 echo "==> Adding xz-compressed APT indexes"
 (
@@ -231,7 +346,9 @@ echo "    Total size:        $(du -sh "${STAGING_REPO}" | awk '{print $1}')"
 echo "    .deb packages:     $(find "${STAGING_REPO}" -type f -name '*.deb' | wc -l)"
 echo "    amd64 packages:    $(find "${STAGING_REPO}/amd64" -type f -name '*.deb' 2>/dev/null | wc -l)"
 echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 2>/dev/null | wc -l)"
-echo "    Metadata:          Release InRelease Release.gpg Packages Packages.xz"
+echo "    source packages:   $(grep -c '^Package: ' "${STAGING_REPO}/Sources" 2>/dev/null || echo 0)"
+echo "    source artifacts:  $(find "${STAGING_REPO}/${SOURCE_SUBDIR}" -maxdepth 1 -type f 2>/dev/null | wc -l)"
+echo "    Metadata:          Release InRelease Release.gpg Packages Packages.xz Sources Sources.xz"
 echo "    Local mirror tar:  ${DIST_DIR}/${DIST_ARCHIVE}"
 echo ""
 echo "    Users enable the repo with:"

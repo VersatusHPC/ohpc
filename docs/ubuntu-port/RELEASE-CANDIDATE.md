@@ -83,6 +83,24 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   root-level Ubuntu `make_repo.sh` and `dist/`, and returns 200 for the
   `Ubuntu_24.04/` copies.
 
+## RC6
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc6`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository: `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC5: public APT source artifacts moved out of the repository
+  root into `source/`; unreferenced importer `.tar.gz` files and unadvertised
+  gzip indexes are no longer published; public `Packages`, `Sources`, and
+  `.dsc` metadata now use `packages@versatushpc.com.br`.
+- Validation: the public root listing has no `.dsc`, `.tar.gz`, or `.tar.xz`
+  source artifacts; `Sources` has 296 `Directory: source` entries; a clean
+  Ubuntu 24.04 container resolved `docs-ohpc`, read source metadata with the
+  corrected maintainer address, and downloaded a source package from `source/`.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and
