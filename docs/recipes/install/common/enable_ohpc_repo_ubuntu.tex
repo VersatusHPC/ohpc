@@ -10,7 +10,6 @@ key, then APT metadata is refreshed from the enabled repository.
 [sms](*\#*) export OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
 [sms](*\#*) export OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/Ubuntu_24.04
 [sms](*\#*) export OHPC_RELEASE_DEB=ohpc-release_4.0-1ohpc4~noble_all.deb
-[sms](*\#*) apt update
 [sms](*\#*) apt -y install ca-certificates curl
 [sms](*\#*) curl -fsSLO ${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}
 [sms](*\#*) apt -y install ./${OHPC_RELEASE_DEB}
@@ -22,10 +21,13 @@ key, then APT metadata is refreshed from the enabled repository.
 \begin{center}
 \begin{tcolorbox}[]
 \small Many sites may find it useful or necessary to maintain a local copy of the
-\OHPC{} repositories. For Ubuntu, mirror the signed APT repository rooted at
-\href{https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/}
-{\color{blue}{https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu\_24.04/}}
-and update \texttt{/etc/apt/sources.list.d/versatushpc-openhpc.list} to point at
-the local mirror.
+\OHPC{} repositories. To facilitate this need, standalone tar archives are
+provided containing the signed APT repository, binary packages, and metadata for
+local mirrors. The tar files also contain a simple bash script to configure the
+package manager to use the local repository after download. To use, simply
+unpack the tarball where you would like to host the local repository and execute
+the \texttt{make\_repo.sh} script. Tar files for this release can be found at
+\href{https://repos.versatushpc.com.br/openhpc/versatushpc-4/dist/4.0}
+{\color{blue}{https://repos.versatushpc.com.br/openhpc/versatushpc-4/dist/4.0}}
 \end{tcolorbox}
 \end{center}

@@ -1,3 +1,10 @@
+docs-ohpc (4.0.0-1ohpc5~noble) noble; urgency=low
+
+  * Polish Ubuntu repository setup and optional NVIDIA GPU recipe.
+  * Document local APT mirror helper parity with upstream make_repo.sh flow.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 -0300
+
 docs-ohpc (4.0.0-1ohpc4~noble) noble; urgency=low
 
   * Align the Ubuntu Warewulf/Slurm guide with package-owned setup steps.

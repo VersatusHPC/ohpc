@@ -16,18 +16,32 @@ standard OpenHPC user environment.
 ```bash
 # Add NVIDIA GPU driver repository to the head node
 {{ head_install("cuda-repo-ohpc") }}
+{% if is_ubuntu %}
+{{ pkg_update }}
+{% endif %}
 
 # Add NVIDIA GPU driver repository to the compute nodes
 {{ compute_install("cuda-repo-ohpc") }}
+{% if is_ubuntu %}
+{{ compute_run("apt update") }}
+{% endif %}
 
 # Install the GPU driver on the compute nodes
+{% if is_ubuntu %}
+{{ compute_install("cuda-drivers") }}
+{% else %}
 {{ compute_install("nvidia-driver:latest-dkms") }}
+{% endif %}
 
 # Enable DKMS service to automatically rebuild driver
 {{ compute_run("systemctl enable dkms") }}
 
 # Install the toolkit on the head node
-{{ compute_install(["cuda-devel-ohpc", "nvidia-driver-cuda"]) }}
+{% if is_ubuntu %}
+{{ head_install(["cuda-drivers", "cuda-devel-ohpc"]) }}
+{% else %}
+{{ head_install(["cuda-devel-ohpc", "nvidia-driver-cuda"]) }}
+{% endif %}
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->

@@ -1,0 +1,2 @@
+# NVIDIA HPC SDK repository for Ubuntu.
+deb [arch=amd64 signed-by=/usr/share/keyrings/nvidia-hpc-sdk-archive-keyring.asc] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64/ /

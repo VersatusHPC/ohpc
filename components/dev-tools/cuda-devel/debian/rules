@@ -14,6 +14,15 @@ override_dh_auto_install:
 	install -m 644 SOURCES/cuda-toolkit.lua $(PKG_DEVEL)/opt/ohpc/pub/modulefiles/cuda-toolkit/25.9.lua 2>/dev/null || \
 	echo 'append_path("MODULEPATH", "/opt/nvidia/hpc_sdk/modulefiles")' > $(PKG_DEVEL)/opt/ohpc/pub/modulefiles/cuda-toolkit/25.9.lua
 	mkdir -p $(PKG_REPO)/etc/apt/sources.list.d
+	mkdir -p $(PKG_REPO)/usr/share/keyrings
+	install -m 0644 SOURCES/cuda-ubuntu2404.list \
+		$(PKG_REPO)/etc/apt/sources.list.d/cuda-ubuntu2404.list
+	install -m 0644 SOURCES/nvhpc-ubuntu.list \
+		$(PKG_REPO)/etc/apt/sources.list.d/nvhpc-ubuntu.list
+	install -m 0644 SOURCES/cuda-archive-keyring.asc \
+		$(PKG_REPO)/usr/share/keyrings/cuda-archive-keyring.asc
+	install -m 0644 SOURCES/nvidia-hpc-sdk-archive-keyring.asc \
+		$(PKG_REPO)/usr/share/keyrings/nvidia-hpc-sdk-archive-keyring.asc
 
 override_dh_auto_clean:
 override_dh_usrlocal:

@@ -7,13 +7,14 @@ Standards-Version: 4.6.2
 
 Package: cuda-devel-ohpc
 Architecture: all
-Depends: ohpc-filesystem, lmod-ohpc, ${misc:Depends}
+Depends: ohpc-filesystem, lmod-ohpc, nvhpc-25-9, ${misc:Depends}
 Description: OpenHPC compatibility package for CUDA (OpenHPC)
  Provides OpenHPC-style modulefiles for NVIDIA CUDA/HPC SDK.
- Requires NVIDIA HPC SDK to be installed at /opt/nvidia/hpc_sdk/.
+ Pulls in NVIDIA HPC SDK at /opt/nvidia/hpc_sdk/.
 
 Package: cuda-repo-ohpc
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ca-certificates, ${misc:Depends}
 Description: CUDA toolkit repository configuration (OpenHPC)
- Provides repository configuration for NVIDIA CUDA toolkit.
+ Provides APT repository configuration and signing keys for NVIDIA CUDA
+ toolkit and NVIDIA HPC SDK packages.

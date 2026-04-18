@@ -30,6 +30,10 @@ OBS_REPO_PATH="${OBS_REPO_PARENT}/${OBS_REPO_NAME}"
 GPG_KEY_NAME="${GPG_KEY_NAME:-VersatusHPC (Repository Signing Key) <support@versatushpc.com.br>}"
 GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${REPO_ROOT}/RPM-GPG-KEY-VersatusHPC}"
 APT_SOURCE_FILE="${APT_SOURCE_FILE:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/versatushpc-openhpc.list}"
+LOCAL_REPO_SCRIPT="${LOCAL_REPO_SCRIPT:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/make_repo.sh}"
+OHPC_VERSION="${OHPC_VERSION:-4.0}"
+DIST_DIR="${STAGING_ROOT}/dist/${OHPC_VERSION}"
+DIST_ARCHIVE="${DIST_ARCHIVE:-OpenHPC-${OHPC_VERSION}.${OBS_REPO_NAME}.x86_64.tar}"
 
 # Remote mirror settings.
 REMOTE_USER="${REMOTE_USER:-reposync}"
@@ -82,6 +86,11 @@ if [[ ! -f "${APT_SOURCE_FILE}" ]]; then
     exit 1
 fi
 
+if [[ ! -f "${LOCAL_REPO_SCRIPT}" ]]; then
+    echo "Error: local repository helper not found: ${LOCAL_REPO_SCRIPT}" >&2
+    exit 1
+fi
+
 if [[ ! -f "${SSH_KEY}" ]]; then
     echo "Error: SSH key not found: ${SSH_KEY}" >&2
     echo "Set SSH_KEY=/path/to/reposync_key or install the mirror publish key." >&2
@@ -120,6 +129,8 @@ cp "${GPG_PUBLIC_KEY}" "${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC"
 rm -f "${STAGING_ROOT}"/versatushpc*.gpg
 gpg --dearmor --yes --output "${STAGING_ROOT}/versatushpc.gpg" "${GPG_PUBLIC_KEY}"
 cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
+cp "${LOCAL_REPO_SCRIPT}" "${STAGING_ROOT}/make_repo.sh"
+chmod 0755 "${STAGING_ROOT}/make_repo.sh"
 
 echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 (
@@ -131,16 +142,31 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
         --digest-algo SHA256 --armor --detach-sign --output Release.gpg Release
 )
 
+echo "==> Creating local repository tarball"
+mkdir -p "${DIST_DIR}"
+rm -f "${DIST_DIR}/${DIST_ARCHIVE}"
+tar -C "${STAGING_ROOT}" --exclude=dist -cf "${DIST_DIR}/${DIST_ARCHIVE}" \
+    "${OBS_REPO_NAME}" RPM-GPG-KEY-VersatusHPC versatushpc.gpg make_repo.sh
+
 LFTP_DRY_RUN=""
 LFTP_KEY_UPLOADS="
 rm -f ${REMOTE_PATH}/versatushpc*.gpg;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc.gpg;
+put -O ${REMOTE_PATH} ${STAGING_ROOT}/make_repo.sh;
+"
+LFTP_DIST_UPLOADS="
+mkdir -pf ${REMOTE_PATH}/dist/${OHPC_VERSION};
+mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
+    ${DIST_DIR}/ ${REMOTE_PATH}/dist/${OHPC_VERSION}/;
 "
 if [[ -n "${DRY_RUN}" ]]; then
     LFTP_DRY_RUN="--dry-run"
     LFTP_KEY_UPLOADS="
 cls -la ${REMOTE_PATH};
+"
+    LFTP_DIST_UPLOADS="
+cls -la ${REMOTE_PATH}/dist/${OHPC_VERSION};
 "
     echo "*** DRY RUN - no files will be transferred ***"
 fi
@@ -154,6 +180,7 @@ mkdir -pf ${REMOTE_PATH}/${OBS_REPO_NAME};
 mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
     ${STAGING_REPO}/ ${REMOTE_PATH}/${OBS_REPO_NAME}/;
 ${LFTP_KEY_UPLOADS}
+${LFTP_DIST_UPLOADS}
 bye;
 "
 
@@ -165,6 +192,7 @@ echo "    .deb packages:     $(find "${STAGING_REPO}" -type f -name '*.deb' | wc
 echo "    amd64 packages:    $(find "${STAGING_REPO}/amd64" -type f -name '*.deb' 2>/dev/null | wc -l)"
 echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 2>/dev/null | wc -l)"
 echo "    Metadata:          Release InRelease Release.gpg Packages.gz"
+echo "    Local mirror tar:  ${DIST_DIR}/${DIST_ARCHIVE}"
 echo ""
 echo "    Users enable the repo with:"
 echo "      curl -fsSLO https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/all/ohpc-release_4.0-1ohpc4~noble_all.deb"

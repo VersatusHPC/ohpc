@@ -14,13 +14,14 @@ standard \OHPC{} user environment.
 \begin{lstlisting}[language=bash,literate={-}{-}1,keywords={},upquote=true,keepspaces,literate={BOSVER}{\baseos{}}1]
 # Add NVIDIA GPU driver repository to the SMS
 [sms](*\#*) (*\install*) cuda-repo-ohpc
+[sms](*\#*) apt update
 # Install the toolkit on the SMS
-[sms](*\#*) (*\install*) nvidia-driver-cuda cuda-devel-ohpc
+[sms](*\#*) (*\install*) cuda-drivers cuda-devel-ohpc
 # Install NVIDIA repository and GPU driver in the compute image
 [sms](*\#*) wwctl image exec --build=false BOSVER -- /bin/bash -ex <<- EOF
   apt -y install cuda-repo-ohpc
   apt update
-  apt -y install nvidia-driver-cuda
+  apt -y install cuda-drivers
 EOF
 \end{lstlisting}
 % ohpc_indent 0

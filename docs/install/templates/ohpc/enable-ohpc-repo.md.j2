@@ -22,7 +22,6 @@ the repository. The example which follows illustrates installation of the
 OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
 OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
 OHPC_RELEASE_DEB="{{ ohpc_release_deb }}"
-apt update
 apt -y install ca-certificates curl
 curl -fsSLO "${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}"
 apt -y install "./${OHPC_RELEASE_DEB}"
@@ -44,10 +43,14 @@ ohpc-release-{{ ohpc_version_tree }}-1.{{ distro_tag }}.{{ arch }}.rpm
 
 ::: {.tip}
 **Note:** Many sites may find it useful or necessary to maintain a local copy of
-the OpenHPC repositories. {% if is_ubuntu %}For Ubuntu, mirror the signed APT
-repository rooted at [{{ ohpc_apt_repo_url }}]({{ ohpc_apt_repo_url }}) and
-update `/etc/apt/sources.list.d/versatushpc-openhpc.list` to point at the local
-mirror.{% else %}To facilitate this need, standalone tar archives are
+the OpenHPC repositories. {% if is_ubuntu %}To facilitate this need, standalone tar archives are
+provided containing the signed APT repository, binary packages, and metadata for
+local mirrors. The tar files also contain a simple bash script to configure the
+package manager to use the local repository after download. To use, simply
+unpack the tarball where you would like to host the local repository and execute
+the `make_repo.sh` script. Tar files for this release can be found at
+[{{ ohpc_repo_server }}{{ ohpc_repo_path }}/dist/{{ ohpc_version }}]({{ ohpc_repo_server }}{{ ohpc_repo_path }}/dist/{{ ohpc_version }})
+{% else %}To facilitate this need, standalone tar archives are
 provided -- one containing a repository of binary packages as well as any
 available updates, and one containing a repository of source RPMS. The tar files
 also contain a simple bash script to configure the package manager to use the
