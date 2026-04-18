@@ -28,9 +28,6 @@ wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
 {% endif %}
   {{ "apt -y install" if is_ubuntu else "dnf -y install" }} \
     ohpc-base-compute
-{% if is_ubuntu %}
-  systemctl enable ssh.service
-{% endif %}
 EOF
 ```
 <!-- ohpc_end -->

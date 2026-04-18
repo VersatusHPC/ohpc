@@ -14,6 +14,22 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
 - Build result: 296/296 packages succeeded
 - Public repository: `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
 
+## RC2
+
+- Tag: `versatushpc-4.0.0-ubuntu24.04-rc2`
+- Date: 2026-04-18
+- Target: Ubuntu 24.04 LTS, x86_64
+- OBS project: `VersatusHPC:OHPC:4`
+- OBS repository: `Ubuntu_24.04`
+- Build result: 296/296 packages succeeded
+- Public repository: `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Delta from RC1: package-owned Ubuntu setup fixes for `ohpc-release`,
+  `munge-ohpc`, `slurm-ohpc`, `warewulf-ohpc`, and `docs-ohpc`; public
+  mirror republished with 341 Debian artifacts.
+- Runtime validation: upgraded an existing Ubuntu Warewulf/Slurm SMS and
+  rebuilt/rebooted the `c1` compute image from the public mirror, then ran
+  `scripts/validate-ubuntu-runtime.sh --with-intel` successfully.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and

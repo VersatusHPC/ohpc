@@ -65,7 +65,10 @@ wwctl image exec --build=false {{ baseos }} -- /bin/bash -lc \
 ```bash
 {% if is_ubuntu %}
 dpkg-query -W -f='${binary:Package}\n' '*-ohpc' 2>/dev/null | \
-	xargs -r apt -y install --only-upgrade
+	xargs -r apt -y \
+	-o Dpkg::Options::=--force-confdef \
+	-o Dpkg::Options::=--force-confold \
+	install --only-upgrade
 
 # Any new Base OS provided dependencies can be installed by
 # updating the ohpc-base metapackage
@@ -108,7 +111,10 @@ apply the changes.
 {% if is_ubuntu and is_warewulf %}
 wwctl image exec --build=false {{ baseos }} -- /bin/bash -lc \
 	"dpkg-query -W -f='\${binary:Package}\n' '*-ohpc' 2>/dev/null | \
-	xargs -r apt -y install --only-upgrade"
+	xargs -r apt -y \
+	-o Dpkg::Options::=--force-confdef \
+	-o Dpkg::Options::=--force-confold \
+	install --only-upgrade"
 
 # Any new compute-node Base OS provided dependencies can be installed by
 # updating the ohpc-base-compute metapackage
@@ -131,7 +137,10 @@ restart is required on the compute nodes.
 {% if is_ubuntu and is_warewulf %}
 wwctl image exec --build=false {{ baseos }} -- /bin/bash -lc \
 	"dpkg-query -W -f='\${binary:Package}\n' '*-ohpc' 2>/dev/null | \
-	xargs -r apt -y install --only-upgrade"
+	xargs -r apt -y \
+	-o Dpkg::Options::=--force-confdef \
+	-o Dpkg::Options::=--force-confold \
+	install --only-upgrade"
 
 # Any new compute-node Base OS provided dependencies can be installed by
 # updating the ohpc-base-compute metapackage

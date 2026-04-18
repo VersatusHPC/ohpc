@@ -131,7 +131,10 @@ On the head node:
 sudo apt update
 apt-cache policy warewulf-ohpc slurm-ohpc slurm-slurmd-ohpc \
   pmix-ohpc hwloc-ohpc ohpc-base-compute ohpc-release
-sudo apt -y install --only-upgrade \
+sudo apt -y \
+  -o Dpkg::Options::=--force-confdef \
+  -o Dpkg::Options::=--force-confold \
+  install --only-upgrade \
   warewulf-ohpc slurm-ohpc slurm-slurmctld-ohpc slurm-slurmd-ohpc \
   pmix-ohpc hwloc-ohpc ohpc-base-compute ohpc-release
 ```
@@ -146,7 +149,10 @@ real device node exists.
 ```bash
 sudo wwctl image exec --build=false ubuntu-24.04 -- /bin/bash -ex <<'EOF'
 apt update
-apt -y install --only-upgrade \
+apt -y \
+  -o Dpkg::Options::=--force-confdef \
+  -o Dpkg::Options::=--force-confold \
+  install --only-upgrade \
   slurm-slurmd-ohpc pmix-ohpc hwloc-ohpc ohpc-base-compute
 EOF
 sudo wwctl image build ubuntu-24.04

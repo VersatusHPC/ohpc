@@ -44,6 +44,7 @@ wwctl image exec --build=false {{ baseos }} -- /bin/bash -ex <<- EOF
   apt update
   apt -y install ca-certificates curl systemd systemd-sysv \
     udev kmod linux-image-generic initramfs-tools network-manager openssh-server
+  systemctl enable ssh.service
   OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
   OHPC_UBUNTU_REPO="\${OHPC_REPO_ROOT}/Ubuntu_24.04"
   OHPC_RELEASE_DEB="{{ ohpc_release_deb }}"

@@ -79,6 +79,13 @@ sudo_n() {
     sudo -n "$@"
 }
 
+apt_get_install() {
+    sudo_n apt-get -y \
+        -o Dpkg::Options::=--force-confdef \
+        -o Dpkg::Options::=--force-confold \
+        install "$@"
+}
+
 load_lmod() {
     # Ubuntu's lmod profile may inspect Slurm variables that are unset outside
     # allocations, so source it with nounset disabled.
@@ -206,7 +213,7 @@ candidate_required imb-intel-mvapich2-ohpc
 
 if [ "$upgrade_core" = 1 ]; then
     section "Core package upgrade"
-    sudo_n apt-get -y install --only-upgrade \
+    apt_get_install --only-upgrade \
         ohpc-base ohpc-slurm-server \
         openmpi5-gnu15-ohpc mpich-gnu15-ohpc mvapich2-gnu15-ohpc \
         imb-gnu15-openmpi5-ohpc imb-gnu15-mpich-ohpc imb-gnu15-mvapich2-ohpc
@@ -214,9 +221,9 @@ fi
 
 if [ "$install_intel" = 1 ]; then
     section "Install Intel validation packages"
-    sudo_n apt-get -y install intel-oneapi-toolkit-release-ohpc
+    apt_get_install intel-oneapi-toolkit-release-ohpc
     sudo_n apt-get update
-    sudo_n apt-get -y install \
+    apt_get_install \
         intel-compilers-devel-ohpc intel-mpi-devel-ohpc \
         openmpi5-intel-ohpc mpich-intel-ohpc mvapich2-intel-ohpc \
         imb-intel-impi-ohpc imb-gnu15-impi-ohpc \
