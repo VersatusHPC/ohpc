@@ -20,3 +20,13 @@ Description: OpenHPC compatibility package for Intel(R) oneAPI HPC Toolkit
  (icx, icpx, ifx) at /opt/intel/oneapi/.
  .
  This package is part of the OpenHPC project.
+
+Package: intel-oneapi-toolkit-release-ohpc
+Architecture: all
+Depends: ca-certificates,
+         ${misc:Depends}
+Description: Intel(R) oneAPI repository setup for OpenHPC
+ Installs the Intel oneAPI APT source and archive key used by the OpenHPC
+ Intel compiler and MPI compatibility packages.
+ .
+ This package is part of the OpenHPC project.

@@ -80,6 +80,7 @@ imb-intel-mpich-ohpc 2021.10 https://github.com/intel/mpi-benchmarks ohpc/perf-t
 imb-intel-mvapich2-ohpc 2021.10 https://github.com/intel/mpi-benchmarks ohpc/perf-tools Intel MPI Benchmarks (intel + mvapich2, OpenHPC)
 imb-intel-openmpi5-ohpc 2021.10 https://github.com/intel/mpi-benchmarks ohpc/perf-tools Intel MPI Benchmarks (intel + openmpi5, OpenHPC)
 intel-compilers-devel-ohpc 2025.0 https://github.com/openhpc/ohpc ohpc/compiler-families OpenHPC compatibility package for Intel(R) oneAPI HPC Toolkit
+intel-oneapi-toolkit-release-ohpc 2025.0 https://github.com/openhpc/ohpc ohpc/compiler-families Intel(R) oneAPI HPC Toolkit Repository Setup
 intel-mpi-devel-ohpc 2025.0 https://github.com/openhpc/ohpc ohpc/mpi-families OpenHPC compatibility package for Intel(R) oneAPI MPI Library
 libtool-ohpc 2.4.6 https://www.gnu.org/software/libtool/ ohpc/admin GNU libtool for OpenHPC
 likwid-gnu15-ohpc 5.5.1 https://github.com/RRZE-HPC/likwid ohpc/perf-tools Performance monitoring and benchmarking suite (gnu15, OpenHPC)

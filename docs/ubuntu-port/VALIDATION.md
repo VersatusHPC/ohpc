@@ -48,6 +48,38 @@ Do not publish a new public repository snapshot until these gates pass:
 9. MPICH runs through Slurm/PMI2.
 10. MVAPICH2 runs through Slurm/PMI2 with CMA available.
 11. At least one MPI-dependent package runs through all three GNU15 MPI stacks.
+12. On x86_64 release candidates, Intel oneAPI compatibility packages install,
+    `intel`/`impi` modules load, and an Intel+IMPI hello program runs through
+    Slurm.
+
+## Automated Runtime Gate
+
+The manual commands below remain useful for debugging, but the normal fast gate
+is scripted in `scripts/validate-ubuntu-runtime.sh`. Run it from a repository
+checkout by copying the script to the SMS/head node, then executing it there. Do
+not run this script through SSH stdin; package-manager commands may consume
+stdin.
+
+```bash
+scp scripts/validate-ubuntu-runtime.sh <sms-host>:/tmp/
+ssh <sms-host> 'chmod +x /tmp/validate-ubuntu-runtime.sh && /tmp/validate-ubuntu-runtime.sh --skip-intel'
+```
+
+This default mode checks public APT candidates, Slurm, Warewulf compute-node
+state, MUNGE, PMIx/HWLOC linker visibility, GNU15 OpenMPI, GNU15 MPICH, GNU15
+MVAPICH2 with CMA, and IMB `PingPong` for the same three MPI stacks.
+
+For the x86_64 Intel gate, install the Intel validation packages and run the
+Intel module/compiler/IMPI smoke test:
+
+```bash
+scp scripts/validate-ubuntu-runtime.sh <sms-host>:/tmp/
+ssh <sms-host> 'chmod +x /tmp/validate-ubuntu-runtime.sh && /tmp/validate-ubuntu-runtime.sh --install-intel'
+```
+
+Use `--with-intel` instead of `--install-intel` when the Intel packages are
+already installed and Intel validation should be mandatory. Use `--upgrade-core`
+when validating a repository upgrade path on an existing SMS.
 
 ## OBS Status Check
 

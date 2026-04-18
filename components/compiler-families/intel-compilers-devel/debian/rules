@@ -16,6 +16,7 @@ EXACT_MKL_VER           := 2025.0
 EXACT_DEPS              := umf/0.9.1 compiler/2025.0.1 mkl/2025.0 compiler-rt/2025.0.1 debugger/2025.0.0 tbb/2022.0.0
 
 PKG := $(CURDIR)/debian/intel-compilers-devel-ohpc
+PKG_RELEASE := $(CURDIR)/debian/intel-oneapi-toolkit-release-ohpc
 
 %:
 	dh $@
@@ -40,6 +41,9 @@ override_dh_auto_install:
 	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/oneapi
 	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/intel
 	mkdir -p $(PKG)$(OHPC_MODULEDEPS)/gnu/mkl
+	# Intel oneAPI repository setup package, matching upstream RPM split.
+	install -D -m 644 SOURCES/intel-oneapi-archive-keyring.gpg $(PKG_RELEASE)/usr/share/keyrings/intel-oneapi-archive-keyring.gpg
+	install -D -m 644 SOURCES/oneAPI.list $(PKG_RELEASE)/etc/apt/sources.list.d/oneAPI.list
 
 override_dh_missing:
 	dh_missing --list-missing
