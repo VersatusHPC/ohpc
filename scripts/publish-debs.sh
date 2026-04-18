@@ -72,6 +72,7 @@ require_command() {
 require_command sudo
 require_command podman
 require_command tar
+require_command xz
 require_command gpg
 require_command ssh
 require_command lftp
@@ -132,6 +133,47 @@ cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
 cp "${LOCAL_REPO_SCRIPT}" "${STAGING_ROOT}/make_repo.sh"
 chmod 0755 "${STAGING_ROOT}/make_repo.sh"
 
+echo "==> Adding xz-compressed APT indexes"
+(
+    cd "${STAGING_REPO}"
+    xz -c -9 Packages > Packages.xz
+    if [[ -f Sources ]]; then
+        xz -c -9 Sources > Sources.xz
+    fi
+
+    tmp_release="$(mktemp)"
+    awk '/^(MD5Sum|SHA1|SHA256):/ { skip=1; next } skip && /^[[:space:]]/ { next } { skip=0; print }' \
+        Release > "${tmp_release}"
+
+    index_files=(Packages Packages.gz Packages.xz)
+    if [[ -f Sources ]]; then
+        index_files+=(Sources)
+    fi
+    if [[ -f Sources.gz ]]; then
+        index_files+=(Sources.gz)
+    fi
+    if [[ -f Sources.xz ]]; then
+        index_files+=(Sources.xz)
+    fi
+
+    {
+        cat "${tmp_release}"
+        echo "MD5Sum:"
+        for f in "${index_files[@]}"; do
+            printf " %s %16d %s\n" "$(md5sum "${f}" | awk '{print $1}')" "$(stat -c %s "${f}")" "${f}"
+        done
+        echo "SHA1:"
+        for f in "${index_files[@]}"; do
+            printf " %s %16d %s\n" "$(sha1sum "${f}" | awk '{print $1}')" "$(stat -c %s "${f}")" "${f}"
+        done
+        echo "SHA256:"
+        for f in "${index_files[@]}"; do
+            printf " %s %16d %s\n" "$(sha256sum "${f}" | awk '{print $1}')" "$(stat -c %s "${f}")" "${f}"
+        done
+    } > Release
+    rm -f "${tmp_release}"
+)
+
 echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 (
     cd "${STAGING_REPO}"
@@ -191,7 +233,7 @@ echo "    Total size:        $(du -sh "${STAGING_REPO}" | awk '{print $1}')"
 echo "    .deb packages:     $(find "${STAGING_REPO}" -type f -name '*.deb' | wc -l)"
 echo "    amd64 packages:    $(find "${STAGING_REPO}/amd64" -type f -name '*.deb' 2>/dev/null | wc -l)"
 echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 2>/dev/null | wc -l)"
-echo "    Metadata:          Release InRelease Release.gpg Packages.gz"
+echo "    Metadata:          Release InRelease Release.gpg Packages.gz Packages.xz"
 echo "    Local mirror tar:  ${DIST_DIR}/${DIST_ARCHIVE}"
 echo ""
 echo "    Users enable the repo with:"
