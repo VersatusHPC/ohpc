@@ -32,7 +32,7 @@ GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${REPO_ROOT}/RPM-GPG-KEY-VersatusHPC}"
 APT_SOURCE_FILE="${APT_SOURCE_FILE:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/versatushpc-openhpc.list}"
 LOCAL_REPO_SCRIPT="${LOCAL_REPO_SCRIPT:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/make_repo.sh}"
 OHPC_VERSION="${OHPC_VERSION:-4.0}"
-DIST_DIR="${STAGING_ROOT}/dist/${OHPC_VERSION}"
+DIST_DIR="${STAGING_REPO}/dist/${OHPC_VERSION}"
 DIST_ARCHIVE="${DIST_ARCHIVE:-OpenHPC-${OHPC_VERSION}.${OBS_REPO_NAME}.x86_64.tar}"
 
 # Remote mirror settings.
@@ -127,11 +127,13 @@ fi
 
 echo "==> Installing public key and APT source helper into staging"
 cp "${GPG_PUBLIC_KEY}" "${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC"
+cp "${GPG_PUBLIC_KEY}" "${STAGING_REPO}/RPM-GPG-KEY-VersatusHPC"
 rm -f "${STAGING_ROOT}"/versatushpc*.gpg
 gpg --dearmor --yes --output "${STAGING_ROOT}/versatushpc.gpg" "${GPG_PUBLIC_KEY}"
+cp "${STAGING_ROOT}/versatushpc.gpg" "${STAGING_REPO}/versatushpc.gpg"
 cp "${APT_SOURCE_FILE}" "${STAGING_REPO}/versatushpc-openhpc.list"
-cp "${LOCAL_REPO_SCRIPT}" "${STAGING_ROOT}/make_repo.sh"
-chmod 0755 "${STAGING_ROOT}/make_repo.sh"
+cp "${LOCAL_REPO_SCRIPT}" "${STAGING_REPO}/make_repo.sh"
+chmod 0755 "${STAGING_REPO}/make_repo.sh"
 
 echo "==> Adding xz-compressed APT indexes"
 (
@@ -184,20 +186,19 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 echo "==> Creating local repository tarball"
 mkdir -p "${DIST_DIR}"
 rm -f "${DIST_DIR}/${DIST_ARCHIVE}"
-tar -C "${STAGING_ROOT}" --exclude=dist -cf "${DIST_DIR}/${DIST_ARCHIVE}" \
-    "${OBS_REPO_NAME}" RPM-GPG-KEY-VersatusHPC versatushpc.gpg make_repo.sh
+tar -C "${STAGING_ROOT}" --exclude="${OBS_REPO_NAME}/dist" -cf "${DIST_DIR}/${DIST_ARCHIVE}" \
+    "${OBS_REPO_NAME}" RPM-GPG-KEY-VersatusHPC versatushpc.gpg
 
 LFTP_DRY_RUN=""
 LFTP_KEY_UPLOADS="
 rm -f ${REMOTE_PATH}/versatushpc*.gpg;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc.gpg;
-put -O ${REMOTE_PATH} ${STAGING_ROOT}/make_repo.sh;
 "
 LFTP_DIST_UPLOADS="
-mkdir -pf ${REMOTE_PATH}/dist/${OHPC_VERSION};
+mkdir -pf ${REMOTE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
 mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${DIST_DIR}/ ${REMOTE_PATH}/dist/${OHPC_VERSION}/;
+    ${DIST_DIR}/ ${REMOTE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
 "
 if [[ -n "${DRY_RUN}" ]]; then
     LFTP_DRY_RUN="--dry-run"
@@ -205,7 +206,7 @@ if [[ -n "${DRY_RUN}" ]]; then
 cls -la ${REMOTE_PATH};
 "
     LFTP_DIST_UPLOADS="
-cls -la ${REMOTE_PATH}/dist/${OHPC_VERSION};
+cls -la ${REMOTE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
 "
     echo "*** DRY RUN - no files will be transferred ***"
 fi

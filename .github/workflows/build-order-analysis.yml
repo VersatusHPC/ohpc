@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - 4.x
+      - versatushpc/4.x
     paths:
       - 'components/**/*.spec'
       - 'misc/build_order.sh'
