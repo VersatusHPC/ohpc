@@ -32,11 +32,10 @@ Pre-built Debian packages are available at:
 To enable the Ubuntu repository:
 
 ```bash
-curl -fsSL \
-  https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg \
+OHPC_REPO=https://repos.versatushpc.com.br/openhpc/versatushpc-4
+curl -fsSL "${OHPC_REPO}/versatushpc.gpg" \
   | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null
-curl -fsSL \
-  https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list \
+curl -fsSL "${OHPC_REPO}/Ubuntu_24.04/versatushpc-openhpc.list" \
   | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null
 sudo apt update
 ```
