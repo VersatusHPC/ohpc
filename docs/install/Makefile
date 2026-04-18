@@ -1,6 +1,6 @@
 # Makefile for OpenHPC documentation
 #
-# Builds all recipes from recipes/*.conf using yq (config merge) + mkdoc.py.
+# Builds all recipes from recipes/*.conf using PyYAML config merge + mkdoc.py.
 #
 # Targets:
 #   all        Build all recipes (.md + .sh) [default]
@@ -14,8 +14,6 @@
 PYTHON   ?= python3
 MKDOC    := $(PYTHON) mkdoc.py
 PANDOC   ?= pandoc
-YQ       ?= yq
-
 VC_REVISION := $(shell git log -1 HEAD --pretty=format:%H 2>/dev/null || echo "non-git-checkout")
 VC_DATE     := $(shell git log -1 HEAD --pretty=format:%as 2>/dev/null || date -I)
 
@@ -84,11 +82,12 @@ html: $(OUTPUTS_HTML)
 # Pattern rule: merge config YAML files listed in recipes/*.conf with optional
 # overrides from recipes/*.yaml (Confluent recipes only; others have no .yaml file).
 # .SECONDEXPANSION allows $(wildcard) to expand with the %-stem at rule match time.
-build/%.yaml: recipes/%.conf $$(wildcard recipes/$$*.yaml) $(CONFIGS)
+build/%.yaml: recipes/%.conf $$(wildcard recipes/$$*.yaml) $(CONFIGS) merge_config.py
 	@mkdir -p build
-	$(YQ) eval-all '. as $$item ireduce ({}; . * $$item)' \
-		$(shell cat recipes/$*.conf) $(wildcard recipes/$*.yaml) | \
-	$(YQ) '.vc_revision = "$(VC_REVISION)" | .vc_date = "$(VC_DATE)"' > $@
+	$(PYTHON) merge_config.py \
+		--vc-revision "$(VC_REVISION)" \
+		--vc-date "$(VC_DATE)" \
+		$(shell cat recipes/$*.conf) $(wildcard recipes/$*.yaml) > $@
 
 # Pattern rule: merged config -> .md
 build/%.md: build/%.yaml $(DEPS)

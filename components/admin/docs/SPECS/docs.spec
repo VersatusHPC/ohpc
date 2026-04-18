@@ -28,8 +28,6 @@ BuildRequires:  make
 BuildRequires:  python3
 BuildRequires:  python3-jinja2
 BuildRequires:  python3-pyyaml
-BuildRequires:  yq
-
 # PDF generation (pandoc + xelatex)
 BuildRequires:  pandoc
 BuildRequires:  texlive-xetex
