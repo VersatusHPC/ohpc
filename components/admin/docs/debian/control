@@ -12,6 +12,7 @@ Build-Depends: debhelper-compat (= 13),
                pandoc,
                texlive-xetex,
                texlive-latex-extra,
+               texlive-fonts-recommended,
                texlive-fonts-extra,
                lmodern
 Standards-Version: 4.6.2
