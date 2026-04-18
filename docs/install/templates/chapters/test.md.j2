@@ -3,3 +3,6 @@
 
 {% include "test/intro.md.j2" %}
 {% include "scheduler/" ~ scheduler ~ "/test-job.md.j2" %}
+{% if is_ubuntu %}
+{% include "test/ubuntu-runtime-validation.md.j2" %}
+{% endif %}

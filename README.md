@@ -12,7 +12,7 @@ with additional platform support:
 |----------|-------------|--------|
 | **EL10 (AlmaLinux/Rocky/RHEL)** | **ppc64le (IBM POWER)** | Available |
 | **openEuler 24.03 LTS** | **ppc64le (IBM POWER)** | Available |
-| **Ubuntu 24.04 LTS** | **x86_64** | OBS validated |
+| **Ubuntu 24.04 LTS** | **x86_64** | Release candidate |
 
 ### Ubuntu 24.04 Port
 
@@ -20,8 +20,11 @@ The `ubuntu-port` work adds Debian packaging for the full OpenHPC 4.x package
 matrix on Ubuntu 24.04 LTS. Validation is performed in OBS project
 `VersatusHPC:OHPC:4`, repository `Ubuntu_24.04`, architecture `x86_64`.
 
-As of 2026-04-16, the Ubuntu OBS build is published with **296/296 packages
-succeeded**.
+As of 2026-04-18, the Ubuntu OBS build is published with **296/296 packages
+succeeded**. The public repository was validated on a Warewulf/Slurm Ubuntu
+24.04 head node and compute node, including GNU15 and Intel compiler coverage
+across OpenMPI, MPICH, MVAPICH2, and Intel MPI with MPI hello-world and IMB
+PingPong smoke tests.
 
 Pre-built Debian packages are available at:
 <https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/>
@@ -39,7 +42,9 @@ sudo apt update
 ```
 
 The generated Ubuntu installation recipe lives under `docs/install` as
-`ubuntu24.04-x86_64-warewulf-slurm`.
+`ubuntu24.04-x86_64-warewulf-slurm`. The fast runtime release gate is
+documented in `docs/ubuntu-port/VALIDATION.md` and automated by
+`scripts/validate-ubuntu-runtime.sh`.
 
 The port keeps the OpenHPC compiler/MPI package model, using Debian packaging
 under `components/**/debian*`, shared build helpers under `devel/`, and local

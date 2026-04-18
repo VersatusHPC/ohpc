@@ -8,6 +8,14 @@ a stateless configuration. For power management, we assume that the compute node
 baseboard management controllers (BMCs) are available via IPMI from the chosen
 *head node*. For file systems, we assume that the chosen *head node* will host
 an NFS file system that is made available to the compute nodes.
+{% if is_ubuntu %}
+
+This Ubuntu recipe is validated for the VersatusHPC OpenHPC 4.x x86_64
+release candidate. The release gate includes a full OBS build, signed public
+APT repository installation, Warewulf compute-node boot, Slurm runtime checks,
+and GNU15/Intel MPI smoke tests. See `docs/ubuntu-port/VALIDATION.md` in the
+source tree for the maintained validation runbook.
+{% endif %}
 {% if is_x86_64 %}
 Installation information is also discussed to optionally mount a parallel file
 system and in this case, the parallel file system is assumed to exist

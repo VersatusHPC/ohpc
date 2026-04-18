@@ -1,0 +1,19 @@
+## Validate the Ubuntu Runtime Matrix
+
+For the VersatusHPC Ubuntu release candidate, run the maintained runtime gate
+from a source checkout after the cluster is installed. Do not run this script
+through SSH standard input; package-manager commands may consume stdin.
+
+```bash
+scp scripts/validate-ubuntu-runtime.sh <sms-host>:/tmp/
+ssh <sms-host> \
+  'chmod +x /tmp/validate-ubuntu-runtime.sh &&
+   /tmp/validate-ubuntu-runtime.sh --install-intel'
+```
+
+The `--install-intel` gate checks public APT package candidates, Slurm,
+Warewulf compute-node state, MUNGE, PMIx/HWLOC linker visibility, the OpenHPC
+Yama policy, GNU15 with OpenMPI/MPICH/MVAPICH2/Intel MPI, Intel with Intel
+MPI/OpenMPI/MPICH/MVAPICH2, and IMB `PingPong` for the same matrix. Use
+`--skip-intel` on systems where Intel oneAPI validation is intentionally out of
+scope.

@@ -29,16 +29,19 @@ ohpc_apt_keyring: "/usr/share/keyrings/versatushpc.gpg"
 # Package manager commands
 pkg_manager: "apt"
 pkg_install: "apt-get -y install"
-pkg_install_chroot: 'chroot "$CHROOT" apt-get -y install'
+# Use wwctl image exec for Ubuntu image package-manager operations so /dev,
+# /proc, /sys, and /run are mounted. Direct chroot can corrupt minimal OCI
+# images by creating /dev/null as a regular file before the device node exists.
+pkg_install_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt-get -y install'
 pkg_group_install: "apt-get -y install"
-pkg_group_install_chroot: 'chroot "$CHROOT" apt-get -y install'
+pkg_group_install_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt-get -y install'
 pkg_add_repo: "add-apt-repository -y"
-pkg_add_repo_chroot: 'chroot "$CHROOT" add-apt-repository -y'
+pkg_add_repo_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- add-apt-repository -y'
 pkg_clean: "apt-get clean && apt-get update"
-pkg_clean_chroot: 'chroot "$CHROOT" bash -lc "apt-get clean && apt-get update"'
+pkg_clean_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- /bin/bash -lc "apt-get clean && apt-get update"'
 pkg_remove: "apt-get -y remove"
 pkg_upgrade: "apt-get -y upgrade"
-pkg_upgrade_chroot: 'chroot "$CHROOT" apt-get -y upgrade'
+pkg_upgrade_chroot: 'wwctl image exec --build=false ubuntu-24.04 -- apt-get -y upgrade'
 pkg_update: "apt-get update"
 
 # Package names that differ from RPM builds
