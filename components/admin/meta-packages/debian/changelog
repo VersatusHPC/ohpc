@@ -1,3 +1,10 @@
+ohpc-meta-packages (4.0-1ohpc4~noble) noble; urgency=low
+
+  * Make GNU meta-packages architecture-specific and drop dependencies on
+    package variants not published for the Ubuntu repository.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sun, 19 Apr 2026 18:00:00 +0000
+
 ohpc-meta-packages (4.0-1ohpc3~noble) noble; urgency=low
 
   * Set kernel.yama.ptrace_scope=0 from ohpc-base-compute to match

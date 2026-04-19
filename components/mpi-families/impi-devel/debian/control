@@ -7,7 +7,7 @@ Standards-Version: 4.6.2
 Homepage: https://github.com/openhpc/ohpc
 
 Package: intel-mpi-devel-ohpc
-Architecture: all
+Architecture: amd64
 Depends: ohpc-filesystem,
          lmod-ohpc,
          intel-compilers-devel-ohpc,

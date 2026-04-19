@@ -6,14 +6,14 @@ Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.2
 
 Package: cuda-devel-ohpc
-Architecture: all
+Architecture: amd64
 Depends: ohpc-filesystem, lmod-ohpc, nvhpc-25-9, ${misc:Depends}
 Description: OpenHPC compatibility package for CUDA (OpenHPC)
  Provides OpenHPC-style modulefiles for NVIDIA CUDA/HPC SDK.
  Pulls in NVIDIA HPC SDK at /opt/nvidia/hpc_sdk/.
 
 Package: cuda-repo-ohpc
-Architecture: all
+Architecture: amd64
 Depends: ca-certificates, ${misc:Depends}
 Description: CUDA toolkit repository configuration (OpenHPC)
  Provides APT repository configuration and signing keys for NVIDIA CUDA

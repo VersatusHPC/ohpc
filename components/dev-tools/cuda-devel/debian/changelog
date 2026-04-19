@@ -1,3 +1,9 @@
+cuda-devel-ohpc (25.9-1ohpc3~noble) noble; urgency=medium
+
+  * Limit Ubuntu CUDA repository and wrapper packages to amd64.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sun, 19 Apr 2026 00:00:00 +0000
+
 cuda-devel-ohpc (25.9-1ohpc2~noble) noble; urgency=low
 
   * Install Ubuntu NVIDIA CUDA and HPC SDK APT source files and keyrings.

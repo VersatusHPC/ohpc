@@ -20,6 +20,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOCAL_USER="${LOCAL_USER:-builder}"
 WORK_ROOT="${WORK_ROOT:-/home/${LOCAL_USER}/ohpc-ubuntu-ppc64el}"
 PPC_REPO="${PPC_REPO:-${WORK_ROOT}/repo/Ubuntu_24.04}"
+AMD64_REPO="${AMD64_REPO:-}"
 STAGING_ROOT="${STAGING_ROOT:-/home/${LOCAL_USER}/staging/versatushpc-4-ubuntu-ppc64el}"
 STAGING_REPO="${STAGING_ROOT}/Ubuntu_24.04"
 
@@ -51,6 +52,74 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+
+prune_stale_arch_all_packages() {
+    local repo="$1"
+    local removed=0
+    local skipped=0
+    local amd64_only=(
+        cuda-devel-ohpc
+        cuda-repo-ohpc
+        intel-compilers-devel-ohpc
+        intel-mpi-devel-ohpc
+        intel-oneapi-toolkit-release-ohpc
+    )
+    local multiarch=(
+        ohpc-gnu15-io-libs
+        ohpc-gnu15-mpich-io-libs
+        ohpc-gnu15-openmpi5-io-libs
+        ohpc-gnu15-parallel-libs
+        ohpc-gnu15-mpich-parallel-libs
+        ohpc-gnu15-openmpi5-parallel-libs
+        ohpc-gnu15-perf-tools
+        ohpc-gnu15-mpich-perf-tools
+        ohpc-gnu15-openmpi5-perf-tools
+        ohpc-gnu15-python3-libs
+        ohpc-gnu15-runtimes
+        ohpc-gnu15-serial-libs
+    )
+
+    [[ -d "${repo}/all" ]] || return 0
+
+    prune_one() {
+        local package="$1"
+        local mode="$2"
+        local has_amd64=0
+        local has_ppc64el=0
+        local file
+
+        find "${repo}/amd64" -maxdepth 1 -type f -name "${package}_*.deb" -print -quit 2>/dev/null | grep -q . && has_amd64=1
+        find "${repo}/ppc64el" -maxdepth 1 -type f -name "${package}_*.deb" -print -quit 2>/dev/null | grep -q . && has_ppc64el=1
+
+        if [[ "${mode}" == "amd64-only" && "${has_amd64}" != 1 ]]; then
+            echo "    keeping stale all/${package}: no amd64 replacement present"
+            skipped=$((skipped + 1))
+            return 0
+        fi
+        if [[ "${mode}" == "multiarch" && ("${has_amd64}" != 1 || "${has_ppc64el}" != 1) ]]; then
+            echo "    keeping stale all/${package}: amd64 and ppc64el replacements are not both present"
+            skipped=$((skipped + 1))
+            return 0
+        fi
+
+        while IFS= read -r file; do
+            echo "    removing ${file#${repo}/}"
+            rm -f "${file}"
+            removed=$((removed + 1))
+        done < <(find "${repo}/all" -maxdepth 1 -type f -name "${package}_*_all.deb" | sort)
+    }
+
+    echo "==> Pruning stale architecture-all packages superseded by arch-specific builds"
+    for package in "${amd64_only[@]}"; do
+        prune_one "${package}" amd64-only
+    done
+    for package in "${multiarch[@]}"; do
+        prune_one "${package}" multiarch
+    done
+    echo "    removed stale architecture-all packages: ${removed}"
+    echo "    skipped stale architecture-all packages: ${skipped}"
+}
 
 require_command() {
     command -v "$1" >/dev/null 2>&1 || {
@@ -122,6 +191,21 @@ rsync -a --delete "${PPC_REPO}/ppc64el/" "${STAGING_REPO}/ppc64el/"
 if [[ -d "${PPC_REPO}/source" ]]; then
     rsync -a "${PPC_REPO}/source/" "${STAGING_REPO}/source/"
 fi
+
+if [[ -n "${AMD64_REPO}" ]]; then
+    if [[ ! -d "${AMD64_REPO}/amd64" ]]; then
+        echo "Error: AMD64_REPO does not contain an amd64 directory: ${AMD64_REPO}" >&2
+        exit 1
+    fi
+    echo "==> Merging amd64 repository fixes from ${AMD64_REPO}"
+    mkdir -p "${STAGING_REPO}/amd64"
+    rsync -a "${AMD64_REPO}/amd64/" "${STAGING_REPO}/amd64/"
+    if [[ -d "${AMD64_REPO}/source" ]]; then
+        rsync -a "${AMD64_REPO}/source/" "${STAGING_REPO}/source/"
+    fi
+fi
+
+prune_stale_arch_all_packages "${STAGING_REPO}"
 
 echo "==> Installing public key, APT source helper, and local repo helper"
 cp "${GPG_PUBLIC_KEY}" "${STAGING_REPO}/RPM-GPG-KEY-VersatusHPC"

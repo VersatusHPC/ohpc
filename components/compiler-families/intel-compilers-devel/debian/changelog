@@ -1,3 +1,9 @@
+intel-compilers-devel-ohpc (2025.0-1ohpc3~noble) noble; urgency=medium
+
+  * Limit Ubuntu oneAPI repository and wrapper packages to amd64.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sun, 19 Apr 2026 00:00:00 +0000
+
 intel-compilers-devel-ohpc (2025.0-1ohpc2~noble) noble; urgency=medium
 
   * Add intel-oneapi-toolkit-release-ohpc Debian package for Intel APT repo setup.

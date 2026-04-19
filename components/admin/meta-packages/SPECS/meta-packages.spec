@@ -18,7 +18,7 @@
 Summary: Meta-packages to ease installation
 Name:    meta-packages
 Version: 4.0
-Release: 1
+Release: 2
 License: Apache-2.0
 Group:   %{PROJ_NAME}/meta-package
 URL:     https://github.com/openhpc/ohpc
@@ -121,21 +121,23 @@ Collection of compute node base packages
 
 %package -n %{PROJ_NAME}-%{compiler_family}-io-libs
 Summary:   OpenHPC IO libraries for GNU
+%ifnarch ppc64le
 Requires:  adios2-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  adios2-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Requires:  hdf5-%{compiler_family}%{PROJ_DELIM}
 Requires:  netcdf-cxx-%{compiler_family}%{PROJ_DELIM}
 Requires:  netcdf-cxx-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  netcdf-cxx-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  netcdf-fortran-%{compiler_family}%{PROJ_DELIM}
 Requires:  netcdf-fortran-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  netcdf-fortran-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  netcdf-%{compiler_family}%{PROJ_DELIM}
 Requires:  netcdf-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  netcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  pnetcdf-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  phdf5-%{compiler_family}-mpich%{PROJ_DELIM}
+%endif
+Requires:  adios2-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  hdf5-%{compiler_family}%{PROJ_DELIM}
+Requires:  netcdf-cxx-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  netcdf-fortran-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  netcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  phdf5-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 %ifnarch aarch64 ppc64le
 Requires:  adios2-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -148,6 +150,7 @@ Requires:  phdf5-%{compiler_family}-mvapich2%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-io-libs
 Collection of IO library builds for use with GNU compiler toolchain
 
+%ifnarch ppc64le
 %package -n %{PROJ_NAME}-%{compiler_family}-mpich-io-libs
 Summary:   OpenHPC IO libraries for GNU and MPICH
 Requires:  adios2-%{compiler_family}-mpich%{PROJ_DELIM}
@@ -159,6 +162,7 @@ Requires:  phdf5-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  hdf5-%{compiler_family}%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-mpich-io-libs
 Collection of IO library builds for use with GNU compiler toolchain and the MPICH runtime
+%endif
 
 %package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
 Summary:   OpenHPC IO libraries for GNU and MVAPICH2
@@ -186,27 +190,29 @@ Collection of IO library builds for use with GNU compiler toolchain and the Open
 
 %package -n %{PROJ_NAME}-%{compiler_family}-parallel-libs
 Summary:   OpenHPC parallel libraries for GNU
+%ifnarch ppc64le
 Requires:  boost-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  boost-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  fftw-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  fftw-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  hypre-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  hypre-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  mfem-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  mfem-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  mumps-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  mumps-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  petsc-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  petsc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scalapack-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  scalapack-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  slepc-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  slepc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  ptscotch-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  ptscotch-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  superlu_dist-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  superlu_dist-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  trilinos-%{compiler_family}-mpich%{PROJ_DELIM}
+%endif
+Requires:  boost-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  fftw-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  hypre-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  mfem-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  mumps-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  petsc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  scalapack-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  slepc-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  ptscotch-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  superlu_dist-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  trilinos-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 %ifnarch aarch64 ppc64le
 Requires:  boost-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -224,6 +230,7 @@ Requires:  trilinos-%{compiler_family}-mvapich2%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-parallel-libs
 Collection of parallel library builds for use with GNU compiler toolchain
 
+%ifnarch ppc64le
 %package -n %{PROJ_NAME}-%{compiler_family}-mpich-parallel-libs
 Summary:   OpenHPC parallel libraries for GNU and MPICH
 Requires:  boost-%{compiler_family}-mpich%{PROJ_DELIM}
@@ -239,6 +246,7 @@ Requires:  superlu_dist-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  trilinos-%{compiler_family}-mpich%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-mpich-parallel-libs
 Collection of parallel library builds for use with GNU compiler toolchain and the MPICH runtime
+%endif
 
 %package -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-parallel-libs
 Summary:   OpenHPC parallel libraries for GNU and OpenMPI
@@ -258,21 +266,27 @@ Collection of parallel library builds for use with GNU compiler toolchain and th
 
 %package -n %{PROJ_NAME}-%{compiler_family}-perf-tools
 Summary:   OpenHPC performance tools for GNU
+%ifnarch ppc64le
 Requires:  dimemas-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  dimemas-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  extrae-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  extrae-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  imb-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  imb-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  omb-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  omb-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  paraver%{PROJ_DELIM}
 Requires:  tau-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  tau-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scalasca-%{compiler_family}-mpich%{PROJ_DELIM}
-Requires:  scalasca-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scorep-%{compiler_family}-mpich%{PROJ_DELIM}
+%endif
+Requires:  dimemas-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  extrae-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  imb-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  omb-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  tau-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+Requires:  scalasca-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scorep-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+%ifarch ppc64le
+Requires:  likwid-%{compiler_family}%{PROJ_DELIM}
+Requires:  papi%{PROJ_DELIM}
+%endif
 %ifnarch aarch64 ppc64le
 Requires:  dimemas-%{compiler_family}-mvapich2%{PROJ_DELIM}
 Requires:  extrae-%{compiler_family}-mvapich2%{PROJ_DELIM}
@@ -287,6 +301,7 @@ Requires:  scorep-%{compiler_family}-mvapich2%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-perf-tools
 Collection of performance tool builds for use with GNU compiler toolchain
 
+%ifnarch ppc64le
 %package -n %{PROJ_NAME}-%{compiler_family}-mpich-perf-tools
 Summary:   OpenHPC performance tools for GNU and MPICH
 Requires:  dimemas-%{compiler_family}-mpich%{PROJ_DELIM}
@@ -300,6 +315,7 @@ Requires:  scorep-%{compiler_family}-mpich%{PROJ_DELIM}
 Requires:  papi%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-mpich-perf-tools
 Collection of performance tool builds for use with GNU compiler toolchain and the MPICH runtime
+%endif
 
 %package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
 Summary:   OpenHPC performance tools for GNU and MVAPICH2
@@ -323,7 +339,9 @@ Requires:  extrae-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  imb-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  likwid-%{compiler_family}%{PROJ_DELIM}
 Requires:  omb-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
+%ifnarch ppc64le
 Requires:  paraver%{PROJ_DELIM}
+%endif
 Requires:  tau-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scalasca-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  scorep-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
@@ -339,7 +357,9 @@ Collection of python related library builds for use with GNU compiler toolchain
 
 %package -n %{PROJ_NAME}-%{compiler_family}-python3-libs
 Summary:   OpenHPC python3 libraries for GNU
+%ifnarch ppc64le
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-mpich%{PROJ_DELIM}
+%endif
 Requires:  %{python_prefix}-mpi4py-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 Requires:  %{python_prefix}-numpy-%{compiler_family}%{PROJ_DELIM}
 %ifnarch aarch64 ppc64le
@@ -367,7 +387,9 @@ Requires:  metis-%{compiler_family}%{PROJ_DELIM}
 Requires:  openblas-%{compiler_family}%{PROJ_DELIM}
 Requires:  plasma-%{compiler_family}%{PROJ_DELIM}
 Requires:  R-%{compiler_family}%{PROJ_DELIM}
+%ifnarch ppc64le
 Requires:  scotch-%{compiler_family}%{PROJ_DELIM}
+%endif
 Requires:  superlu-%{compiler_family}%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-serial-libs
 Collection of serial library builds for use with GNU compiler toolchain
@@ -399,6 +421,9 @@ Collection of server packages for SLURM
 
 %package -n %{PROJ_NAME}-warewulf
 Summary:   OpenHPC base packages for Warewulf
+%ifarch ppc64le
+Requires:  warewulf%{PROJ_DELIM}
+%else
 Requires:  warewulf-cluster%{PROJ_DELIM}
 Requires:  warewulf-common%{PROJ_DELIM}
 Requires:  warewulf-common%{PROJ_DELIM}-localdb
@@ -409,6 +434,7 @@ Requires:  warewulf-provision%{PROJ_DELIM}
 Requires:  warewulf-provision%{PROJ_DELIM}-server
 Requires:  warewulf-provision%{PROJ_DELIM}-server-ipxe-%{_arch}
 Requires:  warewulf-vnfs%{PROJ_DELIM}
+%endif
 %description -n %{PROJ_NAME}-warewulf
 Collection of base packages for Warewulf provisioning
 
@@ -820,13 +846,19 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-base
 %files -n %{PROJ_NAME}-base-compute
 %files -n %{PROJ_NAME}-%{compiler_family}-io-libs
+%ifnarch ppc64le
 %files -n %{PROJ_NAME}-%{compiler_family}-mpich-io-libs
+%endif
 %files -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-parallel-libs
+%ifnarch ppc64le
 %files -n %{PROJ_NAME}-%{compiler_family}-mpich-parallel-libs
+%endif
 %files -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-parallel-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-perf-tools
+%ifnarch ppc64le
 %files -n %{PROJ_NAME}-%{compiler_family}-mpich-perf-tools
+%endif
 %files -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-perf-tools
 %files -n %{PROJ_NAME}-%{compiler_family}-python-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-python3-libs

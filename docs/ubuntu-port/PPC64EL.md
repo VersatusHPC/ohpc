@@ -151,6 +151,10 @@ architecture-specific build flags:
 - `slurm-sview-ohpc` remains a doc-only compatibility package while Slurm is
   configured `--without-x11`; its Debian control metadata avoids
   `${shlibs:Depends}` because no ELF payload is shipped in that binary package.
+- Intel oneAPI and CUDA compatibility packages are marked `Architecture: amd64`
+  on Ubuntu because their APT source files and binary dependencies target amd64.
+  They remain excluded from the ppc64el build list and from the POWER
+  package coverage gate.
 
 These are equivalent in intent to the conditional `%ifarch ppc64le` RPM changes
 used by the existing EL10/openEuler POWER port, plus native-builder glue for
