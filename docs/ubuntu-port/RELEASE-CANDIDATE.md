@@ -142,6 +142,31 @@ runbook in `docs/ubuntu-port/VALIDATION.md`.
   public `.deb` download reported
   `Maintainer: VersatusHPC <packages@versatushpc.com.br>`.
 
+## POWER RC
+
+- Date: 2026-04-19
+- Target: Ubuntu 24.04 LTS, x86_64 and ppc64el
+- OBS project: `VersatusHPC:OHPC:4` for x86_64
+- Native POWER builder: `power.local.versatushpc.com.br` for ppc64el
+- Public repository:
+  `https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/`
+- Public repository contents after the POWER repair: 503 Debian binary
+  artifacts (`all=21`, `amd64=320`, `ppc64el=162`).
+- Scope: ppc64el provides the architecture-portable OpenHPC GNU15 package set
+  aligned with the existing EL10/openEuler POWER port. Architecture-locked
+  packages remain excluded from the POWER package view: Intel oneAPI, Intel
+  MPI, CUDA/NVIDIA HPC SDK, ARM compilers, Lustre client packaging, GEOPM, and
+  MSR-safe.
+- Delta from RC8: Ubuntu POWER packages are published in the public APT repo;
+  stale `Architecture: all` Intel/CUDA/GNU meta packages were removed; GNU meta
+  packages are architecture-specific; public POWER dependency closure is checked
+  across Ubuntu, EL10, and openEuler; and native POWER public-repo validation is
+  available through the self-hosted `power-ohpc` GitHub runner.
+- Validation: `scripts/compare-power-package-coverage.py --fail-on-issues`
+  reports clean OpenHPC dependency closure for EL10, openEuler, and Ubuntu
+  `ppc64el/all`; Ubuntu ppc64el GNU15 MPI smoke validation covers OpenMPI5,
+  MPICH, and MVAPICH2 with compiler/MPI `ldd` checks.
+
 ## Runtime Gate Passed
 
 The public repository was validated on an Ubuntu 24.04 Warewulf/Slurm SMS and
@@ -158,10 +183,13 @@ one diskless Ubuntu 24.04 compute node. The gate covered:
 
 ## Known Limits
 
-- Ubuntu support is currently validated for x86_64.
+- Ubuntu support is currently validated for x86_64 and ppc64el.
 - The fast gate is intentionally sparse; it does not exhaustively run every
   scientific library test in the OpenHPC package matrix.
+- Ubuntu ppc64el support covers the architecture-portable OpenHPC package set.
+  Intel oneAPI, Intel MPI, CUDA/NVIDIA HPC SDK, ARM compilers, Lustre client
+  packaging, GEOPM, and MSR-safe are intentionally excluded from POWER.
 - Intel oneAPI packages depend on Intel's upstream APT repository through the
-  `intel-oneapi-toolkit-release-ohpc` compatibility package.
+  `intel-oneapi-toolkit-release-ohpc` compatibility package and are amd64-only.
 - The OBS backend IP-access behavior discovered during the port is an OBS
   deployment issue; track it separately with upstream OBS.

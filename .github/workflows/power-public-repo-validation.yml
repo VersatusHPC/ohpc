@@ -1,0 +1,48 @@
+name: POWER Public Repository Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      ubuntu_full_ldd:
+        description: Run full missing-library audit for Ubuntu ppc64el public repo
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: '17 8 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: power-public-repo-validation
+  cancel-in-progress: false
+
+jobs:
+  metadata-coverage:
+    name: Public repository metadata coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate public repository metadata
+        run: scripts/compare-power-package-coverage.py --fail-on-issues
+
+  ubuntu-ppc64el:
+    name: Ubuntu 24.04 ppc64el public repo smoke
+    runs-on: [self-hosted, Linux, ppc64le, el10, power9]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show runner context
+        run: |
+          uname -a
+          podman --version
+      - name: Validate Ubuntu ppc64el public repository
+        env:
+          UBUNTU_FULL_LDD: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.ubuntu_full_ldd == 'true' && 'true' || 'false' }}
+        run: |
+          args=()
+          if [[ "${UBUNTU_FULL_LDD}" == "true" ]]; then
+            args+=(--full-ldd)
+          fi
+          scripts/validate-ubuntu-ppc64el-public-repo.sh "${args[@]}"

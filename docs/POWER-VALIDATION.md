@@ -45,10 +45,14 @@ advertised to POWER clients.
 
    ```bash
    scripts/validate-ubuntu-ppc64el-core.sh
+   scripts/validate-ubuntu-ppc64el-public-repo.sh
    ```
 
-   This covers the same GNU15/OpenMPI/MPICH/MVAPICH2 smoke gate for the native
-   Ubuntu POWER Debian packages.
+   The first command validates the local native builder repository before
+   publication. The second command validates the signed public APT repository
+   from a fresh Ubuntu 24.04 ppc64el container. GitHub Actions runs the public
+   repository gate on the `power-ohpc` self-hosted POWER runner through
+   `.github/workflows/power-public-repo-validation.yml`.
 
 4. Audit dependency closure:
 
@@ -60,9 +64,10 @@ advertised to POWER clients.
    The metadata checker catches missing OpenHPC package dependencies directly
    from `repodata` and Debian `Packages` metadata. The runtime validator performs
    selected `ldd` checks on compilers, MPI libraries, OpenBLAS, and LIKWID by
-   default; `--full-ldd` walks ELF files under `/opt/ohpc/pub` and runs
-   `ldd -r`, so use it as an extended gate because it is noisier and slower than
-   the default smoke tests.
+   default; `--full-ldd` walks ELF files under `/opt/ohpc/pub`, fails on missing
+   shared libraries everywhere, and applies `ldd -r` only to executable programs.
+   This keeps the extended gate useful without treating plugin or Python-extension
+   symbols as package failures.
 
 5. Document whether each issue is shared source drift or Debian-only packaging
    drift:
@@ -110,7 +115,9 @@ advertised to POWER clients.
   relevant module context.
 - Ubuntu ppc64el GNU15 core runtime validation passes for OpenMPI, MPICH, and
   MVAPICH2. The smoke gate compiles and runs C and Fortran MPI hello-world
-  binaries and confirms compiler/MPI linkage through `/opt/ohpc`.
+  binaries and confirms compiler/MPI linkage through `/opt/ohpc`. A scheduled
+  and manually dispatched GitHub Actions workflow runs the same public-repo
+  smoke gate on the `power-ohpc` self-hosted POWER runner.
 - LIKWID POWER support is shared source drift. The RPM spec now matches the
   Debian ppc64el build by using LIKWID `GCCPOWER`, `perf_event`, and the POWER
   event parser backport. EL10 and openEuler POWER RPM rebuilds were validated
