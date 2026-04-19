@@ -10,6 +10,7 @@ MPI_FAMILY      := openmpi5
 PNAME           := fftw
 VERSION         := 3.3.10
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := bash /build/devel/build-mpi.sh
@@ -28,7 +29,12 @@ override_dh_auto_build:
 	cd $(SRCDIR) && for prec in single double long-double; do \
 		mkdir -p build_$${prec} && cd build_$${prec} && \
 		PREC_FLAGS="" && \
-		ARCH_FLAGS="--enable-sse2 --enable-avx --enable-avx2" && \
+		ARCH_FLAGS="" && \
+		case "$(DEB_HOST_ARCH)" in \
+			amd64) ARCH_FLAGS="--enable-sse2 --enable-avx --enable-avx2" ;; \
+			arm64) ARCH_FLAGS="--enable-neon" ;; \
+			ppc64el) ARCH_FLAGS="--enable-vsx" ;; \
+		esac && \
 		case $${prec} in \
 			single) PREC_FLAGS="--enable-float" ;; \
 			double) PREC_FLAGS="" ;; \

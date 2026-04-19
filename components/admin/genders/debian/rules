@@ -20,6 +20,7 @@ override_dh_auto_configure:
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 	cd $(SRCDIR) && ./autogen.sh && \
+		cp -f /usr/share/misc/config.guess /usr/share/misc/config.sub config/ && \
 		./configure \
 			--prefix=/usr \
 			--with-perl-extensions \

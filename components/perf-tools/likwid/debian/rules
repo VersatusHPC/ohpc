@@ -12,6 +12,19 @@ INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
 ENV             := bash /build/devel/build-comp.sh
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+LIKWID_COMPILER := GCC
+LIKWID_ARCH_OPTS :=
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+LIKWID_COMPILER := GCCPOWER
+LIKWID_ARCH_OPTS := BUILDDAEMON=true BUILDFREQ=true ACCESSMODE=perf_event
+endif
+ifeq ($(DEB_HOST_ARCH),arm64)
+LIKWID_COMPILER := GCCARMv8
+LIKWID_ARCH_OPTS := BUILDDAEMON=true BUILDFREQ=true ACCESSMODE=perf_event
+endif
+LIKWID_MAKE_OPTS := FORTRAN_INTERFACE=true COMPILER=$(LIKWID_COMPILER) \
+	FC=gfortran FCFLAGS="-J ./ -fsyntax-only" $(LIKWID_ARCH_OPTS) Q=
 
 %:
 	dh $@
@@ -24,18 +37,27 @@ override_dh_auto_configure:
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 	cd $(SRCDIR) && sed -i \
 		-e "s|PREFIX ?= .*|PREFIX ?= $(INSTALL_PATH)|" \
-		-e "s|COMPILER = .*|COMPILER = GCC|" \
+		-e "s|COMPILER = .*|COMPILER = $(LIKWID_COMPILER)|" \
 		-e "s|INSTALLED_PREFIX ?= .*|INSTALLED_PREFIX = $(INSTALL_PATH)|" \
 		config.mk
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/likwid-5.5.1-ppc64el-perfevent.patch
 
 override_dh_auto_build:
-	cd $(SRCDIR) && $(ENV) $(MAKE) -j$$(nproc)
+	cd $(SRCDIR) && $(ENV) $(MAKE) -j$$(nproc) \
+		PREFIX=$(INSTALL_PATH) LIBDIR=$(INSTALL_PATH)/lib MANPREFIX=$(INSTALL_PATH)/man \
+		$(LIKWID_MAKE_OPTS)
 
 override_dh_auto_install:
 	mkdir -p $(PKG)$(INSTALL_PATH)
 	# Override INSTALLED_PREFIX in config.mk to respect DESTDIR
 	cd $(SRCDIR) && sed -i "s|INSTALLED_PREFIX = .*|INSTALLED_PREFIX = $(PKG)$(INSTALL_PATH)|" config.mk
-	cd $(SRCDIR) && $(ENV) $(MAKE) PREFIX=$(PKG)$(INSTALL_PATH) INSTALLED_PREFIX=$(PKG)$(INSTALL_PATH) install
+	cd $(SRCDIR) && $(ENV) $(MAKE) \
+		PREFIX=$(PKG)$(INSTALL_PATH) \
+		LIBDIR=$(PKG)$(INSTALL_PATH)/lib \
+		MANPREFIX=$(PKG)$(INSTALL_PATH)/man \
+		INSTALLED_PREFIX=$(PKG)$(INSTALL_PATH) \
+		INSTALL_CHOWN= \
+		$(LIKWID_MAKE_OPTS) install
 	# Fix embedded paths back to real prefix
 	find $(PKG)$(INSTALL_PATH) -type f -exec grep -l '$(PKG)' {} + 2>/dev/null | while read f; do \
 		sed -i 's|$(PKG)||g' "$$f"; \

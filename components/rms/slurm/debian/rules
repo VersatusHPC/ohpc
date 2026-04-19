@@ -133,7 +133,7 @@ override_dh_auto_clean:
 	rm -rf $(SRCDIR)
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH) -l$(PMIX_PATH)/lib -l$(HWLOC_PATH)/lib -- --ignore-missing-info || true
+	dh_shlibdeps -l$(INSTALL_PATH)/lib/$(DEB_HOST_MULTIARCH):$(PMIX_PATH)/lib:$(HWLOC_PATH)/lib -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

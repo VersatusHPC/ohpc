@@ -10,6 +10,11 @@ COMPILER_FAMILY := gnu15
 PNAME           := numpy
 VERSION         := 2.4.3
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+PIP_FIND_LINKS  := --no-index --find-links=../SOURCES/pip-wheels
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+PIP_FIND_LINKS  :=
+endif
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/python3-$(PNAME)-$(COMPILER_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas" bash /build/devel/build-comp.sh
@@ -23,13 +28,20 @@ override_dh_auto_configure:
 			https://github.com/numpy/numpy/releases/download/v$(VERSION)/numpy-$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar --no-same-owner -xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+	cd $(SRCDIR) && sed -i "s|args: {'val': '-mcpu=power8', 'match': '.*vsx'}|args: ['-mcpu=power8', '-mvsx']|" meson_cpu/ppc64/meson.build
+	cd $(SRCDIR) && sed -i 's|defined(NPY_HAVE_VSX3) && defined(NPY_HAVE_VSX_ASM)|defined(NPY_HAVE_VSX3) \&\& defined(NPY_HAVE_VSX_ASM) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
+	cd $(SRCDIR) && sed -i 's|defined(NPY_HAVE_VSX3) && defined(vec_extract_fp_from_shorth)|defined(NPY_HAVE_VSX3) \&\& defined(vec_extract_fp_from_shorth) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
+	cd $(SRCDIR) && sed -i 's|defined(NPY_HAVE_VSX3) && defined(NPY_HAVE_VSX3_HALF_DOUBLE)|defined(NPY_HAVE_VSX3) \&\& defined(NPY_HAVE_VSX3_HALF_DOUBLE) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
+	cd $(SRCDIR) && sed -i 's|flags="-mcpu=power8", implies_detect=False|flags="-mcpu=power8 -mvsx", implies_detect=False|' numpy/distutils/ccompiler_opt.py
+endif
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		export NPY_BLAS_ORDER=openblas && \
 		export NPY_LAPACK_ORDER=openblas && \
 		export PKG_CONFIG_PATH="$${OPENBLAS_LIB}/pkgconfig:$${PKG_CONFIG_PATH}" && \
-		pip3 install --break-system-packages --no-index --find-links=../SOURCES/pip-wheels meson-python meson cython ninja && \
+		pip3 install --break-system-packages $(PIP_FIND_LINKS) meson-python meson cython ninja && \
 		python3 -m pip wheel --no-build-isolation --wheel-dir=dist .'
 
 override_dh_auto_install:

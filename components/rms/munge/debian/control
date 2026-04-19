@@ -20,6 +20,9 @@ Homepage: https://github.com/dun/munge
 Package: munge-ohpc
 Architecture: any
 Depends: munge-libs-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Provides: munge
+Conflicts: munge
+Replaces: munge
 Description: MUNGE authentication service (OpenHPC)
  MUNGE (MUNGE Uid 'N' Gid Emporium) is an authentication service for
  creating and validating user credentials. It is designed for use in
@@ -30,11 +33,17 @@ Description: MUNGE authentication service (OpenHPC)
 Package: munge-libs-ohpc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: libmunge2
+Conflicts: libmunge2
+Replaces: libmunge2
 Description: MUNGE shared libraries (OpenHPC)
  Runtime libraries for the MUNGE authentication service.
 
 Package: munge-devel-ohpc
 Architecture: any
 Depends: munge-libs-ohpc (= ${binary:Version}), ${misc:Depends}
+Provides: libmunge-dev
+Conflicts: libmunge-dev
+Replaces: libmunge-dev
 Description: MUNGE development files (OpenHPC)
  Development headers and libraries for MUNGE.

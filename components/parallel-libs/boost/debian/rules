@@ -11,6 +11,14 @@ PNAME           := boost
 VERSION         := 1.90.0
 VERSION_EXP     := 1_90_0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+BOOST_ARCHITECTURE := x86
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+BOOST_ARCHITECTURE := power
+endif
+ifeq ($(DEB_HOST_ARCH),arm64)
+BOOST_ARCHITECTURE := arm
+endif
 SRCDIR          := $(CURDIR)/$(PNAME)_$(VERSION_EXP)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := bash /build/devel/build-mpi.sh
@@ -39,7 +47,7 @@ override_dh_auto_build:
 		--with-toolset=gcc
 	cd $(SRCDIR) && $(ENV) ./b2 -d2 -q -j$$(nproc) --user-config=./rpm-config.jam \
 		address-model="64" \
-		architecture="x86" \
+		architecture="$(BOOST_ARCHITECTURE)" \
 		threading="multi" \
 		link="shared" \
 		runtime-link="shared" \

@@ -13,6 +13,7 @@ with additional platform support:
 | **EL10 (AlmaLinux/Rocky/RHEL)** | **ppc64le (IBM POWER)** | Available |
 | **openEuler 24.03 LTS** | **ppc64le (IBM POWER)** | Available |
 | **Ubuntu 24.04 LTS** | **x86_64** | Release candidate |
+| **Ubuntu 24.04 LTS** | **ppc64el (IBM POWER)** | Phase 2 active port |
 
 ### Ubuntu 24.04 Port
 
@@ -43,7 +44,8 @@ sudo apt update
 The Ubuntu installation recipe follows the upstream LaTeX manual layout under
 `docs/recipes/install/ubuntu24.04/x86_64/warewulf4/slurm`. The fast runtime
 release gate is documented in `docs/ubuntu-port/VALIDATION.md` and automated by
-`scripts/validate-ubuntu-runtime.sh`.
+`scripts/validate-ubuntu-runtime.sh`. The native POWER Debian build path is
+documented in `docs/ubuntu-port/PPC64EL.md`.
 
 The port keeps the OpenHPC compiler/MPI package model, using Debian packaging
 under `components/**/debian*`, shared build helpers under `devel/`, and local

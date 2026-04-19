@@ -12,6 +12,7 @@ VERSION         := 1.14.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 ENV             := bash /build/devel/build-mpi.sh
 
 %:
@@ -28,6 +29,7 @@ override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		export CC=mpicc CXX=mpicxx FC=mpif90 F77=mpif77 && \
 		export CFLAGS="$${CFLAGS} -fPIC -DPIC" && \
+		if [ "$(DEB_HOST_ARCH)" = "ppc64el" ]; then export FCFLAGS="$${FCFLAGS} -g0" FFLAGS="$${FFLAGS} -g0"; fi && \
 		./configure --prefix=$(INSTALL_PATH) && \
 		make -j$$(nproc)'
 

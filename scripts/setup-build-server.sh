@@ -4,8 +4,8 @@
 #
 # This script is idempotent and supports the build roles we operate today:
 #
-#   ppc64le: RPM build server for EL10 and openEuler 24.03.
-#   x86_64:  OBS Debian publisher for Ubuntu 24.04 packages.
+#   ppc64le: RPM build server for EL10/openEuler and native Ubuntu 24.04 ppc64el DEB builder.
+#   x86_64:  OBS Debian publisher for Ubuntu 24.04 amd64 packages.
 #
 # Usage:
 #   sudo ./setup-build-server.sh
@@ -31,6 +31,10 @@ EL10_IMAGE="${EL10_IMAGE:-el10-ohpc-builder}"
 OE2403_IMAGE="${OE2403_IMAGE:-oe2403-ohpc-builder}"
 EL10_CONTAINER="${EL10_CONTAINER:-el10-builder}"
 OE2403_CONTAINER="${OE2403_CONTAINER:-oe-builder}"
+
+UBUNTU_PPC64EL_IMAGE="${UBUNTU_PPC64EL_IMAGE:-ubuntu2404-ppc64el-ohpc-builder}"
+UBUNTU_PPC64EL_CONTAINER="${UBUNTU_PPC64EL_CONTAINER:-ubuntu2404-ppc64el-builder}"
+UBUNTU_PPC64EL_WORK_ROOT="${UBUNTU_PPC64EL_WORK_ROOT:-${BUILDER_HOME}/ohpc-ubuntu-ppc64el}"
 
 GPG_KEY_ID="${GPG_KEY_ID:-8AA9AD6940E37E91}"
 GPG_KEY_NAME="${GPG_KEY_NAME:-VersatusHPC (Repository Signing Key) <support@versatushpc.com.br>}"
@@ -303,7 +307,25 @@ phase_4_rpm_containers() {
     fi
 }
 
-# Phase 4b: x86_64 OBS Debian publisher integration
+# Phase 4b: native Ubuntu 24.04 ppc64el Debian builder image
+phase_4_ubuntu_ppc64el_builder() {
+    info "Phase 4b: Building Ubuntu 24.04 ppc64el DEB builder image"
+
+    install -d -m 0755 -o "${BUILDER_USER}" -g "${BUILDER_USER}" "${UBUNTU_PPC64EL_WORK_ROOT}"
+
+    if ! run_as_builder "podman image exists ${UBUNTU_PPC64EL_IMAGE}"; then
+        info "Building ${UBUNTU_PPC64EL_IMAGE} image..."
+        run_as_builder "cd ${WORKTREE_DIR} && podman build --arch ppc64le -t ${UBUNTU_PPC64EL_IMAGE} -f scripts/Containerfile.ubuntu2404-ppc64el-builder ."
+    else
+        info "Image ${UBUNTU_PPC64EL_IMAGE} already exists"
+    fi
+
+    info "Ubuntu ppc64el builds run with:"
+    echo "  sudo -u ${BUILDER_USER} -H bash -lc 'cd ${WORKTREE_DIR} && WORK_ROOT=${UBUNTU_PPC64EL_WORK_ROOT} IMAGE=${UBUNTU_PPC64EL_IMAGE} CONTAINER=${UBUNTU_PPC64EL_CONTAINER} scripts/build-ubuntu-ppc64el.sh --resume --keep-going'"
+    echo "  sudo -u ${BUILDER_USER} -H bash -lc 'cd ${WORKTREE_DIR} && WORK_ROOT=${UBUNTU_PPC64EL_WORK_ROOT} scripts/publish-ubuntu-ppc64el.sh --dry-run'"
+}
+
+# Phase 4c: x86_64 OBS Debian publisher integration
 phase_4_obs_publisher() {
     info "Phase 4: Setting up OBS Debian publisher access"
 
@@ -410,6 +432,20 @@ phase_6_verify() {
             echo "  [FAIL] Container ${OE2403_CONTAINER} not running"
             ok=false
         fi
+
+        if run_as_builder "podman image exists ${UBUNTU_PPC64EL_IMAGE}" 2>/dev/null; then
+            echo "  [OK] Image ${UBUNTU_PPC64EL_IMAGE} exists"
+        else
+            echo "  [FAIL] Image ${UBUNTU_PPC64EL_IMAGE} missing"
+            ok=false
+        fi
+
+        if [[ -x "${WORKTREE_DIR}/scripts/build-ubuntu-ppc64el.sh" ]]; then
+            echo "  [OK] Ubuntu ppc64el build script executable"
+        else
+            echo "  [FAIL] Ubuntu ppc64el build script missing or not executable"
+            ok=false
+        fi
     else
         if sudo -u "${BUILDER_USER}" -H sudo -n podman exec "${OBS_CONTAINER}" test -f "${OBS_REPO_PATH}/Release" 2>/dev/null; then
             echo "  [OK] OBS repository readable through ${OBS_CONTAINER}"
@@ -444,6 +480,8 @@ print_manual_steps() {
     echo "  3. Test the pipeline:"
     if [[ "${SERVER_ROLE}" == "rpm-builder" ]]; then
         echo "     sudo -u ${BUILDER_USER} ${WORKTREE_DIR}/scripts/publish-rpms.sh --dry-run"
+        echo "     sudo -u ${BUILDER_USER} -H bash -lc 'cd ${WORKTREE_DIR} && WORK_ROOT=${UBUNTU_PPC64EL_WORK_ROOT} scripts/build-ubuntu-ppc64el.sh --resume --keep-going'"
+        echo "     sudo -u ${BUILDER_USER} -H bash -lc 'cd ${WORKTREE_DIR} && WORK_ROOT=${UBUNTU_PPC64EL_WORK_ROOT} scripts/publish-ubuntu-ppc64el.sh --dry-run'"
     else
         echo "     sudo -u ${BUILDER_USER} -H bash -lc 'cd ${WORKTREE_DIR} && scripts/publish-debs.sh --dry-run'"
     fi
@@ -465,6 +503,7 @@ main() {
 
     if [[ "${SERVER_ROLE}" == "rpm-builder" ]]; then
         phase_4_rpm_containers
+        phase_4_ubuntu_ppc64el_builder
     else
         phase_4_obs_publisher
     fi

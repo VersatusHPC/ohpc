@@ -20,10 +20,10 @@ override_dh_auto_configure:
 			https://github.com/chaos/mrsh/archive/$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
-	cd $(SRCDIR) && \
-		patch -p1 < $(CURDIR)/SOURCES/mrlogin-Don-t-use-union-wait.patch || true && \
-		patch -p1 < $(CURDIR)/SOURCES/Add-force-to-libtoolize.patch || true && \
-		./autogen.sh
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/mrlogin-Don-t-use-union-wait.patch || true
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/Add-force-to-libtoolize.patch || true
+	cd $(SRCDIR) && ./autogen.sh
+	cd $(SRCDIR) && cp -f /usr/share/misc/config.guess /usr/share/misc/config.sub config/
 
 override_dh_auto_build:
 	cd $(SRCDIR) && ./configure --prefix=$(INSTALL_PATH) && \

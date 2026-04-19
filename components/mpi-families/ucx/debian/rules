@@ -30,7 +30,8 @@ override_dh_auto_configure:
 		--disable-knem \
 		--disable-rocm \
 		--disable-xpmem \
-		--disable-java
+		--disable-java \
+		--without-go
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(MAKE) -j$$(nproc)

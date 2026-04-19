@@ -6,12 +6,17 @@
 |----------|-----------|-------------|-------------|
 | EL10 (AlmaLinux/Rocky/RHEL) | 68/68 | 117 | 72 |
 | openEuler 24.03 LTS | 68/68 | 150 | 73 |
+| Ubuntu 24.04 LTS | active ppc64el port | native `.deb` build path | local APT repo |
 
 **Repository**: <https://repos.versatushpc.com.br/openhpc/versatushpc-4/>
 
 All 68 architecture-portable OpenHPC 4.x components build and install on
-ppc64le (IBM POWER9+). Only components inherently locked to other architectures
-are excluded (Intel compilers/MPI, CUDA, ARM compilers, geopm, msr-safe).
+ppc64le (IBM POWER9+) for the RPM-based EL10/openEuler targets. Ubuntu 24.04
+uses Debian architecture name `ppc64el` for the same hardware; that build path
+is native Podman-based because OBS is not available for our POWER target. Only
+components inherently locked to other architectures are excluded (Intel
+compilers/MPI, CUDA, ARM compilers, geopm, msr-safe, and kernel-module-only
+efforts such as Lustre client packaging).
 
 ## Built Components
 
@@ -109,7 +114,6 @@ are excluded (Intel compilers/MPI, CUDA, ARM compilers, geopm, msr-safe).
 | arm-compilers-devel | aarch64 only (ARM) |
 | geopm | x86_64 only (Intel RAPL/MSR) |
 | msr-safe | x86 MSR registers only |
-| likwid | x86_64 + aarch64 only (hardware counters) |
 | lustre-client | Kernel module (separate effort) |
 
 ## Spec File Changes (21 files, +88 -41 lines)

@@ -10,6 +10,11 @@ MPI_FAMILY      := openmpi5
 PNAME           := scipy
 VERSION         := 1.14.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+PIP_FIND_LINKS  := --no-index --find-links=../SOURCES/pip-wheels
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+PIP_FIND_LINKS  :=
+endif
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/python3-$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas fftw numpy" bash /build/devel/build-mpi.sh
@@ -31,7 +36,7 @@ override_dh_auto_build:
 		export PATH="$${NUMPY_DIR}/local/bin:$${HOME}/.local/bin:$${PATH}" && \
 		export FFLAGS="-fPIC -fno-strict-aliasing" && \
 		export FCFLAGS="-fPIC -fno-strict-aliasing" && \
-		pip3 install --break-system-packages --no-index --find-links=../SOURCES/pip-wheels meson-python meson cython ninja pybind11 pythran && \
+		pip3 install --break-system-packages $(PIP_FIND_LINKS) meson-python meson cython ninja pybind11 pythran && \
 		python3 -m pip wheel --no-build-isolation --no-deps --wheel-dir=dist .'
 
 override_dh_auto_install:

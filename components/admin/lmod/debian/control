@@ -5,6 +5,7 @@ Maintainer: VersatusHPC <packages@versatushpc.com.br>
 Build-Depends: debhelper-compat (= 13),
                tcl-dev,
                liblua5.4-dev,
+               lua5.4,
                lua-filesystem,
                lua-posix,
                rsync,

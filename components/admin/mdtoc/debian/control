@@ -9,7 +9,7 @@ Standards-Version: 4.6.2
 Homepage: https://github.com/kubernetes-sigs/mdtoc
 
 Package: mdtoc-ohpc
-Architecture: amd64
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Markdown table-of-contents generator for OpenHPC
  Utility to generate and insert a table of contents for Markdown files.

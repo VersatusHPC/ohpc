@@ -12,7 +12,7 @@ Standards-Version: 4.6.2
 Homepage: https://github.com/westes/flex
 
 Package: flex-ohpc
-Architecture: amd64
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Fast Lexical Analyzer Generator for OpenHPC
  Flex is a tool for generating scanners. Installed under the

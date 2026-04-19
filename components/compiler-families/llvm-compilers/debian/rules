@@ -8,6 +8,14 @@ export LDFLAGS =
 COMPILER_FAMILY := llvm10
 PNAME           := llvm-project
 VERSION         := 10.0.1
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+LLVM_TARGETS    := X86
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+LLVM_TARGETS    := PowerPC
+endif
+ifeq ($(DEB_HOST_ARCH),arm64)
+LLVM_TARGETS    := AArch64
+endif
 INSTALL_PATH    := /opt/ohpc/pub/compiler/llvm/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/llvm10-compilers-ohpc
@@ -32,7 +40,7 @@ override_dh_auto_build:
 			-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
 			-DCMAKE_BUILD_TYPE=Release \
 			-DLLVM_ENABLE_PROJECTS="clang;openmp;lld" \
-			-DLLVM_TARGETS_TO_BUILD="X86" \
+			-DLLVM_TARGETS_TO_BUILD="$(LLVM_TARGETS)" \
 			-DLLVM_BUILD_LLVM_DYLIB=ON \
 			-DLLVM_LINK_LLVM_DYLIB=ON \
 			-DCLANG_LINK_CLANG_DYLIB=ON \

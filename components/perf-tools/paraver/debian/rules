@@ -7,7 +7,9 @@ export LDFLAGS =
 
 PNAME        := paraver
 VERSION      := 4.12.0
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 INSTALL_PATH := /opt/ohpc/pub/libs/paraver/$(VERSION)
+PARAVER_KERNEL_LIBDIR := $(PKG)$(INSTALL_PATH)/lib/paraver-kernel
 SRCDIR       := $(CURDIR)/wxparaver-$(VERSION)
 PKG          := $(CURDIR)/debian/$(PNAME)-ohpc
 
@@ -21,7 +23,7 @@ override_dh_auto_configure:
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/wxparaver-$(VERSION)-src.tar.bz2
 	cd $(SRCDIR) && ./configure --prefix=$(INSTALL_PATH) \
-		--with-boost-libdir=/usr/lib/x86_64-linux-gnu
+		--with-boost-libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_build:
 	# Build kernel first (serial to ensure ordering), install to staging dir
@@ -45,7 +47,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(PARAVER_KERNEL_LIBDIR) -- --ignore-missing-info
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

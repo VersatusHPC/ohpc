@@ -9,6 +9,14 @@ COMPILER_FAMILY := gnu15
 PNAME           := pdtoolkit
 VERSION         := 3.25.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+PDTOOLKIT_ARCH_DIR := x86_64
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+PDTOOLKIT_ARCH_DIR := ibm64linux
+endif
+ifeq ($(DEB_HOST_ARCH),arm64)
+PDTOOLKIT_ARCH_DIR := arm64_linux
+endif
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
 ENV             := bash /build/devel/build-comp.sh
@@ -19,11 +27,13 @@ ENV             := bash /build/devel/build-comp.sh
 override_dh_auto_configure:
 	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
 		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
-			https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-$(VERSION).tar.gz
+			http://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 
 override_dh_auto_build:
+	# PDToolkit expects the POWER platform directory to exist before configure.
+	[ "$(DEB_HOST_ARCH)" != "ppc64el" ] || mkdir -p $(SRCDIR)/ibm64linux/bin
 	# PDToolkit doesn't support DESTDIR — configure with PKG prefix, then install.
 	# Build only; install happens in override_dh_auto_install.
 	cd $(SRCDIR) && $(ENV) sh -c ' \
@@ -33,6 +43,7 @@ override_dh_auto_build:
 override_dh_auto_install:
 	# Must re-run full configure+make+install since dh_prep wipes the prefix dir.
 	mkdir -p $(PKG)$(INSTALL_PATH)
+	[ "$(DEB_HOST_ARCH)" != "ppc64el" ] || mkdir -p $(SRCDIR)/ibm64linux/bin
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		./configure -prefix=$(PKG)$(INSTALL_PATH) -useropt=-fPIC -GNU && \
 		make -j$$(nproc) && \
@@ -47,7 +58,7 @@ override_dh_auto_install:
 	find $(PKG)$(INSTALL_PATH) -type f -exec grep -l "$(PKG)" {} \; 2>/dev/null | \
 		while read f; do sed -i 's|$(PKG)||g' "$$f"; done || true
 	# Create shared library from static archive
-	cd $(PKG)$(INSTALL_PATH)/x86_64/lib && \
+	cd $(PKG)$(INSTALL_PATH)/$(PDTOOLKIT_ARCH_DIR)/lib && \
 		ar x libpdb.a && \
 		$(ENV) sh -c '$$CXX -z muldefs -shared -o libpdb.so *.o' && \
 		rm -f libpdb.a *.o || true

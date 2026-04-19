@@ -24,6 +24,7 @@ override_dh_auto_configure:
 			https://ftp.tools.bsc.es/extrae/extrae-$(VERSION)-src.tar.bz2
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION)-src.tar.bz2
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/114.patch && autoreconf -fi
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) sh -c ' \
@@ -37,12 +38,8 @@ override_dh_auto_build:
 		make -j$$(nproc)'
 
 override_dh_auto_install:
-	# Create prefix dir to satisfy chmod calls that don't use DESTDIR
-	mkdir -p $(INSTALL_PATH)/bin 2>/dev/null || true
 	cd $(SRCDIR) && $(ENV) sh -c ' \
-		make DESTDIR=$(PKG) install' || true
-	# Remove the non-DESTDIR dir we created (if we had perms to create it)
-	rm -rf /opt/ohpc/pub/libs/gnu15/impi/extrae 2>/dev/null || true
+		make DESTDIR=$(PKG) install'
 	find $(PKG) -name '*.la' -delete
 	# Install modulefile
 	mkdir -p $(PKG)/opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-$(MPI_FAMILY)/$(PNAME)

@@ -114,7 +114,7 @@ Description: Slurm auth and cred kiosk daemon (OpenHPC)
 
 Package: slurm-sview-ohpc
 Architecture: any
-Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
 Description: Slurm graphical interface (OpenHPC)
  Graphical user interface for viewing Slurm job and node state.
 

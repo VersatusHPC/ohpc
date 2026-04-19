@@ -20,7 +20,7 @@ ENV             := bash /build/devel/build-comp.sh
 override_dh_auto_configure:
 	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
 		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
-			https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-$(VERSION).tar.gz
+			http://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-$(VERSION).tar.gz
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 

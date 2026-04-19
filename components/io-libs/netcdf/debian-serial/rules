@@ -9,6 +9,7 @@ COMPILER_FAMILY := gnu15
 PNAME           := netcdf
 VERSION         := 4.10.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+HDF5_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/hdf5/2.1.0/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-c-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
 ENV             := OHPC_MODULES="hdf5" bash /build/devel/build-comp.sh
@@ -45,7 +46,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(HDF5_LIBDIR) -- --ignore-missing-info
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

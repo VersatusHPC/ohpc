@@ -11,6 +11,7 @@ Build-Depends: debhelper-compat (= 13),
                perl,
                autoconf,
                automake,
+               autotools-dev,
                libtool
 Standards-Version: 4.6.2
 Homepage: https://github.com/chaos/genders

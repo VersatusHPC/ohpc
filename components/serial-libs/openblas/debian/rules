@@ -4,6 +4,14 @@ COMPILER_FAMILY := gnu15
 PNAME           := openblas
 VERSION         := 0.3.32
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+OPENBLAS_TARGET := DYNAMIC_ARCH=1 NUM_THREADS=256
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+OPENBLAS_TARGET := TARGET=POWER9 NUM_THREADS=256
+endif
+ifeq ($(DEB_HOST_ARCH),arm64)
+OPENBLAS_TARGET := TARGET=ARMV8 NUM_THREADS=256 MAKE_NB_JOBS=4
+endif
 SRCDIR          := $(CURDIR)/OpenBLAS-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
 ENV             := bash /build/devel/build-comp.sh
@@ -21,7 +29,7 @@ override_dh_auto_configure:
 	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/fix-arm64-cpuid-return.patch || true
 
 override_dh_auto_build:
-	cd $(SRCDIR) && $(ENV) $(MAKE) USE_THREAD=1 USE_OPENMP=1 DYNAMIC_ARCH=1 NUM_THREADS=256 \
+	cd $(SRCDIR) && $(ENV) $(MAKE) USE_THREAD=1 USE_OPENMP=1 $(OPENBLAS_TARGET) \
 		PREFIX=$(INSTALL_PATH)
 
 override_dh_auto_install:

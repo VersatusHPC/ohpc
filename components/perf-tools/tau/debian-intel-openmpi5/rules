@@ -14,6 +14,18 @@ INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="otf2 pdtoolkit papi" bash /build/devel/build-mpi.sh
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+TAU_ARCH_DIR    := x86_64
+ifeq ($(DEB_HOST_ARCH),ppc64el)
+TAU_ARCH_DIR    := ibm64linux
+endif
+ifeq ($(DEB_HOST_ARCH),arm64)
+TAU_ARCH_DIR    := arm64_linux
+endif
+PDTOOLKIT_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/pdtoolkit/3.25.1/$(TAU_ARCH_DIR)/lib
+OTF2_LIBDIR      := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/otf2/3.1.1/lib
+PAPI_LIBDIR      := /opt/ohpc/pub/libs/papi/7.2.0/lib
+TAU_ARCH_LIBDIR  := $(PKG)$(INSTALL_PATH)/$(TAU_ARCH_DIR)/lib
 
 %:
 	dh $@
@@ -29,8 +41,8 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	# Create static lib symlink for PDToolkit (TAU checks for libpdb.a)
-	test -f /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/pdtoolkit/3.25.1/x86_64/lib/libpdb.a || \
-		ln -sf libpdb.so /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/pdtoolkit/3.25.1/x86_64/lib/libpdb.a 2>/dev/null || true
+	test -f $(PDTOOLKIT_LIBDIR)/libpdb.a || \
+		ln -sf libpdb.so $(PDTOOLKIT_LIBDIR)/libpdb.a 2>/dev/null || true
 	cd $(SRCDIR) && $(ENV) sh -c ' \
 		export TAUROOT=$$(pwd) && \
 		export INSTALLROOT=$${TAUROOT}/TAUBUILD && \
@@ -60,7 +72,8 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib -- --ignore-missing-info || true
+	shared_dirs=$$(find $(TAU_ARCH_LIBDIR) -maxdepth 1 -type d -name 'shared-*' -printf '%p:' 2>/dev/null); \
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(TAU_ARCH_LIBDIR):$${shared_dirs}$(PDTOOLKIT_LIBDIR):$(OTF2_LIBDIR):$(PAPI_LIBDIR) -- --ignore-missing-info
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true
