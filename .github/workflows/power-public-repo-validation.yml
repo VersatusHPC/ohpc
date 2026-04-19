@@ -21,7 +21,7 @@ concurrency:
 jobs:
   metadata-coverage:
     name: Public repository metadata coverage
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, ppc64le, el10, power9]
     steps:
       - uses: actions/checkout@v4
       - name: Validate public repository metadata
