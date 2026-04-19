@@ -17,15 +17,17 @@ with additional platform support:
 
 ### Ubuntu 24.04 Port
 
-The `ubuntu-port` work adds Debian packaging for the full OpenHPC 4.x package
-matrix on Ubuntu 24.04 LTS. Validation is performed in OBS project
-`VersatusHPC:OHPC:4`, repository `Ubuntu_24.04`, architecture `x86_64`.
+The `ubuntu-port` work adds Debian packaging for the OpenHPC 4.x package matrix
+on Ubuntu 24.04 LTS. The x86_64 build is performed in OBS project
+`VersatusHPC:OHPC:4`, repository `Ubuntu_24.04`; the ppc64el build is performed
+natively on IBM POWER and merged into the same public APT repository.
 
-As of 2026-04-18, the Ubuntu OBS build is published with **296/296 packages
-succeeded**. The public repository was validated on a Warewulf/Slurm Ubuntu
+As of 2026-04-19, the Ubuntu x86_64 OBS build is published with **296/296
+packages succeeded**. The public repository also includes the architecture
+portable ppc64el package set. Runtime validation covers a Warewulf/Slurm Ubuntu
 24.04 head node and compute node, including GNU15 and Intel compiler coverage
-across OpenMPI, MPICH, MVAPICH2, and Intel MPI with MPI hello-world and IMB
-PingPong smoke tests.
+on x86_64 across OpenMPI, MPICH, MVAPICH2, and Intel MPI, plus GNU15 OpenMPI,
+MPICH, MVAPICH2, LIKWID, and linkage checks on ppc64el.
 
 Pre-built Debian packages are available at:
 <https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/>
@@ -33,20 +35,24 @@ Pre-built Debian packages are available at:
 To enable the Ubuntu repository:
 
 ```bash
-OHPC_REPO=https://repos.versatushpc.com.br/openhpc/versatushpc-4
-curl -fsSL "${OHPC_REPO}/versatushpc.gpg" \
+sudo install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
+OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
+curl -fsSL "${OHPC_REPO_ROOT}/versatushpc.gpg" \
   | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null
-curl -fsSL "${OHPC_REPO}/Ubuntu_24.04/versatushpc-openhpc.list" \
+curl -fsSL "${OHPC_REPO_ROOT}/Ubuntu_24.04/versatushpc-openhpc.list" \
   | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null
 sudo apt update
+sudo apt install ohpc-release
 ```
 
-The Ubuntu installation recipe follows the upstream LaTeX manual layout under
-`docs/recipes/install/ubuntu24.04/x86_64/warewulf4/slurm`. The fast runtime
-release gate is documented in `docs/ubuntu-port/VALIDATION.md` and automated by
-`scripts/validate-ubuntu-runtime.sh`. The native POWER Debian build path is
-documented in `docs/ubuntu-port/PPC64EL.md`; cross-distribution POWER release
-checks are documented in `docs/POWER-VALIDATION.md`.
+For a full SMS/compute-node installation, follow the
+[Ubuntu Warewulf/Slurm installation guide](docs/recipes/install/ubuntu24.04/x86_64/warewulf4/slurm/steps.pdf),
+generated from the upstream LaTeX manual structure.
+
+Operational validation is documented in `docs/ubuntu-port/VALIDATION.md` and
+automated by `scripts/validate-ubuntu-runtime.sh`. The native POWER Debian build
+path is documented in `docs/ubuntu-port/PPC64EL.md`; cross-distribution POWER
+release checks are documented in `docs/POWER-VALIDATION.md`.
 
 The port keeps the OpenHPC compiler/MPI package model, using Debian packaging
 under `components/**/debian*`, shared build helpers under `devel/`, and local

@@ -5,6 +5,7 @@ steps.log
 steps.out
 steps.toc
 steps.pdf
+!ubuntu24.04/x86_64/warewulf4/slurm/steps.pdf
 vc.tex
 pkg-ohpc.chglog*
 
