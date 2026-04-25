@@ -51,6 +51,7 @@ BuildRequires: automake
 BuildRequires: libtool
 BuildRequires: binutils-devel
 BuildRequires: libxml2-devel
+BuildRequires: zlib-devel
 BuildRequires: make
 
 %define __arch_install_post %{nil}
