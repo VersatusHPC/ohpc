@@ -61,6 +61,7 @@ Optflags: x86_64 -O0
 # available in all chroots.
 Preinstall: util-linux
 Support: fakeroot util-linux
+Order: util-linux:tex-common
 
 # Build order hints
 Prefer: ohpc-filesystem ohpc-buildroot lmod-ohpc
