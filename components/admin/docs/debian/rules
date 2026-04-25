@@ -17,6 +17,7 @@ override_dh_auto_configure:
 
 override_dh_auto_build:
 	test -s $(RECIPE_DIR)/steps.pdf
+	printf '\gdef\VCRevision{%s}%%\n\gdef\VCDateISO{%s}%%\n' "$(VC_REVISION)" "$(VC_DATE)" > $(RECIPE_DIR)/vc.tex
 	perl $(DOCS_ROOT)/recipes/install/parse_doc.pl $(RECIPE_DIR)/steps.tex > $(RECIPE_DIR)/recipe.sh
 	chmod 0755 $(RECIPE_DIR)/recipe.sh
 	bash -n $(RECIPE_DIR)/recipe.sh
