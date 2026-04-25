@@ -16,8 +16,7 @@ VC_DATE     := $(shell cat $(DOCS_ROOT)/.ohpc-date 2>/dev/null || git -C $(DOCS_
 override_dh_auto_configure:
 
 override_dh_auto_build:
-	printf '\gdef\VCRevision{%s}%%\n\gdef\VCDateISO{%s}%%\n' "$(VC_REVISION)" "$(VC_DATE)" > $(RECIPE_DIR)/vc.tex
-	$(MAKE) -C $(RECIPE_DIR)
+	test -s $(RECIPE_DIR)/steps.pdf
 	perl $(DOCS_ROOT)/recipes/install/parse_doc.pl $(RECIPE_DIR)/steps.tex > $(RECIPE_DIR)/recipe.sh
 	chmod 0755 $(RECIPE_DIR)/recipe.sh
 	bash -n $(RECIPE_DIR)/recipe.sh
@@ -31,7 +30,7 @@ override_dh_auto_install:
 	install -m 0644 -p -D $(RECIPE_INPUT) $(PKG)$(OHPC_PUB)/doc/recipes/ubuntu24.04/input.local
 
 override_dh_auto_clean:
-	if [ -d $(RECIPE_DIR) ]; then $(MAKE) -C $(RECIPE_DIR) clean; rm -f $(RECIPE_DIR)/recipe.sh; fi
+	if [ -d $(RECIPE_DIR) ]; then rm -f $(RECIPE_DIR)/recipe.sh $(RECIPE_DIR)/vc.tex; fi
 
 override_dh_usrlocal:
 

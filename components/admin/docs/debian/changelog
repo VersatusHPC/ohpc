@@ -1,3 +1,10 @@
+docs-ohpc (4.1.0-1ohpc7~noble) noble; urgency=low
+
+  * Use the generated Ubuntu install guide PDF as a Debian source artifact to
+    avoid OBS tex-common maintainer-script ordering issues.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Sat, 25 Apr 2026 16:10:00 -0300
+
 docs-ohpc (4.1.0-1ohpc6~noble) noble; urgency=low
 
   * Keep Ubuntu local mirror tarball references under Ubuntu_24.04.

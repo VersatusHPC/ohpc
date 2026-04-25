@@ -200,7 +200,7 @@ build_entry() {
                     "${work}/docs/recipes/install/"
                 find "${work}/docs/recipes/install" -type f \
                     \( -name "steps.aux" -o -name "steps.fdb_latexmk" -o -name "steps.fls" \
-                       -o -name "steps.log" -o -name "steps.out" -o -name "steps.pdf" \
+                       -o -name "steps.log" -o -name "steps.out" \
                        -o -name "steps.toc" -o -name "vc.tex" -o -name "recipe.sh" \) -delete
                 cp /build/docs/ChangeLog "${work}/docs/" 2>/dev/null || true
                 cp /build/docs/Release_Notes.txt "${work}/docs/" 2>/dev/null || true

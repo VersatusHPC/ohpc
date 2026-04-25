@@ -6,13 +6,7 @@ Build-Depends: debhelper-compat (= 13),
                ohpc-buildroot,
                git,
                make,
-               perl,
-               util-linux,
-               latexmk,
-               texlive-latex-extra,
-               texlive-fonts-recommended,
-               texlive-fonts-extra,
-               lmodern
+               perl
 Standards-Version: 4.6.2
 Homepage: https://github.com/openhpc/ohpc
 

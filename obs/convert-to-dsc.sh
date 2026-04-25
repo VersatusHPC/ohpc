@@ -80,7 +80,7 @@ convert_and_upload() {
               "$pkgdir/${pkg_name}-${file_version}/docs/recipes/install/"
         find "$pkgdir/${pkg_name}-${file_version}/docs/recipes/install" -type f \
             \( -name 'steps.aux' -o -name 'steps.fdb_latexmk' -o -name 'steps.fls' \
-               -o -name 'steps.log' -o -name 'steps.out' -o -name 'steps.pdf' \
+               -o -name 'steps.log' -o -name 'steps.out' \
                -o -name 'steps.toc' -o -name 'vc.tex' -o -name 'recipe.sh' \) -delete
         cp "$REPO_ROOT/docs/ChangeLog" "$pkgdir/${pkg_name}-${file_version}/docs/" 2>/dev/null || true
         cp "$REPO_ROOT/docs/Release_Notes.txt" "$pkgdir/${pkg_name}-${file_version}/docs/" 2>/dev/null || true
