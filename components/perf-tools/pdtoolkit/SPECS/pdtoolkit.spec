@@ -22,7 +22,7 @@ License:        Program Database Toolkit License
 Summary:        PDT is a framework for analyzing source code
 Url:            http://www.cs.uoregon.edu/Research/pdt
 Group:          %{PROJ_NAME}/perf-tools
-Source0:        https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-%{version}.tar.gz
+Source0:        http://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-%{version}.tar.gz
 Patch1:         pdtoolkit-3.25-umask.patch
 Patch2:         pdtoolkit-icx.patch
 Provides:       %{name} = %{version}%{release}
