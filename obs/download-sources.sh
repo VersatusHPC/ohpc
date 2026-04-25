@@ -65,7 +65,7 @@ process_rules() {
 
         mkdir -p "$(dirname "$target")"
         printf "  [%3d] %-55s " "$((COUNT+1))" "$(basename "$target")"
-        if wget -q --timeout=60 -O "$target" "$url" 2>/dev/null; then
+        if timeout 180 wget -q --timeout=60 --tries=2 -O "$target" "$url" 2>/dev/null; then
             local size
             size=$(stat -c %s "$target" 2>/dev/null || echo 0)
             if [ "$size" -gt 100 ]; then
