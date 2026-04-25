@@ -52,7 +52,7 @@ process_rules() {
 
         # Skip if still has unresolved variables
         if [[ "$outfile" == *'$'* ]] || [[ "$url" == *'$'* ]]; then
-            return
+            continue
         fi
 
         local target="$comp_dir/$outfile"
@@ -60,7 +60,7 @@ process_rules() {
         # Skip if already exists and non-empty
         if [ -s "$target" ]; then
             SKIP=$((SKIP + 1))
-            return  # Only download the first (main) tarball per rules file
+            continue
         fi
 
         mkdir -p "$(dirname "$target")"
@@ -81,7 +81,6 @@ process_rules() {
             FAIL=$((FAIL + 1))
             echo "FAIL"
         fi
-        return  # Only download the first tarball per rules file
     done < <(echo "$content" | grep 'wget')
 }
 
