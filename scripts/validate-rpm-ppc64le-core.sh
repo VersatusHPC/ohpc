@@ -5,6 +5,8 @@
 set -euo pipefail
 
 TARGET="all"
+REPO_ROOT="${REPO_ROOT:-https://repos.versatushpc.com.br/openhpc/versatushpc-4}"
+REPO_CHANNEL="${REPO_CHANNEL:-updates}"
 EL10_IMAGE="${EL10_IMAGE:-almalinux:10}"
 OE_IMAGE="${OE_IMAGE:-localhost/oe2403-ohpc-builder:latest}"
 CONTAINER_PREFIX="${CONTAINER_PREFIX:-ohpc-rpm-ppc64le-validation}"
@@ -18,6 +20,8 @@ Usage: $0 [options]
 
 Options:
   --target el10|openeuler|all  Target repository to validate (default: ${TARGET})
+  --repo-root URL               Repository root (default: ${REPO_ROOT})
+  --repo-channel NAME           Repository channel under the root (default: ${REPO_CHANNEL})
   --el10-image IMAGE           EL10 container image (default: ${EL10_IMAGE})
   --openeuler-image IMAGE      openEuler container image (default: ${OE_IMAGE})
   --container-prefix NAME      Temporary container name prefix (default: ${CONTAINER_PREFIX})
@@ -31,6 +35,8 @@ EOF
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --target) TARGET="$2"; shift 2 ;;
+        --repo-root) REPO_ROOT="$2"; shift 2 ;;
+        --repo-channel) REPO_CHANNEL="$2"; shift 2 ;;
         --el10-image) EL10_IMAGE="$2"; shift 2 ;;
         --openeuler-image) OE_IMAGE="$2"; shift 2 ;;
         --container-prefix) CONTAINER_PREFIX="$2"; shift 2 ;;
@@ -425,12 +431,20 @@ echo "${OHPC_TARGET} ppc64le GNU15 MPI, LIKWID, and linkage validation passed."
 EOF
 }
 
+repo_root="${REPO_ROOT%/}"
+repo_channel="${REPO_CHANNEL#/}"
+repo_channel="${repo_channel%/}"
+repo_base="${repo_root}"
+if [[ -n "${repo_channel}" ]]; then
+    repo_base="${repo_root}/${repo_channel}"
+fi
+
 case "${TARGET}" in
-    el10) run_target el10 "${EL10_IMAGE}" "https://repos.versatushpc.com.br/openhpc/versatushpc-4/EL_10/" ;;
-    openeuler) run_target openeuler "${OE_IMAGE}" "https://repos.versatushpc.com.br/openhpc/versatushpc-4/openEuler_24.03/" ;;
+    el10) run_target el10 "${EL10_IMAGE}" "${repo_base}/EL_10/" ;;
+    openeuler) run_target openeuler "${OE_IMAGE}" "${repo_base}/openEuler_24.03/" ;;
     all)
-        run_target el10 "${EL10_IMAGE}" "https://repos.versatushpc.com.br/openhpc/versatushpc-4/EL_10/"
-        run_target openeuler "${OE_IMAGE}" "https://repos.versatushpc.com.br/openhpc/versatushpc-4/openEuler_24.03/"
+        run_target el10 "${EL10_IMAGE}" "${repo_base}/EL_10/"
+        run_target openeuler "${OE_IMAGE}" "${repo_base}/openEuler_24.03/"
         ;;
     *) echo "Unknown target: ${TARGET}" >&2; usage >&2; exit 2 ;;
 esac

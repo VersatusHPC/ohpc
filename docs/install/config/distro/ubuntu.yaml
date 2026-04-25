@@ -21,9 +21,11 @@ distro_container_image: "ubuntu:24.04"
 # OpenHPC repository
 ohpc_repo_server: "https://repos.versatushpc.com.br"
 ohpc_repo_path: "/openhpc/versatushpc-4"
-ohpc_apt_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/"
+ohpc_apt_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04"
+ohpc_apt_updates_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04"
+ohpc_apt_release_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04"
 ohpc_apt_key_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg"
-ohpc_apt_list_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list"
+ohpc_apt_list_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/versatushpc-openhpc.list"
 ohpc_apt_keyring: "/usr/share/keyrings/versatushpc.gpg"
 ohpc_release_deb: "ohpc-release_4.1-1ohpc1~noble_all.deb"
 

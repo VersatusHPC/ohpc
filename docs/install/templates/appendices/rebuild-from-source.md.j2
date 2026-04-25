@@ -10,10 +10,13 @@ locally. A brief example using the FFTW library is highlighted below.
 ```bash
 # Enable OpenHPC source packages
 OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
-OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
 OHPC_KEYRING="{{ ohpc_apt_keyring }}"
-echo "deb-src [signed-by=${OHPC_KEYRING}] ${OHPC_UBUNTU_REPO}/ ./" \
-	> /etc/apt/sources.list.d/versatushpc-openhpc-src.list
+OHPC_BASE_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
+OHPC_UPDATES_REPO="${OHPC_REPO_ROOT}/updates/Ubuntu_24.04"
+cat > /etc/apt/sources.list.d/versatushpc-openhpc-src.list <<EOF
+deb-src [signed-by=${OHPC_KEYRING}] ${OHPC_BASE_REPO}/ ./
+deb-src [signed-by=${OHPC_KEYRING}] ${OHPC_UPDATES_REPO}/ ./
+EOF
 apt update
 
 # Install Debian packaging tools and FFTW build dependencies

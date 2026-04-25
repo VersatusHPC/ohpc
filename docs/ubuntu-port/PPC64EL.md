@@ -88,11 +88,20 @@ WORK_ROOT=/home/builder/ohpc-ubuntu-ppc64el \
   scripts/publish-ubuntu-ppc64el.sh
 ```
 
-The publisher fetches the current public `Ubuntu_24.04` repository, merges only
-the native `ppc64el` binaries plus source artifacts, regenerates `Packages` and
-`Sources`, signs `Release`, and syncs the full `Ubuntu_24.04` tree back to the
-mirror. This avoids OBS for POWER while preserving the existing amd64 public
-repository content.
+The publisher fetches the versioned public `update.4.1/Ubuntu_24.04`
+repository, merges only the native `ppc64el` binaries plus source artifacts,
+regenerates `Packages` and `Sources`, signs `Release`, and syncs the full
+`Ubuntu_24.04` tree back under `update.4.1/`. This avoids OBS for POWER while
+preserving the amd64 OBS content in the same release tree.
+
+Do not move the public `updates` alias until the entire 4.1 matrix is present:
+Ubuntu amd64 from OBS, Ubuntu ppc64el from the native POWER builder, EL10
+ppc64le, and openEuler 24.03 ppc64le. After all publishers finish, promote the
+versioned tree:
+
+```bash
+OHPC_VERSION=4.1 scripts/promote-update-release.sh
+```
 
 ## Current Gate
 

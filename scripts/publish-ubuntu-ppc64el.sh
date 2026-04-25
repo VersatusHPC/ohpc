@@ -4,12 +4,12 @@
 #
 # This runs on the POWER builder after scripts/build-ubuntu-ppc64el.sh has
 # produced a local APT repository. It fetches the current public Ubuntu repo,
-# merges the ppc64el binaries and source artifacts, regenerates APT metadata,
-# signs Release metadata, and syncs the complete Ubuntu_24.04 tree back to the
-# mirror.
+# merges the ppc64el binaries and source artifacts into the versioned release
+# tree, regenerates APT metadata, signs Release metadata, and syncs the complete
+# Ubuntu_24.04 tree back to the mirror.
 #
 # Usage:
-#   scripts/publish-ubuntu-ppc64el.sh [--dry-run] [--skip-fetch]
+#   scripts/publish-ubuntu-ppc64el.sh [--dry-run] [--skip-fetch] [--promote]
 #
 
 set -euo pipefail
@@ -18,6 +18,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 LOCAL_USER="${LOCAL_USER:-builder}"
+OHPC_VERSION="${OHPC_VERSION:-4.1}"
+RELEASE_DIR="${RELEASE_DIR:-update.${OHPC_VERSION}}"
+UPDATE_ALIAS="${UPDATE_ALIAS:-updates}"
 WORK_ROOT="${WORK_ROOT:-/home/${LOCAL_USER}/ohpc-ubuntu-ppc64el}"
 PPC_REPO="${PPC_REPO:-${WORK_ROOT}/repo/Ubuntu_24.04}"
 AMD64_REPO="${AMD64_REPO:-}"
@@ -30,6 +33,7 @@ GPG_KEY_NAME="${GPG_KEY_NAME:-VersatusHPC (Repository Signing Key) <support@vers
 GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${REPO_ROOT}/RPM-GPG-KEY-VersatusHPC}"
 APT_SOURCE_FILE="${APT_SOURCE_FILE:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/versatushpc-openhpc.list}"
 LOCAL_REPO_SCRIPT="${LOCAL_REPO_SCRIPT:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/make_repo.sh}"
+PROMOTE_SCRIPT="${PROMOTE_SCRIPT:-${SCRIPT_DIR}/promote-update-release.sh}"
 
 REMOTE_USER="${REMOTE_USER:-reposync}"
 REMOTE_HOST="${REMOTE_HOST:-172.21.1.40}"
@@ -38,21 +42,32 @@ SSH_KEY="${SSH_KEY:-/home/${LOCAL_USER}/.ssh/id_ed25519_openhpc}"
 
 DRY_RUN=""
 SKIP_FETCH=""
+PROMOTE=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --dry-run) DRY_RUN=yes; shift ;;
         --skip-fetch) SKIP_FETCH=yes; shift ;;
+        --promote) PROMOTE=yes; shift ;;
         --help|-h)
             sed -n '1,13p' "$0"
             exit 0
             ;;
         *)
-            echo "Usage: $0 [--dry-run] [--skip-fetch]" >&2
+            echo "Usage: $0 [--dry-run] [--skip-fetch] [--promote]" >&2
             exit 2
             ;;
     esac
 done
 
+validate_remote_name() {
+    local label="$1"
+    local value="$2"
+
+    if [[ ! "${value}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "Error: ${label} must match ^[A-Za-z0-9._-]+$: ${value}" >&2
+        exit 2
+    fi
+}
 
 prune_stale_arch_all_packages() {
     local repo="$1"
@@ -104,7 +119,7 @@ prune_stale_arch_all_packages() {
         fi
 
         while IFS= read -r file; do
-            echo "    removing ${file#${repo}/}"
+            echo "    removing ${file#"${repo}"/}"
             rm -f "${file}"
             removed=$((removed + 1))
         done < <(find "${repo}/all" -maxdepth 1 -type f -name "${package}_*_all.deb" | sort)
@@ -152,6 +167,14 @@ for file in "${GPG_PUBLIC_KEY}" "${APT_SOURCE_FILE}" "${LOCAL_REPO_SCRIPT}" "${S
     fi
 done
 
+if [[ ! -x "${PROMOTE_SCRIPT}" ]]; then
+    echo "Error: promotion helper is not executable: ${PROMOTE_SCRIPT}" >&2
+    exit 1
+fi
+
+validate_remote_name "RELEASE_DIR" "${RELEASE_DIR}"
+validate_remote_name "UPDATE_ALIAS" "${UPDATE_ALIAS}"
+
 if ! gpg --list-secret-keys "${GPG_KEY_NAME}" >/dev/null 2>&1; then
     echo "Error: GPG secret key not available: ${GPG_KEY_NAME}" >&2
     exit 1
@@ -165,15 +188,17 @@ if ! podman image exists "${IMAGE}"; then
         "${REPO_ROOT}"
 fi
 
+REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"
+
 if [[ -z "${SKIP_FETCH}" ]]; then
-    echo "==> Fetching current public Ubuntu repository into ${STAGING_REPO}"
+    echo "==> Fetching versioned Ubuntu repository into ${STAGING_REPO}"
     rm -rf "${STAGING_REPO}"
     mkdir -p "${STAGING_ROOT}"
     lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mirror --verbose ${REMOTE_PATH}/Ubuntu_24.04/ ${STAGING_REPO}/;
+mirror --verbose ${REMOTE_RELEASE_PATH}/Ubuntu_24.04/ ${STAGING_REPO}/;
 bye;
 "
 else
@@ -240,24 +265,50 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 )
 
 LFTP_DRY_RUN=""
+LFTP_KEY_UPLOADS="
+rm -f ${REMOTE_PATH}/versatushpc*.gpg;
+put -O ${REMOTE_PATH} ${GPG_PUBLIC_KEY};
+put -O ${REMOTE_PATH} ${STAGING_REPO}/versatushpc.gpg;
+"
 if [[ -n "${DRY_RUN}" ]]; then
     LFTP_DRY_RUN="--dry-run"
+    LFTP_KEY_UPLOADS="
+cls -la ${REMOTE_PATH};
+"
     echo "*** DRY RUN - no files will be transferred ***"
 fi
 
-echo "==> Syncing merged Ubuntu repository to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
+echo "==> Syncing merged Ubuntu repository to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_RELEASE_PATH}"
 lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mkdir -pf ${REMOTE_PATH}/Ubuntu_24.04;
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} ${STAGING_REPO}/ ${REMOTE_PATH}/Ubuntu_24.04/;
+mkdir -pf ${REMOTE_RELEASE_PATH}/Ubuntu_24.04;
+mirror --reverse --delete --verbose ${LFTP_DRY_RUN} ${STAGING_REPO}/ ${REMOTE_RELEASE_PATH}/Ubuntu_24.04/;
+${LFTP_KEY_UPLOADS}
 bye;
 "
+
+if [[ -n "${PROMOTE}" ]]; then
+    promote_args=()
+    if [[ -n "${DRY_RUN}" ]]; then
+        promote_args+=(--dry-run)
+    fi
+    OHPC_VERSION="${OHPC_VERSION}" \
+    RELEASE_DIR="${RELEASE_DIR}" \
+    UPDATE_ALIAS="${UPDATE_ALIAS}" \
+    REMOTE_USER="${REMOTE_USER}" \
+    REMOTE_HOST="${REMOTE_HOST}" \
+    REMOTE_PATH="${REMOTE_PATH}" \
+    SSH_KEY="${SSH_KEY}" \
+        "${PROMOTE_SCRIPT}" "${promote_args[@]}"
+fi
 
 echo ""
 echo "==> Done. Ubuntu repository summary:"
 echo "    Staged repository: ${STAGING_REPO}"
+echo "    Release tree:      sftp://${REMOTE_USER}@${REMOTE_HOST}${REMOTE_RELEASE_PATH}/Ubuntu_24.04/"
+echo "    Updates alias:     ${UPDATE_ALIAS} -> ${RELEASE_DIR} (run with --promote after the full matrix is present)"
 echo "    ppc64el packages:  $(find "${STAGING_REPO}/ppc64el" -type f -name '*.deb' | wc -l)"
 echo "    amd64 packages:    $(find "${STAGING_REPO}/amd64" -type f -name '*.deb' 2>/dev/null | wc -l)"
 echo "    all packages:      $(find "${STAGING_REPO}/all" -type f -name '*.deb' 2>/dev/null | wc -l)"

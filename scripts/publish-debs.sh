@@ -6,7 +6,7 @@
 # public key and source-list helper, and syncs the result to the mirror server.
 #
 # Usage:
-#   scripts/publish-debs.sh [--dry-run] [--skip-stage]
+#   scripts/publish-debs.sh [--dry-run] [--skip-stage] [--promote]
 #
 
 set -euo pipefail
@@ -32,11 +32,14 @@ GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${REPO_ROOT}/RPM-GPG-KEY-VersatusHPC}"
 APT_SOURCE_FILE="${APT_SOURCE_FILE:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/versatushpc-openhpc.list}"
 LOCAL_REPO_SCRIPT="${LOCAL_REPO_SCRIPT:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/make_repo.sh}"
 OHPC_VERSION="${OHPC_VERSION:-4.1}"
+RELEASE_DIR="${RELEASE_DIR:-update.${OHPC_VERSION}}"
+UPDATE_ALIAS="${UPDATE_ALIAS:-updates}"
 DIST_DIR="${STAGING_REPO}/dist/${OHPC_VERSION}"
 DIST_ARCHIVE="${DIST_ARCHIVE:-OpenHPC-${OHPC_VERSION}.${OBS_REPO_NAME}.x86_64.tar}"
 SOURCE_SUBDIR="${SOURCE_SUBDIR:-source}"
 MAINTAINER_EMAIL_FROM="${MAINTAINER_EMAIL_FROM:-packages@versatushpc.com.br}"
 MAINTAINER_EMAIL_TO="${MAINTAINER_EMAIL_TO:-packages@versatushpc.com.br}"
+PROMOTE_SCRIPT="${PROMOTE_SCRIPT:-${SCRIPT_DIR}/promote-update-release.sh}"
 
 # Remote mirror settings.
 REMOTE_USER="${REMOTE_USER:-reposync}"
@@ -48,6 +51,7 @@ SSH_KEY="${SSH_KEY:-/home/${LOCAL_USER}/.ssh/id_ed25519_openhpc}"
 
 DRY_RUN=""
 SKIP_STAGE=""
+PROMOTE=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --dry-run)
@@ -58,8 +62,12 @@ while [[ $# -gt 0 ]]; do
             SKIP_STAGE="yes"
             shift
             ;;
+        --promote)
+            PROMOTE="yes"
+            shift
+            ;;
         *)
-            echo "Usage: $0 [--dry-run] [--skip-stage]" >&2
+            echo "Usage: $0 [--dry-run] [--skip-stage] [--promote]" >&2
             exit 2
             ;;
     esac
@@ -70,6 +78,16 @@ require_command() {
         echo "Error: required command not found: $1" >&2
         exit 1
     }
+}
+
+validate_remote_name() {
+    local label="$1"
+    local value="$2"
+
+    if [[ ! "${value}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "Error: ${label} must match ^[A-Za-z0-9._-]+$: ${value}" >&2
+        exit 2
+    fi
 }
 
 require_command sudo
@@ -98,6 +116,11 @@ if [[ ! -f "${LOCAL_REPO_SCRIPT}" ]]; then
     exit 1
 fi
 
+if [[ ! -x "${PROMOTE_SCRIPT}" ]]; then
+    echo "Error: promotion helper is not executable: ${PROMOTE_SCRIPT}" >&2
+    exit 1
+fi
+
 if [[ ! -f "${SSH_KEY}" ]]; then
     echo "Error: SSH key not found: ${SSH_KEY}" >&2
     echo "Set SSH_KEY=/path/to/reposync_key or install the mirror publish key." >&2
@@ -110,6 +133,9 @@ if ! gpg --list-secret-keys "${GPG_KEY_NAME}" >/dev/null 2>&1; then
     exit 1
 fi
 
+validate_remote_name "RELEASE_DIR" "${RELEASE_DIR}"
+validate_remote_name "UPDATE_ALIAS" "${UPDATE_ALIAS}"
+validate_remote_name "OBS_REPO_NAME" "${OBS_REPO_NAME}"
 
 extract_control_tar() {
     local control_archive="$1"
@@ -534,15 +560,16 @@ tar -C "${STAGING_ROOT}" --exclude="${OBS_REPO_NAME}/dist" -cf "${DIST_DIR}/${DI
     "${OBS_REPO_NAME}" RPM-GPG-KEY-VersatusHPC versatushpc.gpg
 
 LFTP_DRY_RUN=""
+REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"
 LFTP_KEY_UPLOADS="
 rm -f ${REMOTE_PATH}/versatushpc*.gpg;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
 put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc.gpg;
 "
 LFTP_DIST_UPLOADS="
-mkdir -pf ${REMOTE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
+mkdir -pf ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
 mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${DIST_DIR}/ ${REMOTE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
+    ${DIST_DIR}/ ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
 "
 if [[ -n "${DRY_RUN}" ]]; then
     LFTP_DRY_RUN="--dry-run"
@@ -550,27 +577,46 @@ if [[ -n "${DRY_RUN}" ]]; then
 cls -la ${REMOTE_PATH};
 "
     LFTP_DIST_UPLOADS="
-cls -la ${REMOTE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
+mkdir -pf ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
+mirror --reverse --delete --verbose --dry-run \
+    ${DIST_DIR}/ ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
 "
     echo "*** DRY RUN - no files will be transferred ***"
 fi
 
-echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH} via SFTP"
+echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_RELEASE_PATH} via SFTP"
 lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mkdir -pf ${REMOTE_PATH}/${OBS_REPO_NAME};
+mkdir -pf ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME};
 mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${STAGING_REPO}/ ${REMOTE_PATH}/${OBS_REPO_NAME}/;
+    ${STAGING_REPO}/ ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/;
 ${LFTP_KEY_UPLOADS}
 ${LFTP_DIST_UPLOADS}
 bye;
 "
 
+if [[ -n "${PROMOTE}" ]]; then
+    promote_args=()
+    if [[ -n "${DRY_RUN}" ]]; then
+        promote_args+=(--dry-run)
+    fi
+    OHPC_VERSION="${OHPC_VERSION}" \
+    RELEASE_DIR="${RELEASE_DIR}" \
+    UPDATE_ALIAS="${UPDATE_ALIAS}" \
+    REMOTE_USER="${REMOTE_USER}" \
+    REMOTE_HOST="${REMOTE_HOST}" \
+    REMOTE_PATH="${REMOTE_PATH}" \
+    SSH_KEY="${SSH_KEY}" \
+        "${PROMOTE_SCRIPT}" "${promote_args[@]}"
+fi
+
 echo ""
 echo "==> Done. Debian repository summary:"
 echo "    Staged repository: ${STAGING_REPO}"
+echo "    Release tree:      sftp://${REMOTE_USER}@${REMOTE_HOST}${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/"
+echo "    Updates alias:     ${UPDATE_ALIAS} -> ${RELEASE_DIR} (run with --promote after the full matrix is present)"
 echo "    Total size:        $(du -sh "${STAGING_REPO}" | awk '{print $1}')"
 echo "    .deb packages:     $(find "${STAGING_REPO}" -type f -name '*.deb' | wc -l)"
 echo "    amd64 packages:    $(find "${STAGING_REPO}/amd64" -type f -name '*.deb' 2>/dev/null | wc -l)"
@@ -581,6 +627,6 @@ echo "    Metadata:          Release InRelease Release.gpg Packages Packages.xz 
 echo "    Local mirror tar:  ${DIST_DIR}/${DIST_ARCHIVE}"
 echo ""
 echo "    Users enable the repo with:"
-echo "      curl -fsSLO https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/all/ohpc-release_4.1-1ohpc1~noble_all.deb"
+echo "      curl -fsSLO https://repos.versatushpc.com.br/openhpc/versatushpc-4/${UPDATE_ALIAS}/Ubuntu_24.04/all/ohpc-release_4.1-1ohpc1~noble_all.deb"
 echo "      sudo apt -y install ./ohpc-release_4.1-1ohpc1~noble_all.deb"
 echo "      sudo apt update"

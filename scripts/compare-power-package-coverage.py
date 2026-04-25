@@ -14,10 +14,10 @@ from dataclasses import dataclass
 from urllib.parse import urljoin
 
 RPM_REPOS = {
-    "EL_10": "https://repos.versatushpc.com.br/openhpc/versatushpc-4/EL_10/",
-    "openEuler_24.03": "https://repos.versatushpc.com.br/openhpc/versatushpc-4/openEuler_24.03/",
+    "EL_10": "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/EL_10/",
+    "openEuler_24.03": "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/openEuler_24.03/",
 }
-DEB_REPO = "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/"
+DEB_REPO = "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/"
 RPM_NS = {
     "md": "http://linux.duke.edu/metadata/repo",
     "common": "http://linux.duke.edu/metadata/common",

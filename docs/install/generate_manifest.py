@@ -706,7 +706,7 @@ Examples:
     )
     parser.add_argument(
         "--apt-packages-url",
-        default="https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/Packages",
+        default="https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/Packages",
         help="URL of the Debian Packages metadata file for --generate-apt",
     )
     parser.add_argument(

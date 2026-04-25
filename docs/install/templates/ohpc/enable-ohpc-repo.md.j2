@@ -20,7 +20,7 @@ the repository. The example which follows illustrates installation of the
 {% if is_ubuntu %}
 ```bash
 OHPC_REPO_ROOT="{{ ohpc_repo_server }}{{ ohpc_repo_path }}"
-OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/Ubuntu_24.04"
+OHPC_UBUNTU_REPO="${OHPC_REPO_ROOT}/updates/Ubuntu_24.04"
 OHPC_RELEASE_DEB="{{ ohpc_release_deb }}"
 apt -y install ca-certificates curl
 curl -fsSLO "${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}"
@@ -49,7 +49,7 @@ local mirrors. The tar files also contain a simple bash script to configure the
 package manager to use the local repository after download. To use, simply
 unpack the tarball where you would like to host the local repository and execute
 the `make_repo.sh` script. Tar files for this release can be found at
-[{{ ohpc_repo_server }}{{ ohpc_repo_path }}/Ubuntu_24.04/dist/{{ ohpc_version }}]({{ ohpc_repo_server }}{{ ohpc_repo_path }}/Ubuntu_24.04/dist/{{ ohpc_version }})
+[{{ ohpc_repo_server }}{{ ohpc_repo_path }}/update.{{ ohpc_version }}/Ubuntu_24.04/dist/{{ ohpc_version }}]({{ ohpc_repo_server }}{{ ohpc_repo_path }}/update.{{ ohpc_version }}/Ubuntu_24.04/dist/{{ ohpc_version }})
 {% else %}To facilitate this need, standalone tar archives are
 provided -- one containing a repository of binary packages as well as any
 available updates, and one containing a repository of source RPMS. The tar files

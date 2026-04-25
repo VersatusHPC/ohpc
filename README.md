@@ -30,7 +30,7 @@ on x86_64 across OpenMPI, MPICH, MVAPICH2, and Intel MPI, plus GNU15 OpenMPI,
 MPICH, MVAPICH2, LIKWID, and linkage checks on ppc64el.
 
 Pre-built Debian packages are available at:
-<https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/>
+<https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/>
 
 To enable the Ubuntu repository:
 
@@ -39,7 +39,7 @@ sudo install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
 OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
 curl -fsSL "${OHPC_REPO_ROOT}/versatushpc.gpg" \
   | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null
-curl -fsSL "${OHPC_REPO_ROOT}/Ubuntu_24.04/versatushpc-openhpc.list" \
+curl -fsSL "${OHPC_REPO_ROOT}/updates/Ubuntu_24.04/versatushpc-openhpc.list" \
   | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null
 sudo apt update
 sudo apt install ohpc-release
@@ -76,18 +76,18 @@ conditional (`%ifarch ppc64le`), preserving compatibility with upstream
 x86_64 and aarch64 builds.
 
 Pre-built RPMs are available at:
-<https://repos.versatushpc.com.br/openhpc/versatushpc-4/>
+<https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/>
 
 All packages are signed with the VersatusHPC GPG key. To enable the repo:
 
 ```bash
 # EL10
 curl -o /etc/yum.repos.d/versatushpc-openhpc.repo \
-  https://repos.versatushpc.com.br/openhpc/versatushpc-4/EL_10/versatushpc-openhpc.repo
+  https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/EL_10/versatushpc-openhpc.repo
 
 # openEuler 24.03
 curl -o /etc/yum.repos.d/versatushpc-openhpc.repo \
-  https://repos.versatushpc.com.br/openhpc/versatushpc-4/openEuler_24.03/versatushpc-openhpc.repo
+  https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/openEuler_24.03/versatushpc-openhpc.repo
 ```
 
 ---

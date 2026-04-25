@@ -13,6 +13,10 @@ repo_root="${1:-${script_dir}}"
 
 if [[ -d "${repo_root}/Ubuntu_24.04" ]]; then
     repo_dir="${repo_root}/Ubuntu_24.04"
+elif [[ -d "${repo_root}/updates/Ubuntu_24.04" ]]; then
+    repo_dir="${repo_root}/updates/Ubuntu_24.04"
+elif compgen -G "${repo_root}/update.*/Ubuntu_24.04" >/dev/null; then
+    repo_dir="$(find "${repo_root}" -maxdepth 2 -type d -path '*/update.*/Ubuntu_24.04' | sort -V | tail -n 1)"
 else
     repo_dir="${repo_root}"
 fi

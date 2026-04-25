@@ -5,6 +5,7 @@
 set -euo pipefail
 
 REPO_ROOT="${REPO_ROOT:-https://repos.versatushpc.com.br/openhpc/versatushpc-4}"
+REPO_CHANNEL="${REPO_CHANNEL:-updates}"
 IMAGE="${IMAGE:-ubuntu:24.04}"
 CONTAINER="${CONTAINER:-ubuntu2404-ppc64el-public-validation}"
 WORKDIR="${WORKDIR:-/tmp/ohpc-ppc64el-public-smoke}"
@@ -17,6 +18,7 @@ Usage: $0 [options]
 
 Options:
   --repo-root URL     Repository root (default: ${REPO_ROOT})
+  --repo-channel NAME Repository channel under the root (default: ${REPO_CHANNEL})
   --image NAME       Ubuntu container image (default: ${IMAGE})
   --container NAME   Temporary validation container name (default: ${CONTAINER})
   --workdir PATH     In-container smoke-test workdir (default: ${WORKDIR})
@@ -29,6 +31,7 @@ EOF
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --repo-root) REPO_ROOT="$2"; shift 2 ;;
+        --repo-channel) REPO_CHANNEL="$2"; shift 2 ;;
         --image) IMAGE="$2"; shift 2 ;;
         --container) CONTAINER="$2"; shift 2 ;;
         --workdir) WORKDIR="$2"; shift 2 ;;
@@ -49,6 +52,7 @@ command -v podman >/dev/null 2>&1 || { echo "Error: podman not found" >&2; exit 
 podman rm -f "${CONTAINER}" >/dev/null 2>&1 || true
 podman run --rm -i --name "${CONTAINER}" \
     -e OHPC_REPO_ROOT="${REPO_ROOT}" \
+    -e OHPC_REPO_CHANNEL="${REPO_CHANNEL}" \
     -e OHPC_SMOKE_WORKDIR="${WORKDIR}" \
     -e OHPC_INSTALL_META="${INSTALL_META}" \
     -e OHPC_FULL_LDD="${FULL_LDD}" \
@@ -57,6 +61,12 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND=noninteractive
 repo_root="${OHPC_REPO_ROOT%/}"
+repo_channel="${OHPC_REPO_CHANNEL#/}"
+repo_channel="${repo_channel%/}"
+repo_base="${repo_root}"
+if [[ -n "${repo_channel}" ]]; then
+    repo_base="${repo_root}/${repo_channel}"
+fi
 workdir="${OHPC_SMOKE_WORKDIR}"
 mkdir -p "${workdir}"
 
@@ -304,7 +314,7 @@ apt-get update -qq
 apt-get install -y --no-install-recommends ca-certificates curl file gpg
 install -d -m 0755 /usr/share/keyrings /etc/apt/sources.list.d
 curl -fsSL "${repo_root}/versatushpc.gpg" -o /usr/share/keyrings/versatushpc.gpg
-curl -fsSL "${repo_root}/Ubuntu_24.04/versatushpc-openhpc.list" \
+curl -fsSL "${repo_base}/Ubuntu_24.04/versatushpc-openhpc.list" \
     -o /etc/apt/sources.list.d/versatushpc-openhpc.list
 apt-get update -qq
 

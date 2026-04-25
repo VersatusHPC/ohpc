@@ -423,7 +423,7 @@ using only:
 
 ```text
 https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg
-https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list
+https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/versatushpc-openhpc.list
 ```
 
 Then rerun the head, Warewulf, Slurm, MUNGE, linker, MPI, and IMB checks above.

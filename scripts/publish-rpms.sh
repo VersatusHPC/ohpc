@@ -6,38 +6,93 @@
 # signs them with the VersatusHPC GPG key, generates repository metadata,
 # and syncs to the repo server via SFTP (lftp).
 #
-# Usage: ./publish-rpms.sh [--dry-run]
+# Usage: ./publish-rpms.sh [--dry-run] [--promote]
 #
 
 set -euo pipefail
 
 # ── Local build server settings ──────────────────────────────────────
 LOCAL_USER="${LOCAL_USER:-builder}"
-STAGING_DIR="/home/${LOCAL_USER}/staging/versatushpc-4"
+OHPC_VERSION="${OHPC_VERSION:-4.1}"
+RELEASE_DIR="${RELEASE_DIR:-update.${OHPC_VERSION}}"
+UPDATE_ALIAS="${UPDATE_ALIAS:-updates}"
+STAGING_ROOT="${STAGING_ROOT:-/home/${LOCAL_USER}/staging/versatushpc-4}"
+STAGING_DIR="${STAGING_ROOT}/${RELEASE_DIR}"
 
 # ── Container settings ──────────────────────────────────────────────
-EL10_CONTAINER="el10-builder"
-OE_CONTAINER="oe-builder"
-CONTAINER_RPMBUILD="/root/rpmbuild"
+EL10_CONTAINER="${EL10_CONTAINER:-el10-builder}"
+OE_CONTAINER="${OE_CONTAINER:-oe-builder}"
+CONTAINER_RPMBUILD="${CONTAINER_RPMBUILD:-/root/rpmbuild}"
 
 # ── GPG signing ──────────────────────────────────────────────────────
-GPG_KEY_NAME="VersatusHPC (Repository Signing Key) <support@versatushpc.com.br>"
+GPG_KEY_NAME="${GPG_KEY_NAME:-VersatusHPC (Repository Signing Key) <support@versatushpc.com.br>}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-GPG_PUBLIC_KEY="${SCRIPT_DIR}/../RPM-GPG-KEY-VersatusHPC"
+GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${SCRIPT_DIR}/../RPM-GPG-KEY-VersatusHPC}"
+PROMOTE_SCRIPT="${PROMOTE_SCRIPT:-${SCRIPT_DIR}/promote-update-release.sh}"
 
 # ── Remote repo server settings ──────────────────────────────────────
-REMOTE_USER="reposync"
-REMOTE_HOST="172.21.1.40"
-REMOTE_PATH="/mnt/pool1/repos/openhpc/versatushpc-4"
-SSH_KEY="/home/${LOCAL_USER}/.ssh/id_ed25519_openhpc"
+REMOTE_USER="${REMOTE_USER:-reposync}"
+REMOTE_HOST="${REMOTE_HOST:-172.21.1.40}"
+REMOTE_PATH="${REMOTE_PATH:-/mnt/pool1/repos/openhpc/versatushpc-4}"
+SSH_KEY="${SSH_KEY:-/home/${LOCAL_USER}/.ssh/id_ed25519_openhpc}"
 
 # ── Dry run ──────────────────────────────────────────────────────────
 DRY_RUN=""
 LFTP_DRY_RUN=""
-if [[ "${1:-}" == "--dry-run" ]]; then
-    DRY_RUN="yes"
-    LFTP_DRY_RUN="--dry-run"
-    echo "*** DRY RUN — no files will be transferred ***"
+PROMOTE=""
+
+usage() {
+    echo "Usage: $0 [--dry-run] [--promote]" >&2
+}
+
+validate_remote_name() {
+    local label="$1"
+    local value="$2"
+
+    if [[ ! "${value}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "Error: ${label} must match ^[A-Za-z0-9._-]+$: ${value}" >&2
+        exit 2
+    fi
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run)
+            DRY_RUN="yes"
+            LFTP_DRY_RUN="--dry-run"
+            shift
+            ;;
+        --promote)
+            PROMOTE="yes"
+            shift
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1" >&2
+            usage
+            exit 2
+            ;;
+    esac
+done
+
+if [[ -n "${DRY_RUN}" ]]; then
+    echo "*** DRY RUN - no files will be transferred ***"
+fi
+
+validate_remote_name "RELEASE_DIR" "${RELEASE_DIR}"
+validate_remote_name "UPDATE_ALIAS" "${UPDATE_ALIAS}"
+
+if [[ ! -f "${GPG_PUBLIC_KEY}" ]]; then
+    echo "Error: public repository key not found: ${GPG_PUBLIC_KEY}" >&2
+    exit 1
+fi
+
+if [[ ! -x "${PROMOTE_SCRIPT}" ]]; then
+    echo "Error: promotion helper is not executable: ${PROMOTE_SCRIPT}" >&2
+    exit 1
 fi
 
 # ── Skip staging if dry-run and staging already exists ───────────────
@@ -82,15 +137,43 @@ else
 fi
 
 # ── Sync to repo server via SFTP (lftp) ─────────────────────────────
-echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH} via SFTP"
+REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"
+LFTP_KEY_UPLOADS="
+put -O ${REMOTE_PATH} ${GPG_PUBLIC_KEY};
+"
+if [[ -n "${DRY_RUN}" ]]; then
+    LFTP_KEY_UPLOADS="
+cls -la ${REMOTE_PATH};
+"
+fi
+
+echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_RELEASE_PATH} via SFTP"
 lftp -e "
+set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
 mkdir -p ${REMOTE_PATH};
+mkdir -p ${REMOTE_RELEASE_PATH};
 mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${STAGING_DIR}/ ${REMOTE_PATH}/;
+    ${STAGING_DIR}/ ${REMOTE_RELEASE_PATH}/;
+${LFTP_KEY_UPLOADS}
 bye;
 "
+
+if [[ -n "${PROMOTE}" ]]; then
+    promote_args=()
+    if [[ -n "${DRY_RUN}" ]]; then
+        promote_args+=(--dry-run)
+    fi
+    OHPC_VERSION="${OHPC_VERSION}" \
+    RELEASE_DIR="${RELEASE_DIR}" \
+    UPDATE_ALIAS="${UPDATE_ALIAS}" \
+    REMOTE_USER="${REMOTE_USER}" \
+    REMOTE_HOST="${REMOTE_HOST}" \
+    REMOTE_PATH="${REMOTE_PATH}" \
+    SSH_KEY="${SSH_KEY}" \
+        "${PROMOTE_SCRIPT}" "${promote_args[@]}"
+fi
 
 # ── Summary ──────────────────────────────────────────────────────────
 echo ""
@@ -103,8 +186,9 @@ echo "    openEuler/noarch:     $(find "${STAGING_DIR}/openEuler_24.03/noarch" -
 echo "    openEuler/src:        $(find "${STAGING_DIR}/openEuler_24.03/src" -name '*.rpm' | wc -l)"
 echo ""
 echo "    All RPMs signed with: ${GPG_KEY_NAME}"
-echo "    Repository: sftp://${REMOTE_USER}@${REMOTE_HOST}${REMOTE_PATH}"
+echo "    Release tree: sftp://${REMOTE_USER}@${REMOTE_HOST}${REMOTE_RELEASE_PATH}"
+echo "    Updates alias: ${UPDATE_ALIAS} -> ${RELEASE_DIR} (run with --promote after the full matrix is present)"
 echo ""
 echo "    Users enable the repo with:"
-echo "      EL10:      curl -o /etc/yum.repos.d/versatushpc-openhpc.repo https://repos.versatushpc.com.br/openhpc/versatushpc-4/EL_10/versatushpc-openhpc.repo"
-echo "      openEuler: curl -o /etc/yum.repos.d/versatushpc-openhpc.repo https://repos.versatushpc.com.br/openhpc/versatushpc-4/openEuler_24.03/versatushpc-openhpc.repo"
+echo "      EL10:      curl -o /etc/yum.repos.d/versatushpc-openhpc.repo https://repos.versatushpc.com.br/openhpc/versatushpc-4/${UPDATE_ALIAS}/EL_10/versatushpc-openhpc.repo"
+echo "      openEuler: curl -o /etc/yum.repos.d/versatushpc-openhpc.repo https://repos.versatushpc.com.br/openhpc/versatushpc-4/${UPDATE_ALIAS}/openEuler_24.03/versatushpc-openhpc.repo"

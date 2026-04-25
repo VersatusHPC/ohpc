@@ -127,7 +127,7 @@ In OBS, each variant is a separate package:
 ## Repository Publishing
 
 OBS automatically publishes built packages to an APT repository.
-Configure the publish path in the project meta:
+Configure the build repository in the project meta:
 
 ```xml
 <repository name="Ubuntu_24.04">
@@ -136,11 +136,44 @@ Configure the publish path in the project meta:
 </repository>
 ```
 
+The public mirror follows the upstream OpenHPC 4.x update layout. Each release
+is published under an immutable directory such as `update.4.1/`, and the
+`updates` alias is moved only after the full VersatusHPC matrix is present:
+
+```text
+versatushpc-4/
+  EL_10/                  # historical base release
+  openEuler_24.03/        # historical base release
+  Ubuntu_24.04/           # historical base release
+  update.4.1/
+    EL_10/
+    openEuler_24.03/
+    Ubuntu_24.04/
+  updates -> update.4.1
+```
+
+Publish the OBS amd64 output into the versioned tree first:
+
+```bash
+OHPC_VERSION=4.1 scripts/publish-debs.sh
+```
+
+Then merge the native Ubuntu `ppc64el` output into the same
+`update.4.1/Ubuntu_24.04` tree from the POWER builder, publish the EL10 and
+openEuler POWER RPMs into `update.4.1/`, and promote the completed release:
+
+```bash
+OHPC_VERSION=4.1 scripts/promote-update-release.sh
+```
+
+The promotion helper verifies that the EL10, openEuler, Ubuntu amd64, Ubuntu
+all, Ubuntu ppc64el, and source/metadata paths exist before it moves `updates`.
+
 Users add the repo:
 ```bash
 curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg \
   | sudo tee /usr/share/keyrings/versatushpc.gpg >/dev/null
-curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list \
+curl -fsSL https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/versatushpc-openhpc.list \
   | sudo tee /etc/apt/sources.list.d/versatushpc-openhpc.list >/dev/null
 sudo apt update
 ```

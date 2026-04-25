@@ -30,8 +30,8 @@ the image from rebuilding (it will show an error) and rebuild later with the
     udev kmod linux-image-generic initramfs-tools network-manager openssh-server
   systemctl enable ssh.service
   OHPC_REPO_ROOT=https://repos.versatushpc.com.br/openhpc/versatushpc-4
-  OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/Ubuntu_24.04
-  OHPC_RELEASE_DEB=ohpc-release_4.0-1ohpc4~noble_all.deb
+  OHPC_UBUNTU_REPO=${OHPC_REPO_ROOT}/updates/Ubuntu_24.04
+  OHPC_RELEASE_DEB=ohpc-release_4.1-1ohpc1~noble_all.deb
   curl -fsSLO ${OHPC_UBUNTU_REPO}/all/${OHPC_RELEASE_DEB}
   apt -y install ./${OHPC_RELEASE_DEB}
   rm -f ${OHPC_RELEASE_DEB}
