@@ -43,8 +43,19 @@ do
 		fi
 		u=$(awk '{ print $2 }' <<< "${u}")
 		echo "Trying to get ${u}"
+
+		SOURCE_NAME=${u##*/}
+		if [[ "${u}" != *"#/"* ]] && [[ "${u}" != *"#\$/"* ]]; then
+			CLEAN_URL=${u%%\?*}
+			SOURCE_NAME=$(basename "${CLEAN_URL}")
+		fi
+		if [ -s "../SOURCES/${SOURCE_NAME}" ]; then
+			echo "Source already present: ../SOURCES/${SOURCE_NAME}"
+			continue
+		fi
+
 		# Try to download only if newer
-		WGET=$(wget -N -nv -P ../SOURCES "${u}" 2>&1)
+		WGET=$(wget --timeout=60 --tries=3 -N -nv -P ../SOURCES "${u}" 2>&1)
 		# Handling for github URLs with #/ or #$/
 		if grep -E "#[$]?/" <<< "${u}"; then
 			MV_SOURCE=$(echo "${WGET}" | tail -1 | cut -d\  -f6 | sed -e 's/^"//' -e 's/"$//')
