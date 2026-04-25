@@ -33,7 +33,7 @@ Description: MUNGE authentication service (OpenHPC)
 Package: munge-libs-ohpc
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Provides: libmunge2
+Provides: libmunge2 (= ${binary:Version})
 Conflicts: libmunge2
 Replaces: libmunge2
 Description: MUNGE shared libraries (OpenHPC)
@@ -42,7 +42,7 @@ Description: MUNGE shared libraries (OpenHPC)
 Package: munge-devel-ohpc
 Architecture: any
 Depends: munge-libs-ohpc (= ${binary:Version}), ${misc:Depends}
-Provides: libmunge-dev
+Provides: libmunge-dev (= ${binary:Version})
 Conflicts: libmunge-dev
 Replaces: libmunge-dev
 Description: MUNGE development files (OpenHPC)

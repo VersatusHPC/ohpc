@@ -8,7 +8,8 @@ Build-Depends: debhelper-compat (= 13),
                python3,
                libevent-dev,
                libxml2-dev,
-               hwloc-ohpc
+               hwloc-ohpc,
+               munge-devel-ohpc
 Standards-Version: 4.6.2
 Homepage: https://github.com/openpmix/openpmix
 

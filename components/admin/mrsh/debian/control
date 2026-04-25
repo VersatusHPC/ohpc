@@ -12,7 +12,7 @@ Build-Depends: debhelper-compat (= 13),
                libtool,
                libncurses-dev,
                libpam0g-dev,
-               libmunge-dev
+               munge-devel-ohpc
 Standards-Version: 4.6.2
 Homepage: https://github.com/chaos/mrsh
 
