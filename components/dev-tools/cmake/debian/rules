@@ -6,6 +6,7 @@ INSTALL_PATH  := /opt/ohpc/pub/utils/cmake/$(CMAKE_VERSION)
 OHPC_MODULES  := /opt/ohpc/pub/modulefiles
 PKG           := $(CURDIR)/debian/cmake-ohpc
 SRCDIR        := $(CURDIR)/cmake-$(CMAKE_VERSION)
+CMAKE_BUILD_JOBS ?= 4
 
 %:
 	dh $@
@@ -23,11 +24,11 @@ override_dh_auto_configure:
 		--no-system-libarchive \
 		--no-system-cppdap \
 		--no-qt-gui \
-		--parallel=$$(nproc) \
+		--parallel=$(CMAKE_BUILD_JOBS) \
 		--prefix=$(INSTALL_PATH)
 
 override_dh_auto_build:
-	cd $(SRCDIR) && $(MAKE) -j$$(nproc)
+	cd $(SRCDIR) && $(MAKE) -j$(CMAKE_BUILD_JOBS)
 
 override_dh_auto_install:
 	cd $(SRCDIR) && $(MAKE) install DESTDIR=$(PKG)
