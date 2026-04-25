@@ -1,12 +1,17 @@
-lint: codespell-lint ruff-check-lint ruff-format-lint whitespace-lint shellcheck-lint shfmt-lint clang-format-lint
+lint: codespell-lint gitignore-lint ruff-check-lint ruff-format-lint whitespace-lint shellcheck-lint shfmt-lint clang-format-lint
+
+gitignore-lint:
+	@echo "Checking .gitignore entries are in alphabetical order"
+	python3 check_gitignore_order.py
 
 codespell-lint:
 	@echo "Running 'codespell' on all spec files"
 	cd ../..; codespell $$(find components -name "*.spec") \
-		$$(find docs/recipes) \
+		$$(find docs/install) \
 		README.md \
 		CONTRIBUTING.md \
 		containers \
+		tests/ci/check_gitignore_order.py \
 		tests/ci/check_spec.py \
 		tests/ci/run_build.py \
 		misc/build_order.py \
@@ -14,10 +19,6 @@ codespell-lint:
 		misc/check_for_package_updates.py \
 		misc/dist/count_avail_packages.sh \
 		tests/ci/spec_to_test_mapping.py \
-		tests/ci/test_parse_doc.bats \
-		docs/recipes/install/parse_doc.py \
-		docs/recipes/install/common/vc \
-		docs/recipes/install/common/listohpc \
 		components/admin/prun/SOURCES/prun \
 		components/rms/slurm/SOURCES/slurm.epilog.clean \
 		tests/common/functions \
@@ -98,38 +99,51 @@ codespell-lint:
 		tests/libs/hypre/ohpc-tests/test_mpi_families \
 		tests/libs/mfem/tests/test_module \
 		tests/libs/mfem/tests/parallel/rm_execution \
-		tests/libs/mfem/ohpc-tests/test_mpi_families
+		tests/libs/mfem/ohpc-tests/test_mpi_families \
+		tests/mpi/tests/rm_execution_single_host \
+		tests/mpi/tests/rm_execution_multi_host \
+		tests/mpi/tests/man_page_check \
+		tests/mpi/tests/version_match \
+		tests/compilers/tests/rm_execution \
+		tests/compilers/tests/version_match \
+		tests/compilers/tests/man_pages \
+		tests/compilers/tests/debugger \
+		tests/compilers/ohpc-tests/test_compiler_families
 
 ruff-check-lint:
 	@echo "Running 'ruff check' on selected Python files"
 	ruff check \
+		../../tests/ci/check_gitignore_order.py \
 		../../tests/ci/check_spec.py \
 		../../tests/ci/run_build.py \
 		../../misc/build_order.py \
 		../../misc/check_for_package_updates.py \
 		../../tests/ci/spec_to_test_mapping.py \
-		../../docs/recipes/install/parse_doc.py \
-		../../tests/dev-tools/numpy/tests/MM.py
+		../../tests/dev-tools/numpy/tests/MM.py \
+		../../docs/install/generate_manifest.py \
+		../../docs/install/generate_changelog.py \
+		../../docs/install/mkdoc.py \
+		../../docs/install/wraptext.py
 
 ruff-format-lint:
 	@echo "Running 'ruff format' on selected Python files"
 	ruff format \
+		../../tests/ci/check_gitignore_order.py \
 		../../tests/ci/check_spec.py \
 		../../tests/ci/run_build.py \
 		../../misc/build_order.py \
 		../../misc/check_for_package_updates.py \
 		../../tests/ci/spec_to_test_mapping.py \
-		../../docs/recipes/install/parse_doc.py \
-		../../tests/dev-tools/numpy/tests/MM.py
+		../../tests/dev-tools/numpy/tests/MM.py \
+		../../docs/install/generate_manifest.py \
+		../../docs/install/generate_changelog.py \
+		../../docs/install/mkdoc.py \
+		../../docs/install/wraptext.py
 
 whitespace-lint:
 	@echo "Checking spec files for trailing whitespaces"
 	cd ../../; ! git --no-pager grep -E '\s+$$' \*.spec \
 		\*.md.j2 \
-		tests/ci/test_parse_doc.bats \
-		docs/recipes/install/parse_doc.py \
-		docs/recipes/install/common/vc \
-		docs/recipes/install/common/listohpc \
 		misc/build_order.sh \
 		misc/check_for_package_updates.py \
 		misc/dist/count_avail_packages.sh \
@@ -218,6 +232,15 @@ whitespace-lint:
 		tests/libs/mfem/tests/test_module \
 		tests/libs/mfem/tests/parallel/rm_execution \
 		tests/libs/mfem/ohpc-tests/test_mpi_families \
+		tests/mpi/tests/rm_execution_single_host \
+		tests/mpi/tests/rm_execution_multi_host \
+		tests/mpi/tests/man_page_check \
+		tests/mpi/tests/version_match \
+		tests/compilers/tests/rm_execution \
+		tests/compilers/tests/version_match \
+		tests/compilers/tests/man_pages \
+		tests/compilers/tests/debugger \
+		tests/compilers/ohpc-tests/test_compiler_families \
 		containers/* \
 		\*.tex
 
@@ -232,7 +255,6 @@ shellcheck-lint:
 		../../misc/dist/count_avail_packages.sh \
 		../../tests/ci/prepare-ci-environment.sh \
 		../../tests/ci/setup_slurm_and_run_tests.sh \
-		../../tests/ci/test_parse_doc.bats \
 		../../tests/common/functions \
 		../../components/OHPC_setup_compiler \
 		../../components/OHPC_setup_mpi \
@@ -242,8 +264,6 @@ shellcheck-lint:
 		../../components/compiler-families/intel-compilers-devel/SOURCES/ohpc-update-modules-intel \
 		../../components/mpi-families/impi-devel/SOURCES/ohpc-update-modules-impi \
 		../../components/rms/slurm/SOURCES/slurm.epilog.clean \
-		../../docs/recipes/install/common/vc \
-		../../docs/recipes/install/common/listohpc \
 		../../tests/libs/netcdf/ohpc-tests/netcdf_all_test_mpi_families \
 		../../tests/libs/hdf5/ohpc-tests/test_compiler_families \
 		../../tests/libs/phdf5/ohpc-tests/test_mpi_families \
@@ -329,14 +349,21 @@ shellcheck-lint:
 		../../tests/libs/hypre/ohpc-tests/test_mpi_families \
 		../../tests/libs/mfem/tests/test_module \
 		../../tests/libs/mfem/tests/parallel/rm_execution \
-		../../tests/libs/mfem/ohpc-tests/test_mpi_families
+		../../tests/libs/mfem/ohpc-tests/test_mpi_families \
+		../../tests/mpi/tests/rm_execution_single_host \
+		../../tests/mpi/tests/rm_execution_multi_host \
+		../../tests/mpi/tests/man_page_check \
+		../../tests/mpi/tests/version_match \
+		../../tests/compilers/tests/rm_execution \
+		../../tests/compilers/tests/version_match \
+		../../tests/compilers/tests/man_pages \
+		../../tests/compilers/tests/debugger
 
 shfmt-lint:
 
 	@echo "Running 'shfmt' on selected shell scripts"
 	shfmt \
 		-w -d -ln bats \
-		../../tests/ci/test_parse_doc.bats \
 		../../tests/apps/hpcg/run \
 		../../tests/dev-tools/cuda/cuda \
 		../../tests/dev-tools/cmake/run \
@@ -402,11 +429,20 @@ shfmt-lint:
 		../../tests/libs/hypre/tests/rm_execution \
 		../../tests/libs/hypre/tests/test_module \
 		../../tests/libs/mfem/tests/test_module \
-		../../tests/libs/mfem/tests/parallel/rm_execution
+		../../tests/libs/mfem/tests/parallel/rm_execution \
+		../../tests/mpi/tests/rm_execution_single_host \
+		../../tests/mpi/tests/rm_execution_multi_host \
+		../../tests/mpi/tests/man_page_check \
+		../../tests/mpi/tests/version_match \
+		../../tests/compilers/tests/rm_execution \
+		../../tests/compilers/tests/version_match \
+		../../tests/compilers/tests/man_pages \
+		../../tests/compilers/tests/debugger
 	shfmt -w -d \
 		../../tests/perf-tools/extrae/tests/tracec.sh \
 		../../tests/perf-tools/extrae/tests/tracef.sh \
 		../../tests/ci/prepare-ci-environment.sh \
+		../../tests/ci/setup_slurm_and_run_tests.sh \
 		../../misc/build_order.sh \
 		../../misc/dist/count_avail_packages.sh \
 		../../tests/common/functions \
@@ -417,8 +453,6 @@ shfmt-lint:
 		../../components/compiler-families/intel-compilers-devel/SOURCES/ohpc-update-modules-intel \
 		../../components/mpi-families/impi-devel/SOURCES/ohpc-update-modules-impi \
 		../../components/rms/slurm/SOURCES/slurm.epilog.clean \
-		../../docs/recipes/install/common/vc \
-		../../docs/recipes/install/common/listohpc \
 		../../containers/*.sh \
 		../../containers/examples/mpi/*.sh \
 		../../tests/perf-tools/papi/ohpc-tests/test_compiler_families \
@@ -431,7 +465,8 @@ shfmt-lint:
 		../../tests/libs/openblas/ohpc-tests/test_compiler_families \
 		../../tests/libs/hypre/ohpc-tests/test_mpi_families \
 		../../tests/libs/superlu_dist/ohpc-tests/test_mpi_families \
-		../../tests/libs/mfem/ohpc-tests/test_mpi_families
+		../../tests/libs/mfem/ohpc-tests/test_mpi_families \
+		../../tests/compilers/ohpc-tests/test_compiler_families
 
 clang-format-lint:
 	@echo "Running 'clang-format' on selected source code files"
@@ -465,7 +500,11 @@ clang-format-lint:
 		../../tests/libs/hypre/tests/*.c \
 		../../tests/libs/superlu_dist/tests/*.c \
 		../../tests/libs/mfem/tests/serial/*.cpp \
-		../../tests/libs/mfem/tests/parallel/*.cpp
+		../../tests/libs/mfem/tests/parallel/*.cpp \
+		../../tests/mpi/tests/*.c \
+		../../tests/mpi/tests/*.cpp \
+		../../tests/compilers/tests/*.c \
+		../../tests/compilers/tests/*.cpp
 
 build-ohpc-ci:
 	podman build  -f Containerfile.ohpc-lint -t  ghcr.io/openhpc/ohpc-lint:latest

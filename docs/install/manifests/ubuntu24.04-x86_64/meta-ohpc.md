@@ -1,5 +1,5 @@
 | **Group Name** | **Description** |
-|----------------|----------------|
+|-------|-------------|
 | ohpc-autotools | OpenHPC autotools collection. |
 | ohpc-base | OpenHPC base packages. |
 | ohpc-base-compute | OpenHPC compute node base packages. |

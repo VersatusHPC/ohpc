@@ -25,7 +25,7 @@ ohpc_apt_repo_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubunt
 ohpc_apt_key_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/versatushpc.gpg"
 ohpc_apt_list_url: "https://repos.versatushpc.com.br/openhpc/versatushpc-4/Ubuntu_24.04/versatushpc-openhpc.list"
 ohpc_apt_keyring: "/usr/share/keyrings/versatushpc.gpg"
-ohpc_release_deb: "ohpc-release_4.0-1ohpc4~noble_all.deb"
+ohpc_release_deb: "ohpc-release_4.1-1ohpc1~noble_all.deb"
 
 # Package manager commands
 pkg_manager: "apt"

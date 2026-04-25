@@ -8,11 +8,14 @@
 #   pdf        Build all recipes with PDFs
 #   html       Build all recipes as HTML
 #   check      Run shellcheck on generated scripts
+#   manifest   Regenerate manifest tables from .all files
+#   changelog  Generate ChangeLogs (OLD_REF=v4.0.GA)
 #   clean      Remove generated files
 #   help       Show available targets
 
 PYTHON   ?= python3
 MKDOC    := $(PYTHON) mkdoc.py
+OLD_REF  ?= v4.0.GA
 PANDOC   ?= pandoc
 VC_REVISION := $(shell git log -1 HEAD --pretty=format:%H 2>/dev/null || echo "non-git-checkout")
 VC_DATE     := $(shell git log -1 HEAD --pretty=format:%as 2>/dev/null || date -I)
@@ -58,6 +61,10 @@ PANDOC_FILES  := $(PANDOC_DIR)/format-filters.lua \
                  $(PANDOC_DIR)/codeblock-styles.css
 DEPS          := mkdoc.py $(TEMPLATES) $(MANIFESTS) $(PANDOC_FILES)
 
+# Manifest directories for manifest/changelog targets
+MANIFEST_DIRS := $(wildcard manifests/*/pkg-ohpc.all)
+MANIFEST_DIRS := $(dir $(MANIFEST_DIRS))
+
 # shellcheck exclusions (matching POC conventions)
 #   SC2154: referenced but not assigned (recipe variables)
 #   SC1090: non-constant source
@@ -67,7 +74,7 @@ SHELLCHECK_EXCLUDE := SC2154,SC1090,SC2129
 # Prevent Make from deleting merged config files as intermediates
 .PRECIOUS: build/%.yaml
 
-.PHONY: all script pdf html check clean help
+.PHONY: all script pdf html check manifest changelog clean help
 
 .SECONDEXPANSION:
 
@@ -116,8 +123,21 @@ check: all
 		echo "Warning: shellcheck not installed, skipping."; \
 	fi
 
+manifest:
+	@for d in $(MANIFEST_DIRS); do \
+		echo "Generating manifest tables: $$d"; \
+		$(PYTHON) generate_manifest.py $$d; \
+	done
+
+changelog:
+	@for d in $(MANIFEST_DIRS); do \
+		echo "Generating changelog: $$d"; \
+		$(PYTHON) generate_changelog.py $$d --old-ref $(OLD_REF); \
+	done
+
 clean:
 	rm -f build/*.md build/*.sh build/*.pdf build/*.html build/*.tex build/*.yaml
+	rm -f manifests/*/ChangeLog
 
 help:
 	@echo "Targets:"
@@ -126,6 +146,8 @@ help:
 	@echo "  pdf        Build all recipes with PDFs"
 	@echo "  html       Build all recipes as HTML"
 	@echo "  check      Run shellcheck on generated scripts"
+	@echo "  manifest   Regenerate manifest tables from .all files"
+	@echo "  changelog  Generate ChangeLogs (OLD_REF=$(OLD_REF))"
 	@echo "  clean      Remove generated files"
 	@echo "  help       Show this message"
 	@echo ""

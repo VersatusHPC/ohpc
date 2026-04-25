@@ -17,8 +17,8 @@
 
 Summary: Meta-packages to ease installation
 Name:    meta-packages
-Version: 4.0
-Release: 2
+Version: 4.1
+Release: 1
 License: Apache-2.0
 Group:   %{PROJ_NAME}/meta-package
 URL:     https://github.com/openhpc/ohpc
@@ -69,9 +69,9 @@ Requires:  binutils-devel
 %if 0%{?rhel} || 0%{?openEuler}
 Requires:  man-db
 Requires:  NetworkManager
-%endif
 %if 0%{?rhel}
 Requires:  dnf-utils
+%endif
 %endif
 %if 0%{?suse_version}
 Requires:  glibc-locale
@@ -100,10 +100,10 @@ Requires:  librdmacm
 Requires:  NetworkManager
 Requires:  perl-interpreter
 Recommends: (singularity-ce or singularity or apptainer)
-%endif
 %if 0%{?openEuler}
 # For valgrind on openEuler we need to glibc-debuginfo on the compute nodes
 Requires: glibc-debuginfo
+%endif
 %endif
 %if 0%{?suse_version}
 Requires:  libcairo2
@@ -163,18 +163,6 @@ Requires:  hdf5-%{compiler_family}%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-%{compiler_family}-mpich-io-libs
 Collection of IO library builds for use with GNU compiler toolchain and the MPICH runtime
 %endif
-
-%package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
-Summary:   OpenHPC IO libraries for GNU and MVAPICH2
-Requires:  adios2-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  netcdf-cxx-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  netcdf-fortran-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  netcdf-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  pnetcdf-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  phdf5-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  hdf5-%{compiler_family}%{PROJ_DELIM}
-%description -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
-Collection of IO library builds for use with GNU compiler toolchain and the MVAPICH2 runtime
 
 %package -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-io-libs
 Summary:   OpenHPC IO libraries for GNU and OpenMPI
@@ -317,21 +305,6 @@ Requires:  papi%{PROJ_DELIM}
 Collection of performance tool builds for use with GNU compiler toolchain and the MPICH runtime
 %endif
 
-%package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
-Summary:   OpenHPC performance tools for GNU and MVAPICH2
-Requires:  dimemas-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  extrae-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  imb-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  likwid-%{compiler_family}%{PROJ_DELIM}
-Requires:  omb-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  paraver%{PROJ_DELIM}
-Requires:  tau-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  scalasca-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  scorep-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  papi%{PROJ_DELIM}
-%description -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
-Collection of performance tool builds for use with GNU compiler toolchain and the MVAPICH2 runtime
-
 %package -n %{PROJ_NAME}-%{compiler_family}-%{mpi_family}-perf-tools
 Summary:   OpenHPC performance tools for GNU and OpenMPI
 Requires:  dimemas-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
@@ -373,8 +346,7 @@ Summary:   OpenHPC runtimes for GNU
 Requires:  charliecloud%{PROJ_DELIM}
 %if 0%{?suse_version}
 Requires:  singularity
-%endif
-%if 0%{?rhel} || 0%{?openEuler}
+%else
 Recommends: (singularity-ce or singularity or apptainer)
 %endif
 %description -n %{PROJ_NAME}-%{compiler_family}-runtimes
@@ -438,10 +410,53 @@ Requires:  warewulf-vnfs%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-warewulf
 Collection of base packages for Warewulf provisioning
 
-%if !0%{?openEuler}
 # x86_64 specific groups
 %ifnarch aarch64 ppc64le
 
+%package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
+Summary:   OpenHPC parallel libraries for GNU and MVAPICH2
+Requires:  boost-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  fftw-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  hypre-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  mfem-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  mumps-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  petsc-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  scalapack-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  slepc-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  ptscotch-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  superlu_dist-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  trilinos-%{compiler_family}-mvapich2%{PROJ_DELIM}
+%description -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
+Collection of parallel library builds for use with GNU compiler toolchain and the MVAPICH2 runtime
+
+%package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
+Summary:   OpenHPC IO libraries for GNU and MVAPICH2
+Requires:  adios2-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  netcdf-cxx-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  netcdf-fortran-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  netcdf-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  pnetcdf-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  phdf5-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  hdf5-%{compiler_family}%{PROJ_DELIM}
+%description -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
+Collection of IO library builds for use with GNU compiler toolchain and the MVAPICH2 runtime
+
+%package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
+Summary:   OpenHPC performance tools for GNU and MVAPICH2
+Requires:  dimemas-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  extrae-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  imb-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  likwid-%{compiler_family}%{PROJ_DELIM}
+Requires:  omb-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  paraver%{PROJ_DELIM}
+Requires:  tau-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  scalasca-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  scorep-%{compiler_family}-mvapich2%{PROJ_DELIM}
+Requires:  papi%{PROJ_DELIM}
+%description -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
+Collection of performance tool builds for use with GNU compiler toolchain and the MVAPICH2 runtime
+
+%if !0%{?openEuler}
 %package -n %{PROJ_NAME}-intel-io-libs
 Summary:   OpenHPC IO libraries for Intel(R) oneAPI Toolkit
 Requires:  adios2-%{compiler_family}-impi%{PROJ_DELIM}
@@ -528,22 +543,6 @@ Requires:  phdf5-intel-%{mpi_family}%{PROJ_DELIM}
 Requires:  pnetcdf-intel-%{mpi_family}%{PROJ_DELIM}
 %description -n %{PROJ_NAME}-intel-%{mpi_family}-io-libs
 Collection of IO library builds for use with Intel(R) oneAPI Toolkit and OpenMPI runtime
-
-%package -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
-Summary:   OpenHPC parallel libraries for GNU and MVAPICH2
-Requires:  boost-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  fftw-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  hypre-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  mfem-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  mumps-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  petsc-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  scalapack-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  slepc-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  ptscotch-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  superlu_dist-%{compiler_family}-mvapich2%{PROJ_DELIM}
-Requires:  trilinos-%{compiler_family}-mvapich2%{PROJ_DELIM}
-%description -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
-Collection of parallel library builds for use with GNU compiler toolchain and the MVAPICH2 runtime
 
 %package -n %{PROJ_NAME}-intel-impi-parallel-libs
 Summary:   OpenHPC parallel libraries for Intel(R) oneAPI Toolkit and Intel(R) MPI Library
@@ -733,9 +732,9 @@ Requires:  superlu-intel%{PROJ_DELIM}
 Collection of serial library builds for use with Intel(R) oneAPI Toolkit
 
 %endif
-
+%else
 # aarch64 specific groups
-%ifarch aarch64
+%if !0%{?openEuler}
 
 %package -n %{PROJ_NAME}-arm1-serial-libs
 Summary:   OpenHPC serial libraries for use with Arm Compiler for Linux
@@ -867,12 +866,12 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-slurm-client
 %files -n %{PROJ_NAME}-slurm-server
 %files -n %{PROJ_NAME}-warewulf
-%if !0%{?openEuler}
 # x86_64 specific groups
 %ifnarch aarch64 ppc64le
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-io-libs
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-perf-tools
 %files -n %{PROJ_NAME}-%{compiler_family}-mvapich2-parallel-libs
+%if !0%{?openEuler}
 %files -n %{PROJ_NAME}-intel-io-libs
 %files -n %{PROJ_NAME}-intel-impi-io-libs
 %files -n %{PROJ_NAME}-intel-mpich-io-libs
@@ -890,9 +889,9 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-intel-python3-libs
 %files -n %{PROJ_NAME}-intel-serial-libs
 %endif
-
+%else
 # aarch64 specific groups
-%ifarch aarch64
+%if !0%{?openEuler}
 %files -n %{PROJ_NAME}-arm1-serial-libs
 %files -n %{PROJ_NAME}-arm1-io-libs
 %files -n %{PROJ_NAME}-arm1-perf-tools
@@ -902,4 +901,3 @@ Collection of parallel library builds for use with the Arm Compiler for Linux an
 %files -n %{PROJ_NAME}-arm1-%{mpi_family}-parallel-libs
 %endif
 %endif
-
