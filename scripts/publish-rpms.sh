@@ -140,10 +140,12 @@ fi
 REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"
 LFTP_KEY_UPLOADS="
 put -O ${REMOTE_PATH} ${GPG_PUBLIC_KEY};
+put -O ${REMOTE_RELEASE_PATH} ${STAGING_DIR}/RPM-GPG-KEY-VersatusHPC;
 "
 if [[ -n "${DRY_RUN}" ]]; then
     LFTP_KEY_UPLOADS="
 cls -la ${REMOTE_PATH};
+cls -la ${REMOTE_RELEASE_PATH};
 "
 fi
 
@@ -154,8 +156,12 @@ set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyCh
 open sftp://${REMOTE_HOST};
 mkdir -p ${REMOTE_PATH};
 mkdir -p ${REMOTE_RELEASE_PATH};
+mkdir -p ${REMOTE_RELEASE_PATH}/EL_10;
+mkdir -p ${REMOTE_RELEASE_PATH}/openEuler_24.03;
 mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${STAGING_DIR}/ ${REMOTE_RELEASE_PATH}/;
+    ${STAGING_DIR}/EL_10/ ${REMOTE_RELEASE_PATH}/EL_10/;
+mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
+    ${STAGING_DIR}/openEuler_24.03/ ${REMOTE_RELEASE_PATH}/openEuler_24.03/;
 ${LFTP_KEY_UPLOADS}
 bye;
 "
