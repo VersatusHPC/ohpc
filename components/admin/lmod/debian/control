@@ -8,6 +8,7 @@ Build-Depends: debhelper-compat (= 13),
                lua5.4,
                lua-filesystem,
                lua-posix,
+               pkg-config,
                rsync,
                bc,
                procps
