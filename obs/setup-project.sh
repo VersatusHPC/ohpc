@@ -59,7 +59,7 @@ Optflags: x86_64 -O0
 
 # Ensure Debian package maintainer scripts and dpkg-buildpackage helpers are
 # available in all chroots.
-Preinstall: util-linux
+Preinstall: libblkid1 libmount1 libsmartcols1 libudev1 libuuid1 util-linux
 Support: fakeroot util-linux
 Order: util-linux:tex-common
 
