@@ -54,6 +54,12 @@ process_rules() {
             url="${url//\$\{$var\}/${V[$var]}}"
         done
 
+        # URL tokens can be followed by shell syntax after line continuations,
+        # for example `https://...tar.gz; \`. Strip that syntax before wget.
+        while [[ "$url" == *[\'\"\;\)] ]]; do
+            url="${url%?}"
+        done
+
         # Skip if still has unresolved variables
         if [[ "$outfile" == *'$'* ]] || [[ "$url" == *'$'* ]] || [[ "$url" != http* ]]; then
             continue
@@ -100,3 +106,7 @@ done
 
 echo ""
 echo "=== Complete: $COUNT downloaded, $SKIP already present, $FAIL failed ==="
+
+if [ "$FAIL" -gt 0 ]; then
+    exit 1
+fi
