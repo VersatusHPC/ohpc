@@ -10,7 +10,7 @@ MPI_FAMILY      := openmpi5
 PNAME           := netcdf
 VERSION         := 4.10.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
-HDF5_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/phdf5/2.1.0/lib
+HDF5_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/phdf5/2.1.1/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-c-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="phdf5" bash /build/devel/build-mpi.sh

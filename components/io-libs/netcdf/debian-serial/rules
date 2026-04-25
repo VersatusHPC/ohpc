@@ -9,7 +9,7 @@ COMPILER_FAMILY := gnu15
 PNAME           := netcdf
 VERSION         := 4.10.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
-HDF5_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/hdf5/2.1.0/lib
+HDF5_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/hdf5/2.1.1/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-c-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc
 ENV             := OHPC_MODULES="hdf5" bash /build/devel/build-comp.sh

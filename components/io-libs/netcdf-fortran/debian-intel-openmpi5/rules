@@ -12,7 +12,7 @@ PNAME           := netcdf-fortran
 VERSION         := 4.6.2
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 NETCDF_LIBDIR   := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/netcdf/4.10.0/lib
-HDF5_LIBDIR     := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/phdf5/2.1.0/lib
+HDF5_LIBDIR     := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/phdf5/2.1.1/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="phdf5 netcdf" bash /build/devel/build-mpi.sh
