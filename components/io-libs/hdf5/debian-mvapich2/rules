@@ -10,7 +10,7 @@ MPI_FAMILY      := mvapich2
 export MPI_FAMILY
 PNAME           := phdf5
 BASE_PNAME      := hdf5
-VERSION         := 2.1.0
+VERSION         := 2.1.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(BASE_PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc

@@ -1,19 +1,19 @@
-mvapich2-gnu15-ohpc (2.3.7-1ohpc3~noble) noble; urgency=low
+mvapich2-gnu15-ohpc (4.1-1ohpc3~noble) noble; urgency=low
 
   * Restore MVAPICH2's default CMA behavior; Ubuntu compute nodes now set
     kernel.yama.ptrace_scope=0 via ohpc-base-compute for EL/openEuler parity.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 20:20:00 +0000
 
-mvapich2-gnu15-ohpc (2.3.7-1ohpc2~noble) noble; urgency=low
+mvapich2-gnu15-ohpc (4.1-1ohpc2~noble) noble; urgency=low
 
   * Disable MVAPICH2 CMA by default in the modulefile for Ubuntu.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Fri, 17 Apr 2026 00:00:00 +0000
 
-mvapich2-gnu15-ohpc (2.3.7-1ohpc1~noble) noble; urgency=low
+mvapich2-gnu15-ohpc (4.1-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
-  * MVAPICH2 2.3.7 built with gnu15 compiler family.
+  * MVAPICH2 4.1 built with gnu15 compiler family.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Thu, 27 Mar 2026 18:00:00 +0000

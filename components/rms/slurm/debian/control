@@ -61,8 +61,8 @@ Description: Slurm compute node daemon (OpenHPC)
 Package: slurm-slurmdbd-ohpc
 Architecture: any
 Depends: slurm-ohpc (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Replaces: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
-Breaks: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
+Replaces: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
+Breaks: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
 Description: Slurm database daemon (OpenHPC)
  The slurmdbd daemon manages the Slurm accounting database.
 
@@ -75,16 +75,16 @@ Description: Slurm PMI libraries (OpenHPC)
 Package: slurm-contribs-ohpc
 Architecture: any
 Depends: slurm-ohpc (= ${binary:Version}), perl, ${misc:Depends}
-Replaces: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
-Breaks: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
+Replaces: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
+Breaks: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
 Description: Slurm contributed scripts (OpenHPC)
  Contributed scripts and tools for Slurm.
 
 Package: slurm-example-configs-ohpc
 Architecture: any
 Depends: slurm-ohpc (= ${binary:Version}), ${misc:Depends}
-Replaces: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
-Breaks: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
+Replaces: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
+Breaks: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
 Description: Slurm example configuration files (OpenHPC)
  Example configuration files for Slurm.
 
@@ -121,7 +121,7 @@ Description: Slurm graphical interface (OpenHPC)
 Package: slurm-torque-ohpc
 Architecture: any
 Depends: slurm-perlapi-ohpc (= ${binary:Version}), perl, ${misc:Depends}
-Replaces: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
-Breaks: slurm-ohpc (<< 25.05.6-1ohpc4~noble)
+Replaces: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
+Breaks: slurm-ohpc (<< 25.05.7-1ohpc4~noble)
 Description: Slurm Torque/PBS compatibility wrappers (OpenHPC)
  Torque/PBS compatibility commands (qsub, qstat, etc.) for Slurm.

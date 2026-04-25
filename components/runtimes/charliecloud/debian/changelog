@@ -1,4 +1,4 @@
-charliecloud-ohpc (0.43-1ohpc1~noble) noble; urgency=low
+charliecloud-ohpc (0.44-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

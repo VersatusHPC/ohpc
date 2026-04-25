@@ -1,4 +1,4 @@
-slepc-intel-mpich-ohpc (3.24.3-1ohpc1~noble) noble; urgency=low
+slepc-intel-mpich-ohpc (3.25.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

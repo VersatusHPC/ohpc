@@ -1,4 +1,4 @@
-adios2-gnu15-mpich-ohpc (2.11.0-1ohpc1~noble) noble; urgency=low
+adios2-gnu15-mpich-ohpc (2.12.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

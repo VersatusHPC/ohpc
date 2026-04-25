@@ -6,20 +6,20 @@ puts stderr " "
 puts stderr "This module loads the ScaLAPACK library built with the gnu15 compiler"
 puts stderr "toolchain and the openmpi5 MPI stack."
 puts stderr " "
-puts stderr "\nVersion 2.2.2\n"
+puts stderr "\nVersion 2.2.3\n"
 
 }
 module-whatis "Name: scalapack built with gnu15 compiler and openmpi5 MPI"
-module-whatis "Version: 2.2.2"
+module-whatis "Version: 2.2.3"
 module-whatis "Category: runtime library"
 module-whatis "Description: A subset of LAPACK routines redesigned for heterogeneous computing"
 module-whatis "https://netlib.org/scalapack/"
 
-set     version                     2.2.2
+set     version                     2.2.3
 
 depends-on openblas
 
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/scalapack/2.2.2/lib
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/openmpi5/scalapack/2.2.3/lib
 
-setenv          SCALAPACK_DIR        /opt/ohpc/pub/libs/gnu15/openmpi5/scalapack/2.2.2
-setenv          SCALAPACK_LIB        /opt/ohpc/pub/libs/gnu15/openmpi5/scalapack/2.2.2/lib
+setenv          SCALAPACK_DIR        /opt/ohpc/pub/libs/gnu15/openmpi5/scalapack/2.2.3
+setenv          SCALAPACK_LIB        /opt/ohpc/pub/libs/gnu15/openmpi5/scalapack/2.2.3/lib

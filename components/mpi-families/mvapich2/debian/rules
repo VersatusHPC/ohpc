@@ -6,13 +6,13 @@ export CFLAGS =
 export CXXFLAGS =
 export LDFLAGS =
 
-MVAPICH2_VERSION := 2.3.7
+MVAPICH2_VERSION := 4.1
 COMPILER_FAMILY  := gnu15
 INSTALL_PATH     := /opt/ohpc/pub/mpi/mvapich2-$(COMPILER_FAMILY)/$(MVAPICH2_VERSION)
 MODULE_PATH      := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/mvapich2
 MODULEDEPS_PATH  := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)-mvapich2
 
-SRCDIR           := $(CURDIR)/mvapich2-$(MVAPICH2_VERSION)
+SRCDIR           := $(CURDIR)/mvapich-$(MVAPICH2_VERSION)
 PKG              := $(CURDIR)/debian/mvapich2-$(COMPILER_FAMILY)-ohpc
 
 # Use helper script for compiler environment
@@ -22,11 +22,11 @@ ENV := bash $(CURDIR)/debian/build.sh
 	dh $@
 
 override_dh_auto_configure:
-	test -s SOURCES/mvapich2-$(MVAPICH2_VERSION).tar.gz || \
-		wget -q -O SOURCES/mvapich2-$(MVAPICH2_VERSION).tar.gz \
-			http://mvapich.cse.ohio-state.edu/download/mvapich/mv2/mvapich2-$(MVAPICH2_VERSION).tar.gz
+	test -s SOURCES/mvapich-$(MVAPICH2_VERSION).tar.gz || \
+		wget -q -O SOURCES/mvapich-$(MVAPICH2_VERSION).tar.gz \
+			http://mvapich.cse.ohio-state.edu/download/mvapich/mv2/mvapich-$(MVAPICH2_VERSION).tar.gz
 	rm -rf $(SRCDIR)
-	tar xf SOURCES/mvapich2-$(MVAPICH2_VERSION).tar.gz
+	tar xf SOURCES/mvapich-$(MVAPICH2_VERSION).tar.gz
 	cd $(SRCDIR) && patch -p1 < ../SOURCES/mvapich2-get_cycles.patch || true
 	cd $(SRCDIR) && patch -p1 < ../SOURCES/mpidimpl.opt.patch || true
 	cd $(SRCDIR) && $(ENV) env \

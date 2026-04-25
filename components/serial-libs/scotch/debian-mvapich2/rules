@@ -9,7 +9,7 @@ COMPILER_FAMILY := gnu15
 MPI_FAMILY      := mvapich2
 export MPI_FAMILY
 PNAME           := ptscotch
-VERSION         := 7.0.10
+VERSION         := 7.0.11
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/$(VERSION)
 SRCDIR          := $(CURDIR)/scotch-v$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc

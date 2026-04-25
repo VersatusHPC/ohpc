@@ -5,23 +5,23 @@ proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the PT-Scotch library built with the intel compiler"
 puts stderr "toolchain and the openmpi5 MPI stack."
-puts stderr "\nVersion 7.0.10\n"
+puts stderr "\nVersion 7.0.11\n"
 
 }
 module-whatis "Name: ptscotch built with intel compiler and openmpi5 MPI"
-module-whatis "Version: 7.0.10"
+module-whatis "Version: 7.0.11"
 module-whatis "Category: runtime library"
 module-whatis "Description: Graph, mesh and hypergraph partitioning library (MPI variant)"
 module-whatis "URL https://gitlab.inria.fr/scotch/scotch"
 
-set     version             7.0.10
+set     version             7.0.11
 
-prepend-path    PATH                /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/bin
-prepend-path    MANPATH             /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/share/man
-prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/include
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/lib
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/share/man
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/lib
 
-setenv          PTSCOTCH_DIR        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10
-setenv          PTSCOTCH_BIN        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/bin
-setenv          PTSCOTCH_LIB        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/lib
-setenv          PTSCOTCH_INC        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.10/include
+setenv          PTSCOTCH_DIR        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11
+setenv          PTSCOTCH_BIN        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/bin
+setenv          PTSCOTCH_LIB        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/lib
+setenv          PTSCOTCH_INC        /opt/ohpc/pub/libs/intel/openmpi5/scotch/7.0.11/include

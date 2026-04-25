@@ -91,11 +91,42 @@ command -v ssh >/dev/null 2>&1 || {
     echo "Error: required command not found: ssh" >&2
     exit 1
 }
+command -v lftp >/dev/null 2>&1 || {
+    echo "Error: required command not found: lftp" >&2
+    exit 1
+}
 
 if [[ ! -f "${SSH_KEY}" ]]; then
     echo "Error: SSH key not found: ${SSH_KEY}" >&2
     exit 1
 fi
+
+lftp_cmd() {
+    local commands="$1"
+
+    lftp -e "
+set cmd:fail-exit yes;
+set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
+open sftp://${REMOTE_HOST};
+${commands}
+bye;
+"
+}
+
+remote_path_exists() {
+    local path="$1"
+    lftp_cmd "cls -d ${path};" >/dev/null 2>&1
+}
+
+remote_glob_exists() {
+    local path="$1"
+    local output
+
+    if ! output="$(lftp_cmd "cls -1 ${path};" 2>/dev/null)"; then
+        return 1
+    fi
+    [[ -n "${output}" ]]
+}
 
 required_paths=()
 if [[ -z "${SKIP_MATRIX_CHECK}" ]]; then
@@ -111,64 +142,46 @@ if ((${#required_paths[@]} > 0)); then
     echo "==> Checking required release paths before promotion"
 fi
 
-ssh -i "${SSH_KEY}" -o StrictHostKeyChecking=no -o BatchMode=yes \
-    "${REMOTE_USER}@${REMOTE_HOST}" \
-    bash -s -- "${REMOTE_PATH}" "${RELEASE_DIR}" "${UPDATE_ALIAS}" "${DRY_RUN}" "${required_paths[@]}" <<'REMOTE'
-set -euo pipefail
-
-remote_path="$1"
-release_dir="$2"
-update_alias="$3"
-dry_run="$4"
-shift 4
-
-cd "${remote_path}"
-
-if [[ ! -d "${release_dir}" ]]; then
-    echo "Error: release directory does not exist: ${remote_path}/${release_dir}" >&2
+if ! remote_path_exists "${REMOTE_PATH}/${RELEASE_DIR}"; then
+    echo "Error: release directory does not exist: ${REMOTE_PATH}/${RELEASE_DIR}" >&2
     exit 1
 fi
 
 missing=0
-for required_path in "$@"; do
-    if [[ "${required_path}" == *[\*\?[]* ]]; then
-        if compgen -G "${release_dir}/${required_path}" >/dev/null; then
-            continue
-        fi
-    elif [[ -e "${release_dir}/${required_path}" ]]; then
+for required_path in "${required_paths[@]}"; do
+    if remote_glob_exists "${REMOTE_PATH}/${RELEASE_DIR}/${required_path}"; then
         continue
     fi
 
-    echo "Missing required path: ${release_dir}/${required_path}" >&2
+    echo "Missing required path: ${RELEASE_DIR}/${required_path}" >&2
     missing=1
 done
 if [[ "${missing}" != "0" ]]; then
-    echo "Error: release tree is incomplete; refusing to move ${update_alias}" >&2
+    echo "Error: release tree is incomplete; refusing to move ${UPDATE_ALIAS}" >&2
     exit 1
 fi
 
-if [[ -n "${dry_run}" ]]; then
-    if [[ -L "${update_alias}" ]]; then
-        current="$(readlink "${update_alias}")"
-        echo "Current ${update_alias} target: ${current}"
-    elif [[ -e "${update_alias}" ]]; then
-        echo "Current ${update_alias} exists but is not a symlink"
-    else
-        echo "Current ${update_alias} does not exist"
-    fi
-    echo "Would set ${update_alias} -> ${release_dir}"
+current_alias=""
+if current_alias="$(lftp_cmd "cls -la ${REMOTE_PATH}/${UPDATE_ALIAS};" 2>/dev/null)"; then
+    echo "Current ${UPDATE_ALIAS}: ${current_alias}"
+else
+    echo "Current ${UPDATE_ALIAS} does not exist"
+fi
+
+if [[ -n "${DRY_RUN}" ]]; then
+    echo "Would set ${UPDATE_ALIAS} -> ${RELEASE_DIR}"
     exit 0
 fi
 
-if [[ -e "${update_alias}" && ! -L "${update_alias}" ]]; then
-    backup="${update_alias}.backup.$(date +%Y%m%d%H%M%S)"
-    echo "Existing ${update_alias} is not a symlink; moving it to ${backup}"
-    mv "${update_alias}" "${backup}"
+if [[ -n "${current_alias}" ]]; then
+    first_char="${current_alias:0:1}"
+    if [[ "${first_char}" == "d" ]]; then
+        echo "Error: ${REMOTE_PATH}/${UPDATE_ALIAS} is a directory; refusing to remove it" >&2
+        exit 1
+    else
+        lftp_cmd "rm ${REMOTE_PATH}/${UPDATE_ALIAS};" >/dev/null
+    fi
 fi
 
-tmp_link="${update_alias}.tmp.$$"
-rm -f "${tmp_link}"
-ln -s "${release_dir}" "${tmp_link}"
-mv -Tf "${tmp_link}" "${update_alias}"
-echo "Promoted ${update_alias} -> ${release_dir}"
-REMOTE
+lftp_cmd "ln -s ${RELEASE_DIR} ${REMOTE_PATH}/${UPDATE_ALIAS};" >/dev/null
+echo "Promoted ${UPDATE_ALIAS} -> ${RELEASE_DIR}"

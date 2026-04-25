@@ -10,9 +10,9 @@ export COMPILER_FAMILY
 MPI_FAMILY      := impi
 export MPI_FAMILY
 PNAME           := slepc
-VERSION         := 3.24.3
+VERSION         := 3.25.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
-PETSC_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/petsc/3.24.4/lib
+PETSC_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/petsc/3.25.0/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas petsc" bash /build/devel/build-mpi.sh

@@ -5,23 +5,23 @@ proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the scotch library built with the gnu15 compiler"
 puts stderr "toolchain."
-puts stderr "\nVersion 7.0.10\n"
+puts stderr "\nVersion 7.0.11\n"
 
 }
 module-whatis "Name: scotch built with gnu15 compiler"
-module-whatis "Version: 7.0.10"
+module-whatis "Version: 7.0.11"
 module-whatis "Category: runtime library"
 module-whatis "Description: Graph, mesh and hypergraph partitioning library"
 module-whatis "URL https://gitlab.inria.fr/scotch/scotch"
 
-set     version             7.0.10
+set     version             7.0.11
 
-prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/bin
-prepend-path    MANPATH             /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/share/man
-prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/include
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/lib
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/share/man
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/lib
 
-setenv          SCOTCH_DIR          /opt/ohpc/pub/libs/gnu15/scotch/7.0.10
-setenv          SCOTCH_BIN          /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/bin
-setenv          SCOTCH_LIB          /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/lib
-setenv          SCOTCH_INC          /opt/ohpc/pub/libs/gnu15/scotch/7.0.10/include
+setenv          SCOTCH_DIR          /opt/ohpc/pub/libs/gnu15/scotch/7.0.11
+setenv          SCOTCH_BIN          /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/bin
+setenv          SCOTCH_LIB          /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/lib
+setenv          SCOTCH_INC          /opt/ohpc/pub/libs/gnu15/scotch/7.0.11/include

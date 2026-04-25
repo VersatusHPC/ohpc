@@ -8,7 +8,7 @@ export FFLAGS =
 
 COMPILER_FAMILY := gnu15
 PNAME           := numpy
-VERSION         := 2.4.3
+VERSION         := 2.4.4
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
 DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 PIP_FIND_LINKS  := --no-index --find-links=../SOURCES/pip-wheels

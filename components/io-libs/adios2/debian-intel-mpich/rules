@@ -10,7 +10,7 @@ export COMPILER_FAMILY
 MPI_FAMILY      := mpich
 export MPI_FAMILY
 PNAME           := adios2
-VERSION         := 2.11.0
+VERSION         := 2.12.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/ADIOS2-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc

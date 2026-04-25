@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-VERSION     := 4.0.0
+VERSION     := 4.1.0
 OHPC_PUB    := /opt/ohpc/pub
 PKG         := $(CURDIR)/debian/docs-ohpc
 DOCS_ROOT   := $(if $(wildcard $(CURDIR)/docs/recipes/install),$(CURDIR)/docs,$(abspath $(CURDIR)/../../../docs))

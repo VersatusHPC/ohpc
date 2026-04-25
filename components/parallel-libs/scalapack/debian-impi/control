@@ -11,6 +11,7 @@ Build-Depends: debhelper-compat (= 13),
                hwloc-ohpc,
                ucx-ohpc,
                pmix-ohpc,
+               cmake,
                make
 Standards-Version: 4.6.2
 Homepage: https://netlib.org/scalapack/

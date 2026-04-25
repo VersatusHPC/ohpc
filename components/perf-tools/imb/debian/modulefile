@@ -5,18 +5,18 @@ proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the Intel MPI Benchmarks built with the gnu15 compiler"
 puts stderr "toolchain and the openmpi5 MPI stack."
-puts stderr "\nVersion 2021.10\n"
+puts stderr "\nVersion 2021.11\n"
 
 }
 module-whatis "Name: IMB built with gnu15 compiler and openmpi5 MPI"
-module-whatis "Version: 2021.10"
+module-whatis "Version: 2021.11"
 module-whatis "Category: performance tool"
 module-whatis "Description: Intel MPI Benchmarks"
 module-whatis "URL: https://github.com/intel/mpi-benchmarks"
 
-set     version             2021.10
+set     version             2021.11
 
-prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openmpi5/imb/2021.10/bin
+prepend-path    PATH                /opt/ohpc/pub/libs/gnu15/openmpi5/imb/2021.11/bin
 
-setenv          IMB_DIR             /opt/ohpc/pub/libs/gnu15/openmpi5/imb/2021.10
-setenv          IMB_BIN             /opt/ohpc/pub/libs/gnu15/openmpi5/imb/2021.10/bin
+setenv          IMB_DIR             /opt/ohpc/pub/libs/gnu15/openmpi5/imb/2021.11
+setenv          IMB_BIN             /opt/ohpc/pub/libs/gnu15/openmpi5/imb/2021.11/bin

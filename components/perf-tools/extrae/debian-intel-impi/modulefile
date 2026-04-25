@@ -5,22 +5,22 @@ proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the extrae library built with the intel compiler"
 puts stderr "toolchain and the impi MPI stack."
-puts stderr "\nVersion 5.0.3\n"
+puts stderr "\nVersion 5.0.4\n"
 
 }
 module-whatis "Name: extrae built with intel compiler and impi MPI"
-module-whatis "Version: 5.0.3"
+module-whatis "Version: 5.0.4"
 module-whatis "Category: performance tool"
 module-whatis "Description: Extrae instrumentation framework for parallel applications"
 module-whatis "URL: https://tools.bsc.es"
 
-set     version             5.0.3
+set     version             5.0.4
 
-prepend-path    PATH                /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3/bin
-prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3/include
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3/lib
+prepend-path    PATH                /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4/bin
+prepend-path    INCLUDE             /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4/include
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4/lib
 
-setenv          EXTRAE_DIR          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3
-setenv          EXTRAE_BIN          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3/bin
-setenv          EXTRAE_LIB          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3/lib
-setenv          EXTRAE_INC          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.3/include
+setenv          EXTRAE_DIR          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4
+setenv          EXTRAE_BIN          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4/bin
+setenv          EXTRAE_LIB          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4/lib
+setenv          EXTRAE_INC          /opt/ohpc/pub/libs/intel/impi/extrae/5.0.4/include

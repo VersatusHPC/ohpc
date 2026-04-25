@@ -3,22 +3,22 @@
 proc ModulesHelp { } {
 puts stderr " "
 puts stderr "This module loads the mpich library built with Intel compilers."
-puts stderr "\nVersion 5.0.0\n"
+puts stderr "\nVersion 5.0.1\n"
 }
 
 module-whatis "Name: mpich built with Intel compilers"
-module-whatis "Version: 5.0.0"
+module-whatis "Version: 5.0.1"
 module-whatis "Category: runtime library"
 module-whatis "Description: MPICH MPI implementation"
 module-whatis "URL: https://www.mpich.org"
 
-set     version             5.0.0
+set     version             5.0.1
 
-setenv          MPI_DIR             /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.0
-prepend-path    PATH                /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.0/bin
-prepend-path    MANPATH             /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.0/share/man
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.0/lib
+setenv          MPI_DIR             /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.1
+prepend-path    PATH                /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.1/bin
+prepend-path    MANPATH             /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.1/share/man
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.1/lib
 prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/intel-mpich
-prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.0/lib/pkgconfig
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.1/lib/pkgconfig
 
 family "MPI"

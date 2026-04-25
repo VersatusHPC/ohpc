@@ -2,7 +2,7 @@
 
 COMPILER_FAMILY := gnu15
 PNAME           := scotch
-VERSION         := 7.0.10
+VERSION         := 7.0.11
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-v$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc

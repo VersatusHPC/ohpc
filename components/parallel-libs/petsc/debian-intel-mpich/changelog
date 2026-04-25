@@ -1,4 +1,4 @@
-petsc-intel-mpich-ohpc (3.24.4-1ohpc1~noble) noble; urgency=low
+petsc-intel-mpich-ohpc (3.25.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

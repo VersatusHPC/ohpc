@@ -1,36 +1,36 @@
-docs-ohpc (4.0.0-1ohpc6~noble) noble; urgency=low
+docs-ohpc (4.1.0-1ohpc6~noble) noble; urgency=low
 
   * Keep Ubuntu local mirror tarball references under Ubuntu_24.04.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 18:05:56 -0300
 
-docs-ohpc (4.0.0-1ohpc5~noble) noble; urgency=low
+docs-ohpc (4.1.0-1ohpc5~noble) noble; urgency=low
 
   * Polish Ubuntu repository setup and optional NVIDIA GPU recipe.
   * Document local APT mirror helper parity with upstream make_repo.sh flow.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 -0300
 
-docs-ohpc (4.0.0-1ohpc4~noble) noble; urgency=low
+docs-ohpc (4.1.0-1ohpc4~noble) noble; urgency=low
 
   * Align the Ubuntu Warewulf/Slurm guide with package-owned setup steps.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 00:00:00 -0300
 
-docs-ohpc (4.0.0-1ohpc3~noble) noble; urgency=low
+docs-ohpc (4.1.0-1ohpc3~noble) noble; urgency=low
 
   * Build the Ubuntu Warewulf/Slurm install guide from the upstream-style
     LaTeX recipe source.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 13:45:00 -0300
 
-docs-ohpc (4.0.0-1ohpc2~noble) noble; urgency=low
+docs-ohpc (4.1.0-1ohpc2~noble) noble; urgency=low
 
   * Build and install Ubuntu Warewulf/Slurm install guide artifacts.
 
  -- VersatusHPC <packages@versatushpc.com.br>  Sat, 18 Apr 2026 12:50:00 -0300
 
-docs-ohpc (4.0.0-1ohpc1~noble) noble; urgency=low
+docs-ohpc (4.1.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

@@ -7,7 +7,7 @@ export LDFLAGS =
 
 COMPILER_FAMILY := gnu15
 PNAME           := hdf5
-VERSION         := 2.1.0
+VERSION         := 2.1.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-ohpc

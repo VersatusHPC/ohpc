@@ -1,4 +1,4 @@
-imb-intel-mpich-ohpc (2021.10-1ohpc1~noble) noble; urgency=low
+imb-intel-mpich-ohpc (2021.11-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

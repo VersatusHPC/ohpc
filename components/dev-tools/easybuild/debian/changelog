@@ -1,4 +1,4 @@
-easybuild-ohpc (5.2.1-1ohpc1~noble) noble; urgency=low
+easybuild-ohpc (5.3.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

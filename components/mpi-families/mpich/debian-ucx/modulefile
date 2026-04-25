@@ -1,15 +1,15 @@
 #%Module1.0#####################################################################
 proc ModulesHelp { } {
 puts stderr "This module loads the mpich library (UCX) built with the gnu15 toolchain."
-puts stderr "\nVersion 5.0.0\n"
+puts stderr "\nVersion 5.0.1\n"
 }
 module-whatis "Name: mpich-ucx built with gnu15 toolchain"
-module-whatis "Version: 5.0.0"
-set     version             5.0.0
-setenv          MPI_DIR             /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.0
-prepend-path    PATH                /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.0/bin
-prepend-path    MANPATH             /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.0/share/man
-prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.0/lib
+module-whatis "Version: 5.0.1"
+set     version             5.0.1
+setenv          MPI_DIR             /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.1
+prepend-path    PATH                /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.1/bin
+prepend-path    MANPATH             /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.1/share/man
+prepend-path    LD_LIBRARY_PATH     /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.1/lib
 prepend-path    MODULEPATH          /opt/ohpc/pub/moduledeps/gnu15-mpich
-prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.0/lib/pkgconfig
+prepend-path    PKG_CONFIG_PATH     /opt/ohpc/pub/mpi/mpich-ucx-gnu15-ohpc/5.0.1/lib/pkgconfig
 family "MPI"

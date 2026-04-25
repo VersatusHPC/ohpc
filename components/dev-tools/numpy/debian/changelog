@@ -1,4 +1,4 @@
-python3-numpy-gnu15-ohpc (2.4.3-1ohpc1~noble) noble; urgency=low
+python3-numpy-gnu15-ohpc (2.4.4-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

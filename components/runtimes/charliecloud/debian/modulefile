@@ -3,19 +3,19 @@
 proc ModulesHelp { } {
         puts stderr " "
         puts stderr "This module loads the charliecloud utility"
-        puts stderr "\nVersion 0.43\n"
+        puts stderr "\nVersion 0.44\n"
 }
 
 module-whatis "Name: charliecloud"
-module-whatis "Version: 0.43"
+module-whatis "Version: 0.44"
 module-whatis "Category: runtime"
 module-whatis "Description: Lightweight user-defined software stacks for high-performance computing"
 module-whatis "URL: https://charliecloud.io/"
 
-set     version             0.43
+set     version             0.44
 
-prepend-path    PATH                /opt/ohpc/pub/libs/charliecloud/0.43/bin
-prepend-path    MANPATH             /opt/ohpc/pub/libs/charliecloud/0.43/share/man
+prepend-path    PATH                /opt/ohpc/pub/libs/charliecloud/0.44/bin
+prepend-path    MANPATH             /opt/ohpc/pub/libs/charliecloud/0.44/share/man
 
-setenv          CHARLIECLOUD_DIR    /opt/ohpc/pub/libs/charliecloud/0.43
-setenv          CHARLIECLOUD_BIN    /opt/ohpc/pub/libs/charliecloud/0.43/bin
+setenv          CHARLIECLOUD_DIR    /opt/ohpc/pub/libs/charliecloud/0.44
+setenv          CHARLIECLOUD_BIN    /opt/ohpc/pub/libs/charliecloud/0.44/bin

@@ -1,4 +1,4 @@
-scalapack-gnu15-openmpi5-ohpc (2.2.2-1ohpc1~noble) noble; urgency=low
+scalapack-gnu15-openmpi5-ohpc (2.2.3-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

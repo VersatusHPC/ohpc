@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-MPICH_VERSION   := 5.0.0
+MPICH_VERSION   := 5.0.1
 COMPILER_FAMILY := gnu15
 INSTALL_PATH    := /opt/ohpc/pub/mpi/mpich-ofi-$(COMPILER_FAMILY)-ohpc/$(MPICH_VERSION)
 MODULE_PATH     := /opt/ohpc/pub/moduledeps/$(COMPILER_FAMILY)/mpich

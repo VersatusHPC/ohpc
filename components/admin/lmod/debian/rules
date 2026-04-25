@@ -2,7 +2,7 @@
 
 OHPC_ADMIN := /opt/ohpc/admin
 OHPC_MODULES := /opt/ohpc/pub/modulefiles
-LMOD_VERSION := 9.0.5
+LMOD_VERSION := 9.2
 PKG := $(CURDIR)/debian/lmod-ohpc
 
 %:

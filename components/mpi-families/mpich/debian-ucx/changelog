@@ -1,4 +1,4 @@
-mpich-ucx-gnu15-ohpc (5.0.0-1ohpc1~noble) noble; urgency=low
+mpich-ucx-gnu15-ohpc (5.0.1-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 

@@ -9,7 +9,7 @@ export LD_LIBRARY_PATH := /opt/ohpc/admin/pmix/lib:/opt/ohpc/pub/libs/hwloc/lib:
 export LIBRARY_PATH = /opt/ohpc/admin/pmix/lib:/opt/ohpc/pub/libs/hwloc/lib
 export CPPFLAGS = -I/opt/ohpc/admin/pmix/include -I/opt/ohpc/pub/libs/hwloc/include
 
-SLURM_VERSION := 25.05.6
+SLURM_VERSION := 25.05.7
 INSTALL_PATH  := /usr
 HWLOC_PATH    := /opt/ohpc/pub/libs/hwloc
 PMIX_PATH     := /opt/ohpc/admin/pmix

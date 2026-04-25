@@ -1,4 +1,4 @@
-extrae-gnu15-mpich-ohpc (5.0.3-1ohpc1~noble) noble; urgency=low
+extrae-gnu15-mpich-ohpc (5.0.4-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
 
