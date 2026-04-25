@@ -6,8 +6,7 @@ Build-Depends: debhelper-compat (= 13),
                ohpc-buildroot,
                wget,
                m4,
-               help2man,
-               texinfo
+               help2man
 Standards-Version: 4.6.2
 Homepage: https://github.com/westes/flex
 

@@ -26,7 +26,7 @@ override_dh_auto_build:
 		./configure CFLAGS="-D_GNU_SOURCE" \
 			--prefix=$(INSTALL_PATH) \
 			--disable-shared && \
-		make -j$$(nproc)
+		make -j$$(nproc) MAKEINFO=true
 
 override_dh_auto_install:
 	cd $(SRCDIR) && make DESTDIR=$(PKG) install
