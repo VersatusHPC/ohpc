@@ -20,10 +20,12 @@ process_rules() {
     declare -A V
     while IFS= read -r line; do
         local name val
-        name=$(echo "$line" | sed 's/^\s*export\s*//; s/\s*[:?]*=.*//')
-        val=$(echo "$line" | sed 's/[^=]*=\s*//')
-        V["$name"]="$val"
-    done < <(grep -E '^\s*(export\s+)?[A-Z_]+\s*[:?]*=\s*[a-zA-Z0-9_./-]+\s*$' "$rules" 2>/dev/null)
+        if [[ "$line" =~ ^[[:space:]]*(export[[:space:]]+)?([A-Z_][A-Z0-9_]*)[[:space:]]*:?=[[:space:]]*([^[:space:]#]+)[[:space:]]*$ ]]; then
+            name="${BASH_REMATCH[2]}"
+            val="${BASH_REMATCH[3]}"
+            V["$name"]="$val"
+        fi
+    done < "$rules"
 
     # Find all wget lines in the file, join continuation lines
     local content
