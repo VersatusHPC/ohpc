@@ -39,9 +39,11 @@ process_rules() {
         outfile=$(echo "$wgetline" | grep -oP -- '-O\s+\K\S+')
         [ -z "$outfile" ] && continue
 
-        # Extract URL
+        # Extract URL. Some rules use a URL-valued make variable such as
+        # $(GNU_MIRROR)/path, so capture variable-prefixed tokens too and
+        # check for http(s) after variable substitution below.
         local url
-        url=$(echo "$wgetline" | grep -oP 'https?://\S+' | tail -1)
+        url=$(echo "$wgetline" | grep -oP '(https?://|\$\([A-Z_][A-Z0-9_]*\)|\$\{[A-Z_][A-Z0-9_]*\})\S+' | tail -1)
         [ -z "$url" ] && continue
 
         # Substitute variables in both outfile and url
@@ -53,7 +55,7 @@ process_rules() {
         done
 
         # Skip if still has unresolved variables
-        if [[ "$outfile" == *'$'* ]] || [[ "$url" == *'$'* ]]; then
+        if [[ "$outfile" == *'$'* ]] || [[ "$url" == *'$'* ]] || [[ "$url" != http* ]]; then
             continue
         fi
 
