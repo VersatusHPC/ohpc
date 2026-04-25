@@ -91,15 +91,10 @@ process_rules() {
 echo "=== Downloading source tarballs for OBS builds ==="
 echo ""
 
-# Process only the first (primary) debian/rules for each component
-# Variants share the same SOURCES/ directory
-declare -A seen_components
+# Process every Debian rules variant. Most variants share SOURCES and will
+# skip already-present tarballs, but meta-package variants can fetch distinct
+# upstream archives from the same component directory.
 for rules in $(find "$REPO_ROOT/components" -maxdepth 4 -path "*/debian/rules" -o -path "*/debian-*/rules" 2>/dev/null | sort); do
-    comp_dir="$(cd "$(dirname "$rules")/.."; pwd)"
-    # Skip if we've already processed this component
-    [ -n "${seen_components[$comp_dir]}" ] && continue
-    seen_components["$comp_dir"]=1
-
     process_rules "$rules"
 done
 

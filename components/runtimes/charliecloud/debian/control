@@ -6,6 +6,7 @@ Build-Depends: debhelper-compat (= 13),
                ohpc-buildroot,
                make,
                gcc,
+               pkg-config,
                python3
 Standards-Version: 4.6.2
 Homepage: https://charliecloud.io/
