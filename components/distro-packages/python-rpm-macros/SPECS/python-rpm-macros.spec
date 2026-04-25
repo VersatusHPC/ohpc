@@ -8,7 +8,7 @@ Summary:        RPM macros for building of Python modules
 License:        WTFPL
 Group:          %{PROJ_NAME}/distro-packages
 Url:            https://github.com/opensuse/multipython-macros
-Source:         python-rpm-macros-%{version}.tar.bz2
+Source0:        python-rpm-macros-%{version}.tar.bz2
 Source100:      README.packaging
 Source101:      update.sh
 Patch1:         specfile_search.patch
@@ -45,4 +45,3 @@ install -m 644 macros.python_all %{buildroot}%{install_path}
 
 %files
 %{install_path}/macros.python_all
-

@@ -22,7 +22,9 @@ URL:	  https://github.com/westes/flex
 Source0:  https://github.com/westes/flex/releases/download/v%{version}/flex-%{version}.tar.gz
 
 BuildRequires: gcc-c++
+%if !0%{?openEuler}
 BuildRequires: help2man
+%endif
 BuildRequires: m4
 
 # Install path

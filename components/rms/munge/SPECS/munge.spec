@@ -36,6 +36,7 @@ BuildRequires:	pkgconfig
 
 BuildRequires:	zlib-devel systemd gcc make
 Conflicts: munge
+Provides: munge = %{version}-%{release}
 
 Source0:   https://github.com/dun/munge/archive/munge-%{version}.tar.gz
 # 6/12/14 karl.w.schulz@intel.com - logdir patch for use with Warewulf
@@ -58,12 +59,14 @@ Summary:	Headers and libraries for developing applications using MUNGE
 Group:		Development/Libraries
 Requires:	%{pname}-libs%{PROJ_DELIM} = %{version}-%{release}
 Conflicts: %{pname}-devel
+Provides: %{pname}-devel = %{version}-%{release}
 
 %package -n %{pname}-libs%{PROJ_DELIM}
 Summary:	Libraries for applications using MUNGE
 Group:		System Environment/Libraries
 Requires:	%{pname}%{PROJ_DELIM} = %{version}-%{release}
 Conflicts: %{pname}-libs
+Provides: %{pname}-libs = %{version}-%{release}
 
 %description
 MUNGE (MUNGE Uid 'N' Gid Emporium) is an authentication service for creating

@@ -78,6 +78,12 @@ RUN cd /tmp && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/yaml-cpp-*.rpm && \
     rm -f yaml-cpp-0.7.0-1.src.rpm
 
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/libyaml-0.2.5-6.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps libyaml-0.2.5-6.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/libyaml-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libyaml-devel-*.rpm && \
+    rm -f libyaml-0.2.5-6.oe2403.src.rpm
+
 # Clean up SRPM rebuild artifacts
 RUN rm -rf /root/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,SRPMS}/*
 

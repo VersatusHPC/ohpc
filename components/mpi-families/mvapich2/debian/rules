@@ -37,8 +37,7 @@ override_dh_auto_configure:
 		--libdir=$(INSTALL_PATH)/lib \
 		--enable-cxx \
 		--enable-g=dbg \
-		--with-device=ch3:mrail \
-		--disable-ibv-dlopen \
+		--with-device=ch4:ucx \
 		--enable-fast=O3 || { cat $(SRCDIR)/config.log | tail -100; exit 1; }
 
 override_dh_auto_build:
