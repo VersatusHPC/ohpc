@@ -88,7 +88,9 @@ BuildRequires:  binutils >= 2.30
 BuildRequires:  make >= 3.80
 BuildRequires:  gettext-devel >= 0.14.5
 BuildRequires:  flex >= 2.5.4
+%if !0%{?openEuler}
 BuildRequires:  texinfo >= 4.7
+%endif
 BuildRequires:  m4 >= 1.4.6
 %if 0%{?sle_version} || 0%{?suse_version}
 BuildRequires:  fdupes

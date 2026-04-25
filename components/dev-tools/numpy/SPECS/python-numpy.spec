@@ -35,7 +35,10 @@ BuildRequires:  python3-meson-python
 BuildRequires:  %{python_prefix}-pip
 BuildRequires:  ninja-build
 BuildRequires:  pkg-config
-BuildRequires:  fdupes gcc
+BuildRequires:  gcc
+%if 0%{?suse_version}
+BuildRequires:  fdupes
+%endif
 # ppc64le: fix VSX3 intrinsics used when building with -mcpu=power9 baseline
 # https://github.com/numpy/numpy/pull/29627
 Patch0:         numpy-ppc64le-vsx-fix.patch

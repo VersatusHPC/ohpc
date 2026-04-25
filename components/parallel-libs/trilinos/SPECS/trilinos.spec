@@ -37,7 +37,9 @@ Requires:       python3
 
 BuildRequires:  make
 BuildRequires:  cmake
+%if !0%{?openEuler}
 BuildRequires:  doxygen
+%endif
 BuildRequires:  expat
 BuildRequires:  graphviz
 BuildRequires:  libxml2-devel
