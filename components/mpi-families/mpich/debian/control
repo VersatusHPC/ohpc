@@ -10,6 +10,8 @@ Build-Depends: debhelper-compat (= 13),
                zlib1g-dev,
                libnl-3-dev,
                libnuma-dev,
+               libibverbs-dev,
+               librdmacm-dev,
                libfabric-dev,
                rdma-core
 Standards-Version: 4.6.2
