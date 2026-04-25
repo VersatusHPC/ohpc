@@ -51,7 +51,10 @@ reader = csv.DictReader(open("/etc/os-release"), delimiter="=")
 skip_ci_specs = []
 skip_ci_specs_env = os.getenv("SKIP_CI_SPECS")
 if skip_ci_specs_env:
-    skip_ci_specs = skip_ci_specs_env.rstrip().split()
+    skip_ci_specs = [
+        item[2:] if item.startswith("./") else item
+        for item in skip_ci_specs_env.rstrip().split()
+    ]
 
 for row in reader:
     key = row.pop("NAME")
@@ -250,6 +253,12 @@ def setup_local_repo():
     return True
 
 
+def normalize_spec_path(path):
+    while path.startswith("./"):
+        path = path[2:]
+    return path
+
+
 def build_srpm_and_rpm(
     command, mpi_family=None, compiler_family=None, not_mpi_dependent=False
 ):
@@ -395,7 +404,7 @@ for spec in specfiles:
         continue
     just_spec = os.path.basename(spec)
     total += 1
-    if spec in skip_ci_specs:
+    if normalize_spec_path(spec) in skip_ci_specs:
         logging.info("--> Skipping spec file %s" % spec)
         skipped.append(just_spec)
         continue
