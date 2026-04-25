@@ -36,7 +36,12 @@ osc api -X PUT "/source/VersatusHPC:OHPC:4/_meta" -d '
     Native Debian packaging with full compiler x MPI matrix.
   </description>
   <repository name="Ubuntu_24.04">
-    <path project="Ubuntu:24.04" repository="universe"/>
+    <path project="openSUSE.org:Ubuntu:24.04" repository="standard"/>
+    <path project="openSUSE.org:Ubuntu:24.04" repository="update"/>
+    <path project="openSUSE.org:Ubuntu:24.04" repository="universe"/>
+    <path project="openSUSE.org:Ubuntu:24.04" repository="universe-update"/>
+    <path project="openSUSE.org:Ubuntu:24.04" repository="backports"/>
+    <path project="openSUSE.org:Ubuntu:24.04" repository="universe-backports"/>
     <arch>x86_64</arch>
   </repository>
 </project>'
@@ -52,8 +57,10 @@ Macros:
 # Disable dpkg hardening flags (OHPC sets its own via OHPC_setup_compiler)
 Optflags: x86_64 -O0
 
-# Ensure fakeroot is available for dpkg-buildpackage in all chroots
-Support: fakeroot
+# Ensure Debian package maintainer scripts and dpkg-buildpackage helpers are
+# available in all chroots.
+Preinstall: util-linux
+Support: fakeroot util-linux
 
 # Build order hints
 Prefer: ohpc-filesystem ohpc-buildroot lmod-ohpc
