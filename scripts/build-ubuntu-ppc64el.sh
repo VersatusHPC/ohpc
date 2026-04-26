@@ -215,7 +215,8 @@ build_entry() {
             mk-build-deps --install --remove \
                 --tool "apt-get -y --no-install-recommends" \
                 debian/control
-            dpkg-buildpackage -us -uc -sa
+            dpkg-buildpackage -S -us -uc -sa
+            dpkg-buildpackage -b -us -uc
             find "$(dirname "${work}")" -maxdepth 1 -type f \
                 \( -name "*.deb" -o -name "*.dsc" -o -name "*.tar.*" -o -name "*.changes" -o -name "*.buildinfo" \) \
                 -exec mv -f {} "${out}/" \;
