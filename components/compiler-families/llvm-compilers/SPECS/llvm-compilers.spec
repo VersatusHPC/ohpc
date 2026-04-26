@@ -163,12 +163,13 @@ ninja %{?_smp_mflags} -v
 
 cd $STAGE2
 # GCC 14+ can emit __cxa_call_terminate into the stage1 static libc++ archive.
-# Link the stage2 build tools against the system libstdc++ DSO so lld can
-# resolve that bootstrap-only ABI helper while still using libc++ for LLVM.
+# Link the stage2 build tools against the system libstdc++ DSO and GCC builtins
+# archive so lld can resolve bootstrap-only ABI helpers while still using libc++
+# for LLVM.
 # The stage2 OpenMP runtime also uses long-double complex helpers that LLVM 10's
 # ppc64le compiler-rt builtins archive does not provide. Keep compiler-rt as the
 # default runtime, but let libomp pull the missing GCC builtins statically.
-LIBOMP_GCC_BUILTINS="$(gcc --print-libgcc-file-name)"
+STAGE2_GCC_BUILTINS="$(gcc --print-libgcc-file-name)"
 cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX="%{install_path}" \
@@ -183,7 +184,7 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DCMAKE_EXE_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
       -DCMAKE_SHARED_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
       -DCMAKE_MODULE_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
-      -DCMAKE_CXX_STANDARD_LIBRARIES="-lc++abi -lunwind %{_libdir}/libstdc++.so.6" \
+      -DCMAKE_CXX_STANDARD_LIBRARIES="-lc++abi -lunwind %{_libdir}/libstdc++.so.6 $STAGE2_GCC_BUILTINS" \
       -DLLVM_TABLEGEN=$BOOTSTRAP/bin/llvm-tblgen \
       -DLLVM_OPTIMIZED_TABLEGEN=On \
       -DLLVM_CONFIG_PATH=$BOOTSTRAP/bin/llvm-config \
@@ -231,7 +232,7 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DLIBCXX_CXX_ABI_INCLUDE_PATHS="$MAIN/libcxxabi/include" \
       -DLIBOMP_ENABLE_SHARED=On \
       -DLIBOMP_ENABLE_STATIC=Off \
-      -DLIBOMP_LIBFLAGS="-lm $LIBOMP_GCC_BUILTINS" \
+      -DLIBOMP_LIBFLAGS="-lm $STAGE2_GCC_BUILTINS" \
       -DLIBOMP_FORTRAN_MODULES=Off \
       -DLIBOMP_COPY_EXPORTS=Off \
       -DLIBOMP_USE_HWLOC=Off \
