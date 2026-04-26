@@ -101,7 +101,10 @@ RUN cd /tmp && \
 
 RUN cd /tmp && \
     wget -q ${OE_SRC}/libical-3.0.17-1.oe2403.src.rpm && \
-    rpmbuild --rebuild --nodeps libical-3.0.17-1.oe2403.src.rpm && \
+    rpm -ivh libical-3.0.17-1.oe2403.src.rpm && \
+    perl -0pi -e 's/  -DICAL_GLIB_VAPI:BOOL=true \\\n/  -DICAL_GLIB_VAPI:BOOL=true \\\n  -DENABLE_GTK_DOC:BOOL=false \\\n/' /root/rpmbuild/SPECS/libical.spec && \
+    sed -i '/gtk-doc\/html/d' /root/rpmbuild/SPECS/libical.spec && \
+    rpmbuild -ba --nodeps /root/rpmbuild/SPECS/libical.spec && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/libical-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libical-devel-*.rpm && \
     rm -f libical-3.0.17-1.oe2403.src.rpm
 

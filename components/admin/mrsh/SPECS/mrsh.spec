@@ -26,6 +26,7 @@ Source0: https://github.com/chaos/mrsh/archive/%{version}.tar.gz#/mrsh-%{version
 Patch1:  mrsh-pam-suse.patch
 Patch2:  mrlogin-Don-t-use-union-wait.patch
 Patch3:  Add-force-to-libtoolize.patch
+Patch4:  mrsh-pam-const-item.patch
 BuildRequires: ncurses-devel pam-devel munge-devel make
 Requires: munge
 Provides: mrsh
@@ -68,6 +69,7 @@ rsh compatibility package for mrcp/mrlogin/mrsh
 %endif
 %patch -P 2 -p1
 %patch -P 3 -p1
+%patch -P 4 -p1
 ./autogen.sh
 
 %build

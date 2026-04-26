@@ -1,0 +1,39 @@
+diff --git a/mrlogind/auth.c b/mrlogind/auth.c
+index 7b472f5..27dbd63 100644
+--- a/mrlogind/auth.c
++++ b/mrlogind/auth.c
+@@ -76,6 +76,7 @@
+ #include <syslog.h>
+ #include <unistd.h>
+ #include <string.h>
++#include <grp.h>
+ 
+ #include <security/pam_appl.h>
+ #include <security/pam_misc.h>
+@@ -134,7 +135,7 @@ int auth_checkauth(const char *remoteuser, const char *host,
+ 
+     static struct pam_conv conv = { sock_conv, NULL };
+     struct passwd *pwd;
+-    char *ln;
++    const void *ln;
+     int retval;
+ 
+     retval = pam_start("mrlogin", localuser, &conv, &pamh);
+@@ -159,7 +160,7 @@ int auth_checkauth(const char *remoteuser, const char *host,
+     }
+ 
+     pam_get_item(pamh, PAM_USER, &ln);
+-    if (!ln || !*ln) {
++    if (!ln || !*(const char *)ln) {
+ 	/*
+ 	 * Authentication wasn't adequate for requirements.
+ 	 * Fall through to login quietly; don't let the
+@@ -174,7 +175,7 @@ int auth_checkauth(const char *remoteuser, const char *host,
+     /*
+      * PAM is apparently willing to change the username on us. (!?)
+      */
+-    strncpy(localuser, ln, localusersize-1);
++    strncpy(localuser, (const char *)ln, localusersize-1);
+     localuser[localusersize-1] = 0;
+ 
+     /*

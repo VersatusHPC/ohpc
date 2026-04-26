@@ -231,6 +231,7 @@ def setup_local_repo():
                 f.write("baseurl=file://%s\n" % rpmbuild_rpms_dir)
                 f.write("enabled=1\n")
                 f.write("gpgcheck=0\n")
+                f.write("metadata_expire=0\n")
             logging.info("Configured local DNF repository at %s" % repo_file)
         else:
             success, _ = run_command(
@@ -249,6 +250,21 @@ def setup_local_repo():
             logging.info("Configured local zypper repository")
 
         local_repo_configured = True
+
+    if dnf_based:
+        success, _ = run_command(
+            [
+                "dnf",
+                "-q",
+                "--disablerepo=*",
+                "--enablerepo=local-ohpc-ci",
+                "clean",
+                "all",
+            ]
+        )
+        if not success:
+            logging.error("Failed to clean local DNF repository metadata")
+            return False
 
     return True
 
