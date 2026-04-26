@@ -64,6 +64,23 @@ sed -i 's/libcheck.a/libcheck.so/g' test/unit/CMakeLists.txt
 
 mkdir gotcha-build
 
+cmake_c_compiler="${CC}"
+cmake_cxx_compiler="${CXX}"
+cmake_c_launcher_args=
+cmake_cxx_launcher_args=
+case "${cmake_c_compiler}" in
+    ccache\ *)
+        cmake_c_compiler="${cmake_c_compiler#ccache }"
+        cmake_c_launcher_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache"
+        ;;
+esac
+case "${cmake_cxx_compiler}" in
+    ccache\ *)
+        cmake_cxx_compiler="${cmake_cxx_compiler#ccache }"
+        cmake_cxx_launcher_args="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+        ;;
+esac
+
 # CMAKE_CXX_FLAGS_DEBUG set to -O0 to prevent possible test failures
 # due to -O3 set in OHPC_setup_compiler. Does not affect actual
 # GOTCHA build.
@@ -72,8 +89,10 @@ cmake \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
     -DGOTCHA_ENABLE_TESTS=ON \
-    -DCMAKE_C_COMPILER=${CC} \
-    -DCMAKE_CXX_COMPILER=${CXX} \
+    -DCMAKE_C_COMPILER="${cmake_c_compiler}" \
+    -DCMAKE_CXX_COMPILER="${cmake_cxx_compiler}" \
+    ${cmake_c_launcher_args} \
+    ${cmake_cxx_launcher_args} \
     -DCMAKE_CXX_FLAGS_DEBUG="-O0" \
     -DDEPENDENCIES_PREINSTALLED=TRUE \
     -S . \
