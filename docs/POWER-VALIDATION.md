@@ -22,7 +22,7 @@ advertised to POWER clients.
 
    The expected EL10/openEuler difference is only rebuilt openEuler support
    libraries needed because the openEuler 24.03 ppc64le OS repository is thin:
-   `freeipmi`, `gpgme`, `libedit`, `libfabric`, `libical`, `libsysfs`,
+   `flex`, `freeipmi`, `gpgme`, `libedit`, `libfabric`, `libical`, `libsysfs`,
    `libtool-ltdl`, `lua`, `lua-filesystem`, `opensm`, `postgresql`, `swig`,
    `sysfsutils`, `texinfo`, `yaml-cpp`, and `zstd`. Any OpenHPC package delta
    is release-blocking.

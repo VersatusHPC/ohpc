@@ -21,6 +21,7 @@ RPM_NS = {
     "rpm": "http://linux.duke.edu/metadata/rpm",
 }
 OPEN_EULER_SUPPORT_PREFIXES = (
+    "flex",
     "freeipmi",
     "gpgme",
     "libedit",
