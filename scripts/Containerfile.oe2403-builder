@@ -152,7 +152,7 @@ RUN cd /tmp && \
     wget -q ${OE_SRC}/swig-4.1.1-1.oe2403.src.rpm && \
     rpm -ivh swig-4.1.1-1.oe2403.src.rpm && \
     sed -i 's/ help2man//' /root/rpmbuild/SPECS/swig.spec && \
-    sed -i '/help2man -N --section 1/c\printf ".TH SWIG 1\\n.SH NAME\\nswig - Simplified Wrapper and Interface Generator\\n" > %{name}.1' /root/rpmbuild/SPECS/swig.spec && \
+    sed -i '/help2man -N --section 1 .* -o %{name}.1/c\printf ".TH SWIG 1\\n.SH NAME\\nswig - Simplified Wrapper and Interface Generator\\n" > %{name}.1' /root/rpmbuild/SPECS/swig.spec && \
     perl -0pi -e 's/%check\n.*?(?=\n%files)/%check\n# Disabled for ppc64le builder bootstrap: SWIG test suites fail in the minimal image.\n/s' /root/rpmbuild/SPECS/swig.spec && \
     rpmbuild -ba --nodeps /root/rpmbuild/SPECS/swig.spec && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/swig-[0-9]*.rpm && \
