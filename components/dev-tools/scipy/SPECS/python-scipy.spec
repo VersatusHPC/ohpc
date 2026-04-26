@@ -97,6 +97,8 @@ for helper in \
 do
     test ! -f "${helper}" || chmod +x "${helper}"
 done
+sed -i "/^f2py = find_program('f2py')/d" scipy/meson.build
+sed -i "/^f2py_version = run_command/s|.*|f2py_version = run_command(py3, ['-c', 'import numpy; print(numpy.__version__)'], check: true).stdout().strip()|" scipy/meson.build
 
 %build
 # OpenHPC compiler/mpi designation
