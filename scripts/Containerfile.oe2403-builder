@@ -203,7 +203,7 @@ RUN cd /tmp && \
 
 RUN cd /tmp && \
     wget -q ${OE_SRC}/postgresql-15.6-1.oe2403.src.rpm && \
-    rpmbuild --rebuild --nodeps postgresql-15.6-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps --define 'runselftest 0' postgresql-15.6-1.oe2403.src.rpm && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/postgresql-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/postgresql-server-*.rpm /root/rpmbuild/RPMS/ppc64le/postgresql-contrib-*.rpm && \
     rm -f postgresql-15.6-1.oe2403.src.rpm
 
