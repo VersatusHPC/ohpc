@@ -104,7 +104,7 @@ PKG_CONFIG_PATH="${OPENBLAS_LIB}/pkgconfig:${PKG_CONFIG_PATH}" \
 %ohpc_setup_compiler
 
 %__python -m pip install --prefix=%{install_path} --root=%{buildroot} \
-	--no-index --find-links=dist --no-deps numpy
+	--no-index --find-links=dist --no-deps --ignore-installed numpy
 
 %if 0%{?suse_version}
 %fdupes -s %{buildroot}%{install_path}
