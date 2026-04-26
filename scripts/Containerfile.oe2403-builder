@@ -32,7 +32,7 @@ RUN dnf -y install \
         make autoconf automake libtool cmake \
         bison flex patch file hostname \
         git wget curl \
-        python3 python3-devel python3-setuptools \
+        python3 python3-devel python3-setuptools python3-packaging \
         vala \
         lua lua-devel \
         perl perl-devel perl-Encode-devel \
@@ -127,6 +127,17 @@ RUN cd /tmp && \
     rpmbuild --rebuild --nodeps patchelf-0.16.0-1.oe2403.src.rpm && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/patchelf-[0-9]*.rpm && \
     rm -f patchelf-0.16.0-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/python-pyproject-metadata-0.7.1-1.oe2403.src.rpm && \
+    rpm -ivh python-pyproject-metadata-0.7.1-1.oe2403.src.rpm && \
+    sed -i '/^BuildRequires:[[:space:]]*python3-wheel/d' /root/rpmbuild/SPECS/python-pyproject-metadata.spec && \
+    sed -i '/^Summary:[[:space:]]*PEP 621 metadata parsing/a Provides:       python3.11dist(pyproject-metadata) = %{version}\nProvides:       python3dist(pyproject-metadata) = %{version}' /root/rpmbuild/SPECS/python-pyproject-metadata.spec && \
+    perl -0pi -e 's/%build\n%pyproject_build\n\n%install\n%pyproject_install/%build\nprintf "from setuptools import setup\\nsetup()\\n" > setup.py\n\/usr\/bin\/python3 setup.py build\n\n%install\n\/usr\/bin\/python3 setup.py install --skip-build --root %{buildroot} --prefix %{_prefix}/' /root/rpmbuild/SPECS/python-pyproject-metadata.spec && \
+    sed -i 's#%{python3_sitelib}/pyproject_metadata-.*.dist-info/#%{python3_sitelib}/pyproject_metadata*.egg-info#' /root/rpmbuild/SPECS/python-pyproject-metadata.spec && \
+    rpmbuild -ba --nodeps --without tests /root/rpmbuild/SPECS/python-pyproject-metadata.spec && \
+    dnf -y install /root/rpmbuild/RPMS/noarch/python3-pyproject-metadata-[0-9]*.rpm && \
+    rm -f python-pyproject-metadata-0.7.1-1.oe2403.src.rpm
 
 RUN cd /tmp && \
     wget -q ${OE_SRC}/python-meson-python-0.15.0-1.oe2403.src.rpm && \
