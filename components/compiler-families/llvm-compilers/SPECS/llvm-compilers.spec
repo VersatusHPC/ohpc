@@ -162,6 +162,9 @@ ninja %{?_smp_mflags} -v
 %{__mkdir_p} $STAGE2/lib
 
 cd $STAGE2
+# GCC 14+ can emit __cxa_call_terminate into the stage1 static libc++ archive.
+# Link the stage2 build tools against the system libstdc++ DSO so lld can
+# resolve that bootstrap-only ABI helper while still using libc++ for LLVM.
 cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX="%{install_path}" \
@@ -176,7 +179,7 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DCMAKE_EXE_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
       -DCMAKE_SHARED_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
       -DCMAKE_MODULE_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
-      -DCMAKE_CXX_STANDARD_LIBRARIES="-lc++abi -lunwind" \
+      -DCMAKE_CXX_STANDARD_LIBRARIES="-lc++abi -lunwind %{_libdir}/libstdc++.so.6" \
       -DLLVM_TABLEGEN=$BOOTSTRAP/bin/llvm-tblgen \
       -DLLVM_OPTIMIZED_TABLEGEN=On \
       -DLLVM_CONFIG_PATH=$BOOTSTRAP/bin/llvm-config \
