@@ -275,10 +275,10 @@ selected_ldd_audit() {
     done
 
     module purge
-    module load gnu15/15.2.0 mpich/5.0.0-ofi
+    module load gnu15/15.2.0 mpich/5.0.1-ofi
     local mpich_paths=(
-        /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.0/bin/mpicc
-        /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.0/lib/libmpi.so
+        /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.1/bin/mpicc
+        /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.1/lib/libmpi.so
     )
     for path in "${mpich_paths[@]}"; do
         [[ -e "${path}" ]] || die "expected audit path missing: ${path}"
@@ -286,10 +286,10 @@ selected_ldd_audit() {
     done
 
     module purge
-    module load gnu15/15.2.0 mvapich2/2.3.7
+    module load gnu15/15.2.0 mvapich2/4.1
     local mvapich2_paths=(
-        /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7/bin/mpicc
-        /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7/lib/libmpi.so
+        /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1/bin/mpicc
+        /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1/lib/libmpi.so
     )
     for path in "${mvapich2_paths[@]}"; do
         [[ -e "${path}" ]] || die "expected audit path missing: ${path}"
@@ -351,14 +351,14 @@ ohpc_ld_library_path_for() {
     done
 
     case "${item}" in
-        *mpich-ofi-gnu15-ohpc/5.0.0*|*mpich*)
-            add_dir /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.0/lib
+        *mpich-ofi-gnu15-ohpc/5.0.1*|*mpich*)
+            add_dir /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.1/lib
             while IFS= read -r dir; do add_dir "${dir}"; done < <(find /opt/ohpc/pub/libs/gnu15/mpich -type d \( -name lib -o -name lib64 \) -print 2>/dev/null | sort)
             ;;
     esac
     case "${item}" in
-        *mvapich2-gnu15/2.3.7*|*mvapich2*)
-            add_dir /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7/lib
+        *mvapich2-gnu15/4.1*|*mvapich2*)
+            add_dir /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1/lib
             while IFS= read -r dir; do add_dir "${dir}"; done < <(find /opt/ohpc/pub/libs/gnu15/mvapich2 -type d \( -name lib -o -name lib64 \) -print 2>/dev/null | sort)
             ;;
     esac
@@ -416,8 +416,8 @@ set -u
 module use /opt/ohpc/pub/modulefiles
 write_sources
 
-run_stack mpich mpich/5.0.0-ofi /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.0 'HYDRA_LAUNCHER=fork FI_PROVIDER=tcp'
-run_stack mvapich2 mvapich2/2.3.7 /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7 'MV2_ENABLE_AFFINITY=0 MV2_SMP_USE_CMA=0'
+run_stack mpich mpich/5.0.1-ofi /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.1 'HYDRA_LAUNCHER=fork FI_PROVIDER=tcp'
+run_stack mvapich2 mvapich2/4.1 /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1 'MV2_ENABLE_AFFINITY=0 MV2_SMP_USE_CMA=0'
 run_stack openmpi5 openmpi5/5.0.10 /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10 'OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 OMPI_MCA_pml=ob1 OMPI_MCA_btl=self,tcp'
 verify_likwid
 selected_ldd_audit

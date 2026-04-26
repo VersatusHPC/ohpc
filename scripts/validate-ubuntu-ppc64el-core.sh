@@ -171,8 +171,8 @@ set -u
 module use /opt/ohpc/pub/modulefiles
 write_sources
 
-run_stack mpich mpich/5.0.0-ofi /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.0
-run_stack mvapich2 mvapich2/2.3.7 /opt/ohpc/pub/mpi/mvapich2-gnu15/2.3.7 'MV2_ENABLE_AFFINITY=0 MV2_SMP_USE_CMA=0'
+run_stack mpich mpich/5.0.1 /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.1 'HYDRA_LAUNCHER=fork FI_PROVIDER=tcp'
+run_stack mvapich2 mvapich2/4.1 /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1 'MV2_ENABLE_AFFINITY=0 MV2_SMP_USE_CMA=0'
 run_stack openmpi5 openmpi5/5.0.10 /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10 'OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1'
 
 section "Result"
