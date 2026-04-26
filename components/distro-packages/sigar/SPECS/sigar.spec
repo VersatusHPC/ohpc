@@ -87,11 +87,13 @@ sed -i '1i include_directories(/usr/include/tirpc)' src/CMakeLists.txt
 echo "TARGET_LINK_LIBRARIES(sigar tirpc)" >> src/CMakeLists.txt
 sed -i "/ADD_SUBDIRECTORY(tests/d; /ENABLE_TESTING/d; /INCLUDE(CTest)/d" CMakeLists.txt
 
-%cmake
-%cmake_build
+cmake -S . -B build \
+    -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
+    -DBUILD_SHARED_LIBS:BOOL=ON
+cmake --build build --parallel %{?_smp_build_ncpus}
 
 %install
-%cmake_install
+DESTDIR=%{buildroot} cmake --install build
 
 %post -p /sbin/ldconfig
 
