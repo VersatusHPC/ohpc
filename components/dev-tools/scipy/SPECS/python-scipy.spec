@@ -33,16 +33,16 @@ License:        BSD-3-Clause
 Group:          %{PROJ_NAME}/dev-tools
 Url:            http://www.scipy.org
 Source0:        https://github.com/scipy/scipy/releases/download/v%{version}/%{pname}-%{version}.tar.gz
-Source1:        pip-wheels/beniget-0.4.2.post1-py3-none-any.whl
-Source2:        pip-wheels/gast-0.6.0-py3-none-any.whl
-Source3:        pip-wheels/meson-1.10.2-py3-none-any.whl
-Source4:        pip-wheels/meson_python-0.19.0-py3-none-any.whl
-Source5:        pip-wheels/packaging-26.0-py3-none-any.whl
-Source6:        pip-wheels/ply-3.11-py2.py3-none-any.whl
-Source7:        pip-wheels/pybind11-3.0.3-py3-none-any.whl
-Source8:        pip-wheels/pyproject_metadata-0.11.0-py3-none-any.whl
-Source9:        pip-wheels/pythran-0.18.1-py3-none-any.whl
-Source10:       pip-wheels/setuptools-82.0.1-py3-none-any.whl
+Source1:        beniget-0.4.2.post1-py3-none-any.whl
+Source2:        gast-0.6.0-py3-none-any.whl
+Source3:        meson-1.10.2-py3-none-any.whl
+Source4:        meson_python-0.19.0-py3-none-any.whl
+Source5:        packaging-26.0-py3-none-any.whl
+Source6:        ply-3.11-py2.py3-none-any.whl
+Source7:        pybind11-3.0.3-py3-none-any.whl
+Source8:        pyproject_metadata-0.11.0-py3-none-any.whl
+Source9:        pythran-0.18.1-py3-none-any.whl
+Source10:       setuptools-82.0.1-py3-none-any.whl
 %if 0%{?sle_version}
 BuildRequires:  fdupes
 %endif
@@ -83,6 +83,7 @@ find . -type f -name "*.py" -exec sed -i "s|#!/usr/bin/env python3||" {} \;
 SCIPY_BUILD_DEPS=%{_builddir}/scipy-build-deps
 rm -rf "${SCIPY_BUILD_DEPS}"
 %__python -m pip install --no-index --no-deps --find-links=%{_sourcedir}/pip-wheels \
+    --find-links=%{_sourcedir} \
     --prefix="${SCIPY_BUILD_DEPS}" \
     meson-python meson pybind11 pythran packaging pyproject-metadata beniget gast ply setuptools
 SCIPY_BUILD_SITE=$(%__python - <<PY
