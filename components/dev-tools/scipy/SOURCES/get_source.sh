@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+cd "$(dirname "$0")"
+
 for wheel in \
     beniget-0.4.2.post1-py3-none-any.whl \
     gast-0.6.0-py3-none-any.whl \
