@@ -159,6 +159,12 @@ RUN cd /tmp && \
     rm -f swig-4.1.1-1.oe2403.src.rpm
 
 RUN cd /tmp && \
+    wget -q ${OE_SRC}/perl-libintl-perl-1.33-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps perl-libintl-perl-1.33-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/perl-libintl-perl-[0-9]*.ppc64le.rpm && \
+    rm -f perl-libintl-perl-1.33-1.oe2403.src.rpm
+
+RUN cd /tmp && \
     wget -q ${OE_SRC}/texinfo-7.0.3-3.oe2403.src.rpm && \
     rpmbuild --rebuild --nodeps texinfo-7.0.3-3.oe2403.src.rpm && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/texinfo-[0-9]*.rpm && \
