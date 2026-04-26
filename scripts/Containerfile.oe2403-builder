@@ -32,8 +32,9 @@ RUN dnf -y install \
         tcl tcl-devel tk-devel \
         bzip2 bzip2-devel xz xz-devel zstd \
         openssl-devel ncurses-devel readline-devel \
-        libxml2-devel libcurl-devel expat-devel \
+        libxml2-devel libxslt-devel libcurl-devel expat-devel \
         pam-devel numactl-devel libevent-devel \
+        openldap-devel krb5-devel systemd-devel util-linux-devel \
         rdma-core-devel \
         binutils-devel \
         json-c json-glib jsoncpp \
