@@ -14,7 +14,7 @@ INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/
 HYPRE_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/hypre/3.1.0/lib
 METIS_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/metis/5.1.0/lib
 NETCDF_LIBDIR   := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/netcdf/4.10.0/lib
-PETSC_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/petsc/3.24.4/lib
+PETSC_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/petsc/3.25.0/lib
 PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.10/lib
 SUPERLU_LIBDIR  := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/superlu_dist/9.2.1/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
@@ -31,6 +31,7 @@ override_dh_auto_configure:
 	rm -rf $(SRCDIR)
 	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
 	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/mfem-4.9-hypre-timing-redefine.patch
+	cd $(SRCDIR) && patch -p1 < $(CURDIR)/SOURCES/mfem-4.9-petsc-3.25-api.patch
 
 override_dh_auto_build:
 	cd $(SRCDIR) && $(ENV) bash -c '\
