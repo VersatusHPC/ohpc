@@ -74,7 +74,28 @@ leading scientists and engineers.
 
 %prep
 %setup -q -n %{pname}-%{version}
-find . -type f -name "*.py" -exec sed -i "s|#!/usr/bin/env python3||" {} \;
+find . -type f -name "*.py" \
+    ! -path "./scipy/_build_utils/_generate_blas_wrapper.py" \
+    ! -path "./scipy/_build_utils/echo.py" \
+    ! -path "./scipy/_build_utils/tempita.py" \
+    ! -path "./scipy/linalg/_generate_pyx.py" \
+    ! -path "./scipy/sparse/_generate_sparsetools.py" \
+    ! -path "./scipy/special/_generate_pyx.py" \
+    ! -path "./tools/generate_f2pymod.py" \
+    ! -path "./tools/version_utils.py" \
+    -exec sed -i "s|#!/usr/bin/env python3||" {} \;
+for helper in \
+    scipy/_build_utils/_generate_blas_wrapper.py \
+    scipy/_build_utils/echo.py \
+    scipy/_build_utils/tempita.py \
+    scipy/linalg/_generate_pyx.py \
+    scipy/sparse/_generate_sparsetools.py \
+    scipy/special/_generate_pyx.py \
+    tools/generate_f2pymod.py \
+    tools/version_utils.py
+do
+    test ! -f "${helper}" || chmod +x "${helper}"
+done
 
 %build
 # OpenHPC compiler/mpi designation
