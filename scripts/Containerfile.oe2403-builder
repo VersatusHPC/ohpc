@@ -172,8 +172,9 @@ RUN cd /tmp && \
 
 RUN cd /tmp && \
     wget -q ${OE_SRC}/perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm && \
-    rpmbuild --rebuild --nodeps perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm && \
-    dnf -y install /root/rpmbuild/RPMS/noarch/perl-Unicode-EastAsianWidth-[0-9]*.rpm && \
+    rpm -ivh perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm && \
+    tar xf /root/rpmbuild/SOURCES/Unicode-EastAsianWidth-12.0.tar.gz && \
+    install -D -m 0644 Unicode-EastAsianWidth-12.0/lib/Unicode/EastAsianWidth.pm /usr/share/perl5/vendor_perl/Unicode/EastAsianWidth.pm && \
     rm -f perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm
 
 RUN cd /tmp && \
