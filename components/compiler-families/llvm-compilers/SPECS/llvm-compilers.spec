@@ -93,7 +93,8 @@ sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Demangle/MicrosoftDemangle
 # project declarations directly.
 sed -i 's/cmake_minimum_required(VERSION 2.8)/cmake_minimum_required(VERSION 2.8...3.5)/' \
     openmp/runtime/cmake/LibompCheckLinkerFlag.cmake \
-    openmp/cmake/DetectTestCompiler/CMakeLists.txt \
+    openmp/cmake/DetectTestCompiler/CMakeLists.txt
+sed -i 's/cmake_minimum_required(VERSION 3.4.3)/cmake_minimum_required(VERSION 3.4.3...3.5)/' \
     compiler-rt/cmake/Modules/CustomLibcxx/CMakeLists.txt
 
 
