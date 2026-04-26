@@ -11,6 +11,7 @@ export MPI_FAMILY
 PNAME           := scalapack
 VERSION         := 2.2.3
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
+OPENBLAS_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/openblas/0.3.32/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas" bash /build/devel/build-mpi.sh
@@ -35,8 +36,8 @@ override_dh_auto_configure:
 		-DBUILD_SHARED_LIBS=ON \
 		-DBUILD_STATIC_LIBS=OFF \
 		-DSCALAPACK_BUILD_TESTS=OFF \
-		-DLAPACK_LIBRARIES="$${OPENBLAS_LIB}/libopenblas.so" \
-		-DBLAS_LIBRARIES="$${OPENBLAS_LIB}/libopenblas.so"
+		-DLAPACK_LIBRARIES=$(OPENBLAS_LIBDIR)/libopenblas.so \
+		-DBLAS_LIBRARIES=$(OPENBLAS_LIBDIR)/libopenblas.so
 
 override_dh_auto_build:
 	cd $(SRCDIR)/build && $(ENV) $(MAKE) -j$$(nproc)

@@ -118,6 +118,12 @@ RUN cd /tmp && \
     rm -f libtool-2.4.7-3.oe2403.src.rpm
 
 RUN cd /tmp && \
+    wget -q ${OE_SRC}/libassuan-2.5.6-2.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps libassuan-2.5.6-2.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/libassuan-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libassuan-devel-*.rpm && \
+    rm -f libassuan-2.5.6-2.oe2403.src.rpm
+
+RUN cd /tmp && \
     wget -q ${OE_SRC}/gpgme-1.21.0-1.oe2403.src.rpm && \
     rpm -ivh gpgme-1.21.0-1.oe2403.src.rpm && \
     sed -i 's/--enable-languages=cpp,qt,python/--enable-languages=cpp,python/' /root/rpmbuild/SPECS/gpgme.spec && \
