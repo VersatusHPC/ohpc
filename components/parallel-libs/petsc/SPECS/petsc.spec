@@ -98,8 +98,10 @@ PETSC_FC=mpif90
 
 # Wrap with ccache if enabled
 %if "%{?OHPC_USE_CCACHE}" == "yes"
-PETSC_CC="ccache ${PETSC_CC}"
-PETSC_CXX="ccache ${PETSC_CXX}"
+if command -v ccache >/dev/null 2>&1; then
+    PETSC_CC="ccache ${PETSC_CC}"
+    PETSC_CXX="ccache ${PETSC_CXX}"
+fi
 %endif
 
 # gnu-impi finds include/4.8.0/mpi.mod first, unless told not to.

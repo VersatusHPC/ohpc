@@ -106,17 +106,20 @@ export CXXFLAGS="${CXXFLAGS} -Wno-implicit-function-declaration"
 export CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
 export CXXFLAGS="${CXXFLAGS} -Wno-deprecated-declarations"
 
+cmake_ccache_args=
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+if command -v ccache >/dev/null 2>&1; then
+    cmake_ccache_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_Fortran_COMPILER_LAUNCHER=ccache"
+fi
+%endif
+
 mkdir build
 cd build
 cmake   -DCMAKE_INSTALL_PREFIX=%{install_path}                          \
         -DCMAKE_EXE_LINKER_FLAGS:STRING="-fPIC"                         \
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE                              \
         -DCMAKE_BUILD_TYPE:STRING=RELEASE                               \
-%if "%{?OHPC_USE_CCACHE}" == "yes"
-        -DCMAKE_C_COMPILER_LAUNCHER=ccache                              \
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache                            \
-        -DCMAKE_Fortran_COMPILER_LAUNCHER=ccache                        \
-%endif
+        ${cmake_ccache_args}                                            \
         -DBUILD_SHARED_LIBS:BOOL=ON                                     \
         -DCMAKE_SKIP_INSTALL_RPATH:BOOL=ON                              \
         -DCMAKE_SKIP_RPATH:BOOL=ON                                      \

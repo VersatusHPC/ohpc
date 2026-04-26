@@ -102,6 +102,13 @@ export FFLAGS="${FFLAGS} -fallow-argument-mismatch"
 export CFLAGS="${CFLAGS} -std=gnu89"
 %endif
 
+cmake_ccache_args=
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+if command -v ccache >/dev/null 2>&1; then
+    cmake_ccache_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_Fortran_COMPILER_LAUNCHER=ccache"
+fi
+%endif
+
 mkdir build && cd build
 cmake .. \
 	-DCMAKE_INSTALL_PREFIX=%{install_path} \
@@ -113,10 +120,7 @@ cmake .. \
 	-DBUILD_SHARED_LIBS=ON \
 	-DBUILD_STATIC_LIBS=OFF \
 	-DSCALAPACK_BUILD_TESTS=OFF \
-%if "%{?OHPC_USE_CCACHE}" == "yes"
-	-DCMAKE_C_COMPILER_LAUNCHER=ccache \
-	-DCMAKE_Fortran_COMPILER_LAUNCHER=ccache \
-%endif
+	${cmake_ccache_args} \
 	-DLAPACK_LIBRARIES=%{blas_lib} \
 	-DBLAS_LIBRARIES=%{blas_lib}
 make %{?_smp_mflags}

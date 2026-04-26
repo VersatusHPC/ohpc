@@ -68,11 +68,16 @@ module load netcdf
 module load petsc
 module load superlu_dist
 
+mfem_mpicxx=mpicxx
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+if command -v ccache >/dev/null 2>&1; then
+    mfem_mpicxx="ccache mpicxx"
+fi
+%endif
+
 make config \
     PREFIX=%{install_path} \
-%if "%{?OHPC_USE_CCACHE}" == "yes"
-    MPICXX="ccache mpicxx" \
-%endif
+    MPICXX="${mfem_mpicxx}" \
     CXXFLAGS="$CXXFLAGS -fPIC -std=c++17 -Wno-maybe-uninitialized" \
     MFEM_USE_MPI=YES \
     MFEM_USE_LAPACK=NO \

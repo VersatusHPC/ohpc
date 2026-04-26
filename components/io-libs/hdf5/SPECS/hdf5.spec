@@ -77,6 +77,13 @@ export FC=mpif90
 # an undefined reference at link time.
 export FFLAGS="${FCFLAGS} -fno-lto"
 
+cmake_ccache_args=
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+if command -v ccache >/dev/null 2>&1; then
+    cmake_ccache_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+fi
+%endif
+
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=%{install_path} \
       -DCMAKE_BUILD_TYPE=Release             \
@@ -84,10 +91,7 @@ cmake -DCMAKE_INSTALL_PREFIX=%{install_path} \
       -DBUILD_STATIC_LIBS=OFF                \
       -DHDF5_BUILD_FORTRAN=ON                \
       -DHDF5_ENABLE_ZLIB_SUPPORT=ON           \
-%if "%{?OHPC_USE_CCACHE}" == "yes"
-      -DCMAKE_C_COMPILER_LAUNCHER=ccache     \
-      -DCMAKE_CXX_COMPILER_LAUNCHER=ccache   \
-%endif
+      ${cmake_ccache_args}                   \
 %if 0%{?ohpc_mpi_dependent}
       -DHDF5_ENABLE_PARALLEL=ON              \
 %if "%{mpi_family}" == "impi" && "%{compiler_family}" == "gnu15"
