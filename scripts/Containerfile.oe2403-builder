@@ -177,6 +177,24 @@ RUN cd /tmp && \
     install -D -m 0644 Unicode-EastAsianWidth-12.0/lib/Unicode/EastAsianWidth.pm /usr/share/perl5/vendor_perl/Unicode/EastAsianWidth.pm && \
     rm -f perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm
 
+# help2man is not shipped in the openEuler 24.03 ppc64le OS repo, but the
+# texinfo source rebuild only needs it to refresh generated bootstrap manpages.
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'out=' \
+    'while [ $# -gt 0 ]; do' \
+    '  case "$1" in' \
+    '    -o) shift; out="$1" ;;' \
+    '    --output=*) out="${1#--output=}" ;;' \
+    '  esac' \
+    '  shift' \
+    'done' \
+    '[ -n "$out" ] || out=help2man.1' \
+    'name=$(basename "$out" .1)' \
+    'printf ".TH %s 1\n.SH NAME\n%s - generated manual page\n" "$name" "$name" > "$out"' \
+    > /usr/local/bin/help2man && \
+    chmod +x /usr/local/bin/help2man
+
 RUN cd /tmp && \
     wget -q ${OE_SRC}/texinfo-7.0.3-3.oe2403.src.rpm && \
     rpmbuild --rebuild --nodeps texinfo-7.0.3-3.oe2403.src.rpm && \
