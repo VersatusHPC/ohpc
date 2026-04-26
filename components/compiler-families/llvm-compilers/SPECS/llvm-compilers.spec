@@ -173,8 +173,10 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DCMAKE_AR=$BOOTSTRAP/bin/llvm-ar \
       -DCMAKE_RANLIB=$BOOTSTRAP/bin/llvm-ranlib \
       -DCMAKE_LINKER=$BOOTSTRAP/bin/ld.lld \
-      -DCMAKE_EXE_LINKER_FLAGS="-rtlib=compiler-rt -L$STAGE2/lib -Wl,-thinlto-jobs=4" \
-      -DCMAKE_SHARED_LINKER_FLAGS="-rtlib=compiler-rt -L$STAGE2/lib -Wl,-thinlto-jobs=4" \
+      -DCMAKE_EXE_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
+      -DCMAKE_SHARED_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
+      -DCMAKE_MODULE_LINKER_FLAGS="-rtlib=compiler-rt -L$BOOTSTRAP/lib -L$STAGE2/lib -Wl,-rpath,$BOOTSTRAP/lib -Wl,-thinlto-jobs=4" \
+      -DCMAKE_CXX_STANDARD_LIBRARIES="-lc++abi -lunwind" \
       -DLLVM_TABLEGEN=$BOOTSTRAP/bin/llvm-tblgen \
       -DLLVM_OPTIMIZED_TABLEGEN=On \
       -DLLVM_CONFIG_PATH=$BOOTSTRAP/bin/llvm-config \
