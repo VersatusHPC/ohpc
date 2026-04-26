@@ -201,6 +201,25 @@ RUN cd /tmp && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/texinfo-[0-9]*.rpm && \
     rm -f texinfo-7.0.3-3.oe2403.src.rpm
 
+# postgresql-setup generates README.rpm-dist through docbook2txt; the generated
+# text is documentation only and docbook-utils is not available for ppc64le.
+RUN printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'input=' \
+    'while [ $# -gt 0 ]; do' \
+    '  case "$1" in' \
+    '    -d) shift ;;' \
+    '    -*) ;;' \
+    '    *) input="$1" ;;' \
+    '  esac' \
+    '  shift' \
+    'done' \
+    '[ -n "$input" ] || input=docbook2txt.sgml' \
+    'out="${input%.*}.txt"' \
+    'if [ -f "$input" ]; then sed "s/<[^>]*>//g" "$input" > "$out"; else : > "$out"; fi' \
+    > /usr/local/bin/docbook2txt && \
+    chmod +x /usr/local/bin/docbook2txt
+
 RUN cd /tmp && \
     wget -q ${OE_SRC}/postgresql-15.6-1.oe2403.src.rpm && \
     rpmbuild --rebuild --nodeps --define 'runselftest 0' postgresql-15.6-1.oe2403.src.rpm && \
