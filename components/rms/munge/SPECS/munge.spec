@@ -115,10 +115,10 @@ touch "$RPM_BUILD_ROOT"/%{_localstatedir}/run/munge/munged.pid
 
 # karl.w.schulz@intel.com (11/10/14) - remove chkconfig service for newer distros
 %if 0%{?sles_version} || 0%{?suse_version}
-rm "$RPM_BUILD_ROOT"/etc/init.d/munge
+rm -f "$RPM_BUILD_ROOT"/etc/init.d/munge
 %endif
 %if 0%{?rhel} || 0%{?openEuler}
-rm "$RPM_BUILD_ROOT"/etc/rc.d/init.d/munge
+rm -f "$RPM_BUILD_ROOT"/etc/rc.d/init.d/munge "$RPM_BUILD_ROOT"/etc/init.d/munge
 %endif
 
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.la

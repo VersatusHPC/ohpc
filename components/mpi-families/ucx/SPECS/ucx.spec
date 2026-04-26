@@ -99,6 +99,7 @@ This package was built from '' branch, commit c30b7da.
            --disable-debug \
            --disable-assertions \
            --disable-params-check \
+           --without-go \
 	   --libdir=%{install_path}/lib \
            %_enable_arg cma cma \
            %_with_arg cuda cuda \

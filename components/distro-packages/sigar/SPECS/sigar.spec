@@ -37,7 +37,7 @@ Provides:       %{pname}
 # The diff from 1.6.4 is too huge to contemplate cherrypicking from
 Source0:	https://github.com/hyperic/sigar/archive/%{sigar_hash}.tar.gz#/%{pname}-%{version}.tar.gz
 
-BuildRequires:	gcc cmake
+BuildRequires:	gcc cmake libtirpc-devel
 
 Patch100: bz714249-1-cpu-count.patch
 Patch101: bz746288-1-cpu-count-arch.patch
@@ -81,13 +81,17 @@ Header files for developing against the Sigar API
 
 # Fix lib directory
 sed -i.sed s:DESTINATION\ lib:DESTINATION\ %{_lib}: src/CMakeLists.txt
+grep -q "sys/sysmacros.h" src/os/linux/linux_sigar.c || \
+    sed -i '1i #include <sys/sysmacros.h>' src/os/linux/linux_sigar.c
+sed -i '1i include_directories(/usr/include/tirpc)' src/CMakeLists.txt
+echo "TARGET_LINK_LIBRARIES(sigar tirpc)" >> src/CMakeLists.txt
+sed -i "/ADD_SUBDIRECTORY(tests/d; /ENABLE_TESTING/d; /INCLUDE(CTest)/d" CMakeLists.txt
 
 %cmake
-make %{?_smp_mflags}
+%cmake_build
 
 %install
-%cmake
-make install DESTDIR=$RPM_BUILD_ROOT
+%cmake_install
 
 %post -p /sbin/ldconfig
 
