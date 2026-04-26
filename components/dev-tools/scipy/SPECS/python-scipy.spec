@@ -13,6 +13,7 @@
 %define ohpc_compiler_dependent 1
 %define ohpc_mpi_dependent 1
 %define ohpc_python_dependent 1
+%define _lto_cflags %{nil}
 %include %{_sourcedir}/OHPC_macros
 
 %global gnu_family gnu15
