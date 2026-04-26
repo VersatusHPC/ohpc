@@ -25,10 +25,19 @@ RPM_NS = {
 }
 OPEN_EULER_SUPPORT_PREFIXES = (
     "freeipmi",
+    "gpgme",
     "libedit",
     "libfabric",
+    "libical",
+    "libsysfs",
+    "libtool-ltdl",
     "lua",
     "lua-filesystem",
+    "opensm",
+    "postgresql",
+    "swig",
+    "sysfsutils",
+    "texinfo",
     "yaml-cpp",
     "zstd",
 )

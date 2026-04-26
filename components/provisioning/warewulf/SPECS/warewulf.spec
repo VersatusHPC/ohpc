@@ -87,7 +87,11 @@ Requires: ipxe-bootimgs
 # Assume Red Hat/Fedora
 #BuildRequires: system-release ## OHPC Removed
 BuildRequires: systemd
+%if 0%{?openEuler}
+BuildRequires: golang
+%else
 BuildRequires: golang >= 1.22
+%endif
 BuildRequires: firewalld-filesystem
 Requires: nfs-utils
 %if 0%{?rhel} < 8 || 0%{?openEuler}
@@ -136,6 +140,9 @@ system for large clusters of bare metal and/or virtual systems.
 
 
 %build
+%if 0%{?openEuler}
+export PATH=/usr/local/go/bin:$PATH
+%endif
 export OFFLINE_BUILD=1
 make defaults \
     PREFIX=%{_prefix} \

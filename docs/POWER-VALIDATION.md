@@ -22,8 +22,10 @@ advertised to POWER clients.
 
    The expected EL10/openEuler difference is only rebuilt openEuler support
    libraries needed because the openEuler 24.03 ppc64le OS repository is thin:
-   `freeipmi`, `libedit`, `libfabric`, `lua`, `lua-filesystem`, `yaml-cpp`, and
-   `zstd`. Any OpenHPC package delta is release-blocking.
+   `freeipmi`, `gpgme`, `libedit`, `libfabric`, `libical`, `libsysfs`,
+   `libtool-ltdl`, `lua`, `lua-filesystem`, `opensm`, `postgresql`, `swig`,
+   `sysfsutils`, `texinfo`, `yaml-cpp`, and `zstd`. Any OpenHPC package delta
+   is release-blocking.
 
 2. Validate RPM runtime behavior and meta-package closure from the public RPM
    repositories on native POWER:

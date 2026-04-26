@@ -20,6 +20,7 @@ RUN sed -i "s@repo.openeuler.org@repo.huaweicloud.com/openeuler@g" /etc/yum.repo
 # ── System build tools ──────────────────────────────────────────────
 RUN dnf -y install \
         rpm-build \
+        dnf-plugins-core createrepo_c \
         gcc gcc-c++ gcc-gfortran \
         make autoconf automake libtool cmake \
         bison flex patch file hostname \
@@ -47,6 +48,19 @@ RUN dnf -y install \
         check-devel systemtap-sdt-devel \
         gettext-devel \
     && dnf clean all
+
+# Warewulf 4.6 requires Go 1.22+ and mdtoc 1.4.0 requires Go 1.24,
+# but openEuler 24.03 ppc64le only ships Go 1.21 in the OS repository.
+ARG GO_VERSION=1.24.0
+RUN cd /tmp && \
+    wget -q https://go.dev/dl/go${GO_VERSION}.linux-ppc64le.tar.gz && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go${GO_VERSION}.linux-ppc64le.tar.gz && \
+    ln -sf /usr/local/go/bin/go /usr/local/bin/go && \
+    /usr/local/go/bin/go version && \
+    rm -f go${GO_VERSION}.linux-ppc64le.tar.gz
+
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 # ── Rebuild missing -devel packages from SRPMs ─────────────────────
 # openEuler 24.03 ppc64le is missing these in the OS repo.
@@ -83,6 +97,54 @@ RUN cd /tmp && \
     rpmbuild --rebuild --nodeps libyaml-0.2.5-6.oe2403.src.rpm && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/libyaml-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libyaml-devel-*.rpm && \
     rm -f libyaml-0.2.5-6.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/libical-3.0.17-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps libical-3.0.17-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/libical-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libical-devel-*.rpm && \
+    rm -f libical-3.0.17-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/libtool-2.4.7-3.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps libtool-2.4.7-3.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/libtool-ltdl-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libtool-ltdl-devel-*.rpm && \
+    rm -f libtool-2.4.7-3.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/gpgme-1.21.0-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps gpgme-1.21.0-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/gpgme-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/gpgme-devel-*.rpm && \
+    rm -f gpgme-1.21.0-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/opensm-3.3.24-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps opensm-3.3.24-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/opensm-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/opensm-devel-*.rpm && \
+    rm -f opensm-3.3.24-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/sysfsutils-2.1.1-3.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps sysfsutils-2.1.1-3.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/sysfsutils-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libsysfs-devel-*.rpm && \
+    rm -f sysfsutils-2.1.1-3.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/swig-4.1.1-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps swig-4.1.1-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/swig-[0-9]*.rpm && \
+    rm -f swig-4.1.1-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/texinfo-7.0.3-3.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps texinfo-7.0.3-3.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/texinfo-[0-9]*.rpm && \
+    rm -f texinfo-7.0.3-3.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/postgresql-15.6-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps postgresql-15.6-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/postgresql-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/postgresql-server-*.rpm /root/rpmbuild/RPMS/ppc64le/postgresql-contrib-*.rpm && \
+    rm -f postgresql-15.6-1.oe2403.src.rpm
 
 # Clean up SRPM rebuild artifacts
 RUN rm -rf /root/rpmbuild/{BUILD,BUILDROOT,SOURCES,SPECS,SRPMS}/*
