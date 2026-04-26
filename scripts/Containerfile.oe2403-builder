@@ -133,7 +133,7 @@ RUN cd /tmp && \
     perl -0pi -e 's#%\{_includedir\}/\{%\{name\}\.h,%\{name\}\+\+/,q%\{name\}/,QGpgME/\}#%{_includedir}/%{name}.h\n%{_includedir}/%{name}++/#' /root/rpmbuild/SPECS/gpgme.spec && \
     perl -0pi -e 's#%\{_libdir\}/\{lib%\{name\}\.so,lib%\{name\}pp\.so,cmake/Gpgmepp/,libq%\{name\}\.so,cmake/QGpgme/\}#%{_libdir}/lib%{name}.so\n%{_libdir}/lib%{name}pp.so\n%{_libdir}/cmake/Gpgmepp/#' /root/rpmbuild/SPECS/gpgme.spec && \
     rpmbuild -ba --nodeps /root/rpmbuild/SPECS/gpgme.spec && \
-    dnf -y install /root/rpmbuild/RPMS/ppc64le/gpgme-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/gpgme-devel-*.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/gpgme-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/gpgme-devel-*.rpm /root/rpmbuild/RPMS/ppc64le/cpp-gpgme-*.rpm /root/rpmbuild/RPMS/ppc64le/python3-gpgme-*.rpm && \
     rm -f gpgme-1.21.0-1.oe2403.src.rpm
 
 RUN cd /tmp && \
