@@ -112,7 +112,7 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     wget -q ${OE_SRC}/libtool-2.4.7-3.oe2403.src.rpm && \
     rpmbuild --rebuild --nodeps libtool-2.4.7-3.oe2403.src.rpm && \
-    dnf -y install /root/rpmbuild/RPMS/ppc64le/libtool-ltdl-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libtool-ltdl-devel-*.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/libtool-ltdl-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libtool-devel-*.rpm && \
     rm -f libtool-2.4.7-3.oe2403.src.rpm
 
 RUN cd /tmp && \
