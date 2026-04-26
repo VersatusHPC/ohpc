@@ -294,7 +294,7 @@ def setup_local_repo():
                 "--allowerasing",
                 "--disablerepo=*",
                 "--enablerepo=local-ohpc-ci",
-                "upgrade",
+                "distro-sync",
                 "*ohpc*",
             ]
         )
