@@ -26,7 +26,6 @@ RUN dnf -y install \
         bison flex patch file hostname \
         git wget curl \
         python3 python3-devel python3-setuptools \
-        help2man \
         vala \
         lua lua-devel \
         perl perl-devel perl-Encode-devel \
@@ -151,7 +150,10 @@ RUN cd /tmp && \
 
 RUN cd /tmp && \
     wget -q ${OE_SRC}/swig-4.1.1-1.oe2403.src.rpm && \
-    rpmbuild --rebuild --nodeps swig-4.1.1-1.oe2403.src.rpm && \
+    rpm -ivh swig-4.1.1-1.oe2403.src.rpm && \
+    sed -i 's/ help2man//' /root/rpmbuild/SPECS/swig.spec && \
+    sed -i '/help2man -N --section 1/c\printf ".TH SWIG 1\\n.SH NAME\\nswig - Simplified Wrapper and Interface Generator\\n" > %{name}.1' /root/rpmbuild/SPECS/swig.spec && \
+    rpmbuild -ba --nodeps /root/rpmbuild/SPECS/swig.spec && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/swig-[0-9]*.rpm && \
     rm -f swig-4.1.1-1.oe2403.src.rpm
 
