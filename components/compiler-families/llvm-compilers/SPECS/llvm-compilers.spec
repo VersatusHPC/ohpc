@@ -87,15 +87,12 @@ find . -type f -exec sed -i '1s@#! */usr/bin/env python\($\| \)@#!/usr/bin/pytho
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Support/Signals.h
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
 
-# CMake 4 rejects compatibility with policy versions older than 3.5. LLVM 10's
-# OpenMP/compiler-rt create nested try_compile projects that do not inherit the
-# top-level CMAKE_POLICY_VERSION_MINIMUM setting, so update those generated
-# project declarations directly.
-sed -i 's/cmake_minimum_required(VERSION 2.8)/cmake_minimum_required(VERSION 2.8...3.5)/' \
-    openmp/runtime/cmake/LibompCheckLinkerFlag.cmake \
-    openmp/cmake/DetectTestCompiler/CMakeLists.txt
-sed -i 's/cmake_minimum_required(VERSION 3.4.3)/cmake_minimum_required(VERSION 3.4.3...3.5)/' \
-    compiler-rt/cmake/Modules/CustomLibcxx/CMakeLists.txt
+# CMake 4 rejects compatibility with policy versions older than 3.5. LLVM 10
+# creates nested runtime projects that do not inherit the top-level
+# CMAKE_POLICY_VERSION_MINIMUM setting, so update the source policy declarations
+# directly.
+find . \( -name CMakeLists.txt -o -name '*.cmake' \) -exec \
+    sed -i -E 's/cmake_minimum_required\(VERSION (2\.8|3\.1|3\.4\.3)( FATAL_ERROR)?\)/cmake_minimum_required(VERSION \1...3.5\2)/' {} +
 
 
 %build
