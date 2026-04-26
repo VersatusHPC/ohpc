@@ -2,18 +2,20 @@
 
 PNAME           := mdtoc
 VERSION         := 1.4.0
-SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
+COMMIT          := ac8bbee1bddad4318de00c00f44eec8454bf3ff9
+ARCHIVE         := $(PNAME)-$(COMMIT).tar.gz
+SRCDIR          := $(CURDIR)/$(PNAME)-$(COMMIT)
 PKG             := $(CURDIR)/debian/$(PNAME)-ohpc
 
 %:
 	dh $@
 
 override_dh_auto_configure:
-	test -s SOURCES/$(PNAME)-$(VERSION).tar.gz || \
-		wget -q -O SOURCES/$(PNAME)-$(VERSION).tar.gz \
-			https://github.com/kubernetes-sigs/mdtoc/archive/v$(VERSION).tar.gz
+	test -s SOURCES/$(ARCHIVE) || \
+		wget -q -O SOURCES/$(ARCHIVE) \
+			https://github.com/kubernetes-sigs/mdtoc/archive/$(COMMIT)/$(ARCHIVE)
 	rm -rf $(SRCDIR)
-	tar xf SOURCES/$(PNAME)-$(VERSION).tar.gz
+	tar xf SOURCES/$(ARCHIVE)
 	tar xf SOURCES/$(PNAME)-$(VERSION)-vendor.tar.gz -C $(SRCDIR)
 
 override_dh_auto_build:
