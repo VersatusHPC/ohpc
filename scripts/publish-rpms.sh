@@ -95,6 +95,25 @@ if [[ ! -x "${PROMOTE_SCRIPT}" ]]; then
     exit 1
 fi
 
+stage_container_rpms() {
+    local container="$1"
+    local source_dir="$2"
+    local target_dir="$3"
+    local pattern="$4"
+
+    if ! podman exec "${container}" test -d "${source_dir}"; then
+        return 0
+    fi
+
+    if ! podman exec "${container}" bash -lc \
+        "compgen -G '${source_dir}/${pattern}' >/dev/null"; then
+        return 0
+    fi
+
+    podman exec "${container}" bash -lc \
+        "cd '${source_dir}' && tar -cf - ${pattern}" | tar -C "${target_dir}" -xf -
+}
+
 # ── Skip staging if dry-run and staging already exists ───────────────
 if [[ -n "${DRY_RUN}" && -d "${STAGING_DIR}" ]]; then
     echo "==> Dry run: reusing existing staging directory"
@@ -110,15 +129,15 @@ else
 
     # ── Stage EL10 RPMs (extract from container) ───────────────────
     echo "==> Staging EL10 RPMs from container '${EL10_CONTAINER}'"
-    podman cp "${EL10_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/ppc64le/." "${STAGING_DIR}/EL_10/ppc64le/"
-    podman cp "${EL10_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/noarch/."  "${STAGING_DIR}/EL_10/noarch/"
-    podman cp "${EL10_CONTAINER}:${CONTAINER_RPMBUILD}/SRPMS/."        "${STAGING_DIR}/EL_10/src/"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/EL_10/ppc64le" "*ohpc*.rpm"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/EL_10/noarch"  "*ohpc*.rpm"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/EL_10/src"     "*ohpc*.src.rpm"
 
     # ── Stage openEuler RPMs (extract from container) ────────────────
     echo "==> Staging openEuler RPMs from container '${OE_CONTAINER}'"
-    podman cp "${OE_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/ppc64le/." "${STAGING_DIR}/openEuler_24.03/ppc64le/"
-    podman cp "${OE_CONTAINER}:${CONTAINER_RPMBUILD}/RPMS/noarch/."  "${STAGING_DIR}/openEuler_24.03/noarch/"
-    podman cp "${OE_CONTAINER}:${CONTAINER_RPMBUILD}/SRPMS/."        "${STAGING_DIR}/openEuler_24.03/src/"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le" "*ohpc*.rpm"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"  "*ohpc*.rpm"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"     "*ohpc*.src.rpm"
 
     # ── Sign RPMs ────────────────────────────────────────────────────
     echo "==> Signing RPMs with GPG key: ${GPG_KEY_NAME}"
