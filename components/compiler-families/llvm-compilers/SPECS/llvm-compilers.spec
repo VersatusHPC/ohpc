@@ -131,7 +131,7 @@ cmake -DCMAKE_INSTALL_PREFIX="/" \
       -DLIBCXX_INCLUDE_BENCHMARKS=Off \
       -DLIBCXX_INCLUDE_TESTS=Off \
       -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=Off \
-      --enable-optimise -Wno-dev -G Ninja ../llvm
+      -Wno-dev -G Ninja ../llvm
 
 ninja %{?_smp_mflags} -v
 # End Stage 1
