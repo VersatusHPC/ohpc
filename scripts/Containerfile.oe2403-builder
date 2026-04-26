@@ -17,6 +17,13 @@ FROM docker.io/openeuler/openeuler:24.03-lts
 # ── Use Huawei Cloud mirror (faster outside China) ──────────────────
 RUN sed -i "s@repo.openeuler.org@repo.huaweicloud.com/openeuler@g" /etc/yum.repos.d/openEuler.repo
 
+# Several ppc64le -devel packages are rebuilt from openEuler SRPMs below. Their
+# base packages can have the same version as the OS package with a different
+# release suffix, and DNF's best-candidate resolver can try to replace the
+# rebuilt base package during builddep resolution. Keep the installed provider
+# when it already satisfies the requested dependency.
+RUN printf '\nbest=False\n' >> /etc/dnf/dnf.conf
+
 # ── System build tools ──────────────────────────────────────────────
 RUN dnf -y install \
         rpm-build \
