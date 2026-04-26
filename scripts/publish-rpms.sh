@@ -100,6 +100,7 @@ stage_container_rpms() {
     local source_dir="$2"
     local target_dir="$3"
     local pattern="$4"
+    local exclude_pattern="${5:-}"
 
     if ! podman exec "${container}" test -d "${source_dir}"; then
         return 0
@@ -110,8 +111,13 @@ stage_container_rpms() {
         return 0
     fi
 
-    podman exec "${container}" bash -lc \
-        "cd '${source_dir}' && tar -cf - ${pattern}" | tar -C "${target_dir}" -xf -
+    if [[ -n "${exclude_pattern}" ]]; then
+        podman exec "${container}" bash -lc \
+            "cd '${source_dir}' && tar --exclude='${exclude_pattern}' -cf - ${pattern}" | tar -C "${target_dir}" -xf -
+    else
+        podman exec "${container}" bash -lc \
+            "cd '${source_dir}' && tar -cf - ${pattern}" | tar -C "${target_dir}" -xf -
+    fi
 }
 
 # ── Skip staging if dry-run and staging already exists ───────────────
@@ -129,15 +135,21 @@ else
 
     # ── Stage EL10 RPMs (extract from container) ───────────────────
     echo "==> Staging EL10 RPMs from container '${EL10_CONTAINER}'"
-    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/EL_10/ppc64le" "*ohpc*.rpm"
-    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/EL_10/noarch"  "*ohpc*.rpm"
-    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/EL_10/src"     "*ohpc*.src.rpm"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/EL_10/ppc64le" "*ohpc*.rpm" "*.ci.ohpc*"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/EL_10/noarch"  "*ohpc*.rpm" "*.ci.ohpc*"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/EL_10/src"     "*ohpc*.src.rpm" "*.ci.ohpc*"
 
     # ── Stage openEuler RPMs (extract from container) ────────────────
     echo "==> Staging openEuler RPMs from container '${OE_CONTAINER}'"
-    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le" "*ohpc*.rpm"
-    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"  "*ohpc*.rpm"
-    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"     "*ohpc*.src.rpm"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le" "*ohpc*.rpm" "*.ci.ohpc*"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"  "*ohpc*.rpm" "*.ci.ohpc*"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"     "*ohpc*.src.rpm" "*.ci.ohpc*"
+
+    if find "${STAGING_DIR}" -name '*ci.ohpc*.rpm' -print -quit | grep -q .; then
+        echo "Error: CI-stamped RPMs found in staging; refusing to publish release artifacts" >&2
+        find "${STAGING_DIR}" -name '*ci.ohpc*.rpm' -print >&2
+        exit 1
+    fi
 
     # ── Sign RPMs ────────────────────────────────────────────────────
     echo "==> Signing RPMs with GPG key: ${GPG_KEY_NAME}"

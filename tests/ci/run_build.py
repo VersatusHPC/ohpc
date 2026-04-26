@@ -38,12 +38,22 @@ parser.add_argument(
         + "(defaults to openmpi5, mpich, mvapich2)"
     ),
 )
+parser.add_argument(
+    "--dist",
+    default="9999.ci.ohpc",
+    help="RPM %%dist value for rebuilt binary RPMs. Use 'system' to keep the platform default.",
+)
+parser.add_argument(
+    "--keep-srpm",
+    action="store_true",
+    help="Keep generated source RPMs in %%_srcrpmdir as well as using a /tmp copy for rebuild.",
+)
 args = parser.parse_args()
 
 spec_found = False
 build_user = "".join(args.user)
 dnf_based = False
-dist = "9999.ci.ohpc"
+dist = args.dist
 version_id = ""
 
 # Check which base OS we are using
@@ -351,14 +361,20 @@ def build_srpm_and_rpm(
         os.unlink(tmp_src_rpm)
     except FileNotFoundError:
         pass
-    shutil.move(src_rpm, "/tmp/")
+    if args.keep_srpm:
+        shutil.copy2(src_rpm, tmp_src_rpm)
+    else:
+        shutil.move(src_rpm, "/tmp/")
     src_rpm = tmp_src_rpm
 
-    rpmbuild_args = [
-        "rpmbuild",
-        "--define",
-        "dist %s" % dist,
-    ]
+    rpmbuild_args = ["rpmbuild"]
+    if dist != "system":
+        rpmbuild_args.extend(
+            [
+                "--define",
+                "dist %s" % dist,
+            ]
+        )
 
     if mpi_family is not None:
         rpmbuild_args.extend(["--define", "mpi_family %s" % mpi_family])
