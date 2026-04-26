@@ -104,6 +104,7 @@ RUN cd /tmp && \
     rpm -ivh libical-3.0.17-1.oe2403.src.rpm && \
     perl -0pi -e 's/  -DICAL_GLIB_VAPI:BOOL=true \\\n/  -DICAL_GLIB_VAPI:BOOL=true \\\n  -DENABLE_GTK_DOC:BOOL=false \\\n/' /root/rpmbuild/SPECS/libical.spec && \
     sed -i '/gtk-doc\/html/d' /root/rpmbuild/SPECS/libical.spec && \
+    perl -0pi -e 's/%check\nmake test ARGS="-V" -C %\{_target_platform\}\n/%check\n# Disabled for ppc64le builder bootstrap: python3-gobject is unavailable in the OS repo.\n/' /root/rpmbuild/SPECS/libical.spec && \
     rpmbuild -ba --nodeps /root/rpmbuild/SPECS/libical.spec && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/libical-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libical-devel-*.rpm && \
     rm -f libical-3.0.17-1.oe2403.src.rpm
