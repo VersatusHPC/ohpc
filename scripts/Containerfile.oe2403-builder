@@ -101,6 +101,33 @@ RUN cd /tmp && \
     rm -f flex-2.6.4-5.oe2403.src.rpm
 
 RUN cd /tmp && \
+    wget -q ${OE_SRC}/ninja-build-1.11.1-1.oe2403.src.rpm && \
+    rpm -ivh ninja-build-1.11.1-1.oe2403.src.rpm && \
+    sed -i '/\.\/ninja -v manual/d; s/%doc README.md doc\/manual.html/%doc README.md/' /root/rpmbuild/SPECS/ninja-build.spec && \
+    perl -0pi -e 's/%check\n\.\/ninja_test --gtest_filter=-SubprocessTest\.SetWithLots\n/%check\n# Disabled for ppc64le builder bootstrap: gtest-devel is unavailable in the OS repo.\n/' /root/rpmbuild/SPECS/ninja-build.spec && \
+    rpmbuild -ba --nodeps /root/rpmbuild/SPECS/ninja-build.spec && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/ninja-build-[0-9]*.rpm && \
+    rm -f ninja-build-1.11.1-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/meson-1.3.1-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps meson-1.3.1-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/noarch/meson-[0-9]*.rpm && \
+    rm -f meson-1.3.1-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/patchelf-0.16.0-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps patchelf-0.16.0-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/patchelf-[0-9]*.rpm && \
+    rm -f patchelf-0.16.0-1.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/python-meson-python-0.15.0-1.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps --without tests python-meson-python-0.15.0-1.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/noarch/python3-meson-python-[0-9]*.rpm && \
+    rm -f python-meson-python-0.15.0-1.oe2403.src.rpm
+
+RUN cd /tmp && \
     wget -q ${OE_SRC}/yaml-cpp-0.7.0-1.src.rpm && \
     rpmbuild --rebuild --nodeps yaml-cpp-0.7.0-1.src.rpm && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/yaml-cpp-*.rpm && \

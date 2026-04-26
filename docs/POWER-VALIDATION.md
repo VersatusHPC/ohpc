@@ -24,7 +24,8 @@ advertised to POWER clients.
    libraries needed because the openEuler 24.03 ppc64le OS repository is thin:
    `flex`, `freeipmi`, `gpgme`, `libassuan`, `libedit`, `libfabric`,
    `libical`, `libsysfs`, `libtirpc`, `libtool-ltdl`, `libyaml`, `lua`,
-   `lua-filesystem`, `opensm`, `postgresql`, `swig`, `sysfsutils`, `texinfo`,
+   `lua-filesystem`, `meson`, `ninja-build`, `opensm`, `patchelf`,
+   `postgresql`, `python3-meson-python`, `swig`, `sysfsutils`, `texinfo`,
    `yaml-cpp`, and `zstd`. Any OpenHPC package delta is release-blocking.
 
 2. Validate RPM runtime behavior and meta-package closure from the public RPM

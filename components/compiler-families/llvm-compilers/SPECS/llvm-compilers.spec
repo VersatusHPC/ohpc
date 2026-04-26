@@ -83,6 +83,10 @@ This package includes: clang, libcxx, libcxxabi, compiler-rt, openmp,
 # Replace any ambiguous python shebangs or rpmbuild will fail
 find . -type f -exec sed -i '1s@#! */usr/bin/env python\($\| \)@#!/usr/bin/python2@' "{}" \;
 
+# GCC 15 no longer leaves uintptr_t visible through this header chain.
+sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Support/Signals.h
+sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
+
 
 %build
 module load cmake
