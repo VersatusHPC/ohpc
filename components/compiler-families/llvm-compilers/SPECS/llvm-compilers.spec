@@ -42,6 +42,9 @@ BuildRequires: cmake%{PROJ_DELIM}
 BuildRequires: gcc
 BuildRequires: gcc-c++
 BuildRequires: python3
+%if 0%{?rhel}
+BuildRequires: perl-FindBin
+%endif
 BuildRequires: zlib-devel
 BuildRequires: pkgconfig
 BuildRequires: binutils-devel
@@ -231,7 +234,7 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DLIBCXX_CXX_ABI_INCLUDE_PATHS="$MAIN/libcxxabi/include" \
       -DLIBOMP_ENABLE_SHARED=On \
       -DLIBOMP_ENABLE_STATIC=Off \
-      -DLIBOMP_LIBFLAGS="-lm $STAGE2_GCC_BUILTINS" \
+      -DLIBOMP_LIBFLAGS="-lm $STAGE2_GCC_BUILTINS -Wl,--undefined-version" \
       -DLIBOMP_FORTRAN_MODULES=Off \
       -DLIBOMP_COPY_EXPORTS=Off \
       -DLIBOMP_USE_HWLOC=Off \
