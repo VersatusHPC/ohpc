@@ -165,6 +165,18 @@ RUN cd /tmp && \
     rm -f perl-libintl-perl-1.33-1.oe2403.src.rpm
 
 RUN cd /tmp && \
+    wget -q ${OE_SRC}/perl-Text-Unidecode-1.30-9.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps perl-Text-Unidecode-1.30-9.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/noarch/perl-Text-Unidecode-[0-9]*.rpm && \
+    rm -f perl-Text-Unidecode-1.30-9.oe2403.src.rpm
+
+RUN cd /tmp && \
+    wget -q ${OE_SRC}/perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm && \
+    rpmbuild --rebuild --nodeps perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/noarch/perl-Unicode-EastAsianWidth-[0-9]*.rpm && \
+    rm -f perl-Unicode-EastAsianWidth-12.0-2.oe2403.src.rpm
+
+RUN cd /tmp && \
     wget -q ${OE_SRC}/texinfo-7.0.3-3.oe2403.src.rpm && \
     rpmbuild --rebuild --nodeps texinfo-7.0.3-3.oe2403.src.rpm && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/texinfo-[0-9]*.rpm && \
