@@ -3,7 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: VersatusHPC <packages@versatushpc.com.br>
 Build-Depends: debhelper-compat (= 13),
-               golang-go (>= 1.21),
+               golang-1.24-go,
                wget
 Standards-Version: 4.6.2
 Homepage: https://github.com/kubernetes-sigs/mdtoc
