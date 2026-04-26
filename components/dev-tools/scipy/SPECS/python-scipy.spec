@@ -26,29 +26,25 @@ Requires: openblas-%{compiler_family}%{PROJ_DELIM}
 %define pname scipy
 
 Name:           %{python_prefix}-%{pname}-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Version:        1.5.4
+Version:        1.14.1
 Release:        1%{?dist}
 Summary:        Scientific Tools for Python
 License:        BSD-3-Clause
 Group:          %{PROJ_NAME}/dev-tools
 Url:            http://www.scipy.org
-Source0:        https://github.com/scipy/scipy/archive/v%{version}.tar.gz#/%{pname}-%{version}.tar.gz
-%if 0%{?openEuler}
-BuildRequires:  pybind11-devel
-BuildRequires:  %{python_prefix}-pybind11
-%endif
+Source0:        https://github.com/scipy/scipy/releases/download/v%{version}/%{pname}-%{version}.tar.gz
+Source1:        pip-wheels/beniget-0.4.2.post1-py3-none-any.whl
+Source2:        pip-wheels/gast-0.6.0-py3-none-any.whl
+Source3:        pip-wheels/meson-1.10.2-py3-none-any.whl
+Source4:        pip-wheels/meson_python-0.19.0-py3-none-any.whl
+Source5:        pip-wheels/packaging-26.0-py3-none-any.whl
+Source6:        pip-wheels/ply-3.11-py2.py3-none-any.whl
+Source7:        pip-wheels/pybind11-3.0.3-py3-none-any.whl
+Source8:        pip-wheels/pyproject_metadata-0.11.0-py3-none-any.whl
+Source9:        pip-wheels/pythran-0.18.1-py3-none-any.whl
+Source10:       pip-wheels/setuptools-82.0.1-py3-none-any.whl
 %if 0%{?sle_version}
-BuildRequires:  python-pybind11-common-devel
 BuildRequires:  fdupes
-BuildRequires:  %{python_prefix}-pybind11
-%endif
-%if 0%{?rhel}
-BuildRequires:  %{python_prefix}-pybind11
-%if 0%{?rhel} >= 10
-BuildRequires:  pybind11-devel
-%else
-BuildRequires:  %{python_prefix}-pybind11-devel
-%endif
 %endif
 %if "%{compiler_family}" != "arm"
 BuildRequires:  fftw-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
@@ -56,7 +52,7 @@ Requires:       fftw-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 %endif
 BuildRequires:  %{python_prefix}-Cython%{PROJ_DELIM}
 BuildRequires:  %{python_prefix}-numpy-%{compiler_family}%{PROJ_DELIM}
-BuildRequires:  swig
+BuildRequires:  %{python_prefix}-pip
 Requires:       lmod%{PROJ_DELIM} >= 7.6.1
 Requires:       %{python_prefix}-numpy-%{compiler_family}%{PROJ_DELIM}
 
@@ -84,13 +80,23 @@ find . -type f -name "*.py" -exec sed -i "s|#!/usr/bin/env python3||" {} \;
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
 
-export CFLAGS="${CFLAGS} -fno-strict-aliasing"
+SCIPY_BUILD_DEPS=%{_builddir}/scipy-build-deps
+rm -rf "${SCIPY_BUILD_DEPS}"
+%__python -m pip install --no-index --no-deps --find-links=%{_sourcedir}/pip-wheels \
+    --prefix="${SCIPY_BUILD_DEPS}" \
+    meson-python meson pybind11 pythran packaging pyproject-metadata beniget gast ply setuptools
+SCIPY_BUILD_SITE=$(%__python - <<PY
+import sysconfig
+print(sysconfig.get_path("purelib", vars={"base": "${SCIPY_BUILD_DEPS}", "platbase": "${SCIPY_BUILD_DEPS}"}))
+PY
+)
+export PATH="${SCIPY_BUILD_DEPS}/bin:${PATH}"
+export PYTHONPATH="${SCIPY_BUILD_SITE}:${PYTHONPATH}"
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm"
 module load openblas
 module load fftw
-export CFLAGS="${CFLAGS} -Wno-implicit-int"
-export CFLAGS="${CFLAGS} -Wno-incompatible-pointer-types"
+export PKG_CONFIG_PATH="${OPENBLAS_LIB}/pkgconfig:${PKG_CONFIG_PATH}"
 %endif
 
 module load %{python_module_prefix}numpy
@@ -123,24 +129,7 @@ include_dirs = $OPENBLAS_INC
 EOF
 %endif
 
-%if "%{compiler_family}" == "intel"
-LDSHARED="icc -shared" \
-%__python setup.py config --compiler=intelm --fcompiler=intelem build_clib --compiler=intelem --fcompiler=intelem build_ext --compiler=intelem --fcompiler=intelem build
-%else
-%if "%{compiler_family}" == "llvm"
-LDSHARED=clang \
-LDFLAGS="-shared -rtlib=compiler-rt -lm" \
-%__python setup.py config_fc --fcompiler=flang --noarch build
-%else
-%if "%{compiler_family}" == "arm"
-LDSHARED=armclang \
-LDFLAGS="-shared -rtlib=compiler-rt -lm" \
-%__python setup.py config_fc --fcompiler=armflang --noarch build
-%else
-%__python setup.py config_fc --fcompiler=gnu95 --noarch build
-%endif
-%endif
-%endif
+%__python -m pip wheel --no-build-isolation --wheel-dir=dist .
 
 %install
 # OpenHPC compiler/mpi designation
@@ -153,10 +142,11 @@ export CFLAGS="${CFLAGS} -Wno-incompatible-pointer-types"
 %endif
 
 module load %{python_module_prefix}numpy
-%__python setup.py install --prefix=%{install_path} --root=%{buildroot}
+%__python -m pip install --prefix=%{install_path} --root=%{buildroot} \
+    --no-index --find-links=dist --no-deps scipy
 find %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/scipy -type d -name tests | xargs rm -rf # Don't ship tests
 # Don't ship weave examples, they're marked as documentation:
-find %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/scipy/weave -type d -name examples | xargs rm -rf
+find %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/scipy -path '*/weave/examples' -type d | xargs --no-run-if-empty rm -rf
 
 %if 0%{?sles_version} || 0%{?suse_version}
 %fdupes %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages
@@ -169,8 +159,10 @@ find %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/scipy/wea
 ln -sn %{__python} %{buildroot}/%{install_path}/bin/%{python_family}
 
 # fix executability issue
-chmod +x %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/%{pname}/io/arff/arffread.py
-chmod +x %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/%{pname}/special/spfun_stats.py
+test ! -f %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/%{pname}/io/arff/arffread.py || \
+    chmod +x %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/%{pname}/io/arff/arffread.py
+test ! -f %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/%{pname}/special/spfun_stats.py || \
+    chmod +x %{buildroot}%{install_path}/lib64/%{python_lib_dir}/site-packages/%{pname}/special/spfun_stats.py
 
 # OpenHPC module file
 %{__mkdir_p} %{buildroot}%{OHPC_MODULEDEPS}/%{compiler_family}-%{mpi_family}/%{python_module_prefix}%{pname}
@@ -218,5 +210,4 @@ EOF
 
 %files
 %{OHPC_PUB}
-%doc THANKS.txt
 %doc LICENSE.txt
