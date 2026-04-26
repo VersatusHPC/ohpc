@@ -13,11 +13,8 @@ from collections import Counter
 from dataclasses import dataclass
 from urllib.parse import urljoin
 
-RPM_REPOS = {
-    "EL_10": "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/EL_10/",
-    "openEuler_24.03": "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/openEuler_24.03/",
-}
-DEB_REPO = "https://repos.versatushpc.com.br/openhpc/versatushpc-4/updates/Ubuntu_24.04/"
+DEFAULT_REPO_ROOT = "https://repos.versatushpc.com.br/openhpc/versatushpc-4"
+DEFAULT_REPO_CHANNEL = "updates"
 RPM_NS = {
     "md": "http://linux.duke.edu/metadata/repo",
     "common": "http://linux.duke.edu/metadata/common",
@@ -67,6 +64,14 @@ def curl(url: str) -> bytes:
         return subprocess.check_output(["curl", "-fsSL", url])
     except subprocess.CalledProcessError as exc:
         raise SystemExit(f"failed to fetch {url}: {exc}") from exc
+
+
+def repo_url(repo_root: str, repo_channel: str, repo_name: str) -> str:
+    root = repo_root.rstrip("/") + "/"
+    channel = repo_channel.strip("/")
+    if channel:
+        return urljoin(root, f"{channel}/{repo_name}/")
+    return urljoin(root, f"{repo_name}/")
 
 
 def decompress(path: str, data: bytes) -> bytes:
@@ -242,12 +247,17 @@ def print_presence(label: str, names: set[str], expected: list[str]) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", default=DEFAULT_REPO_ROOT, help=f"repository root URL (default: {DEFAULT_REPO_ROOT})")
+    parser.add_argument("--repo-channel", default=DEFAULT_REPO_CHANNEL, help=f"repository channel below the root (default: {DEFAULT_REPO_CHANNEL})")
     parser.add_argument("--fail-on-missing-core", action="store_true", help="exit non-zero when core POWER packages are absent")
     parser.add_argument("--fail-on-issues", action="store_true", help="exit non-zero when any coverage drift is detected")
     args = parser.parse_args()
 
-    rpm_sets = {label: load_rpm_repo(url) for label, url in RPM_REPOS.items()}
-    deb_packages = load_deb_repo(DEB_REPO)
+    rpm_sets = {
+        "EL_10": load_rpm_repo(repo_url(args.repo_root, args.repo_channel, "EL_10")),
+        "openEuler_24.03": load_rpm_repo(repo_url(args.repo_root, args.repo_channel, "openEuler_24.03")),
+    }
+    deb_packages = load_deb_repo(repo_url(args.repo_root, args.repo_channel, "Ubuntu_24.04"))
 
     print("Repository package counts")
     for label, packages in rpm_sets.items():
