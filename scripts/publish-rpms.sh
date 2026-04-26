@@ -29,6 +29,32 @@ GPG_KEY_NAME="${GPG_KEY_NAME:-VersatusHPC (Repository Signing Key) <support@vers
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${SCRIPT_DIR}/../RPM-GPG-KEY-VersatusHPC}"
 PROMOTE_SCRIPT="${PROMOTE_SCRIPT:-${SCRIPT_DIR}/promote-update-release.sh}"
+OPEN_EULER_SUPPORT_PREFIXES=(
+    flex
+    freeipmi
+    gpgme
+    libassuan
+    libedit
+    libfabric
+    libical
+    libsysfs
+    libtirpc
+    libtool-ltdl
+    libyaml
+    lua
+    lua-filesystem
+    meson
+    ninja-build
+    opensm
+    patchelf
+    postgresql
+    python3-meson-python
+    swig
+    sysfsutils
+    texinfo
+    yaml-cpp
+    zstd
+)
 
 # ── Remote repo server settings ──────────────────────────────────────
 REMOTE_USER="${REMOTE_USER:-reposync}"
@@ -120,6 +146,16 @@ stage_container_rpms() {
     fi
 }
 
+stage_open_euler_support_rpms() {
+    local source_dir="$1"
+    local target_dir="$2"
+    local prefix
+
+    for prefix in "${OPEN_EULER_SUPPORT_PREFIXES[@]}"; do
+        stage_container_rpms "${OE_CONTAINER}" "${source_dir}" "${target_dir}" "${prefix}*.rpm" "*.ci.ohpc*"
+    done
+}
+
 # ── Skip staging if dry-run and staging already exists ───────────────
 if [[ -n "${DRY_RUN}" && -d "${STAGING_DIR}" ]]; then
     echo "==> Dry run: reusing existing staging directory"
@@ -144,6 +180,9 @@ else
     stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le" "*ohpc*.rpm" "*.ci.ohpc*"
     stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"  "*ohpc*.rpm" "*.ci.ohpc*"
     stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"     "*ohpc*.src.rpm" "*.ci.ohpc*"
+    stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le"
+    stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"
+    stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"
 
     if find "${STAGING_DIR}" -name '*ci.ohpc*.rpm' -print -quit | grep -q .; then
         echo "Error: CI-stamped RPMs found in staging; refusing to publish release artifacts" >&2
