@@ -155,7 +155,7 @@ include_dirs = $OPENBLAS_INC
 EOF
 %endif
 
-%__python -m pip wheel --no-build-isolation --wheel-dir=dist .
+%__python -m pip wheel --no-build-isolation --no-deps --wheel-dir=dist .
 
 %install
 # OpenHPC compiler/mpi designation
