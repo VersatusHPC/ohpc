@@ -13,7 +13,7 @@ VERSION         := 2.12.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 SRCDIR          := $(CURDIR)/ADIOS2-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
-ENV             := OHPC_MODULES="phdf5" bash /build/devel/build-mpi.sh
+ENV             := OHPC_MODULES="phdf5 ucx" bash /build/devel/build-mpi.sh
 
 %:
 	dh $@
@@ -36,6 +36,10 @@ override_dh_auto_build:
 		export MPIFC=mpif90 && \
 		export MPICXX=mpicxx && \
 		export CFLAGS="$${CFLAGS} -Wno-implicit-int -Wno-implicit-function-declaration -Wno-incompatible-pointer-types" && \
+		export CXXFLAGS="$${CXXFLAGS} -I$${UCX_INC}" && \
+		export CFLAGS="$${CFLAGS} -I$${UCX_INC}" && \
+		export LDFLAGS="$${LDFLAGS} -L$${UCX_LIB}" && \
+		export CMAKE_PREFIX_PATH="$${UCX_DIR}:$${CMAKE_PREFIX_PATH}" && \
 		cmake \
 			-DCMAKE_INSTALL_PREFIX=$(INSTALL_PATH) \
 			-DCMAKE_BUILD_TYPE=Release \

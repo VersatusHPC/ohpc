@@ -145,7 +145,7 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     wget -q ${OE_SRC}/sysfsutils-2.1.1-3.oe2403.src.rpm && \
     rpmbuild --rebuild --nodeps sysfsutils-2.1.1-3.oe2403.src.rpm && \
-    dnf -y install /root/rpmbuild/RPMS/ppc64le/sysfsutils-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/libsysfs-devel-*.rpm && \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/sysfsutils-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/sysfsutils-devel-*.rpm && \
     rm -f sysfsutils-2.1.1-3.oe2403.src.rpm
 
 RUN cd /tmp && \

@@ -44,7 +44,11 @@ BuildRequires:  %{python_prefix}-pybind11
 %endif
 %if 0%{?rhel}
 BuildRequires:  %{python_prefix}-pybind11
+%if 0%{?rhel} >= 10
+BuildRequires:  pybind11-devel
+%else
 BuildRequires:  %{python_prefix}-pybind11-devel
+%endif
 %endif
 %if "%{compiler_family}" != "arm"
 BuildRequires:  fftw-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
