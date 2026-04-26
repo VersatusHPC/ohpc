@@ -119,7 +119,14 @@ RUN cd /tmp && \
 
 RUN cd /tmp && \
     wget -q ${OE_SRC}/gpgme-1.21.0-1.oe2403.src.rpm && \
-    rpmbuild --rebuild --nodeps gpgme-1.21.0-1.oe2403.src.rpm && \
+    rpm -ivh gpgme-1.21.0-1.oe2403.src.rpm && \
+    sed -i 's/--enable-languages=cpp,qt,python/--enable-languages=cpp,python/' /root/rpmbuild/SPECS/gpgme.spec && \
+    sed -i '/^%package -n qt-%{name}/,/^%package -n python3-%{name}/ { /^%package -n python3-%{name}/!d; }' /root/rpmbuild/SPECS/gpgme.spec && \
+    sed -i '/^%files -n qt-%{name}/,/^%files -n python3-%{name}/ { /^%files -n python3-%{name}/!d; }' /root/rpmbuild/SPECS/gpgme.spec && \
+    sed -i '/chrpath -d %{buildroot}%{_libdir}\/libq%{name}.so/d; s/ q%{name}-devel < %{version}-%{release}//; s/ q%{name}-devel = %{version}-%{release}//' /root/rpmbuild/SPECS/gpgme.spec && \
+    perl -0pi -e 's#%\{_includedir\}/\{%\{name\}\.h,%\{name\}\+\+/,q%\{name\}/,QGpgME/\}#%{_includedir}/%{name}.h\n%{_includedir}/%{name}++/#' /root/rpmbuild/SPECS/gpgme.spec && \
+    perl -0pi -e 's#%\{_libdir\}/\{lib%\{name\}\.so,lib%\{name\}pp\.so,cmake/Gpgmepp/,libq%\{name\}\.so,cmake/QGpgme/\}#%{_libdir}/lib%{name}.so\n%{_libdir}/lib%{name}pp.so\n%{_libdir}/cmake/Gpgmepp/#' /root/rpmbuild/SPECS/gpgme.spec && \
+    rpmbuild -ba --nodeps /root/rpmbuild/SPECS/gpgme.spec && \
     dnf -y install /root/rpmbuild/RPMS/ppc64le/gpgme-[0-9]*.rpm /root/rpmbuild/RPMS/ppc64le/gpgme-devel-*.rpm && \
     rm -f gpgme-1.21.0-1.oe2403.src.rpm
 
