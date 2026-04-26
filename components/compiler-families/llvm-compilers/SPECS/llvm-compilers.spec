@@ -51,7 +51,7 @@ BuildRequires: libffi-devel
 BuildRequires: ninja
 BuildRequires: libelf-devel
 %endif
-%if 0%{?rhel}
+%if 0%{?rhel} || 0%{?openEuler}
 BuildRequires: ninja-build
 BuildRequires: elfutils-libelf-devel
 %endif
