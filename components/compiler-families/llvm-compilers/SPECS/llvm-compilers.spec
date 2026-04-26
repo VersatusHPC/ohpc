@@ -131,6 +131,7 @@ cmake -DCMAKE_INSTALL_PREFIX="/" \
       -DLIBCXX_INCLUDE_BENCHMARKS=Off \
       -DLIBCXX_INCLUDE_TESTS=Off \
       -DLIBCXX_ENABLE_EXPERIMENTAL_LIBRARY=Off \
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
       -Wno-dev -G Ninja ../llvm
 
 ninja %{?_smp_mflags} -v
@@ -212,7 +213,8 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DLIBOMP_COPY_EXPORTS=Off \
       -DLIBOMP_USE_HWLOC=Off \
       -DLIBOMP_OMPT_SUPPORT=On \
-      --enable-optimized -Wno-dev -G Ninja ../llvm
+      -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+      -Wno-dev -G Ninja ../llvm
 
 ninja %{?_smp_mflags} -v
 # End stage 2

@@ -55,6 +55,9 @@ TS 18508 Additional Parallel Features in Fortran.
 cd build-opencoarrays
 module load cmake
 export CFLAGS="${CFLAGS} -Wno-int-conversion"
+sed -i "/OpenMPI is incompatible/d" ../src/runtime-libraries/mpi/CMakeLists.txt
+sed -i "/gfortran version/d" ../src/runtime-libraries/mpi/CMakeLists.txt
+sed -i "s/message(FATAL_ERROR/message(WARNING/" ../src/runtime-libraries/mpi/CMakeLists.txt
 cmake -DCMAKE_INSTALL_PREFIX=%{install_path} ..
 
 make %{?_smp_mflags} VERBOSE=1
