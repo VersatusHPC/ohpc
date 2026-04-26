@@ -87,6 +87,14 @@ find . -type f -exec sed -i '1s@#! */usr/bin/env python\($\| \)@#!/usr/bin/pytho
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Support/Signals.h
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
 
+# CMake 4 rejects compatibility with policy versions older than 3.5. LLVM 10's
+# OpenMP runtime creates nested try_compile projects that do not inherit the
+# top-level CMAKE_POLICY_VERSION_MINIMUM setting, so update those generated
+# project declarations directly.
+sed -i 's/cmake_minimum_required(VERSION 2.8)/cmake_minimum_required(VERSION 2.8...3.5)/' \
+    openmp/runtime/cmake/LibompCheckLinkerFlag.cmake \
+    openmp/cmake/DetectTestCompiler/CMakeLists.txt
+
 
 %build
 module load cmake
