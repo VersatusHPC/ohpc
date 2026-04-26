@@ -11,6 +11,7 @@ import sys
 import csv
 import os
 import io
+import shlex
 
 logging.basicConfig(format="%(asctime)s %(message)s", level=logging.INFO)
 
@@ -115,6 +116,11 @@ def run_command(command):
         for key, mask in events:
             callback = key.data
             callback(key.fileobj, mask)
+
+    remaining = process.stdout.read()
+    if remaining:
+        buf.write(remaining)
+        sys.stdout.write(remaining)
 
     return_code = process.wait()
     selector.close()
@@ -348,27 +354,34 @@ def build_srpm_and_rpm(
     shutil.move(src_rpm, "/tmp/")
     src_rpm = tmp_src_rpm
 
+    rpmbuild_args = [
+        "rpmbuild",
+        "--define",
+        "dist %s" % dist,
+    ]
+
+    if mpi_family is not None:
+        rpmbuild_args.extend(["--define", "mpi_family %s" % mpi_family])
+
+    if compiler_family is not None:
+        rpmbuild_args.extend(["--define", "compiler_family %s" % compiler_family])
+
+    if not_mpi_dependent:
+        rpmbuild_args.extend(["--define", "ohpc_mpi_dependent 0"])
+
+    # Disable parallel builds for below packages on aarch64 to avoid OOM
+    pkgs = ["boost-", "paraver-"]
+    if any([x in src_rpm for x in pkgs]) and os.uname().machine == "aarch64":
+        rpmbuild_args.extend(["--define", "_smp_mflags -j1"])
+
+    rpmbuild_args.extend(["--rebuild", src_rpm])
     rebuild_command = [
         "su",
         build_user,
         "-l",
         "-c",
-        'rpmbuild --define "dist %s" --rebuild %s' % (dist, src_rpm),
+        shlex.join(rpmbuild_args),
     ]
-
-    if mpi_family is not None:
-        rebuild_command[-1] += " --define 'mpi_family %s'" % mpi_family
-
-    if compiler_family is not None:
-        rebuild_command[-1] += " --define 'compiler_family %s'" % compiler_family
-
-    if not_mpi_dependent:
-        rebuild_command[-1] += " --define 'ohpc_mpi_dependent 0'"
-
-    # Disable parallel builds for below packages on aarch64 to avoid OOM
-    pkgs = ["boost-", "paraver-"]
-    if any([x in src_rpm for x in pkgs]) and os.uname().machine == "aarch64":
-        rebuild_command[-1] += " --define '_smp_mflags -j1'"
 
     logging.warning(rebuild_command)
     success, _ = run_command(rebuild_command)
