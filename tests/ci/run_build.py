@@ -282,6 +282,25 @@ def setup_local_repo():
             logging.error("Failed to clean local DNF repository metadata")
             return False
 
+        # Persistent release builders start with the previous public OpenHPC
+        # stack installed. Unversioned BuildRequires can otherwise keep an old
+        # installed dependency even after this run rebuilt a newer package into
+        # local-ohpc-ci.
+        success, _ = run_command(
+            [
+                "dnf",
+                "-y",
+                "--disablerepo=*",
+                "--enablerepo=local-ohpc-ci",
+                "upgrade",
+                "*ohpc*",
+            ]
+        )
+        if not success:
+            logging.warning(
+                "Local OpenHPC package refresh failed; continuing with builddep"
+            )
+
     return True
 
 
