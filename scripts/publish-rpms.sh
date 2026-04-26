@@ -177,12 +177,14 @@ else
     stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/EL_10/ppc64le" "*ohpc*.rpm" "*.ci.ohpc*"
     stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/EL_10/noarch"  "*ohpc*.rpm" "*.ci.ohpc*"
     stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/EL_10/src"     "*ohpc*.src.rpm" "*.ci.ohpc*"
+    stage_container_rpms "${EL10_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/EL_10/src"     "meta-packages*.src.rpm" "*.ci.ohpc*"
 
     # ── Stage openEuler RPMs (extract from container) ────────────────
     echo "==> Staging openEuler RPMs from container '${OE_CONTAINER}'"
     stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le" "*ohpc*.rpm" "*.ci.ohpc*"
     stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"  "*ohpc*.rpm" "*.ci.ohpc*"
     stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"     "*ohpc*.src.rpm" "*.ci.ohpc*"
+    stage_container_rpms "${OE_CONTAINER}" "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"     "meta-packages*.src.rpm" "*.ci.ohpc*"
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le"
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"
