@@ -264,18 +264,20 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
         --digest-algo SHA256 --armor --detach-sign --output Release.gpg Release
 )
 
-LFTP_DRY_RUN=""
-LFTP_KEY_UPLOADS="
-rm -f ${REMOTE_PATH}/versatushpc*.gpg;
-put -O ${REMOTE_PATH} ${GPG_PUBLIC_KEY};
-put -O ${REMOTE_PATH} ${STAGING_REPO}/versatushpc.gpg;
-"
 if [[ -n "${DRY_RUN}" ]]; then
-    LFTP_DRY_RUN="--dry-run"
-    LFTP_KEY_UPLOADS="
+    LFTP_COMMANDS="
 cls -la ${REMOTE_PATH};
 "
     echo "*** DRY RUN - no files will be transferred ***"
+else
+    LFTP_COMMANDS="
+cd ${REMOTE_PATH};
+mkdir -pf ${RELEASE_DIR}/Ubuntu_24.04;
+mirror --reverse --delete --verbose ${STAGING_REPO}/ ${RELEASE_DIR}/Ubuntu_24.04/;
+rm -f versatushpc*.gpg;
+put -O . ${GPG_PUBLIC_KEY};
+put -O . ${STAGING_REPO}/versatushpc.gpg;
+"
 fi
 
 echo "==> Syncing merged Ubuntu repository to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_RELEASE_PATH}"
@@ -283,9 +285,7 @@ lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mkdir -pf ${REMOTE_RELEASE_PATH}/Ubuntu_24.04;
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} ${STAGING_REPO}/ ${REMOTE_RELEASE_PATH}/Ubuntu_24.04/;
-${LFTP_KEY_UPLOADS}
+${LFTP_COMMANDS}
 bye;
 "
 

@@ -559,29 +559,25 @@ rm -f "${DIST_DIR}/${DIST_ARCHIVE}"
 tar -C "${STAGING_ROOT}" --exclude="${OBS_REPO_NAME}/dist" -cf "${DIST_DIR}/${DIST_ARCHIVE}" \
     "${OBS_REPO_NAME}" RPM-GPG-KEY-VersatusHPC versatushpc.gpg
 
-LFTP_DRY_RUN=""
 REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"
-LFTP_KEY_UPLOADS="
-rm -f ${REMOTE_PATH}/versatushpc*.gpg;
-put -O ${REMOTE_PATH} ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
-put -O ${REMOTE_PATH} ${STAGING_ROOT}/versatushpc.gpg;
-"
-LFTP_DIST_UPLOADS="
-mkdir -pf ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${DIST_DIR}/ ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
-"
 if [[ -n "${DRY_RUN}" ]]; then
-    LFTP_DRY_RUN="--dry-run"
-    LFTP_KEY_UPLOADS="
+    LFTP_COMMANDS="
 cls -la ${REMOTE_PATH};
 "
-    LFTP_DIST_UPLOADS="
-mkdir -pf ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
-mirror --reverse --delete --verbose --dry-run \
-    ${DIST_DIR}/ ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
-"
     echo "*** DRY RUN - no files will be transferred ***"
+else
+    LFTP_COMMANDS="
+cd ${REMOTE_PATH};
+mkdir -pf ${RELEASE_DIR}/${OBS_REPO_NAME};
+mirror --reverse --delete --verbose \
+    ${STAGING_REPO}/ ${RELEASE_DIR}/${OBS_REPO_NAME}/;
+rm -f versatushpc*.gpg;
+put -O . ${STAGING_ROOT}/RPM-GPG-KEY-VersatusHPC;
+put -O . ${STAGING_ROOT}/versatushpc.gpg;
+mkdir -pf ${RELEASE_DIR}/${OBS_REPO_NAME}/dist/${OHPC_VERSION};
+mirror --reverse --delete --verbose \
+    ${DIST_DIR}/ ${RELEASE_DIR}/${OBS_REPO_NAME}/dist/${OHPC_VERSION}/;
+"
 fi
 
 echo "==> Syncing to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_RELEASE_PATH} via SFTP"
@@ -589,11 +585,7 @@ lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mkdir -pf ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME};
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${STAGING_REPO}/ ${REMOTE_RELEASE_PATH}/${OBS_REPO_NAME}/;
-${LFTP_KEY_UPLOADS}
-${LFTP_DIST_UPLOADS}
+${LFTP_COMMANDS}
 bye;
 "
 

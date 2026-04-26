@@ -67,7 +67,6 @@ SSH_KEY="${SSH_KEY:-/home/${LOCAL_USER}/.ssh/id_ed25519_openhpc}"
 
 # ── Dry run ──────────────────────────────────────────────────────────
 DRY_RUN=""
-LFTP_DRY_RUN=""
 PROMOTE=""
 
 usage() {
@@ -88,7 +87,6 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --dry-run)
             DRY_RUN="yes"
-            LFTP_DRY_RUN="--dry-run"
             shift
             ;;
         --promote)
@@ -217,14 +215,22 @@ fi
 
 # ── Sync to repo server via SFTP (lftp) ─────────────────────────────
 REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"
-LFTP_KEY_UPLOADS="
-put -O ${REMOTE_PATH} ${GPG_PUBLIC_KEY};
-put -O ${REMOTE_RELEASE_PATH} ${STAGING_DIR}/RPM-GPG-KEY-VersatusHPC;
-"
 if [[ -n "${DRY_RUN}" ]]; then
-    LFTP_KEY_UPLOADS="
+    LFTP_COMMANDS="
 cls -la ${REMOTE_PATH};
-cls -la ${REMOTE_RELEASE_PATH};
+"
+else
+    LFTP_COMMANDS="
+cd ${REMOTE_PATH};
+mkdir -p ${RELEASE_DIR};
+mkdir -p ${RELEASE_DIR}/EL_10;
+mkdir -p ${RELEASE_DIR}/openEuler_24.03;
+mirror --reverse --delete --verbose \
+    ${STAGING_DIR}/EL_10/ ${RELEASE_DIR}/EL_10/;
+mirror --reverse --delete --verbose \
+    ${STAGING_DIR}/openEuler_24.03/ ${RELEASE_DIR}/openEuler_24.03/;
+put -O . ${GPG_PUBLIC_KEY};
+put -O ${RELEASE_DIR} ${STAGING_DIR}/RPM-GPG-KEY-VersatusHPC;
 "
 fi
 
@@ -233,15 +239,7 @@ lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mkdir -p ${REMOTE_PATH};
-mkdir -p ${REMOTE_RELEASE_PATH};
-mkdir -p ${REMOTE_RELEASE_PATH}/EL_10;
-mkdir -p ${REMOTE_RELEASE_PATH}/openEuler_24.03;
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${STAGING_DIR}/EL_10/ ${REMOTE_RELEASE_PATH}/EL_10/;
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} \
-    ${STAGING_DIR}/openEuler_24.03/ ${REMOTE_RELEASE_PATH}/openEuler_24.03/;
-${LFTP_KEY_UPLOADS}
+${LFTP_COMMANDS}
 bye;
 "
 
