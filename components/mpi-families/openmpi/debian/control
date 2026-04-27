@@ -31,6 +31,9 @@ Provides: openmpi5-pmix-gnu15-ohpc
 Depends: ohpc-filesystem,
          gnu15-compilers-ohpc (>= 14.1.0),
          hwloc-ohpc,
+         libevent-core-2.1-7t64,
+         libevent-pthreads-2.1-7t64,
+         pmix-ohpc,
          ucx-ohpc,
          ${shlibs:Depends},
          ${misc:Depends}

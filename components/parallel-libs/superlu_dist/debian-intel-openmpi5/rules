@@ -13,7 +13,8 @@ VERSION         := 9.2.1
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 OPENBLAS_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/openblas/0.3.32/lib
 METIS_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/metis/5.1.0/lib
-PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.10/lib
+PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.11/lib
+INTEL_LIB       := /opt/intel/oneapi/compiler/latest/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/superlu-dist-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="metis ptscotch openblas" bash /build/devel/build-mpi.sh
@@ -67,7 +68,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib64:$(PKG)$(INSTALL_PATH)/lib:$(OPENBLAS_LIBDIR):$(METIS_LIBDIR):$(PTSCOTCH_LIBDIR) -- --ignore-missing-info
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib64:$(PKG)$(INSTALL_PATH)/lib:$(OPENBLAS_LIBDIR):$(METIS_LIBDIR):$(PTSCOTCH_LIBDIR):$(INTEL_LIB) -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

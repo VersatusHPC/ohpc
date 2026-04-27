@@ -58,6 +58,8 @@ OPEN_EULER_SUPPORT_PREFIXES=(
     yaml-cpp
     zstd
 )
+MIN_EL10_PPC64LE_COUNT="${MIN_EL10_PPC64LE_COUNT:-120}"
+MIN_OE_PPC64LE_COUNT="${MIN_OE_PPC64LE_COUNT:-200}"
 
 # ── Remote repo server settings ──────────────────────────────────────
 REMOTE_USER="${REMOTE_USER:-reposync}"
@@ -157,6 +159,110 @@ stage_open_euler_support_rpms() {
     done
 }
 
+require_staged_rpm() {
+    local label="$1"
+    local directory="$2"
+    local pattern="$3"
+
+    if ! compgen -G "${directory}/${pattern}" >/dev/null; then
+        echo "Error: ${label} is missing required RPM matching ${pattern}" >&2
+        return 1
+    fi
+}
+
+require_minimum_count() {
+    local label="$1"
+    local directory="$2"
+    local minimum="$3"
+    local count
+
+    if [[ ! -d "${directory}" ]]; then
+        echo "Error: ${label} staging directory is missing: ${directory}" >&2
+        return 1
+    fi
+
+    count="$(find "${directory}" -maxdepth 1 -name '*.rpm' | wc -l)"
+    if (( count < minimum )); then
+        echo "Error: ${label} staged only ${count} RPMs; expected at least ${minimum}" >&2
+        return 1
+    fi
+}
+
+validate_staged_release() {
+    local stale_list
+    local stale_requires
+    local label
+    local root
+
+    if [[ ! -d "${STAGING_DIR}" ]]; then
+        echo "Error: staging directory is missing: ${STAGING_DIR}" >&2
+        exit 1
+    fi
+
+    stale_list="$(find "${STAGING_DIR}" -name '*.rpm' \( \
+        -name '*ci.ohpc*.rpm' -o \
+        -name 'mvapich2-gnu15-ohpc-2.*.rpm' -o \
+        -name 'meta-packages-4.0-*.rpm' -o \
+        -name 'ohpc-*-4.0-*.rpm' \
+    \) -print)"
+    if [[ -n "${stale_list}" ]]; then
+        echo "Error: stale or CI-stamped RPMs found in staging; refusing to publish release artifacts" >&2
+        printf '%s\n' "${stale_list}" >&2
+        exit 1
+    fi
+
+    stale_requires="$(
+        find "${STAGING_DIR}" -name '*.rpm' -exec sh -c '
+            for rpm_file do
+                if rpm -qp --requires "$rpm_file" 2>/dev/null | grep -Fxq "libscalapack.so.2()(64bit)(ohpc)"; then
+                    printf "%s\n" "$rpm_file"
+                fi
+            done
+        ' sh {} + 2>/dev/null || true
+    )"
+    if [[ -n "${stale_requires}" ]]; then
+        echo "Error: RPMs with stale Scalapack SONAME dependency found in staging" >&2
+        printf '%s\n' "${stale_requires}" >&2
+        exit 1
+    fi
+
+    require_minimum_count "EL10 ppc64le" "${STAGING_DIR}/EL_10/ppc64le" "${MIN_EL10_PPC64LE_COUNT}"
+    require_minimum_count "openEuler ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le" "${MIN_OE_PPC64LE_COUNT}"
+
+    for label in EL10 openEuler; do
+        if [[ "${label}" == "EL10" ]]; then
+            root="${STAGING_DIR}/EL_10/ppc64le"
+        else
+            root="${STAGING_DIR}/openEuler_24.03/ppc64le"
+        fi
+
+        require_staged_rpm "${label}" "${root}" "gnu15-compilers-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mpich-ofi-gnu15-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mvapich2-gnu15-ohpc-${OHPC_VERSION}-*.rpm"
+        require_staged_rpm "${label}" "${root}" "openmpi5-gnu15-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "R-gnu15-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "meta-packages-${OHPC_VERSION}-*.rpm"
+        require_staged_rpm "${label}" "${root}" "ohpc-base-${OHPC_VERSION}-*.rpm"
+        require_staged_rpm "${label}" "${root}" "ohpc-gnu15-parallel-libs-${OHPC_VERSION}-*.rpm"
+        require_staged_rpm "${label}" "${root}" "ohpc-gnu15-openmpi5-parallel-libs-${OHPC_VERSION}-*.rpm"
+        require_staged_rpm "${label}" "${root}" "adios2-gnu15-openmpi5-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "adios2-gnu15-mpich-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "adios2-gnu15-mvapich2-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "petsc-gnu15-openmpi5-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "petsc-gnu15-mpich-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "petsc-gnu15-mvapich2-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "slepc-gnu15-openmpi5-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "slepc-gnu15-mpich-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "slepc-gnu15-mvapich2-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mfem-gnu15-openmpi5-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mfem-gnu15-mpich-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mfem-gnu15-mvapich2-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mumps-gnu15-openmpi5-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mumps-gnu15-mpich-ohpc-*.rpm"
+        require_staged_rpm "${label}" "${root}" "mumps-gnu15-mvapich2-ohpc-*.rpm"
+    done
+}
+
 # ── Skip staging if dry-run and staging already exists ───────────────
 if [[ -n "${DRY_RUN}" && -d "${STAGING_DIR}" ]]; then
     echo "==> Dry run: reusing existing staging directory"
@@ -191,11 +297,7 @@ else
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"
 
-    if find "${STAGING_DIR}" -name '*ci.ohpc*.rpm' -print -quit | grep -q .; then
-        echo "Error: CI-stamped RPMs found in staging; refusing to publish release artifacts" >&2
-        find "${STAGING_DIR}" -name '*ci.ohpc*.rpm' -print >&2
-        exit 1
-    fi
+    validate_staged_release
 
     # ── Sign RPMs ────────────────────────────────────────────────────
     echo "==> Signing RPMs with GPG key: ${GPG_KEY_NAME}"
@@ -212,6 +314,8 @@ else
     cp "${SCRIPT_DIR}/repo-files/EL_10/versatushpc-openhpc.repo" "${STAGING_DIR}/EL_10/"
     cp "${SCRIPT_DIR}/repo-files/openEuler_24.03/versatushpc-openhpc.repo" "${STAGING_DIR}/openEuler_24.03/"
 fi
+
+validate_staged_release
 
 # ── Sync to repo server via SFTP (lftp) ─────────────────────────────
 REMOTE_RELEASE_PATH="${REMOTE_PATH}/${RELEASE_DIR}"

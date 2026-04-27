@@ -14,6 +14,9 @@ module-whatis "URL: http://mvapich.cse.ohio-state.edu"
 
 set     version             4.1
 
+depends-on      hwloc
+depends-on      ucx
+
 setenv          MPI_DIR             /opt/ohpc/pub/mpi/mvapich2-intel/4.1
 prepend-path    PATH                /opt/ohpc/pub/mpi/mvapich2-intel/4.1/bin
 prepend-path    MANPATH             /opt/ohpc/pub/mpi/mvapich2-intel/4.1/share/man

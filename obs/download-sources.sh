@@ -10,6 +10,36 @@ COUNT=0
 SKIP=0
 FAIL=0
 
+download_source() {
+    local target="$1"
+    local url="$2"
+
+    # Skip if already exists and non-empty
+    if [ -s "$target" ]; then
+        SKIP=$((SKIP + 1))
+        return
+    fi
+
+    mkdir -p "$(dirname "$target")"
+    printf "  [%3d] %-55s " "$((COUNT+1))" "$(basename "$target")"
+    if timeout 1800 wget -q --timeout=60 --tries=2 -O "$target" "$url" 2>/dev/null; then
+        local size
+        size=$(stat -c %s "$target" 2>/dev/null || echo 0)
+        if [ "$size" -gt 100 ]; then
+            COUNT=$((COUNT + 1))
+            echo "OK ($(numfmt --to=iec "$size" 2>/dev/null || echo "${size}B"))"
+        else
+            rm -f "$target"
+            FAIL=$((FAIL + 1))
+            echo "FAIL (empty/tiny)"
+        fi
+    else
+        rm -f "$target"
+        FAIL=$((FAIL + 1))
+        echo "FAIL"
+    fi
+}
+
 process_rules() {
     local rules="$1"
     local comp_dir
@@ -30,6 +60,15 @@ process_rules() {
     # Find all wget lines in the file, join continuation lines
     local content
     content=$(sed ':a;/\\$/N;s/\\\n//;ta' "$rules" 2>/dev/null)
+
+    while read -r outfile url; do
+        [ -n "$outfile" ] || continue
+        [ -n "$url" ] || continue
+        case "$outfile" in
+            SOURCES/*) download_source "$comp_dir/$outfile" "$url" ;;
+            *) download_source "$comp_dir/SOURCES/$outfile" "$url" ;;
+        esac
+    done < <(sed -n 's/^[[:space:]]*#[[:space:]]*OBS-Source:[[:space:]]*//p' "$rules")
 
     while IFS= read -r wgetline; do
         [ -z "$wgetline" ] && continue
@@ -67,30 +106,7 @@ process_rules() {
 
         local target="$comp_dir/$outfile"
 
-        # Skip if already exists and non-empty
-        if [ -s "$target" ]; then
-            SKIP=$((SKIP + 1))
-            continue
-        fi
-
-        mkdir -p "$(dirname "$target")"
-        printf "  [%3d] %-55s " "$((COUNT+1))" "$(basename "$target")"
-        if timeout 1800 wget -q --timeout=60 --tries=2 -O "$target" "$url" 2>/dev/null; then
-            local size
-            size=$(stat -c %s "$target" 2>/dev/null || echo 0)
-            if [ "$size" -gt 100 ]; then
-                COUNT=$((COUNT + 1))
-                echo "OK ($(numfmt --to=iec "$size" 2>/dev/null || echo "${size}B"))"
-            else
-                rm -f "$target"
-                FAIL=$((FAIL + 1))
-                echo "FAIL (empty/tiny)"
-            fi
-        else
-            rm -f "$target"
-            FAIL=$((FAIL + 1))
-            echo "FAIL"
-        fi
+        download_source "$target" "$url"
     done < <(echo "$content" | grep 'wget')
 }
 

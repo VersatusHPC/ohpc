@@ -7,6 +7,8 @@ Build-Depends: debhelper-compat (= 13),
                gnu15-compilers-ohpc,
                lmod-ohpc,
                hwloc-ohpc,
+               ucx-ohpc,
+               ucx-devel-ohpc,
                rdma-core,
                libibverbs-dev,
                librdmacm-dev,
@@ -22,6 +24,9 @@ Package: mvapich2-gnu15-ohpc
 Architecture: any
 Depends: ohpc-filesystem,
          gnu15-compilers-ohpc,
+         hwloc-ohpc,
+         ucx-ohpc,
+         ucx-ib-ohpc,
          prun-ohpc,
          ${shlibs:Depends},
          ${misc:Depends}

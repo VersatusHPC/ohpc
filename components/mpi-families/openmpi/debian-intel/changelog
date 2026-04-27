@@ -1,3 +1,9 @@
+openmpi5-intel-ohpc (5.0.10-1ohpc2~noble) noble; urgency=medium
+
+  * Add explicit runtime dependencies for external libevent and PMIx.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Mon, 27 Apr 2026 22:25:00 +0000
+
 openmpi5-intel-ohpc (5.0.10-1ohpc1~noble) noble; urgency=low
   * Initial Debian packaging for OpenHPC Ubuntu port.
  -- VersatusHPC <packages@versatushpc.com.br>  Sat, 29 Mar 2026 00:00:00 +0000

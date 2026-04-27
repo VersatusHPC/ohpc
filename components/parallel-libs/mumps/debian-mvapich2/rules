@@ -13,6 +13,7 @@ VERSION         := 5.8.2
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 OPENBLAS_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/openblas/0.3.32/lib
 SCALAPACK_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scalapack/2.2.3/lib
+GNU_LIBDIR      := /opt/ohpc/pub/compiler/gcc/15.2.0/lib64
 SRCDIR          := $(CURDIR)/MUMPS_$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas scalapack" bash /build/devel/build-mpi.sh
@@ -60,7 +61,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(OPENBLAS_LIBDIR):$(SCALAPACK_LIBDIR) -- --ignore-missing-info
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(OPENBLAS_LIBDIR):$(SCALAPACK_LIBDIR):$(GNU_LIBDIR) -- --ignore-missing-info
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true
