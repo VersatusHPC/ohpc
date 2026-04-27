@@ -222,9 +222,9 @@ cls -la ${REMOTE_PATH};
 else
     LFTP_COMMANDS="
 cd ${REMOTE_PATH};
-mkdir -p ${RELEASE_DIR};
-mkdir -p ${RELEASE_DIR}/EL_10;
-mkdir -p ${RELEASE_DIR}/openEuler_24.03;
+mkdir -pf ${RELEASE_DIR};
+mkdir -pf ${RELEASE_DIR}/EL_10;
+mkdir -pf ${RELEASE_DIR}/openEuler_24.03;
 mirror --reverse --delete --verbose \
     ${STAGING_DIR}/EL_10/ ${RELEASE_DIR}/EL_10/;
 mirror --reverse --delete --verbose \
