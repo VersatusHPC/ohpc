@@ -20,5 +20,6 @@ set -- "${_SAVED_ARGS[@]}"
 
 # Load dependency modules
 module load hwloc
+module load ucx
 
 exec "$@"

@@ -42,6 +42,10 @@ BuildRequires: cmake%{PROJ_DELIM}
 BuildRequires: gcc
 BuildRequires: gcc-c++
 BuildRequires: python3
+BuildRequires: perl(File::Copy)
+%if 0%{?rhel}
+BuildRequires: perl-FindBin
+%endif
 BuildRequires: zlib-devel
 BuildRequires: pkgconfig
 BuildRequires: binutils-devel
@@ -86,6 +90,13 @@ find . -type f -exec sed -i '1s@#! */usr/bin/env python\($\| \)@#!/usr/bin/pytho
 # GCC 15 no longer leaves uintptr_t visible through this header chain.
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Support/Signals.h
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
+
+# Python 3.12 removed distutils. LLVM 10's libc++ archive merge helper only uses
+# distutils.spawn.find_executable, which is equivalent to shutil.which here.
+sed -i \
+    -e 's/import distutils\.spawn/import shutil/' \
+    -e 's/distutils\.spawn\.find_executable/shutil.which/g' \
+    libcxx/utils/merge_archives.py
 
 # CMake 4 rejects compatibility with policy versions older than 3.5. LLVM 10
 # creates nested runtime projects that do not inherit the top-level
@@ -168,6 +179,9 @@ cd $STAGE2
 # The stage2 OpenMP runtime also uses long-double complex helpers that LLVM 10's
 # ppc64le compiler-rt builtins archive does not provide. Keep compiler-rt as the
 # default runtime, but let libomp pull the missing GCC builtins statically.
+# LLVM 10's libomp linker flag probe can false-negative under the stage2
+# bootstrap toolchain. Force the known-supported version script flag so libomp
+# keeps the GOMP symbol version nodes from exports_so.txt.
 STAGE2_GCC_BUILTINS="$(gcc --print-libgcc-file-name)"
 cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DCMAKE_BUILD_TYPE=Release \
@@ -231,7 +245,8 @@ cmake -DPYTHON_EXECUTABLE=/usr/bin/python3 \
       -DLIBCXX_CXX_ABI_INCLUDE_PATHS="$MAIN/libcxxabi/include" \
       -DLIBOMP_ENABLE_SHARED=On \
       -DLIBOMP_ENABLE_STATIC=Off \
-      -DLIBOMP_LIBFLAGS="-lm $STAGE2_GCC_BUILTINS" \
+      -DLIBOMP_HAVE_VERSION_SCRIPT_FLAG=1 \
+      -DLIBOMP_LIBFLAGS="-lm $STAGE2_GCC_BUILTINS -Wl,--undefined-version" \
       -DLIBOMP_FORTRAN_MODULES=Off \
       -DLIBOMP_COPY_EXPORTS=Off \
       -DLIBOMP_USE_HWLOC=Off \

@@ -19,7 +19,9 @@ Homepage: https://www.open-mpi.org/
 Package: openmpi5-intel-ohpc
 Architecture: any
 Provides: openmpi5-pmix-intel-ohpc
-Depends: ohpc-filesystem, intel-compilers-devel-ohpc, hwloc-ohpc, ucx-ohpc,
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, hwloc-ohpc,
+         libevent-core-2.1-7t64, libevent-pthreads-2.1-7t64,
+         pmix-ohpc, ucx-ohpc,
          ${shlibs:Depends}, ${misc:Depends}
 Description: Open MPI 5 (Intel compilers, OpenHPC)
  Open MPI built with Intel compilers (icx/icpx/ifx).

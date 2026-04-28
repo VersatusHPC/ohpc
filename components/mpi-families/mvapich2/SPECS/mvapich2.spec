@@ -48,8 +48,13 @@ Buildrequires: rdma-core-devel libibmad-devel
 %endif
 
 Requires: prun%{PROJ_DELIM}
+Requires: hwloc%{PROJ_DELIM}
+Requires: ucx%{PROJ_DELIM}
+Requires: ucx-ib%{PROJ_DELIM}
 BuildRequires: bison make m4
 BuildRequires: zlib-devel
+BuildRequires: hwloc%{PROJ_DELIM}
+BuildRequires: ucx%{PROJ_DELIM}
 
 # Default library install path
 %define install_path %{OHPC_MPI_STACKS}/%{pname}-%{compiler_family}/%version
@@ -67,6 +72,7 @@ point-to-point communication for HPC clusters.
 
 %build
 %ohpc_setup_compiler
+module load ucx
 %if "%{compiler_family}" == "gnu12" || "%{compiler_family}" == "gnu13" || "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 # configure fails with:
 #   The Fortran compiler gfortran does not accept programs that
@@ -143,6 +149,8 @@ prepend-path    MODULEPATH          %{OHPC_MODULEDEPS}/%{compiler_family}-%{pnam
 prepend-path    MPI_DIR             %{install_path}
 prepend-path    PKG_CONFIG_PATH     %{install_path}/lib/pkgconfig
 
+depends-on hwloc
+depends-on ucx
 family "MPI"
 EOF
 

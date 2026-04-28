@@ -102,8 +102,26 @@ Description: OpenHPC server packages for SLURM
 
 Package: ohpc-gnu15-io-libs
 Architecture: any
-Depends: hdf5-gnu15-ohpc,
+Depends: adios2-gnu15-mpich-ohpc,
+         adios2-gnu15-openmpi5-ohpc,
+         adios2-gnu15-mvapich2-ohpc,
+         hdf5-gnu15-ohpc,
+         netcdf-cxx-gnu15-mpich-ohpc,
+         netcdf-cxx-gnu15-openmpi5-ohpc,
+         netcdf-cxx-gnu15-mvapich2-ohpc,
+         netcdf-fortran-gnu15-mpich-ohpc,
+         netcdf-fortran-gnu15-openmpi5-ohpc,
+         netcdf-fortran-gnu15-mvapich2-ohpc,
          netcdf-gnu15-ohpc,
+         netcdf-gnu15-mpich-ohpc,
+         netcdf-gnu15-openmpi5-ohpc,
+         netcdf-gnu15-mvapich2-ohpc,
+         pnetcdf-gnu15-mpich-ohpc,
+         pnetcdf-gnu15-openmpi5-ohpc,
+         pnetcdf-gnu15-mvapich2-ohpc,
+         phdf5-gnu15-mpich-ohpc,
+         phdf5-gnu15-openmpi5-ohpc,
+         phdf5-gnu15-mvapich2-ohpc,
          ${misc:Depends}
 Description: OpenHPC IO libraries for GNU (all MPI families)
  Collection of IO library builds for use with GNU compiler toolchain.
@@ -142,21 +160,36 @@ Package: ohpc-gnu15-parallel-libs
 Architecture: any
 Depends: boost-gnu15-mpich-ohpc,
          boost-gnu15-openmpi5-ohpc,
+         boost-gnu15-mvapich2-ohpc,
          fftw-gnu15-mpich-ohpc,
          fftw-gnu15-openmpi5-ohpc,
+         fftw-gnu15-mvapich2-ohpc,
          hypre-gnu15-mpich-ohpc,
          hypre-gnu15-openmpi5-ohpc,
+         hypre-gnu15-mvapich2-ohpc,
+         mfem-gnu15-mpich-ohpc,
+         mfem-gnu15-openmpi5-ohpc,
+         mfem-gnu15-mvapich2-ohpc,
          mumps-gnu15-mpich-ohpc,
          mumps-gnu15-openmpi5-ohpc,
+         mumps-gnu15-mvapich2-ohpc,
          petsc-gnu15-mpich-ohpc,
+         petsc-gnu15-openmpi5-ohpc,
+         petsc-gnu15-mvapich2-ohpc,
          scalapack-gnu15-mpich-ohpc,
          scalapack-gnu15-openmpi5-ohpc,
+         scalapack-gnu15-mvapich2-ohpc,
          slepc-gnu15-mpich-ohpc,
+         slepc-gnu15-openmpi5-ohpc,
+         slepc-gnu15-mvapich2-ohpc,
          ptscotch-gnu15-mpich-ohpc,
          ptscotch-gnu15-openmpi5-ohpc,
+         ptscotch-gnu15-mvapich2-ohpc,
          superlu-dist-gnu15-mpich-ohpc,
          superlu-dist-gnu15-openmpi5-ohpc,
+         superlu-dist-gnu15-mvapich2-ohpc,
          trilinos-gnu15-mpich-ohpc,
+         trilinos-gnu15-mvapich2-ohpc,
          ${misc:Depends}
 Description: OpenHPC parallel libraries for GNU (all MPI families)
  Collection of parallel library builds for use with GNU compiler toolchain.
@@ -187,14 +220,52 @@ Architecture: any
 Depends: boost-gnu15-openmpi5-ohpc,
          fftw-gnu15-openmpi5-ohpc,
          hypre-gnu15-openmpi5-ohpc,
+         mfem-gnu15-openmpi5-ohpc,
          mumps-gnu15-openmpi5-ohpc,
+         petsc-gnu15-openmpi5-ohpc,
          scalapack-gnu15-openmpi5-ohpc,
+         slepc-gnu15-openmpi5-ohpc,
          ptscotch-gnu15-openmpi5-ohpc,
          superlu-dist-gnu15-openmpi5-ohpc,
          ${misc:Depends}
 Description: OpenHPC parallel libraries for GNU and OpenMPI
  Collection of parallel library builds for use with GNU compiler toolchain
  and the OpenMPI runtime.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-mvapich2-io-libs
+Architecture: any
+Depends: hdf5-gnu15-ohpc,
+         netcdf-cxx-gnu15-mvapich2-ohpc,
+         netcdf-fortran-gnu15-mvapich2-ohpc,
+         netcdf-gnu15-mvapich2-ohpc,
+         pnetcdf-gnu15-mvapich2-ohpc,
+         phdf5-gnu15-mvapich2-ohpc,
+         ${misc:Depends}
+Description: OpenHPC IO libraries for GNU and MVAPICH2
+ Collection of IO library builds for use with GNU compiler toolchain and
+ the MVAPICH2 runtime.
+ .
+ This is an OpenHPC meta-package.
+
+Package: ohpc-gnu15-mvapich2-parallel-libs
+Architecture: any
+Depends: boost-gnu15-mvapich2-ohpc,
+         fftw-gnu15-mvapich2-ohpc,
+         hypre-gnu15-mvapich2-ohpc,
+         mfem-gnu15-mvapich2-ohpc,
+         mumps-gnu15-mvapich2-ohpc,
+         petsc-gnu15-mvapich2-ohpc,
+         scalapack-gnu15-mvapich2-ohpc,
+         slepc-gnu15-mvapich2-ohpc,
+         ptscotch-gnu15-mvapich2-ohpc,
+         superlu-dist-gnu15-mvapich2-ohpc,
+         trilinos-gnu15-mvapich2-ohpc,
+         ${misc:Depends}
+Description: OpenHPC parallel libraries for GNU and MVAPICH2
+ Collection of parallel library builds for use with GNU compiler toolchain
+ and the MVAPICH2 runtime.
  .
  This is an OpenHPC meta-package.
 

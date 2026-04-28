@@ -45,18 +45,19 @@ jobs:
         OUTPUT_FILE="artifacts/output.md"
         ERROR_FILE="artifacts/error.txt"
 
-        # Extract version from base ref (e.g., "4.x" -> "4")
-        VERSION="${GITHUB_BASE_REF%.x}"
+        # Extract version from base ref (e.g., "4.x" -> "4" or "versatushpc/4.x" -> "4")
+        BASE_REF_NAME="${GITHUB_BASE_REF##*/}"
+        VERSION="${BASE_REF_NAME%.x}"
 
         ./misc/dist/count_avail_packages.sh --no-glow -f "${VERSION}" > "${OUTPUT_FILE}" 2> "${ERROR_FILE}"
         EXIT_CODE=$?
 
-        echo "exit_code=${EXIT_CODE}" >> $GITHUB_OUTPUT
+        echo "exit_code=${EXIT_CODE}" >> "${GITHUB_OUTPUT}"
 
-        if [ ${EXIT_CODE} -eq 0 ]; then
-          echo "status=success" >> $GITHUB_OUTPUT
+        if [ "${EXIT_CODE}" -eq 0 ]; then
+          echo "status=success" >> "${GITHUB_OUTPUT}"
         else
-          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "status=failure" >> "${GITHUB_OUTPUT}"
         fi
 
     - name: Generate analysis comment
@@ -72,20 +73,21 @@ jobs:
           OVERALL_STATUS="❌ **Analysis failed**"
         fi
 
-        VERSION_INFO="OpenHPC ${GITHUB_BASE_REF%.x}.x"
+        BASE_REF_NAME="${GITHUB_BASE_REF##*/}"
+        VERSION_INFO="OpenHPC ${BASE_REF_NAME%.x}.x"
 
         # Prepare the comment content
-        cat > artifacts/comment.md << 'EOF'
-        ## 📦 Package Count Analysis Results
-
-        **Environment:** UBI 10 Container
-        **Target Branch:** `${{ github.base_ref }}`
-        **Version:** ${VERSION_INFO}
-        **Overall Status:** ${OVERALL_STATUS}
-
-        ### 🏭 Factory Repositories
-        **Status:** ${ANALYSIS_RESULT}
-        EOF
+        {
+          echo "## 📦 Package Count Analysis Results"
+          echo ""
+          echo "**Environment:** UBI 10 Container"
+          printf "**Target Branch:** \`%s\`\n" "${GITHUB_BASE_REF}"
+          echo "**Version:** ${VERSION_INFO}"
+          echo "**Overall Status:** ${OVERALL_STATUS}"
+          echo ""
+          echo "### 🏭 Factory Repositories"
+          echo "**Status:** ${ANALYSIS_RESULT}"
+        } > artifacts/comment.md
 
         if [ -s "artifacts/output.md" ]; then
           echo "" >> artifacts/comment.md
@@ -93,25 +95,24 @@ jobs:
         fi
 
         if [ "${{ steps.analysis.outputs.status }}" != "success" ] && [ -s "artifacts/error.txt" ]; then
-          echo "" >> artifacts/comment.md
-          echo "#### ❌ Analysis Error Details" >> artifacts/comment.md
-          echo "" >> artifacts/comment.md
-          echo "\`\`\`" >> artifacts/comment.md
-          cat artifacts/error.txt >> artifacts/comment.md
-          echo "\`\`\`" >> artifacts/comment.md
+          {
+            echo ""
+            echo "#### ❌ Analysis Error Details"
+            echo ""
+            echo "\`\`\`"
+            cat artifacts/error.txt
+            echo "\`\`\`"
+          } >> artifacts/comment.md
         fi
 
         # Add metadata footer
-        echo "" >> artifacts/comment.md
-        echo "---" >> artifacts/comment.md
-        echo "*Analysis performed by OpenHPC Package Count CI*  " >> artifacts/comment.md
-        echo "*Commit: \`${GITHUB_SHA:0:8}\`*  " >> artifacts/comment.md
-        echo "*Workflow: [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})*" >> artifacts/comment.md
-
-        # Substitute variables in the comment
-        sed -i "s/\${VERSION_INFO}/${VERSION_INFO}/g" artifacts/comment.md
-        sed -i "s/\${OVERALL_STATUS}/${OVERALL_STATUS}/g" artifacts/comment.md
-        sed -i "s/\${ANALYSIS_RESULT}/${ANALYSIS_RESULT}/g" artifacts/comment.md
+        {
+          echo ""
+          echo "---"
+          echo "*Analysis performed by OpenHPC Package Count CI*  "
+          echo "*Commit: \`${GITHUB_SHA:0:8}\`*  "
+          echo "*Workflow: [\`${GITHUB_RUN_ID}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})*"
+        } >> artifacts/comment.md
 
     - name: Upload package count results
       if: always()

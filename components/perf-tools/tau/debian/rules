@@ -24,6 +24,7 @@ endif
 PDTOOLKIT_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/pdtoolkit/3.25.1/$(TAU_ARCH_DIR)/lib
 OTF2_LIBDIR      := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/otf2/3.1.1/lib
 PAPI_LIBDIR      := /opt/ohpc/pub/libs/papi/7.2.0/lib
+GNU_LIBDIR       := /opt/ohpc/pub/compiler/gcc/15.2.0/lib64
 TAU_ARCH_LIBDIR  := $(PKG)$(INSTALL_PATH)/$(TAU_ARCH_DIR)/lib
 
 %:
@@ -67,7 +68,7 @@ override_dh_usrlocal:
 
 override_dh_shlibdeps:
 	shared_dirs=$$(find $(TAU_ARCH_LIBDIR) -maxdepth 1 -type d -name 'shared-*' -printf '%p:' 2>/dev/null); \
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(TAU_ARCH_LIBDIR):$${shared_dirs}$(PDTOOLKIT_LIBDIR):$(OTF2_LIBDIR):$(PAPI_LIBDIR) -- --ignore-missing-info
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(TAU_ARCH_LIBDIR):$${shared_dirs}$(PDTOOLKIT_LIBDIR):$(OTF2_LIBDIR):$(PAPI_LIBDIR):$(GNU_LIBDIR) -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

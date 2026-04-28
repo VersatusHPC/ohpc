@@ -20,12 +20,13 @@ HDF5_LIBDIR     := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/phdf5/2.1
 NETCDF_LIBDIR   := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/netcdf/4.10.0/lib
 PNETCDF_LIBDIR  := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/pnetcdf/1.14.1/lib
 METIS_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/metis/5.1.0/lib
-PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.10/lib
-SCOTCH_LIBDIR   := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/scotch/7.0.10/lib
+PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.11/lib
+SCOTCH_LIBDIR   := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/scotch/7.0.11/lib
 SUPERLU_LIBDIR  := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/superlu_dist/9.2.1/lib
 MUMPS_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/mumps/5.8.2/lib
 HYPRE_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/hypre/3.1.0/lib
-TPL_LIBDIRS     := $(OPENBLAS_LIBDIR):$(SCALAPACK_LIBDIR):$(BOOST_LIBDIR):$(HDF5_LIBDIR):$(NETCDF_LIBDIR):$(PNETCDF_LIBDIR):$(METIS_LIBDIR):$(PTSCOTCH_LIBDIR):$(SCOTCH_LIBDIR):$(SUPERLU_LIBDIR):$(MUMPS_LIBDIR):$(HYPRE_LIBDIR)
+INTEL_LIB       := /opt/intel/oneapi/compiler/latest/lib
+TPL_LIBDIRS     := $(OPENBLAS_LIBDIR):$(SCALAPACK_LIBDIR):$(BOOST_LIBDIR):$(HDF5_LIBDIR):$(NETCDF_LIBDIR):$(PNETCDF_LIBDIR):$(METIS_LIBDIR):$(PTSCOTCH_LIBDIR):$(SCOTCH_LIBDIR):$(SUPERLU_LIBDIR):$(MUMPS_LIBDIR):$(HYPRE_LIBDIR):$(INTEL_LIB)
 SRCDIR          := $(CURDIR)/Trilinos-trilinos-release-$(VER_EXP)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas scalapack boost phdf5 netcdf pnetcdf metis ptscotch scotch superlu_dist mumps hypre" bash /build/devel/build-mpi.sh
@@ -120,7 +121,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib64:$(PKG)$(INSTALL_PATH)/lib:$(TPL_LIBDIRS) -- --ignore-missing-info
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib64:$(PKG)$(INSTALL_PATH)/lib:$(TPL_LIBDIRS) -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

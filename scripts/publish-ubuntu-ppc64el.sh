@@ -34,6 +34,9 @@ GPG_PUBLIC_KEY="${GPG_PUBLIC_KEY:-${REPO_ROOT}/RPM-GPG-KEY-VersatusHPC}"
 APT_SOURCE_FILE="${APT_SOURCE_FILE:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/versatushpc-openhpc.list}"
 LOCAL_REPO_SCRIPT="${LOCAL_REPO_SCRIPT:-${SCRIPT_DIR}/repo-files/Ubuntu_24.04/make_repo.sh}"
 PROMOTE_SCRIPT="${PROMOTE_SCRIPT:-${SCRIPT_DIR}/promote-update-release.sh}"
+MIN_PPC64EL_DEB_COUNT="${MIN_PPC64EL_DEB_COUNT:-120}"
+MIN_AMD64_DEB_COUNT="${MIN_AMD64_DEB_COUNT:-290}"
+MIN_ALL_DEB_COUNT="${MIN_ALL_DEB_COUNT:-21}"
 
 REMOTE_USER="${REMOTE_USER:-reposync}"
 REMOTE_HOST="${REMOTE_HOST:-172.21.1.40}"
@@ -134,6 +137,103 @@ prune_stale_arch_all_packages() {
     done
     echo "    removed stale architecture-all packages: ${removed}"
     echo "    skipped stale architecture-all packages: ${skipped}"
+}
+
+require_deb_count() {
+    local label="$1"
+    local directory="$2"
+    local minimum="$3"
+    local count
+
+    if [[ ! -d "${directory}" ]]; then
+        echo "Error: ${label} directory missing: ${directory}" >&2
+        return 1
+    fi
+
+    count="$(find "${directory}" -maxdepth 1 -name '*.deb' | wc -l)"
+    if (( count < minimum )); then
+        echo "Error: ${label} contains ${count} .deb files; expected at least ${minimum}" >&2
+        return 1
+    fi
+}
+
+require_deb_package_version() {
+    local packages_file="$1"
+    local package="$2"
+    local arch="$3"
+    local version_prefix="$4"
+
+    if ! awk -v want_package="${package}" -v want_arch="${arch}" -v want_version="${version_prefix}" '
+        BEGIN { RS=""; FS="\n"; found=0 }
+        {
+            package=""; arch=""; version="";
+            for (i = 1; i <= NF; i++) {
+                if ($i ~ /^Package: /) package=substr($i, 10);
+                if ($i ~ /^Architecture: /) arch=substr($i, 15);
+                if ($i ~ /^Version: /) version=substr($i, 10);
+            }
+            if (package == want_package && arch == want_arch && index(version, want_version) == 1) {
+                found=1;
+            }
+        }
+        END { exit(found ? 0 : 1) }
+    ' "${packages_file}"; then
+        echo "Error: ${package}:${arch} version ${version_prefix}* not found in ${packages_file}" >&2
+        return 1
+    fi
+}
+
+validate_staged_repo() {
+    local packages_file="${STAGING_REPO}/Packages"
+    local stale_list
+
+    if [[ ! -f "${packages_file}" ]]; then
+        echo "Error: staged repository is missing Packages metadata: ${packages_file}" >&2
+        exit 1
+    fi
+
+    stale_list="$(find "${STAGING_REPO}" -name '*.deb' \( \
+        -name 'mvapich2-gnu15-ohpc_2.*.deb' -o \
+        -name 'mpich-gnu15-ohpc_5.0.0-*.deb' -o \
+        -name 'lmod-ohpc_9.0.5-*.deb' -o \
+        -name 'ohpc-*_4.0-*.deb' \
+    \) -print)"
+    stale_list+="$(
+        find "${STAGING_REPO}/source" -maxdepth 1 -type f \( \
+            -name 'mvapich2-gnu15-ohpc_2.*' -o \
+            -name 'mpich-gnu15-ohpc_5.0.0-*' -o \
+            -name 'lmod-ohpc_9.0.5-*' -o \
+            -name 'ohpc-meta-packages_4.0-*' \
+        \) -print 2>/dev/null
+    )"
+    if [[ -n "${stale_list}" ]]; then
+        echo "Error: stale Debian artifacts found in staging; refusing to publish release artifacts" >&2
+        printf '%s\n' "${stale_list}" >&2
+        exit 1
+    fi
+
+    require_deb_count "ppc64el package directory" "${STAGING_REPO}/ppc64el" "${MIN_PPC64EL_DEB_COUNT}"
+    require_deb_count "amd64 package directory" "${STAGING_REPO}/amd64" "${MIN_AMD64_DEB_COUNT}"
+    require_deb_count "all package directory" "${STAGING_REPO}/all" "${MIN_ALL_DEB_COUNT}"
+
+    for arch in amd64 ppc64el; do
+        require_deb_package_version "${packages_file}" gnu15-compilers-ohpc "${arch}" "15.2.0"
+        require_deb_package_version "${packages_file}" lmod-ohpc "${arch}" "9.2"
+        require_deb_package_version "${packages_file}" mpich-gnu15-ohpc "${arch}" "5.0.1"
+        require_deb_package_version "${packages_file}" mvapich2-gnu15-ohpc "${arch}" "${OHPC_VERSION}"
+        require_deb_package_version "${packages_file}" openmpi5-gnu15-ohpc "${arch}" "5.0.10"
+        require_deb_package_version "${packages_file}" ucx-ohpc "${arch}" "1.20.0"
+        require_deb_package_version "${packages_file}" scalapack-gnu15-openmpi5-ohpc "${arch}" "2.2.3"
+        require_deb_package_version "${packages_file}" petsc-gnu15-mpich-ohpc "${arch}" "3.25.0"
+        require_deb_package_version "${packages_file}" petsc-gnu15-openmpi5-ohpc "${arch}" "3.25.0"
+        require_deb_package_version "${packages_file}" slepc-gnu15-mpich-ohpc "${arch}" "3.25.0"
+        require_deb_package_version "${packages_file}" slepc-gnu15-openmpi5-ohpc "${arch}" "3.25.0"
+        require_deb_package_version "${packages_file}" mfem-gnu15-openmpi5-ohpc "${arch}" "4.9"
+        require_deb_package_version "${packages_file}" r-gnu15-ohpc "${arch}" "4.5.3"
+    done
+
+    require_deb_package_version "${packages_file}" ohpc-release all "1:${OHPC_VERSION}"
+    require_deb_package_version "${packages_file}" ohpc-filesystem all "${OHPC_VERSION}"
 }
 
 require_command() {
@@ -255,6 +355,8 @@ podman run --rm -v "${STAGING_REPO}:/repo:z" "${IMAGE}" bash -lc '
     apt-ftparchive release . > Release
 '
 
+validate_staged_repo
+
 echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
 (
     cd "${STAGING_REPO}"
@@ -264,18 +366,20 @@ echo "==> Signing APT Release metadata with: ${GPG_KEY_NAME}"
         --digest-algo SHA256 --armor --detach-sign --output Release.gpg Release
 )
 
-LFTP_DRY_RUN=""
-LFTP_KEY_UPLOADS="
-rm -f ${REMOTE_PATH}/versatushpc*.gpg;
-put -O ${REMOTE_PATH} ${GPG_PUBLIC_KEY};
-put -O ${REMOTE_PATH} ${STAGING_REPO}/versatushpc.gpg;
-"
 if [[ -n "${DRY_RUN}" ]]; then
-    LFTP_DRY_RUN="--dry-run"
-    LFTP_KEY_UPLOADS="
+    LFTP_COMMANDS="
 cls -la ${REMOTE_PATH};
 "
     echo "*** DRY RUN - no files will be transferred ***"
+else
+    LFTP_COMMANDS="
+cd ${REMOTE_PATH};
+mkdir -pf ${RELEASE_DIR}/Ubuntu_24.04;
+mirror --reverse --delete --verbose ${STAGING_REPO}/ ${RELEASE_DIR}/Ubuntu_24.04/;
+rm -f versatushpc*.gpg;
+put -O . ${GPG_PUBLIC_KEY};
+put -O . ${STAGING_REPO}/versatushpc.gpg;
+"
 fi
 
 echo "==> Syncing merged Ubuntu repository to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_RELEASE_PATH}"
@@ -283,9 +387,7 @@ lftp -e "
 set cmd:fail-exit yes;
 set sftp:connect-program 'ssh -l ${REMOTE_USER} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o BatchMode=yes';
 open sftp://${REMOTE_HOST};
-mkdir -pf ${REMOTE_RELEASE_PATH}/Ubuntu_24.04;
-mirror --reverse --delete --verbose ${LFTP_DRY_RUN} ${STAGING_REPO}/ ${REMOTE_RELEASE_PATH}/Ubuntu_24.04/;
-${LFTP_KEY_UPLOADS}
+${LFTP_COMMANDS}
 bye;
 "
 

@@ -290,9 +290,11 @@ def setup_local_repo():
             [
                 "dnf",
                 "-y",
+                "--best",
+                "--allowerasing",
                 "--disablerepo=*",
                 "--enablerepo=local-ohpc-ci",
-                "upgrade",
+                "distro-sync",
                 "*ohpc*",
             ]
         )

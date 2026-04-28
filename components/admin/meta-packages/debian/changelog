@@ -1,3 +1,10 @@
+ohpc-meta-packages (4.1-1ohpc1~noble) noble; urgency=low
+
+  * Refresh Ubuntu meta-package version and GNU MPI family dependencies for
+    the OpenHPC 4.1 update.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Mon, 27 Apr 2026 10:00:00 +0000
+
 ohpc-meta-packages (4.0-1ohpc4~noble) noble; urgency=low
 
   * Make GNU meta-packages architecture-specific and drop dependencies on

@@ -13,6 +13,7 @@ PNAME           := slepc
 VERSION         := 3.25.0
 INSTALL_PATH    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/$(PNAME)/$(VERSION)
 PETSC_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/petsc/3.25.0/lib
+INTEL_LIB       := /opt/intel/oneapi/compiler/latest/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="openblas petsc" bash /build/devel/build-mpi.sh
@@ -56,7 +57,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(PETSC_LIBDIR) -- --ignore-missing-info
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(PETSC_LIBDIR):$(INTEL_LIB) -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

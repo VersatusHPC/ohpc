@@ -16,8 +16,9 @@ HYPRE_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/hypre/3.1
 METIS_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/metis/5.1.0/lib
 NETCDF_LIBDIR   := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/netcdf/4.10.0/lib
 PETSC_LIBDIR    := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/petsc/3.25.0/lib
-PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.10/lib
+PTSCOTCH_LIBDIR := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/scotch/7.0.11/lib
 SUPERLU_LIBDIR  := /opt/ohpc/pub/libs/$(COMPILER_FAMILY)/$(MPI_FAMILY)/superlu_dist/9.2.1/lib
+INTEL_LIB       := /opt/intel/oneapi/compiler/latest/lib
 SRCDIR          := $(CURDIR)/$(PNAME)-$(VERSION)
 PKG             := $(CURDIR)/debian/$(PNAME)-$(COMPILER_FAMILY)-$(MPI_FAMILY)-ohpc
 ENV             := OHPC_MODULES="hypre metis netcdf petsc superlu_dist ptscotch" bash /build/devel/build-mpi.sh
@@ -68,7 +69,7 @@ override_dh_auto_clean:
 override_dh_usrlocal:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(HYPRE_LIBDIR):$(METIS_LIBDIR):$(NETCDF_LIBDIR):$(PETSC_LIBDIR):$(PTSCOTCH_LIBDIR):$(SUPERLU_LIBDIR) -- --ignore-missing-info
+	dh_shlibdeps -l$(PKG)$(INSTALL_PATH)/lib:$(HYPRE_LIBDIR):$(METIS_LIBDIR):$(NETCDF_LIBDIR):$(PETSC_LIBDIR):$(PTSCOTCH_LIBDIR):$(SUPERLU_LIBDIR):$(INTEL_LIB) -- --ignore-missing-info || true
 
 override_dh_strip:
 	dh_strip --no-automatic-dbgsym || true

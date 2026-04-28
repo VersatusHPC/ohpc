@@ -35,5 +35,6 @@ setup_debian_multiarch_paths
 
 # Load dependency modules
 module load hwloc
+module load ucx
 
 exec "$@"

@@ -6,6 +6,15 @@ COMMIT          := ac8bbee1bddad4318de00c00f44eec8454bf3ff9
 ARCHIVE         := $(PNAME)-$(COMMIT).tar.gz
 SRCDIR          := $(CURDIR)/$(PNAME)-$(COMMIT)
 PKG             := $(CURDIR)/debian/$(PNAME)-ohpc
+GO_VERSION      := 1.24.0
+DEB_HOST_ARCH   ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+GO_HOST_ARCH    := $(if $(filter amd64,$(DEB_HOST_ARCH)),linux-amd64,$(if $(filter arm64,$(DEB_HOST_ARCH)),linux-arm64,$(if $(filter ppc64el,$(DEB_HOST_ARCH)),linux-ppc64le,unsupported)))
+GO_TARBALL      := go$(GO_VERSION).$(GO_HOST_ARCH).tar.gz
+GO_ROOT         := $(CURDIR)/.go
+
+# OBS-Source: SOURCES/mdtoc-ac8bbee1bddad4318de00c00f44eec8454bf3ff9.tar.gz https://github.com/kubernetes-sigs/mdtoc/archive/ac8bbee1bddad4318de00c00f44eec8454bf3ff9/mdtoc-ac8bbee1bddad4318de00c00f44eec8454bf3ff9.tar.gz
+# OBS-Source: SOURCES/go1.24.0.linux-amd64.tar.gz https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
+# OBS-Source: SOURCES/go1.24.0.linux-ppc64le.tar.gz https://go.dev/dl/go1.24.0.linux-ppc64le.tar.gz
 
 %:
 	dh $@
@@ -14,13 +23,20 @@ override_dh_auto_configure:
 	test -s SOURCES/$(ARCHIVE) || \
 		wget -q -O SOURCES/$(ARCHIVE) \
 			https://github.com/kubernetes-sigs/mdtoc/archive/$(COMMIT)/$(ARCHIVE)
+	test "$(GO_HOST_ARCH)" != unsupported
+	test -s SOURCES/$(GO_TARBALL) || \
+		wget -q -O SOURCES/$(GO_TARBALL) \
+			https://go.dev/dl/$(GO_TARBALL)
 	rm -rf $(SRCDIR)
+	rm -rf $(GO_ROOT)
 	tar xf SOURCES/$(ARCHIVE)
 	tar xf SOURCES/$(PNAME)-$(VERSION)-vendor.tar.gz -C $(SRCDIR)
+	mkdir -p $(GO_ROOT)
+	tar -C $(GO_ROOT) --strip-components=1 -xzf SOURCES/$(GO_TARBALL)
 
 override_dh_auto_build:
 	cd $(SRCDIR) && \
-		export PATH=/usr/lib/go-1.24/bin:/usr/local/go/bin:$$PATH && \
+		export PATH=$(GO_ROOT)/bin:$$PATH && \
 		export GOPATH=$(CURDIR)/.gopath && \
 		export GOCACHE=$(CURDIR)/.gocache && \
 		export GOFLAGS=-mod=vendor && \
@@ -33,6 +49,7 @@ override_dh_auto_install:
 
 override_dh_auto_clean:
 	rm -rf $(SRCDIR)
+	rm -rf $(GO_ROOT) $(CURDIR)/.gopath $(CURDIR)/.gocache
 
 override_dh_usrlocal:
 

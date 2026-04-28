@@ -48,6 +48,7 @@ BuildRequires:  tk-devel
 %if 0%{?rhel} || 0%{?openEuler}
 BuildRequires:  libXt-devel
 BuildRequires:  texinfo >= 5.1
+BuildRequires:  texlive-ec
 BuildRequires:  bzip2-devel
 %endif
 Requires:       cairo >= 1.2
