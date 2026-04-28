@@ -18,7 +18,7 @@
 Summary:   OpenHPC compatibility package for cuda
 Name:      %{pname}%{PROJ_DELIM}
 Version:   %{dot_version}
-Release:   %{?dist}.1
+Release:   1%{?dist}
 License:   Apache-2.0
 URL:       https://github.com/openhpc/ohpc
 Group:     %{PROJ_NAME}/dev-tools
