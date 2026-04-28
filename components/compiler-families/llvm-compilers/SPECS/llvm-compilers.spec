@@ -91,6 +91,13 @@ find . -type f -exec sed -i '1s@#! */usr/bin/env python\($\| \)@#!/usr/bin/pytho
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Support/Signals.h
 sed -i '1s/^/#include <cstdint>\n/' llvm/include/llvm/Demangle/MicrosoftDemangleNodes.h
 
+# Python 3.12 removed distutils. LLVM 10's libc++ archive merge helper only uses
+# distutils.spawn.find_executable, which is equivalent to shutil.which here.
+sed -i \
+    -e 's/import distutils\.spawn/import shutil/' \
+    -e 's/distutils\.spawn\.find_executable/shutil.which/g' \
+    libcxx/utils/merge_archives.py
+
 # CMake 4 rejects compatibility with policy versions older than 3.5. LLVM 10
 # creates nested runtime projects that do not inherit the top-level
 # CMAKE_POLICY_VERSION_MINIMUM setting, so update the source policy declarations
