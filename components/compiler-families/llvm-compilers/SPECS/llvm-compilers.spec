@@ -42,6 +42,7 @@ BuildRequires: cmake%{PROJ_DELIM}
 BuildRequires: gcc
 BuildRequires: gcc-c++
 BuildRequires: python3
+BuildRequires: perl(File::Copy)
 %if 0%{?rhel}
 BuildRequires: perl-FindBin
 %endif
