@@ -322,11 +322,12 @@ Acquire::CompressionTypes::Order { "xz"; "gz"; };
 APT
 curl -fsSL "${repo_root}/versatushpc.gpg" -o /usr/share/keyrings/versatushpc.gpg
 sources_file=/etc/apt/sources.list.d/versatushpc-openhpc.list
-curl -fsSL "${repo_base}/Ubuntu_24.04/versatushpc-openhpc.list" -o "${sources_file}"
-if [[ "${repo_channel}" != "updates" ]]; then
-    cat >"${sources_file}" <<SRC
+cat >"${sources_file}" <<SRC
 # VersatusHPC OpenHPC 4.x for Ubuntu 24.04 LTS
 deb [signed-by=/usr/share/keyrings/versatushpc.gpg] ${repo_root}/Ubuntu_24.04/ ./
+SRC
+if [[ -n "${repo_channel}" ]]; then
+    cat >>"${sources_file}" <<SRC
 deb [signed-by=/usr/share/keyrings/versatushpc.gpg] ${repo_base}/Ubuntu_24.04/ ./
 SRC
 fi

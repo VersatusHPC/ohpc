@@ -1,0 +1,49 @@
+name: Ubuntu amd64 Public Repository Validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_intel:
+        description: Run oneAPI and Intel MPI rows
+        required: false
+        default: true
+        type: boolean
+      full_ldd:
+        description: Run full missing-library audit
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ubuntu-amd64-public-repo-validation
+  cancel-in-progress: false
+
+jobs:
+  ubuntu-amd64-gnu:
+    name: Ubuntu 24.04 amd64 GNU public repo smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Ubuntu amd64 GNU public repository
+        run: scripts/validate-ubuntu-amd64-public-repo.sh --skip-intel
+
+  ubuntu-amd64-intel:
+    name: Ubuntu 24.04 amd64 oneAPI public repo smoke
+    if: ${{ inputs.run_intel }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Ubuntu amd64 oneAPI public repository
+        env:
+          FULL_LDD: ${{ inputs.full_ldd && 'true' || 'false' }}
+        run: |
+          args=(--skip-gnu --with-intel)
+          if [[ "${FULL_LDD}" == "true" ]]; then
+            args+=(--full-ldd)
+          fi
+          scripts/validate-ubuntu-amd64-public-repo.sh "${args[@]}"

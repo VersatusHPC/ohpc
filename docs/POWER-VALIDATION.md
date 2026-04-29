@@ -27,6 +27,9 @@ advertised to POWER clients.
    `lua-filesystem`, `meson`, `ninja-build`, `opensm`, `patchelf`,
    `postgresql`, `python3-meson-python`, `swig`, `sysfsutils`, `texinfo`,
    `yaml-cpp`, and `zstd`. Any OpenHPC package delta is release-blocking.
+   Architecture-locked package families are also release-blocking in the EL10
+   `ppc64le/noarch`, openEuler `ppc64le/noarch`, and Ubuntu `ppc64el/all`
+   package views.
 
 2. Validate RPM runtime behavior and meta-package closure from the public RPM
    repositories on native POWER:
@@ -84,16 +87,16 @@ advertised to POWER clients.
 
 ## Current Findings
 
-- Last public repository correctness gate: 2026-04-19.
+- Last public repository correctness gate: 2026-04-28.
 - Repository package counts after the public repair:
-  - `EL_10`: 188 packages (`noarch=8`, `ppc64le=107`, `src=73`).
-  - `openEuler_24.03`: 222 packages (`noarch=12`, `ppc64le=136`, `src=74`).
-  - `Ubuntu_24.04`: 503 packages (`all=21`, `amd64=320`, `ppc64el=162`).
+  - `EL_10`: 266 packages (`noarch=10`, `ppc64le=178`, `src=78`).
+  - `openEuler_24.03`: 375 packages (`noarch=27`, `ppc64le=268`, `src=80`).
+  - `Ubuntu_24.04`: 513 packages (`all=21`, `amd64=325`, `ppc64el=167`).
 - `scripts/compare-power-package-coverage.py --fail-on-issues` exits cleanly.
   EL10, openEuler, and Ubuntu all have the expected POWER core packages,
-  OpenHPC dependencies resolve inside each public repository view, and the
-  Ubuntu POWER package view does not include the known x86/ARM-locked package
-  families.
+  OpenHPC dependencies resolve inside each public repository view, and the EL10,
+  openEuler, and Ubuntu POWER package views do not include the known
+  x86/ARM-locked package families.
 - The repository correctness failures were stale public repository artifacts and
   overly broad POWER meta-packages, not compiler/runtime failures. Ubuntu still
   published old `Architecture: all` Intel, CUDA, and GNU meta `.deb` packages

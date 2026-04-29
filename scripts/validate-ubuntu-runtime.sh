@@ -134,15 +134,15 @@ expected_mpi_prefix() {
 
     case "$mpi" in
         openmpi5) echo "/opt/ohpc/pub/mpi/openmpi5-${compiler}/5.0.10" ;;
-        mpich) echo "/opt/ohpc/pub/mpi/mpich-ofi-${compiler}-ohpc/5.0.0" ;;
-        mvapich2) echo "/opt/ohpc/pub/mpi/mvapich2-${compiler}/2.3.7" ;;
+        mpich) echo "/opt/ohpc/pub/mpi/mpich-ofi-${compiler}-ohpc/5.0.1" ;;
+        mvapich2) echo "/opt/ohpc/pub/mpi/mvapich2-${compiler}/4.1" ;;
         impi) echo "/opt/intel/oneapi/mpi" ;;
         *) die "unknown MPI family: $mpi" ;;
     esac
 }
 
 expected_imb_prefix() {
-    printf '/opt/ohpc/pub/libs/%s/%s/imb/2021.10\n' \
+    printf '/opt/ohpc/pub/libs/%s/%s/imb/2021.11\n' \
         "$(compiler_key "$1")" "$(mpi_key "$2")"
 }
 
@@ -241,7 +241,7 @@ verify_imb_binary() {
     local compiler_name=$1 mpi_name=$2 expected_mpi_prefix=$3 expected_imb_dir imb_path
 
     expected_imb_dir=$(expected_imb_prefix "$compiler_name" "$mpi_name")
-    [ -n "${IMB_DIR:-}" ] || die "IMB_DIR is not set after loading imb/2021.10"
+    [ -n "${IMB_DIR:-}" ] || die "IMB_DIR is not set after loading imb/2021.11"
     require_path_prefix "IMB_DIR" "$IMB_DIR" "$expected_imb_dir"
 
     imb_path=$(command -v IMB-MPI1)
@@ -295,7 +295,7 @@ run_mpi_stack() {
     fi
 
     section "${label} IMB PingPong"
-    module load imb/2021.10
+    module load imb/2021.11
     verify_imb_binary "$compiler_name" "$mpi_name" "$mpi_prefix"
     if [ "$force_cma" = 1 ]; then
         MV2_SMP_USE_CMA=1 srun_node --mpi="$slurm_mpi" -N1 -n2 IMB-MPI1 PingPong -msglog 0:3 \
@@ -318,8 +318,8 @@ run_intel_stack() {
     run_mpi_stack Intel intel/2025.0.4 IMPI impi/2021.14 pmi2
     run_mpi_stack GNU15 gnu15/15.2.0 IMPI impi/2021.14 pmi2
     run_mpi_stack Intel intel/2025.0.4 openmpi5 openmpi5/5.0.10 pmix
-    run_mpi_stack Intel intel/2025.0.4 mpich mpich/5.0.0-ofi pmi2
-    run_mpi_stack Intel intel/2025.0.4 mvapich2 mvapich2/2.3.7 pmi2 1
+    run_mpi_stack Intel intel/2025.0.4 mpich mpich/5.0.1 pmi2
+    run_mpi_stack Intel intel/2025.0.4 mvapich2 mvapich2/4.1 pmi2 1
 }
 
 need_cmd apt-cache
@@ -398,8 +398,8 @@ srun_node -N1 -n1 bash -lc 'munge -n | unmunge | grep "STATUS: *Success"'
 srun_node -N1 -n1 bash -lc 'ldconfig -p | grep -E "libpmix|libhwloc"'
 
 run_mpi_stack GNU15 gnu15/15.2.0 openmpi5 openmpi5/5.0.10 pmix
-run_mpi_stack GNU15 gnu15/15.2.0 mpich mpich/5.0.0-ofi pmi2
-run_mpi_stack GNU15 gnu15/15.2.0 mvapich2 mvapich2/2.3.7 pmi2 1
+run_mpi_stack GNU15 gnu15/15.2.0 mpich mpich/5.0.1 pmi2
+run_mpi_stack GNU15 gnu15/15.2.0 mvapich2 mvapich2/4.1 pmi2 1
 
 if [ "$run_intel" = auto ]; then
     if module -t avail intel 2>&1 | grep -q '^intel' && module -t avail impi 2>&1 | grep -q '^impi'; then

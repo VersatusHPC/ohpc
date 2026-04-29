@@ -58,6 +58,10 @@ OPEN_EULER_SUPPORT_PREFIXES=(
     yaml-cpp
     zstd
 )
+POWER_EXCLUDED_RPM_GLOBS=(
+    "*arm1*.rpm"
+    "llvm10-compilers-ohpc-*.rpm"
+)
 MIN_EL10_PPC64LE_COUNT="${MIN_EL10_PPC64LE_COUNT:-120}"
 MIN_OE_PPC64LE_COUNT="${MIN_OE_PPC64LE_COUNT:-200}"
 
@@ -159,6 +163,30 @@ stage_open_euler_support_rpms() {
     done
 }
 
+prune_power_excluded_rpms() {
+    local root="$1"
+    local label="$2"
+    local removed=0
+    local pattern
+    local rpm_file
+    local search_dir
+
+    for pattern in "${POWER_EXCLUDED_RPM_GLOBS[@]}"; do
+        for search_dir in "${root}/ppc64le" "${root}/noarch" "${root}/src"; do
+            for rpm_file in "${search_dir}"/${pattern}; do
+                [[ -e "${rpm_file}" ]] || continue
+                rm -f "${rpm_file}"
+                echo "    removed ${rpm_file#${root}/}"
+                removed=$((removed + 1))
+            done
+        done
+    done
+
+    if (( removed > 0 )); then
+        echo "==> Pruned ${removed} out-of-scope POWER RPMs from ${label}"
+    fi
+}
+
 require_staged_rpm() {
     local label="$1"
     local directory="$2"
@@ -190,6 +218,7 @@ require_minimum_count() {
 
 validate_staged_release() {
     local stale_list
+    local power_excluded_list
     local stale_requires
     local label
     local root
@@ -208,6 +237,16 @@ validate_staged_release() {
     if [[ -n "${stale_list}" ]]; then
         echo "Error: stale or CI-stamped RPMs found in staging; refusing to publish release artifacts" >&2
         printf '%s\n' "${stale_list}" >&2
+        exit 1
+    fi
+
+    power_excluded_list="$(find "${STAGING_DIR}" -type f \( \
+        -name '*arm1*.rpm' -o \
+        -name 'llvm10-compilers-ohpc-*.rpm' \
+    \) -print)"
+    if [[ -n "${power_excluded_list}" ]]; then
+        echo "Error: out-of-scope POWER RPMs found in staging; refusing to publish release artifacts" >&2
+        printf '%s\n' "${power_excluded_list}" >&2
         exit 1
     fi
 
@@ -296,6 +335,9 @@ else
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/ppc64le" "${STAGING_DIR}/openEuler_24.03/ppc64le"
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/RPMS/noarch"  "${STAGING_DIR}/openEuler_24.03/noarch"
     stage_open_euler_support_rpms "${CONTAINER_RPMBUILD}/SRPMS"        "${STAGING_DIR}/openEuler_24.03/src"
+
+    prune_power_excluded_rpms "${STAGING_DIR}/EL_10" "EL10"
+    prune_power_excluded_rpms "${STAGING_DIR}/openEuler_24.03" "openEuler"
 
     validate_staged_release
 
