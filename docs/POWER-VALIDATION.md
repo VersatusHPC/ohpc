@@ -88,6 +88,8 @@ advertised to POWER clients.
 ## Current Findings
 
 - Last public repository correctness gate: 2026-04-28.
+- Final 4.1 GA compiler/MPI matrix evidence is recorded in
+  `docs/4.1GA-VALIDATION-MATRIX.md`.
 - Repository package counts after the public repair:
   - `EL_10`: 266 packages (`noarch=10`, `ppc64le=178`, `src=78`).
   - `openEuler_24.03`: 375 packages (`noarch=27`, `ppc64le=268`, `src=80`).
