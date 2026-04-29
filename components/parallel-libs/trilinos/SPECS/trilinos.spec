@@ -52,6 +52,7 @@ BuildRequires:  netcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  python3
 BuildRequires:  python3-devel
+Requires:       pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm1"
 BuildRequires:  openblas-%{compiler_family}%{PROJ_DELIM}

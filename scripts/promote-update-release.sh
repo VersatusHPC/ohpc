@@ -162,7 +162,7 @@ if [[ "${missing}" != "0" ]]; then
 fi
 
 current_alias=""
-if current_alias="$(lftp_cmd "cls -la ${REMOTE_PATH}/${UPDATE_ALIAS};" 2>/dev/null)"; then
+if current_alias="$(lftp_cmd "cls -ld ${REMOTE_PATH}/${UPDATE_ALIAS};" 2>/dev/null)"; then
     echo "Current ${UPDATE_ALIAS}: ${current_alias}"
 else
     echo "Current ${UPDATE_ALIAS} does not exist"
@@ -176,8 +176,9 @@ fi
 if [[ -n "${current_alias}" ]]; then
     first_char="${current_alias:0:1}"
     if [[ "${first_char}" == "d" ]]; then
-        echo "Error: ${REMOTE_PATH}/${UPDATE_ALIAS} is a directory; refusing to remove it" >&2
-        exit 1
+        backup_alias="${UPDATE_ALIAS}.pre-${RELEASE_DIR}-$(date -u +%Y%m%d%H%M%S)"
+        echo "Current ${UPDATE_ALIAS} is a directory; moving it to ${backup_alias}"
+        lftp_cmd "mv ${REMOTE_PATH}/${UPDATE_ALIAS} ${REMOTE_PATH}/${backup_alias};" >/dev/null
     else
         lftp_cmd "rm ${REMOTE_PATH}/${UPDATE_ALIAS};" >/dev/null
     fi

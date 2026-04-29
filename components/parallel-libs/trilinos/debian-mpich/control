@@ -38,7 +38,7 @@ Homepage: https://trilinos.org/
 
 Package: trilinos-gnu15-mpich-ohpc
 Architecture: any
-Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), mpich-gnu15-ohpc, openblas-gnu15-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Depends: ohpc-filesystem, gnu15-compilers-ohpc (>= 14.1.0), mpich-gnu15-ohpc, openblas-gnu15-ohpc, pnetcdf-gnu15-mpich-ohpc, ${shlibs:Depends}, ${misc:Depends}
 Description: A collection of libraries of numerical algorithms (gnu15 + mpich, OpenHPC)
  Trilinos is a collection of reusable scientific software libraries, known
  in particular for linear solvers, non-linear solvers, transient solvers,

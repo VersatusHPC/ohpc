@@ -298,20 +298,48 @@ ohpc_ld_library_path_for() {
     printf '%s\n' "${dirs[*]}"
 }
 
+stale_dependency_audit() {
+    section "Stale dependency audit"
+    local failed=0
+    local path needed
+    while IFS= read -r path; do
+        needed=$(readelf -d "${path}" 2>/dev/null | awk -F'[][]' '/NEEDED/ {print $2}' || true)
+        if printf '%s\n' "${needed}" | grep -Fx 'libpetsc.so.3.24' >/dev/null; then
+            echo "stale PETSc dependency: ${path}" >&2
+            failed=1
+        fi
+        if printf '%s\n' "${needed}" | grep -Fx 'libscalapack.so.2' >/dev/null; then
+            echo "stale ScaLAPACK dependency: ${path}" >&2
+            failed=1
+        fi
+    done < <(find /opt/ohpc/pub -type f \( -perm /111 -o -name '*.so' -o -name '*.so.*' \) -print 2>/dev/null | while read -r item; do file "${item}" | grep -q 'ELF' && echo "${item}"; done)
+    [[ "${failed}" == "0" ]] || die "stale dependency audit failed"
+    echo "No stale PETSc 3.24 or ScaLAPACK 2 dependencies found."
+}
+
 full_ldd_audit() {
     section "Full /opt/ohpc ldd audit"
     local failed=0
-    local path audit_path out
+    local path audit_path out status
     while IFS= read -r path; do
         audit_path=$(ohpc_ld_library_path_for "${path}")
+        set +e
         case "${path}" in
             *.so|*.so.*|*.cpython-*.so)
-                out=$(LD_LIBRARY_PATH="${audit_path}" ldd "${path}" 2>&1 || true)
+                out=$(LD_LIBRARY_PATH="${audit_path}" timeout 30s ldd "${path}" 2>&1)
                 ;;
             *)
-                out=$(LD_LIBRARY_PATH="${audit_path}" ldd -r "${path}" 2>&1 || true)
+                out=$(LD_LIBRARY_PATH="${audit_path}" timeout 30s ldd -r "${path}" 2>&1)
                 ;;
         esac
+        status=$?
+        set -e
+        if [[ "${status}" == "124" ]]; then
+            printf '%s\n' "${out}" >&2
+            echo "ldd timed out: ${path}" >&2
+            failed=1
+            continue
+        fi
         if printf '%s\n' "${out}" | grep -E 'not found|undefined symbol' >/dev/null; then
             printf '%s\n' "${out}" >&2
             echo "unresolved dependency/symbol: ${path}" >&2
@@ -376,6 +404,9 @@ apt-get install -y --no-install-recommends "${packages[@]}"
 dpkg-query -W -f='${Package} ${Version} ${Architecture}\n' "${packages[@]}" | sort
 
 section "Installed repaired library versions"
+if [[ "${OHPC_INSTALL_META}" == "1" ]]; then
+    installed_version_required r-gnu15-ohpc 4.5.3-1ohpc2
+fi
 for stack in mpich mvapich2 openmpi5; do
     installed_version_required "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
     installed_version_required "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
@@ -392,6 +423,7 @@ run_stack mvapich2 mvapich2/4.1 /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1 'MV2_ENABLE
 run_stack openmpi5 openmpi5/5.0.10 /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10 'OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 OMPI_MCA_pml=ob1 OMPI_MCA_btl=self,tcp'
 verify_likwid
 selected_ldd_audit
+stale_dependency_audit
 
 if [[ "${OHPC_FULL_LDD}" == "1" ]]; then
     full_ldd_audit

@@ -342,18 +342,181 @@ selected_ldd_audit() {
     fi
 }
 
-full_ldd_audit() {
-    section "Full /opt ldd audit"
+opt_elf_files() {
+    local -a roots=()
+    local root item
+    for root in /opt/ohpc/pub /opt/ohpc/admin; do
+        [[ -d "${root}" ]] && roots+=("${root}")
+    done
+    [[ "${#roots[@]}" -gt 0 ]] || return 0
+    find "${roots[@]}" -type f \( -perm /111 -o -name '*.so' -o -name '*.so.*' \) -print 2>/dev/null | while read -r item; do
+        file "${item}" | grep -q 'ELF' && echo "${item}"
+    done
+}
+
+ohpc_ld_library_path_for() {
+    local item=$1 dir
+    local -a dirs=()
+    local -A seen=()
+
+    add_dir() {
+        [[ -d "$1" ]] || return 0
+        [[ -z "${seen[$1]+x}" ]] || return 0
+        dirs+=("$1")
+        seen[$1]=1
+    }
+
+    add_tree_lib_dirs() {
+        [[ -d "$1" ]] || return 0
+        while IFS= read -r dir; do
+            add_dir "${dir}"
+        done < <(find "$1" -type d \( -name lib -o -name lib64 \) -print 2>/dev/null | sort)
+    }
+
+    add_oneapi_runtime_dirs() {
+        add_dir /opt/intel/oneapi/compiler/latest/lib
+        add_dir /opt/intel/oneapi/compiler/2025.0/lib
+        add_dir /opt/intel/oneapi/mpi/latest/lib
+        add_dir /opt/intel/oneapi/mpi/2021.14/lib
+    }
+
+    dir=$(dirname "${item}")
+    while [[ "${dir}" == /opt/ohpc/* && "${dir}" != /opt/ohpc ]]; do
+        if compgen -G "${dir}/*.so*" >/dev/null; then
+            add_dir "${dir}"
+        fi
+        add_dir "${dir}/lib"
+        add_dir "${dir}/lib64"
+        dir=$(dirname "${dir}")
+    done
+
+    case "${item}" in
+        *mpi/ucx/1.20.0*)
+            add_dir /opt/ohpc/pub/mpi/ucx/1.20.0/lib
+            ;;
+    esac
+    case "${item}" in
+        *mpich-ofi-gnu15-ohpc/5.0.1*|*/libs/gnu15/mpich/*|*gnu15-mpich*)
+            add_dir /opt/ohpc/pub/mpi/mpich-ofi-gnu15-ohpc/5.0.1/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/gnu15/mpich
+            ;;
+    esac
+    case "${item}" in
+        *mpich-ofi-intel-ohpc/5.0.1*|*/libs/intel/mpich/*|*intel-mpich*)
+            add_dir /opt/ohpc/pub/mpi/mpich-ofi-intel-ohpc/5.0.1/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/intel/mpich
+            add_oneapi_runtime_dirs
+            ;;
+    esac
+    case "${item}" in
+        *mvapich2-gnu15/4.1*|*/libs/gnu15/mvapich2/*|*gnu15-mvapich2*)
+            add_dir /opt/ohpc/pub/mpi/mvapich2-gnu15/4.1/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/gnu15/mvapich2
+            ;;
+    esac
+    case "${item}" in
+        *mvapich2-intel/4.1*|*/libs/intel/mvapich2/*|*intel-mvapich2*)
+            add_dir /opt/ohpc/pub/mpi/mvapich2-intel/4.1/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/intel/mvapich2
+            add_oneapi_runtime_dirs
+            ;;
+    esac
+    case "${item}" in
+        *openmpi5-gnu15/5.0.10*|*/libs/gnu15/openmpi5/*|*gnu15-openmpi5*)
+            add_dir /opt/ohpc/pub/mpi/openmpi5-gnu15/5.0.10/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/gnu15/openmpi5
+            ;;
+    esac
+    case "${item}" in
+        *openmpi5-intel/5.0.10*|*/libs/intel/openmpi5/*|*intel-openmpi5*)
+            add_dir /opt/ohpc/pub/mpi/openmpi5-intel/5.0.10/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/intel/openmpi5
+            add_oneapi_runtime_dirs
+            ;;
+    esac
+    case "${item}" in
+        */libs/gnu15/impi/*|*gnu15-impi*)
+            add_dir /opt/intel/oneapi/mpi/2021.14/lib
+            add_dir /opt/intel/oneapi/mpi/latest/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/gnu15/impi
+            ;;
+    esac
+    case "${item}" in
+        */libs/intel/impi/*|*intel-impi*)
+            add_dir /opt/intel/oneapi/mpi/2021.14/lib
+            add_dir /opt/intel/oneapi/mpi/latest/lib
+            add_tree_lib_dirs /opt/ohpc/pub/libs/intel/impi
+            add_oneapi_runtime_dirs
+            ;;
+    esac
+    case "${item}" in
+        */libs/intel/*)
+            add_oneapi_runtime_dirs
+            ;;
+    esac
+
+    add_tree_lib_dirs /opt/ohpc/pub
+    add_tree_lib_dirs /opt/ohpc/admin
+
+    if [[ -n "${LD_LIBRARY_PATH:-}" ]]; then
+        IFS=: read -r -a current_dirs <<<"${LD_LIBRARY_PATH}"
+        for dir in "${current_dirs[@]}"; do
+            add_dir "${dir}"
+        done
+    fi
+
+    local IFS=:
+    printf '%s\n' "${dirs[*]}"
+}
+
+stale_dependency_audit() {
+    section "Stale dependency audit"
     local failed=0
-    local path out
+    local path needed
     while IFS= read -r path; do
-        out=$(ldd "${path}" 2>&1 || true)
+        needed=$(readelf -d "${path}" 2>/dev/null | awk -F'[][]' '/NEEDED/ {print $2}' || true)
+        if printf '%s\n' "${needed}" | grep -Fx 'libpetsc.so.3.24' >/dev/null; then
+            echo "stale PETSc dependency: ${path}" >&2
+            failed=1
+        fi
+        if printf '%s\n' "${needed}" | grep -Fx 'libscalapack.so.2' >/dev/null; then
+            echo "stale ScaLAPACK dependency: ${path}" >&2
+            failed=1
+        fi
+    done < <(opt_elf_files)
+    [[ "${failed}" == "0" ]] || die "stale dependency audit failed"
+    echo "No stale PETSc 3.24 or ScaLAPACK 2 dependencies found."
+}
+
+full_ldd_audit() {
+    section "Full /opt/ohpc ldd audit"
+    local failed=0
+    local path audit_path out status
+    while IFS= read -r path; do
+        audit_path=$(ohpc_ld_library_path_for "${path}")
+        set +e
+        case "${path}" in
+            *.so|*.so.*|*.cpython-*.so)
+                out=$(LD_LIBRARY_PATH="${audit_path}" timeout 30s ldd "${path}" 2>&1)
+                ;;
+            *)
+                out=$(LD_LIBRARY_PATH="${audit_path}" timeout 30s ldd -r "${path}" 2>&1)
+                ;;
+        esac
+        status=$?
+        set -e
+        if [[ "${status}" == "124" ]]; then
+            printf '%s\n' "${out}" >&2
+            echo "ldd timed out: ${path}" >&2
+            failed=1
+            continue
+        fi
         if printf '%s\n' "${out}" | grep -E 'not found|undefined symbol' >/dev/null; then
             printf '%s\n' "${out}" >&2
             echo "unresolved dependency/symbol: ${path}" >&2
             failed=1
         fi
-    done < <(find /opt/ohpc/pub /opt/intel/oneapi -type f \( -perm /111 -o -name '*.so' -o -name '*.so.*' \) -print 2>/dev/null | while read -r item; do file "${item}" | grep -q 'ELF' && echo "${item}"; done)
+    done < <(opt_elf_files)
     [[ "${failed}" == "0" ]] || die "full ldd audit failed"
 }
 
@@ -429,6 +592,12 @@ if [[ "${run_gnu}" == "1" ]]; then
         likwid-gnu15-ohpc
         ohpc-gnu15-serial-libs
         ohpc-gnu15-runtimes
+        mfem-gnu15-mpich-ohpc
+        mfem-gnu15-mvapich2-ohpc
+        mfem-gnu15-openmpi5-ohpc
+        mumps-gnu15-mpich-ohpc
+        mumps-gnu15-mvapich2-ohpc
+        mumps-gnu15-openmpi5-ohpc
         ohpc-gnu15-mpich-parallel-libs
         ohpc-gnu15-mvapich2-parallel-libs
         ohpc-gnu15-openmpi5-parallel-libs
@@ -441,6 +610,21 @@ if [[ "${run_intel}" == "1" ]]; then
         gnu15-compilers-ohpc
         intel-compilers-devel-ohpc
         intel-mpi-devel-ohpc
+        mfem-gnu15-impi-ohpc
+        mumps-gnu15-impi-ohpc
+        trilinos-gnu15-impi-ohpc
+        mfem-intel-impi-ohpc
+        mfem-intel-mpich-ohpc
+        mfem-intel-mvapich2-ohpc
+        mfem-intel-openmpi5-ohpc
+        mumps-intel-impi-ohpc
+        mumps-intel-mpich-ohpc
+        mumps-intel-mvapich2-ohpc
+        mumps-intel-openmpi5-ohpc
+        trilinos-intel-impi-ohpc
+        trilinos-intel-mpich-ohpc
+        trilinos-intel-mvapich2-ohpc
+        trilinos-intel-openmpi5-ohpc
         openmpi5-intel-ohpc
         mpich-intel-ohpc
         mvapich2-intel-ohpc
@@ -455,9 +639,14 @@ if [[ "${run_gnu}" == "1" ]]; then
     installed_version_required mpich-gnu15-ohpc 5.0.1
     installed_version_required mvapich2-gnu15-ohpc 4.1
     installed_version_required openmpi5-gnu15-ohpc 5.0.10-1ohpc2
+    installed_version_required r-gnu15-ohpc 4.5.3-1ohpc2
     for stack in mpich mvapich2 openmpi5; do
         installed_version_required "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
         installed_version_required "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
+    done
+    for stack in mpich mvapich2; do
+        installed_version_required "trilinos-gnu15-${stack}-ohpc" "17.0.0-1ohpc2"
+        installed_version_required "pnetcdf-gnu15-${stack}-ohpc" "1.14.1"
     done
 fi
 if [[ "${run_intel}" == "1" ]]; then
@@ -467,6 +656,16 @@ if [[ "${run_intel}" == "1" ]]; then
     installed_version_required mpich-intel-ohpc 5.0.1
     installed_version_required mvapich2-intel-ohpc 4.1
     installed_version_required openmpi5-intel-ohpc 5.0.10-1ohpc2
+    installed_version_required mfem-gnu15-impi-ohpc 4.9-1ohpc2
+    installed_version_required mumps-gnu15-impi-ohpc 5.8.2-1ohpc2
+    installed_version_required trilinos-gnu15-impi-ohpc 17.0.0-1ohpc2
+    installed_version_required pnetcdf-gnu15-impi-ohpc 1.14.1
+    for stack in impi mpich mvapich2 openmpi5; do
+        installed_version_required "mfem-intel-${stack}-ohpc" "4.9-1ohpc2"
+        installed_version_required "mumps-intel-${stack}-ohpc" "5.8.2-1ohpc2"
+        installed_version_required "trilinos-intel-${stack}-ohpc" "17.0.0-1ohpc2"
+        installed_version_required "pnetcdf-intel-${stack}-ohpc" "1.14.1"
+    done
 fi
 
 set +u
@@ -491,6 +690,8 @@ if [[ "${run_intel}" == "1" ]]; then
 fi
 
 selected_ldd_audit
+
+stale_dependency_audit
 
 if [[ "${OHPC_FULL_LDD}" == "1" ]]; then
     full_ldd_audit

@@ -37,6 +37,7 @@ PROMOTE_SCRIPT="${PROMOTE_SCRIPT:-${SCRIPT_DIR}/promote-update-release.sh}"
 MIN_PPC64EL_DEB_COUNT="${MIN_PPC64EL_DEB_COUNT:-120}"
 MIN_AMD64_DEB_COUNT="${MIN_AMD64_DEB_COUNT:-290}"
 MIN_ALL_DEB_COUNT="${MIN_ALL_DEB_COUNT:-21}"
+MIN_SOURCE_DEB_COUNT="${MIN_SOURCE_DEB_COUNT:-280}"
 
 REMOTE_USER="${REMOTE_USER:-reposync}"
 REMOTE_HOST="${REMOTE_HOST:-172.21.1.40}"
@@ -139,6 +140,89 @@ prune_stale_arch_all_packages() {
     echo "    skipped stale architecture-all packages: ${skipped}"
 }
 
+prune_superseded_repaired_packages() {
+    local repo="$1"
+    local removed=0
+
+    prune_one() {
+        local package="$1"
+        local arch="$2"
+        local keep_prefix="$3"
+        local dir="${repo}/${arch}"
+        local file
+
+        [[ -d "${dir}" ]] || return 0
+        find "${dir}" -maxdepth 1 -type f -name "${package}_${keep_prefix}*.deb" -print -quit 2>/dev/null | grep -q . || return 0
+
+        while IFS= read -r file; do
+            echo "    removing superseded ${file#"${repo}"/}"
+            rm -f "${file}"
+            removed=$((removed + 1))
+        done < <(find "${dir}" -maxdepth 1 -type f -name "${package}_*.deb" ! -name "${package}_${keep_prefix}*.deb" | sort)
+    }
+
+    echo "==> Pruning superseded repaired package artifacts"
+    for arch in amd64 ppc64el; do
+        prune_one r-gnu15-ohpc "${arch}" "4.5.3-1ohpc2"
+        for stack in mpich mvapich2 openmpi5; do
+            prune_one "mfem-gnu15-${stack}-ohpc" "${arch}" "4.9-1ohpc2"
+            prune_one "mumps-gnu15-${stack}-ohpc" "${arch}" "5.8.2-1ohpc2"
+        done
+    done
+
+    for stack in impi; do
+        prune_one "mfem-gnu15-${stack}-ohpc" amd64 "4.9-1ohpc2"
+        prune_one "mumps-gnu15-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+        prune_one "trilinos-gnu15-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
+    done
+    for stack in mpich mvapich2; do
+        prune_one "trilinos-gnu15-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
+    done
+    for stack in impi mpich mvapich2 openmpi5; do
+        prune_one "mfem-intel-${stack}-ohpc" amd64 "4.9-1ohpc2"
+        prune_one "mumps-intel-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+        prune_one "trilinos-intel-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
+    done
+
+    echo "    removed superseded repaired packages: ${removed}"
+}
+
+prune_superseded_repaired_sources() {
+    local repo="$1"
+    local source_dir="${repo}/source"
+    local removed=0
+
+    prune_one() {
+        local package="$1"
+        local keep_prefix="$2"
+        local file
+
+        [[ -d "${source_dir}" ]] || return 0
+        find "${source_dir}" -maxdepth 1 -type f -name "${package}_${keep_prefix}*" -print -quit 2>/dev/null | grep -q . || return 0
+
+        while IFS= read -r file; do
+            echo "    removing superseded source ${file#"${repo}"/}"
+            rm -f "${file}"
+            removed=$((removed + 1))
+        done < <(find "${source_dir}" -maxdepth 1 -type f -name "${package}_*" ! -name "${package}_${keep_prefix}*" | sort)
+    }
+
+    echo "==> Pruning superseded repaired source artifacts"
+    prune_one r-gnu15-ohpc "4.5.3-1ohpc2"
+    for stack in mpich mvapich2 openmpi5 impi; do
+        prune_one "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
+        prune_one "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
+        prune_one "mfem-intel-${stack}-ohpc" "4.9-1ohpc2"
+        prune_one "mumps-intel-${stack}-ohpc" "5.8.2-1ohpc2"
+    done
+    prune_one "trilinos-gnu15-impi-ohpc" "17.0.0-1ohpc2"
+    for stack in impi mpich mvapich2 openmpi5; do
+        prune_one "trilinos-intel-${stack}-ohpc" "17.0.0-1ohpc2"
+    done
+
+    echo "    removed superseded repaired source artifacts: ${removed}"
+}
+
 require_deb_count() {
     local label="$1"
     local directory="$2"
@@ -183,12 +267,66 @@ require_deb_package_version() {
     fi
 }
 
+require_source_package_version() {
+    local sources_file="$1"
+    local package="$2"
+    local version_prefix="$3"
+
+    if ! awk -v want_package="${package}" -v want_version="${version_prefix}" '
+        BEGIN { RS=""; FS="\n"; found=0 }
+        {
+            package=""; version="";
+            for (i = 1; i <= NF; i++) {
+                if ($i ~ /^Package: /) package=substr($i, 10);
+                if ($i ~ /^Version: /) version=substr($i, 10);
+            }
+            if (package == want_package && index(version, want_version) == 1) {
+                found=1;
+            }
+        }
+        END { exit(found ? 0 : 1) }
+    ' "${sources_file}"; then
+        echo "Error: source ${package} version ${version_prefix}* not found in ${sources_file}" >&2
+        return 1
+    fi
+}
+
+reject_source_package_version() {
+    local sources_file="$1"
+    local package="$2"
+    local version_prefix="$3"
+
+    if awk -v want_package="${package}" -v want_version="${version_prefix}" '
+        BEGIN { RS=""; FS="\n"; found=0 }
+        {
+            package=""; version="";
+            for (i = 1; i <= NF; i++) {
+                if ($i ~ /^Package: /) package=substr($i, 10);
+                if ($i ~ /^Version: /) version=substr($i, 10);
+            }
+            if (package == want_package && index(version, want_version) == 1) {
+                found=1;
+            }
+        }
+        END { exit(found ? 0 : 1) }
+    ' "${sources_file}"; then
+        echo "Error: superseded source ${package} version ${version_prefix}* is still present in ${sources_file}" >&2
+        return 1
+    fi
+}
+
 validate_staged_repo() {
     local packages_file="${STAGING_REPO}/Packages"
+    local sources_file="${STAGING_REPO}/Sources"
+    local source_count
     local stale_list
 
     if [[ ! -f "${packages_file}" ]]; then
         echo "Error: staged repository is missing Packages metadata: ${packages_file}" >&2
+        exit 1
+    fi
+    if [[ ! -f "${sources_file}" ]]; then
+        echo "Error: staged repository is missing Sources metadata: ${sources_file}" >&2
         exit 1
     fi
 
@@ -216,6 +354,11 @@ validate_staged_repo() {
     require_deb_count "ppc64el package directory" "${STAGING_REPO}/ppc64el" "${MIN_PPC64EL_DEB_COUNT}"
     require_deb_count "amd64 package directory" "${STAGING_REPO}/amd64" "${MIN_AMD64_DEB_COUNT}"
     require_deb_count "all package directory" "${STAGING_REPO}/all" "${MIN_ALL_DEB_COUNT}"
+    source_count="$(grep -c '^Package: ' "${sources_file}" 2>/dev/null || echo 0)"
+    if (( source_count < MIN_SOURCE_DEB_COUNT )); then
+        echo "Error: staged source metadata contains ${source_count} packages; expected at least ${MIN_SOURCE_DEB_COUNT}" >&2
+        exit 1
+    fi
 
     for arch in amd64 ppc64el; do
         require_deb_package_version "${packages_file}" gnu15-compilers-ohpc "${arch}" "15.2.0"
@@ -234,20 +377,48 @@ validate_staged_repo() {
             require_deb_package_version "${packages_file}" "mfem-gnu15-${stack}-ohpc" "${arch}" "4.9-1ohpc2"
             require_deb_package_version "${packages_file}" "mumps-gnu15-${stack}-ohpc" "${arch}" "5.8.2-1ohpc2"
         done
-        require_deb_package_version "${packages_file}" r-gnu15-ohpc "${arch}" "4.5.3"
+        require_deb_package_version "${packages_file}" r-gnu15-ohpc "${arch}" "4.5.3-1ohpc2"
     done
 
     for stack in impi; do
         require_deb_package_version "${packages_file}" "mfem-gnu15-${stack}-ohpc" amd64 "4.9-1ohpc2"
         require_deb_package_version "${packages_file}" "mumps-gnu15-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+        require_deb_package_version "${packages_file}" "trilinos-gnu15-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
     done
     for stack in mpich mvapich2 openmpi5 impi; do
         require_deb_package_version "${packages_file}" "mfem-intel-${stack}-ohpc" amd64 "4.9-1ohpc2"
         require_deb_package_version "${packages_file}" "mumps-intel-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+        require_deb_package_version "${packages_file}" "trilinos-intel-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
+    done
+    for stack in mpich mvapich2; do
+        require_deb_package_version "${packages_file}" "trilinos-gnu15-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
     done
 
     require_deb_package_version "${packages_file}" ohpc-release all "1:${OHPC_VERSION}"
     require_deb_package_version "${packages_file}" ohpc-filesystem all "${OHPC_VERSION}"
+
+    require_source_package_version "${sources_file}" r-gnu15-ohpc "4.5.3-1ohpc2"
+    reject_source_package_version "${sources_file}" r-gnu15-ohpc "4.5.3-1ohpc1"
+    for stack in mpich mvapich2 openmpi5 impi; do
+        require_source_package_version "${sources_file}" "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
+        require_source_package_version "${sources_file}" "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
+        require_source_package_version "${sources_file}" "mfem-intel-${stack}-ohpc" "4.9-1ohpc2"
+        require_source_package_version "${sources_file}" "mumps-intel-${stack}-ohpc" "5.8.2-1ohpc2"
+    done
+    for stack in mpich mvapich2 openmpi5; do
+        reject_source_package_version "${sources_file}" "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc1"
+        reject_source_package_version "${sources_file}" "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc1"
+    done
+    require_source_package_version "${sources_file}" "trilinos-gnu15-impi-ohpc" "17.0.0-1ohpc2"
+    reject_source_package_version "${sources_file}" "trilinos-gnu15-impi-ohpc" "17.0.0-1ohpc1"
+    for stack in mpich mvapich2; do
+        require_source_package_version "${sources_file}" "trilinos-gnu15-${stack}-ohpc" "17.0.0-1ohpc1"
+        require_source_package_version "${sources_file}" "trilinos-gnu15-${stack}-ohpc" "17.0.0-1ohpc2"
+    done
+    for stack in impi mpich mvapich2 openmpi5; do
+        require_source_package_version "${sources_file}" "trilinos-intel-${stack}-ohpc" "17.0.0-1ohpc2"
+        reject_source_package_version "${sources_file}" "trilinos-intel-${stack}-ohpc" "17.0.0-1ohpc1"
+    done
 }
 
 scan_stale_deb_elf_needed_in_container() {
@@ -376,6 +547,8 @@ if [[ -n "${AMD64_REPO}" ]]; then
     fi
 fi
 
+prune_superseded_repaired_packages "${STAGING_REPO}"
+prune_superseded_repaired_sources "${STAGING_REPO}"
 prune_stale_arch_all_packages "${STAGING_REPO}"
 
 echo "==> Installing public key, APT source helper, and local repo helper"

@@ -38,7 +38,7 @@ Homepage: https://trilinos.org/
 
 Package: trilinos-intel-openmpi5-ohpc
 Architecture: any
-Depends: ohpc-filesystem, intel-compilers-devel-ohpc, openmpi5-intel-ohpc, openblas-intel-ohpc, ${shlibs:Depends}, ${misc:Depends}
+Depends: ohpc-filesystem, intel-compilers-devel-ohpc, openmpi5-intel-ohpc, openblas-intel-ohpc, pnetcdf-intel-openmpi5-ohpc, ${shlibs:Depends}, ${misc:Depends}
 Description: A collection of libraries of numerical algorithms (intel + openmpi5, OpenHPC)
  Trilinos is a collection of reusable scientific software libraries, known
  in particular for linear solvers, non-linear solvers, transient solvers,

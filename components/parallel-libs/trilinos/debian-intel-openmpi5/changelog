@@ -1,3 +1,9 @@
+trilinos-intel-openmpi5-ohpc (17.0.0-1ohpc2~noble) noble; urgency=medium
+
+  * Add explicit PnetCDF runtime dependency for Trilinos libraries.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Wed, 29 Apr 2026 21:00:00 +0000
+
 trilinos-intel-openmpi5-ohpc (17.0.0-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.

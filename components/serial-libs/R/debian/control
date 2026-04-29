@@ -17,6 +17,7 @@ Build-Depends: debhelper-compat (= 13),
                liblzma-dev,
                libpcre2-dev,
                libcurl4-openssl-dev,
+               libdeflate-dev,
                libpango1.0-dev,
                gfortran,
                zlib1g-dev,
@@ -30,6 +31,7 @@ Architecture: any
 Depends: ohpc-filesystem,
          gnu15-compilers-ohpc (>= 14.1.0),
          openblas-gnu15-ohpc,
+         libdeflate0,
          ${shlibs:Depends},
          ${misc:Depends}
 Description: R language for statistical computing (gnu15, OpenHPC)

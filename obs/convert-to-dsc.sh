@@ -3,6 +3,9 @@
 # and upload them to the OBS backend.
 #
 # Usage: bash obs/convert-to-dsc.sh [http://localhost:5352] [path-substring-filter]
+#
+# Set EXPORT_DIR=/path and UPLOAD_TO_OBS=no to write generated .dsc/.tar.gz
+# files without updating OBS.
 set -e
 
 OBS_SRC="${1:-http://localhost:5352}"
@@ -10,6 +13,8 @@ PATH_FILTER="${2:-}"
 PROJECT="VersatusHPC:OHPC:4"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKDIR="/tmp/obs-dsc-import"
+EXPORT_DIR="${EXPORT_DIR:-}"
+UPLOAD_TO_OBS="${UPLOAD_TO_OBS:-yes}"
 COUNT=0
 ERRORS=0
 
@@ -25,6 +30,91 @@ obs_request() {
         echo "ERROR: $description" >&2
         return 1
     fi
+}
+
+download_source() {
+    local target="$1"
+    local url="$2"
+
+    if [ -s "$target" ]; then
+        return 0
+    fi
+
+    mkdir -p "$(dirname "$target")"
+    echo "    source: $(basename "$target")"
+    if ! timeout 1800 wget -q --timeout=60 --tries=2 -O "$target" "$url"; then
+        rm -f "$target"
+        echo "ERROR: failed to download $url" >&2
+        return 1
+    fi
+
+    if [ "$(stat -c %s "$target" 2>/dev/null || echo 0)" -le 100 ]; then
+        rm -f "$target"
+        echo "ERROR: downloaded source is empty/tiny: $url" >&2
+        return 1
+    fi
+}
+
+ensure_rule_sources() {
+    local comp_dir="$1"
+    local debian_dir="$2"
+    local rules="$comp_dir/$debian_dir/rules"
+
+    [ -f "$rules" ] || return 0
+
+    # OBS build chroots do not have network access. Include any source
+    # tarballs fetched by debian/rules in the native source payload.
+    declare -A V=()
+    local line name val
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^[[:space:]]*(export[[:space:]]+)?([A-Z_][A-Z0-9_]*)[[:space:]]*:?=[[:space:]]*([^[:space:]#]+)[[:space:]]*$ ]]; then
+            name="${BASH_REMATCH[2]}"
+            val="${BASH_REMATCH[3]}"
+            V["$name"]="$val"
+        fi
+    done < "$rules"
+
+    local content
+    content=$(sed ':a;/\\$/N;s/\\\n//;ta' "$rules" 2>/dev/null)
+
+    local outfile url var target
+    while read -r outfile url; do
+        [ -n "$outfile" ] || continue
+        [ -n "$url" ] || continue
+        case "$outfile" in
+            SOURCES/*) download_source "$comp_dir/$outfile" "$url" ;;
+            *) download_source "$comp_dir/SOURCES/$outfile" "$url" ;;
+        esac
+    done < <(sed -n 's/^[[:space:]]*#[[:space:]]*OBS-Source:[[:space:]]*//p' "$rules")
+
+    while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        outfile=$(echo "$line" | grep -oP -- '-O\s+\K\S+' || true)
+        [ -n "$outfile" ] || continue
+        url=$(echo "$line" | grep -oP '(https?://|\$\([A-Z_][A-Z0-9_]*\)|\$\{[A-Z_][A-Z0-9_]*\})\S+' | tail -1 || true)
+        [ -n "$url" ] || continue
+
+        for var in "${!V[@]}"; do
+            outfile="${outfile//\$($var)/${V[$var]}}"
+            outfile="${outfile//\$\{$var\}/${V[$var]}}"
+            url="${url//\$($var)/${V[$var]}}"
+            url="${url//\$\{$var\}/${V[$var]}}"
+        done
+
+        while [[ "$url" == *[\'\"\;\)] ]]; do
+            url="${url%?}"
+        done
+
+        if [[ "$outfile" == *'$'* ]] || [[ "$url" == *'$'* ]] || [[ "$url" != http* ]]; then
+            continue
+        fi
+
+        case "$outfile" in
+            SOURCES/*) target="$comp_dir/$outfile" ;;
+            *) target="$comp_dir/SOURCES/$outfile" ;;
+        esac
+        download_source "$target" "$url"
+    done < <(echo "$content" | grep 'wget' || true)
 }
 
 convert_and_upload() {
@@ -60,6 +150,8 @@ convert_and_upload() {
     local pkgdir="$WORKDIR/$pkg_name"
     rm -rf "$pkgdir"
     mkdir -p "$pkgdir/${pkg_name}-${file_version}/debian"
+
+    ensure_rule_sources "$comp_dir" "$debian_dir"
 
     # Copy debian files
     cp -a "$comp_dir/$debian_dir"/* "$pkgdir/${pkg_name}-${file_version}/debian/"
@@ -121,6 +213,18 @@ Build-Depends: $build_deps
 Files:
  $tarball_md5 $tarball_size ${pkg_name}_${file_version}.tar.gz
 EOF
+
+    if [ -n "$EXPORT_DIR" ]; then
+        mkdir -p "$EXPORT_DIR"
+        cp -f "${pkg_name}_${file_version}.dsc" "${pkg_name}_${file_version}.tar.gz" "$EXPORT_DIR/"
+    fi
+
+    if [ "$UPLOAD_TO_OBS" != "yes" ]; then
+        COUNT=$((COUNT + 1))
+        printf "\r  [%3d] %-50s" "$COUNT" "$pkg_name"
+        cd "$REPO_ROOT"
+        return 0
+    fi
 
     # Ensure OBS package exists
     obs_request "creating package metadata for $pkg_name" \

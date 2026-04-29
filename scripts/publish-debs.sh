@@ -186,13 +186,66 @@ require_deb_package_version() {
     fi
 }
 
+require_source_package_version() {
+    local sources_file="$1"
+    local package="$2"
+    local version_prefix="$3"
+
+    if ! awk -v want_package="${package}" -v want_version="${version_prefix}" '
+        BEGIN { RS=""; FS="\n"; found=0 }
+        {
+            package=""; version="";
+            for (i = 1; i <= NF; i++) {
+                if ($i ~ /^Package: /) package=substr($i, 10);
+                if ($i ~ /^Version: /) version=substr($i, 10);
+            }
+            if (package == want_package && index(version, want_version) == 1) {
+                found=1;
+            }
+        }
+        END { exit(found ? 0 : 1) }
+    ' "${sources_file}"; then
+        echo "Error: source ${package} version ${version_prefix}* not found in ${sources_file}" >&2
+        return 1
+    fi
+}
+
+reject_source_package_version() {
+    local sources_file="$1"
+    local package="$2"
+    local version_prefix="$3"
+
+    if awk -v want_package="${package}" -v want_version="${version_prefix}" '
+        BEGIN { RS=""; FS="\n"; found=0 }
+        {
+            package=""; version="";
+            for (i = 1; i <= NF; i++) {
+                if ($i ~ /^Package: /) package=substr($i, 10);
+                if ($i ~ /^Version: /) version=substr($i, 10);
+            }
+            if (package == want_package && index(version, want_version) == 1) {
+                found=1;
+            }
+        }
+        END { exit(found ? 0 : 1) }
+    ' "${sources_file}"; then
+        echo "Error: superseded source ${package} version ${version_prefix}* is still present in ${sources_file}" >&2
+        return 1
+    fi
+}
+
 validate_staged_deb_release() {
     local packages_file="${STAGING_REPO}/Packages"
+    local sources_file="${STAGING_REPO}/Sources"
     local source_count
     local stale_list
 
     if [[ ! -f "${packages_file}" ]]; then
         echo "Error: staged repository is missing Packages metadata: ${packages_file}" >&2
+        exit 1
+    fi
+    if [[ ! -f "${sources_file}" ]]; then
+        echo "Error: staged repository is missing Sources metadata: ${sources_file}" >&2
         exit 1
     fi
 
@@ -246,8 +299,35 @@ validate_staged_deb_release() {
         require_deb_package_version "${packages_file}" "mfem-intel-${stack}-ohpc" amd64 "4.9-1ohpc2"
         require_deb_package_version "${packages_file}" "mumps-intel-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
     done
-    require_deb_package_version "${packages_file}" r-gnu15-ohpc amd64 "4.5.3"
+    for stack in mpich mvapich2 impi; do
+        require_deb_package_version "${packages_file}" "trilinos-gnu15-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
+    done
+    for stack in impi mpich mvapich2 openmpi5; do
+        require_deb_package_version "${packages_file}" "trilinos-intel-${stack}-ohpc" amd64 "17.0.0-1ohpc2"
+    done
+    require_deb_package_version "${packages_file}" r-gnu15-ohpc amd64 "4.5.3-1ohpc2"
     require_deb_package_version "${packages_file}" mdtoc-ohpc amd64 "1.4.0"
+
+    require_source_package_version "${sources_file}" r-gnu15-ohpc "4.5.3-1ohpc2"
+    reject_source_package_version "${sources_file}" r-gnu15-ohpc "4.5.3-1ohpc1"
+    for stack in mpich mvapich2 openmpi5 impi; do
+        require_source_package_version "${sources_file}" "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
+        require_source_package_version "${sources_file}" "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
+        require_source_package_version "${sources_file}" "mfem-intel-${stack}-ohpc" "4.9-1ohpc2"
+        require_source_package_version "${sources_file}" "mumps-intel-${stack}-ohpc" "5.8.2-1ohpc2"
+        reject_source_package_version "${sources_file}" "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc1"
+        reject_source_package_version "${sources_file}" "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc1"
+    done
+    require_source_package_version "${sources_file}" "trilinos-gnu15-impi-ohpc" "17.0.0-1ohpc2"
+    reject_source_package_version "${sources_file}" "trilinos-gnu15-impi-ohpc" "17.0.0-1ohpc1"
+    for stack in mpich mvapich2; do
+        require_source_package_version "${sources_file}" "trilinos-gnu15-${stack}-ohpc" "17.0.0-1ohpc2"
+        reject_source_package_version "${sources_file}" "trilinos-gnu15-${stack}-ohpc" "17.0.0-1ohpc1"
+    done
+    for stack in impi mpich mvapich2 openmpi5; do
+        require_source_package_version "${sources_file}" "trilinos-intel-${stack}-ohpc" "17.0.0-1ohpc2"
+        reject_source_package_version "${sources_file}" "trilinos-intel-${stack}-ohpc" "17.0.0-1ohpc1"
+    done
 }
 
 extract_control_tar() {
@@ -503,84 +583,88 @@ normalize_source_metadata() {
             -name '*.diff.gz' \
         \) -delete
 
-        local normalized_archives=0
-        while IFS= read -r archive; do
-            if ! xzgrep -a -F -q "${MAINTAINER_EMAIL_FROM}" "${archive}"; then
-                continue
-            fi
+        if [[ "${MAINTAINER_EMAIL_FROM}" == "${MAINTAINER_EMAIL_TO}" ]]; then
+            echo "    source maintainer normalization skipped: source and target are identical"
+        else
+            local normalized_archives=0
+            while IFS= read -r archive; do
+                if ! xzgrep -a -F -q "${MAINTAINER_EMAIL_FROM}" "${archive}"; then
+                    continue
+                fi
 
-            tmpdir="$(mktemp -d)"
-            tar -xJf "${archive}" -C "${tmpdir}"
-            match_file="${tmpdir}/.email-matches"
-            grep -Rsl "${MAINTAINER_EMAIL_FROM}" "${tmpdir}" > "${match_file}" || true
-            if [[ -s "${match_file}" ]]; then
-                xargs -r sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" < "${match_file}"
-            fi
-            rm -f "${match_file}"
-            mapfile -t archive_entries < <(find "${tmpdir}" -mindepth 1 -maxdepth 1 \
-                -printf '%f\n' | sort)
-            tar -C "${tmpdir}" -cJf "${archive}.tmp" "${archive_entries[@]}"
-            mv -f "${archive}.tmp" "${archive}"
-            rm -rf "${tmpdir}"
-            normalized_archives=$((normalized_archives + 1))
-        done < <(find "${source_dir}" -maxdepth 1 -type f -name '*.tar.xz' | sort)
-        echo "    normalized source archives: ${normalized_archives}"
+                tmpdir="$(mktemp -d)"
+                tar -xJf "${archive}" -C "${tmpdir}"
+                match_file="${tmpdir}/.email-matches"
+                grep -Rsl "${MAINTAINER_EMAIL_FROM}" "${tmpdir}" > "${match_file}" || true
+                if [[ -s "${match_file}" ]]; then
+                    xargs -r sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" < "${match_file}"
+                fi
+                rm -f "${match_file}"
+                mapfile -t archive_entries < <(find "${tmpdir}" -mindepth 1 -maxdepth 1 \
+                    -printf '%f\n' | sort)
+                tar -C "${tmpdir}" -cJf "${archive}.tmp" "${archive_entries[@]}"
+                mv -f "${archive}.tmp" "${archive}"
+                rm -rf "${tmpdir}"
+                normalized_archives=$((normalized_archives + 1))
+            done < <(find "${source_dir}" -maxdepth 1 -type f -name '*.tar.xz' | sort)
+            echo "    normalized source archives: ${normalized_archives}"
 
-        find "${source_dir}" -maxdepth 1 -type f -name '*.dsc' \
-            -exec sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" {} +
+            find "${source_dir}" -maxdepth 1 -type f -name '*.dsc' \
+                -exec sed -i "s/${MAINTAINER_EMAIL_FROM}/${MAINTAINER_EMAIL_TO}/g" {} +
 
-        for dsc in "${source_dir}"/*.dsc; do
-            [[ -f "${dsc}" ]] || continue
-            awk -v dir="${source_dir}" '
-                function checksum(command, file,    output, parts) {
-                    command = command " \"" dir "/" file "\""
-                    command | getline output
-                    close(command)
-                    split(output, parts, /[[:space:]]+/)
-                    return parts[1]
-                }
-                function size(file,    command, output) {
-                    command = "stat -c %s \"" dir "/" file "\""
-                    command | getline output
-                    close(command)
-                    return output
-                }
-                /^Files:/ {
-                    section = "Files"
-                    print
-                    next
-                }
-                /^Checksums-Sha1:/ {
-                    section = "Checksums-Sha1"
-                    print
-                    next
-                }
-                /^Checksums-Sha256:/ {
-                    section = "Checksums-Sha256"
-                    print
-                    next
-                }
-                /^[^[:space:]]/ {
-                    section = ""
-                }
-                /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+$/ {
-                    file = $3
-                    file_size = size(file)
-                    if (section == "Files") {
-                        printf " %s %s %s\n", checksum("md5sum", file), file_size, file
-                    } else if (section == "Checksums-Sha1") {
-                        printf " %s %s %s\n", checksum("sha1sum", file), file_size, file
-                    } else if (section == "Checksums-Sha256") {
-                        printf " %s %s %s\n", checksum("sha256sum", file), file_size, file
-                    } else {
-                        print
+            for dsc in "${source_dir}"/*.dsc; do
+                [[ -f "${dsc}" ]] || continue
+                awk -v dir="${source_dir}" '
+                    function checksum(command, file,    output, parts) {
+                        command = command " \"" dir "/" file "\""
+                        command | getline output
+                        close(command)
+                        split(output, parts, /[[:space:]]+/)
+                        return parts[1]
                     }
-                    next
-                }
-                { print }
-            ' "${dsc}" > "${dsc}.tmp"
-            mv "${dsc}.tmp" "${dsc}"
-        done
+                    function size(file,    command, output) {
+                        command = "stat -c %s \"" dir "/" file "\""
+                        command | getline output
+                        close(command)
+                        return output
+                    }
+                    /^Files:/ {
+                        section = "Files"
+                        print
+                        next
+                    }
+                    /^Checksums-Sha1:/ {
+                        section = "Checksums-Sha1"
+                        print
+                        next
+                    }
+                    /^Checksums-Sha256:/ {
+                        section = "Checksums-Sha256"
+                        print
+                        next
+                    }
+                    /^[^[:space:]]/ {
+                        section = ""
+                    }
+                    /^[[:space:]][0-9A-Fa-f]+[[:space:]]+[0-9]+[[:space:]]+[^[:space:]]+$/ {
+                        file = $3
+                        file_size = size(file)
+                        if (section == "Files") {
+                            printf " %s %s %s\n", checksum("md5sum", file), file_size, file
+                        } else if (section == "Checksums-Sha1") {
+                            printf " %s %s %s\n", checksum("sha1sum", file), file_size, file
+                        } else if (section == "Checksums-Sha256") {
+                            printf " %s %s %s\n", checksum("sha256sum", file), file_size, file
+                        } else {
+                            print
+                        }
+                        next
+                    }
+                    { print }
+                ' "${dsc}" > "${dsc}.tmp"
+                mv "${dsc}.tmp" "${dsc}"
+            done
+        fi
 
         awk -v dir="${source_dir}" \
             -v from="${MAINTAINER_EMAIL_FROM}" \
@@ -692,7 +776,7 @@ echo "==> Adding xz-compressed APT indexes"
     fi
 
     tmp_release="$(mktemp)"
-    awk '/^(MD5Sum|SHA1|SHA256):/ { skip=1; next } skip && /^[[:space:]]/ { next } { skip=0; print }' \
+    awk '/^(MD5Sum|SHA1|SHA256|SHA512):/ { skip=1; next } skip && /^[[:space:]]/ { next } { skip=0; print }' \
         Release > "${tmp_release}"
 
     index_files=(Packages Packages.xz)
@@ -716,6 +800,10 @@ echo "==> Adding xz-compressed APT indexes"
         echo "SHA256:"
         for f in "${index_files[@]}"; do
             printf " %s %16d %s\n" "$(sha256sum "${f}" | awk '{print $1}')" "$(stat -c %s "${f}")" "${f}"
+        done
+        echo "SHA512:"
+        for f in "${index_files[@]}"; do
+            printf " %s %16d %s\n" "$(sha512sum "${f}" | awk '{print $1}')" "$(stat -c %s "${f}")" "${f}"
         done
     } > Release
     rm -f "${tmp_release}"

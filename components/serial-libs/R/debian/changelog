@@ -1,3 +1,9 @@
+r-gnu15-ohpc (4.5.3-1ohpc2~noble) noble; urgency=low
+
+  * Add explicit libdeflate runtime dependency for R shared libraries.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Wed, 29 Apr 2026 20:10:00 +0000
+
 r-gnu15-ohpc (4.5.3-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.
