@@ -256,6 +256,21 @@ def print_presence(label: str, names: set[str], expected: list[str]) -> int:
     return 0
 
 
+def print_architecture_locked_package_check(label: str, packages: list[Package], arches: set[str]) -> int:
+    names = {
+        pkg.name
+        for pkg in packages
+        if pkg.arch in arches and any(token in pkg.name for token in EXPECTED_POWER_LOCKED_ABSENCES)
+    }
+    if names:
+        print(f"  {label} still contains architecture-locked package names:")
+        print("    " + ", ".join(sorted(names)))
+        return 1
+
+    print(f"  {label} package names do not include the known x86/ARM-locked families")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", default=DEFAULT_REPO_ROOT, help=f"repository root URL (default: {DEFAULT_REPO_ROOT})")
@@ -332,17 +347,15 @@ def main() -> int:
         [pkg for pkg in deb_packages if pkg.arch in {"all", "ppc64el"}],
     )
 
-    unexpected_ubuntu = sorted(
-        name for name in ubuntu_power if any(token in name for token in EXPECTED_POWER_LOCKED_ABSENCES)
-    )
     print("\nArchitecture-locked package check")
     architecture_status = 0
-    if unexpected_ubuntu:
-        print("  Ubuntu POWER still contains architecture-locked package names:")
-        print("    " + ", ".join(unexpected_ubuntu))
-        architecture_status = 1
-    else:
-        print("  Ubuntu POWER package names do not include the known x86/ARM-locked families")
+    architecture_status |= print_architecture_locked_package_check("EL_10 ppc64le/noarch", rpm_sets["EL_10"], {"noarch", "ppc64le"})
+    architecture_status |= print_architecture_locked_package_check(
+        "openEuler_24.03 ppc64le/noarch",
+        rpm_sets["openEuler_24.03"],
+        {"noarch", "ppc64le"},
+    )
+    architecture_status |= print_architecture_locked_package_check("Ubuntu_24.04 ppc64el/all", deb_packages, {"all", "ppc64el"})
 
     if args.fail_on_issues:
         return 1 if (status or delta_status or closure_status or architecture_status) else 0
