@@ -430,6 +430,7 @@ if [[ "${run_gnu}" == "1" ]]; then
         ohpc-gnu15-serial-libs
         ohpc-gnu15-runtimes
         ohpc-gnu15-mpich-parallel-libs
+        ohpc-gnu15-mvapich2-parallel-libs
         ohpc-gnu15-openmpi5-parallel-libs
     )
 fi
@@ -454,6 +455,10 @@ if [[ "${run_gnu}" == "1" ]]; then
     installed_version_required mpich-gnu15-ohpc 5.0.1
     installed_version_required mvapich2-gnu15-ohpc 4.1
     installed_version_required openmpi5-gnu15-ohpc 5.0.10-1ohpc2
+    for stack in mpich mvapich2 openmpi5; do
+        installed_version_required "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
+        installed_version_required "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
+    done
 fi
 if [[ "${run_intel}" == "1" ]]; then
     section "Installed Intel package versions"

@@ -1,3 +1,10 @@
+mfem-gnu15-impi-ohpc (4.9-1ohpc2~noble) noble; urgency=low
+
+  * Rebuild against PETSc 3.25 so update artifacts outrank stale base
+    repository binaries built against PETSc 3.24.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Wed, 29 Apr 2026 15:00:00 +0000
+
 mfem-gnu15-impi-ohpc (4.9-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.

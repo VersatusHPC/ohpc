@@ -137,6 +137,18 @@ verify_no_missing_deps() {
     echo "ldd ok: ${label} (${resolved})"
 }
 
+installed_version() {
+    dpkg-query -W -f='${Version}' "$1" 2>/dev/null || true
+}
+
+installed_version_required() {
+    local pkg=$1 expected=$2 value
+    value=$(installed_version "${pkg}")
+    [[ -n "${value}" ]] || die "${pkg} is not installed"
+    [[ "${value}" == "${expected}"* ]] || die "${pkg} installed version ${value} does not start with ${expected}"
+    printf '%-34s %s\n' "${pkg}" "${value}"
+}
+
 mpicc_show() {
     mpicc --showme:command 2>/dev/null || mpicc -show 2>/dev/null || mpicc -showme 2>/dev/null || true
 }
@@ -362,6 +374,12 @@ if [[ "${OHPC_INSTALL_META}" == "1" ]]; then
 fi
 apt-get install -y --no-install-recommends "${packages[@]}"
 dpkg-query -W -f='${Package} ${Version} ${Architecture}\n' "${packages[@]}" | sort
+
+section "Installed repaired library versions"
+for stack in mpich mvapich2 openmpi5; do
+    installed_version_required "mfem-gnu15-${stack}-ohpc" "4.9-1ohpc2"
+    installed_version_required "mumps-gnu15-${stack}-ohpc" "5.8.2-1ohpc2"
+done
 
 set +u
 . /opt/ohpc/admin/lmod/lmod/init/bash

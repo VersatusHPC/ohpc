@@ -1,3 +1,10 @@
+mumps-gnu15-openmpi5-ohpc (5.8.2-1ohpc2~noble) noble; urgency=low
+
+  * Rebuild against ScaLAPACK 2.2.3 so update artifacts outrank stale base
+    repository binaries built against the old ScaLAPACK SONAME.
+
+ -- VersatusHPC <packages@versatushpc.com.br>  Wed, 29 Apr 2026 15:00:00 +0000
+
 mumps-gnu15-openmpi5-ohpc (5.8.2-1ohpc1~noble) noble; urgency=low
 
   * Initial Debian packaging for OpenHPC Ubuntu port.

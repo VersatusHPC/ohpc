@@ -100,6 +100,8 @@ require_command xz
 require_command xzgrep
 require_command zstd
 require_command ar
+require_command tar
+require_command readelf
 require_command gpg
 require_command ssh
 require_command lftp
@@ -213,6 +215,7 @@ validate_staged_deb_release() {
         printf '%s\n' "${stale_list}" >&2
         exit 1
     fi
+    scan_stale_deb_elf_needed "${STAGING_REPO}" || exit 1
 
     require_deb_count "amd64 package directory" "${STAGING_REPO}/amd64" "${MIN_AMD64_DEB_COUNT}"
     require_deb_count "all package directory" "${STAGING_REPO}/all" "${MIN_ALL_DEB_COUNT}"
@@ -237,6 +240,12 @@ validate_staged_deb_release() {
     require_deb_package_version "${packages_file}" slepc-gnu15-mpich-ohpc amd64 "3.25.0"
     require_deb_package_version "${packages_file}" slepc-gnu15-openmpi5-ohpc amd64 "3.25.0"
     require_deb_package_version "${packages_file}" mfem-gnu15-openmpi5-ohpc amd64 "4.9"
+    for stack in mpich mvapich2 openmpi5 impi; do
+        require_deb_package_version "${packages_file}" "mfem-gnu15-${stack}-ohpc" amd64 "4.9-1ohpc2"
+        require_deb_package_version "${packages_file}" "mumps-gnu15-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+        require_deb_package_version "${packages_file}" "mfem-intel-${stack}-ohpc" amd64 "4.9-1ohpc2"
+        require_deb_package_version "${packages_file}" "mumps-intel-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+    done
     require_deb_package_version "${packages_file}" r-gnu15-ohpc amd64 "4.5.3"
     require_deb_package_version "${packages_file}" mdtoc-ohpc amd64 "1.4.0"
 }
@@ -287,6 +296,69 @@ compress_control_tar() {
             return 1
             ;;
     esac
+}
+
+extract_data_tar() {
+    local data_archive="$1"
+    local target_dir="$2"
+
+    case "${data_archive}" in
+        *.tar.zst)
+            tar --zstd -xf "${data_archive}" -C "${target_dir}"
+            ;;
+        *.tar.xz)
+            tar -xJf "${data_archive}" -C "${target_dir}"
+            ;;
+        *.tar.gz)
+            tar -xzf "${data_archive}" -C "${target_dir}"
+            ;;
+        *.tar.bz2)
+            tar -xjf "${data_archive}" -C "${target_dir}"
+            ;;
+        *)
+            echo "Error: unsupported Debian data archive: ${data_archive}" >&2
+            return 1
+            ;;
+    esac
+}
+
+scan_stale_deb_elf_needed() {
+    local repo="$1"
+    local tmp_root deb data_member work data_archive elf needed
+    local failed=0
+
+    echo "==> Checking staged Debian ELF dependencies for stale PETSc/ScaLAPACK SONAMEs"
+    tmp_root="$(mktemp -d)"
+    while IFS= read -r deb; do
+        data_member="$(ar t "${deb}" | awk '/^data\.tar\./ { print; exit }')"
+        if [[ -z "${data_member}" ]]; then
+            echo "Error: invalid Debian archive layout: ${deb}" >&2
+            rm -rf "${tmp_root}"
+            return 1
+        fi
+
+        work="$(mktemp -d "${tmp_root}/deb.XXXXXX")"
+        data_archive="${work}/${data_member}"
+        ar p "${deb}" "${data_member}" > "${data_archive}"
+        mkdir -p "${work}/root"
+        extract_data_tar "${data_archive}" "${work}/root"
+
+        while IFS= read -r elf; do
+            needed="$(readelf -d "${elf}" 2>/dev/null || true)"
+            if printf '%s\n' "${needed}" | grep -Eq 'Shared library: \[(libpetsc\.so\.3\.24|libscalapack\.so\.2)\]'; then
+                echo "Error: stale ELF dependency in ${deb#"${repo}"/}: ${elf#"${work}/root/"}" >&2
+                printf '%s\n' "${needed}" | grep -E 'Shared library: \[(libpetsc\.so\.3\.24|libscalapack\.so\.2)\]' >&2
+                failed=1
+            fi
+        done < <(find "${work}/root/opt/ohpc" -type f \( -perm /111 -o -name '*.so' -o -name '*.so.*' \) -print 2>/dev/null)
+        rm -rf "${work}"
+    done < <(find "${repo}" -type f -name '*.deb' | sort)
+    rm -rf "${tmp_root}"
+
+    if [[ "${failed}" != 0 ]]; then
+        echo "Error: stale PETSc/ScaLAPACK ELF dependencies found; refusing to publish release artifacts" >&2
+        return 1
+    fi
 }
 
 normalize_deb_control_metadata() {

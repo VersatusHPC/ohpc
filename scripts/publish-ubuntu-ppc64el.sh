@@ -211,6 +211,7 @@ validate_staged_repo() {
         printf '%s\n' "${stale_list}" >&2
         exit 1
     fi
+    scan_stale_deb_elf_needed_in_container "${STAGING_REPO}" || exit 1
 
     require_deb_count "ppc64el package directory" "${STAGING_REPO}/ppc64el" "${MIN_PPC64EL_DEB_COUNT}"
     require_deb_count "amd64 package directory" "${STAGING_REPO}/amd64" "${MIN_AMD64_DEB_COUNT}"
@@ -229,11 +230,56 @@ validate_staged_repo() {
         require_deb_package_version "${packages_file}" slepc-gnu15-mpich-ohpc "${arch}" "3.25.0"
         require_deb_package_version "${packages_file}" slepc-gnu15-openmpi5-ohpc "${arch}" "3.25.0"
         require_deb_package_version "${packages_file}" mfem-gnu15-openmpi5-ohpc "${arch}" "4.9"
+        for stack in mpich mvapich2 openmpi5; do
+            require_deb_package_version "${packages_file}" "mfem-gnu15-${stack}-ohpc" "${arch}" "4.9-1ohpc2"
+            require_deb_package_version "${packages_file}" "mumps-gnu15-${stack}-ohpc" "${arch}" "5.8.2-1ohpc2"
+        done
         require_deb_package_version "${packages_file}" r-gnu15-ohpc "${arch}" "4.5.3"
+    done
+
+    for stack in impi; do
+        require_deb_package_version "${packages_file}" "mfem-gnu15-${stack}-ohpc" amd64 "4.9-1ohpc2"
+        require_deb_package_version "${packages_file}" "mumps-gnu15-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
+    done
+    for stack in mpich mvapich2 openmpi5 impi; do
+        require_deb_package_version "${packages_file}" "mfem-intel-${stack}-ohpc" amd64 "4.9-1ohpc2"
+        require_deb_package_version "${packages_file}" "mumps-intel-${stack}-ohpc" amd64 "5.8.2-1ohpc2"
     done
 
     require_deb_package_version "${packages_file}" ohpc-release all "1:${OHPC_VERSION}"
     require_deb_package_version "${packages_file}" ohpc-filesystem all "${OHPC_VERSION}"
+}
+
+scan_stale_deb_elf_needed_in_container() {
+    local repo="$1"
+
+    echo "==> Checking staged Debian ELF dependencies for stale PETSc/ScaLAPACK SONAMEs"
+    podman run --rm -v "${repo}:/repo:ro,z" "${IMAGE}" bash -lc '
+        set -euo pipefail
+        tmp_root="$(mktemp -d)"
+        trap "rm -rf \"${tmp_root}\"" EXIT
+        failed=0
+
+        while IFS= read -r deb; do
+            work="$(mktemp -d "${tmp_root}/deb.XXXXXX")"
+            dpkg-deb -x "${deb}" "${work}/root"
+
+            while IFS= read -r elf; do
+                needed="$(readelf -d "${elf}" 2>/dev/null || true)"
+                if printf "%s\n" "${needed}" | grep -Eq "Shared library: \[(libpetsc\.so\.3\.24|libscalapack\.so\.2)\]"; then
+                    echo "Error: stale ELF dependency in ${deb#/repo/}: ${elf#${work}/root/}" >&2
+                    printf "%s\n" "${needed}" | grep -E "Shared library: \[(libpetsc\.so\.3\.24|libscalapack\.so\.2)\]" >&2
+                    failed=1
+                fi
+            done < <(find "${work}/root/opt/ohpc" -type f \( -perm /111 -o -name "*.so" -o -name "*.so.*" \) -print 2>/dev/null)
+            rm -rf "${work}"
+        done < <(find /repo -type f -name "*.deb" | sort)
+
+        if [[ "${failed}" != 0 ]]; then
+            echo "Error: stale PETSc/ScaLAPACK ELF dependencies found; refusing to publish release artifacts" >&2
+            exit 1
+        fi
+    '
 }
 
 require_command() {
