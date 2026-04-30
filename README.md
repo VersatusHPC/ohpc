@@ -9,7 +9,7 @@ This is the [VersatusHPC](https://versatushpc.com.br) fork of
 with additional platform support:
 
 | Platform | Architecture | Status |
-|----------|-------------|--------|
+| -------- | ------------ | ------ |
 | **EL10 (AlmaLinux/Rocky/RHEL)** | **ppc64le (IBM POWER)** | Available |
 | **openEuler 24.03 LTS** | **ppc64le (IBM POWER)** | Available |
 | **Ubuntu 24.04 LTS** | **x86_64** | Release candidate |
@@ -98,8 +98,8 @@ curl -o /etc/yum.repos.d/versatushpc-openhpc.repo \
 
 This stack provides a variety of common, pre-built ingredients required to
 deploy and manage an HPC Linux cluster including provisioning tools, resource
-management, I/O clients, runtimes, development tools, containers, and a variety of
-scientific libraries.
+management, I/O clients, runtimes, development tools, containers, and a variety
+of scientific libraries.
 
 There are currently three release series: the [2.x][2xbranch], the
 [3.x][3xbranch] and the [4.x][4xbranch] which target different major Linux OS
