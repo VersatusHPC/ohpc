@@ -23,7 +23,7 @@ jobs:
     name: Public repository metadata coverage
     runs-on: [self-hosted, Linux, ppc64le, el10, power9]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Validate public repository metadata
         run: scripts/compare-power-package-coverage.py --fail-on-issues
 
@@ -32,7 +32,7 @@ jobs:
     runs-on: [self-hosted, Linux, ppc64le, el10, power9]
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Show runner context
         run: |
           uname -a

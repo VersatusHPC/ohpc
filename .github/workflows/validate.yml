@@ -30,7 +30,7 @@ jobs:
       image: ghcr.io/versatushpc/ohpc-analysis:latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - id: files
       uses: Ana06/get-changed-files@v2.3.0
     - name: Validate Changes
@@ -66,7 +66,7 @@ jobs:
         rm -rf /host/usr/share/dotnet /host/usr/local/lib/android /host/opt/ghc
     - name: Update packages
       run: dnf -y update
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Restore ccache
       uses: actions/cache/restore@v4
       with:
@@ -154,7 +154,7 @@ jobs:
         rm -rf /host/usr/share/dotnet /host/usr/local/lib/android /host/opt/ghc
     - name: Update packages
       run: dnf -y update
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Restore ccache
       uses: actions/cache/restore@v4
       with:
@@ -253,7 +253,7 @@ jobs:
     steps:
     - name: Update packages
       run: dnf -y update
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Restore ccache
       uses: actions/cache/restore@v4
       with:
@@ -318,7 +318,7 @@ jobs:
     steps:
     - name: Update packages
       run: dnf -y update
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Restore ccache
       uses: actions/cache/restore@v4
       with:
@@ -391,6 +391,6 @@ jobs:
     container:
       image: ghcr.io/versatushpc/ohpc-lint:latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Run bats tests
       run: PARSE_DOC_TEST_IMPL="${{ matrix.parser }}" ./tests/ci/test_parse_doc.bats
