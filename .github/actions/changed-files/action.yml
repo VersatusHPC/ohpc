@@ -1,0 +1,25 @@
+name: Changed files
+description: List added and modified files for push and pull request validation
+
+outputs:
+  added_modified:
+    description: Space-separated list of added or modified files
+    value: ${{ steps.changed.outputs.added_modified }}
+
+runs:
+  using: composite
+  steps:
+    - id: changed
+      shell: bash
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        HEAD_SHA: ${{ github.sha }}
+      run: |
+        if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+          BASE_SHA="$(git rev-list --max-parents=0 "$HEAD_SHA" | tail -n 1)"
+        fi
+
+        git fetch --no-tags --depth=1 origin "$BASE_SHA" 2>/dev/null || true
+
+        files="$(git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" | tr '\n' ' ')"
+        echo "added_modified=${files% }" >> "$GITHUB_OUTPUT"
