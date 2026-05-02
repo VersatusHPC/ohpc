@@ -1,0 +1,61 @@
+name: Sync Upstream 4.x Branch
+
+# Keeps the plain 4.x branch as a 1:1 mirror of upstream OpenHPC 4.x.
+# The Versatus integration branch is refs/heads/versatushpc/4.x and is not
+# modified by this workflow.
+
+on:
+  schedule:
+    - cron: '30 8 * * *'  # Daily after the upstream release watch
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upstream-4x-branch-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v6
+        with:
+          ref: versatushpc/4.x
+          fetch-depth: 0
+
+      - name: Fetch upstream and mirror refs
+        run: |
+          set -euo pipefail
+
+          git remote add upstream https://github.com/openhpc/ohpc.git
+          git fetch --no-tags upstream '+refs/heads/4.x:refs/remotes/upstream/4.x'
+          git fetch --no-tags origin '+refs/heads/4.x:refs/remotes/origin/4.x'
+
+      - name: Sync plain 4.x mirror branch
+        run: |
+          set -euo pipefail
+
+          UPSTREAM_SHA=$(git rev-parse refs/remotes/upstream/4.x)
+          MIRROR_SHA=$(git rev-parse refs/remotes/origin/4.x)
+
+          {
+            echo "## Upstream 4.x branch sync"
+            echo ""
+            echo "- Upstream \`openhpc/ohpc:4.x\`: \`$UPSTREAM_SHA\`"
+            echo "- Current \`VersatusHPC/ohpc:4.x\`: \`$MIRROR_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$UPSTREAM_SHA" = "$MIRROR_SHA" ]; then
+            echo "- Result: already in sync" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git push \
+            --force-with-lease=refs/heads/4.x:"$MIRROR_SHA" \
+            origin \
+            "$UPSTREAM_SHA":refs/heads/4.x
+
+          echo "- Result: updated mirror branch" >> "$GITHUB_STEP_SUMMARY"

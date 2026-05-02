@@ -5,6 +5,8 @@
 - `4.x` — upstream reference branch for release-integration work. Do not commit here directly.
 - `versatushpc/4.x` — our fork with ppc64le patches. All work goes here.
 - Upstream remote push is disabled (`PUSH_DISABLED_TO_PREVENT_ACCIDENTS`). NEVER push to upstream.
+- GitHub Action `.github/workflows/upstream-branch-sync.yml` keeps `refs/heads/4.x`
+  as a 1:1 mirror of upstream `openhpc/ohpc:4.x`.
 
 ## Ubuntu port goal
 
