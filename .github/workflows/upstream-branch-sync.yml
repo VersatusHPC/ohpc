@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: upstream-4x-branch-sync
@@ -25,6 +25,7 @@ jobs:
         with:
           ref: versatushpc/4.x
           fetch-depth: 0
+          token: ${{ secrets.OHPC_UPSTREAM_SYNC }}
 
       - name: Fetch upstream and mirror refs
         run: |
