@@ -16,6 +16,32 @@ PATTERN=${1}
 
 IFS=$'\n'
 
+cached_source_is_usable() {
+	local url=${1}
+	local dest=${2}
+	local local_size
+	local remote_size
+
+	[[ -s ${dest} ]] || return 1
+	[[ -z ${OHPC_REFRESH_SOURCES:-} ]] || return 1
+
+	if [[ ${OHPC_VERIFY_SOURCE_CACHE:-1} != "0" && ${url} != *"#"* ]] && command -v curl >/dev/null 2>&1; then
+		if remote_size=$(curl -fsSLI --max-time "${OHPC_WGET_TIMEOUT:-120}" "${url}" 2>/dev/null |
+			awk 'tolower($1) == "content-length:" { value=$2 } END { gsub("\r", "", value); print value }'); then
+			if [[ ${remote_size} =~ ^[0-9]+$ ]]; then
+				local_size=$(wc -c < "${dest}" | tr -d '[:space:]')
+				if [[ ${local_size} != "${remote_size}" ]]; then
+					echo "Cached ${dest} size ${local_size} does not match remote Content-Length ${remote_size}; refreshing"
+					rm -f "${dest}"
+					return 1
+				fi
+			fi
+		fi
+	fi
+
+	return 0
+}
+
 find . -name "${PATTERN}" -print0 | while IFS= read -r -d '' file
 do
 	if [ ! -f "${file}" ]; then
@@ -44,7 +70,7 @@ do
 		u=$(awk '{ print $2 }' <<< "${u}")
 		echo "Trying to get ${u}"
 		dest="../SOURCES/$(basename "${u}")"
-		if [[ "${u}" != *"#"* && -s "${dest}" && -z "${OHPC_REFRESH_SOURCES:-}" ]]; then
+		if cached_source_is_usable "${u}" "${dest}"; then
 			echo "Using existing ${dest}"
 			continue
 		fi
