@@ -216,6 +216,7 @@ run_host() {
 	fi
 
 	validation_args=(
+		bash
 		tests/ci/validate-ppc64le-port.sh
 		--inside-container
 		--base-ref "${BASE_REF}"
