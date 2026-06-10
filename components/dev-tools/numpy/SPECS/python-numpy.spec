@@ -36,9 +36,6 @@ BuildRequires:  %{python_prefix}-pip
 BuildRequires:  ninja-build
 BuildRequires:  pkg-config
 BuildRequires:  fdupes gcc
-# ppc64le: fix VSX3 intrinsics used when building with -mcpu=power9 baseline
-# https://github.com/numpy/numpy/pull/29627
-Patch0:         numpy-ppc64le-vsx-fix.patch
 #!BuildIgnore: post-build-checks
 
 # Default library install path
