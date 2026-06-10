@@ -98,6 +98,28 @@ This directory contains scripts, tools, and configurations used for OpenHPC's co
 ./setup_slurm_and_run_tests.sh ohpc-user gnu15 components/libs/fftw/SPECS/fftw.spec
 ```
 
+### `validate-ppc64le-port.sh`
+**Purpose**: Native POWER validation wrapper for ppc64le RPM enablement without
+OBS.
+
+**Features**:
+- Requires a native `ppc64le` host.
+- Builds one of the ppc64le validation containers in this directory.
+- Runs branch-relative static checks against a base ref.
+- Builds a bootstrap package set plus changed specs through `run_build.py`.
+- Creates a local RPM repository from the build output.
+- Installs the locally built RPMs and runs compiler, MPI, FFTW, NumPy, LIKWID,
+  PDToolkit, and GOTCHA smoke tests as the non-root build user.
+
+**Usage**:
+```bash
+# Full bootstrap validation on AlmaLinux 10 ppc64le
+tests/ci/validate-ppc64le-port.sh --base-ref origin/4.x
+
+# openEuler ppc64le validation limited to MPICH runtime variants
+tests/ci/validate-ppc64le-port.sh --distro openeuler --mpi-family mpich
+```
+
 ## Utility Scripts
 
 ### `cirrus_get_changed_files.sh`
@@ -185,7 +207,8 @@ validation work.
 
 These images must be built on ppc64le hosts. They install the OS build
 dependencies needed to validate POWER RPM enablement without depending on
-downstream repository publication URLs.
+downstream repository publication URLs. Use `validate-ppc64le-port.sh` to build
+the container and run the non-OBS package build plus runtime smoke-test flow.
 
 ## CI Workflow Integration
 

@@ -50,9 +50,22 @@ The ppc64le source changes are mostly RPM spec and build-flag changes:
 
 ## Built RPM Surface
 
-The downstream port proved the architecture-portable OpenHPC stack on native
-POWER builders before this upstream extraction. The useful evidence for
-upstream review is:
+The downstream port exercised the architecture-portable OpenHPC stack on native
+POWER builders before this upstream extraction. For upstream review, the branch
+now carries a repository-neutral validation path that can reproduce the relevant
+RPM build and runtime checks without OBS or downstream repository URLs:
+
+```bash
+tests/ci/validate-ppc64le-port.sh --base-ref origin/4.x
+```
+
+That command must run on a native `ppc64le` host. It builds the POWER
+validation container, runs branch-relative static checks, builds a bootstrap
+package set plus the changed specs through `tests/ci/run_build.py`, creates a
+local RPM repository from the resulting RPMs, installs the locally built
+runtime set, and runs compiler/MPI/library smoke tests.
+
+The expected evidence for upstream review is:
 
 | Target | Result |
 | --- | --- |
