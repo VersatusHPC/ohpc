@@ -43,8 +43,13 @@ do
 		fi
 		u=$(awk '{ print $2 }' <<< "${u}")
 		echo "Trying to get ${u}"
+		dest="../SOURCES/$(basename "${u}")"
+		if [[ "${u}" != *"#"* && -s "${dest}" && -z "${OHPC_REFRESH_SOURCES:-}" ]]; then
+			echo "Using existing ${dest}"
+			continue
+		fi
 		# Try to download only if newer
-		WGET=$(wget -N -nv -P ../SOURCES "${u}" 2>&1)
+		WGET=$(wget -N -nv -T "${OHPC_WGET_TIMEOUT:-120}" --tries "${OHPC_WGET_TRIES:-3}" -P ../SOURCES "${u}" 2>&1)
 		# Handling for github URLs with #/ or #$/
 		if grep -E "#[$]?/" <<< "${u}"; then
 			MV_SOURCE=$(echo "${WGET}" | tail -1 | cut -d\  -f6 | sed -e 's/^"//' -e 's/"$//')

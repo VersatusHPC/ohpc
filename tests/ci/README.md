@@ -120,6 +120,11 @@ tests/ci/validate-ppc64le-port.sh --base-ref origin/4.x
 tests/ci/validate-ppc64le-port.sh --distro openeuler --mpi-family mpich
 ```
 
+Large immutable source tarballs can be preseeded under the relevant
+`components/*/SOURCES/` directory. `misc/get_source.sh` reuses existing source
+files by default; set `OHPC_REFRESH_SOURCES=1` to force timestamp checks and use
+`OHPC_WGET_TIMEOUT` or `OHPC_WGET_TRIES` to tune bounded downloads.
+
 ## Utility Scripts
 
 ### `cirrus_get_changed_files.sh`

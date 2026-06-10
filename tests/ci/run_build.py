@@ -247,6 +247,32 @@ def setup_local_repo():
 
         local_repo_configured = True
 
+    if dnf_based:
+        success, _ = run_command(
+            [
+                "dnf",
+                "--disablerepo=*",
+                "--enablerepo=local-ohpc-ci",
+                "clean",
+                "metadata",
+            ]
+        )
+        if not success:
+            logging.error("Failed to clean local DNF repository metadata")
+            return False
+
+        success, _ = run_command(
+            [
+                "dnf",
+                "--disablerepo=*",
+                "--enablerepo=local-ohpc-ci",
+                "makecache",
+            ]
+        )
+        if not success:
+            logging.error("Failed to refresh local DNF repository metadata")
+            return False
+
     return True
 
 
