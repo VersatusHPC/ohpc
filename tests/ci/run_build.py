@@ -205,6 +205,17 @@ def get_build_order(specfiles):
     return sorted_specs
 
 
+def uses_compiler_family_argument(spec_path):
+    """Specs whose source build script selects the family by position."""
+    normalized = spec_path
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return (
+        normalized
+        == "components/compiler-families/gnu-compilers/SPECS/gnu-compilers.spec"
+    )
+
+
 def setup_local_repo():
     """Run createrepo_c on the rpmbuild RPMS directory and configure
     it as a local repository so that subsequent builds can use
@@ -499,7 +510,9 @@ for spec in specfiles:
             else:
                 rebuild_success.append("%s (%s)" % (just_spec, args.compiler_family))
 
-    elif "ohpc_compiler_dependent" in contents:
+    elif "ohpc_compiler_dependent" in contents or uses_compiler_family_argument(
+        spec
+    ):
         if not build_srpm_and_rpm(
             spec,
             compiler_family=args.compiler_family,
