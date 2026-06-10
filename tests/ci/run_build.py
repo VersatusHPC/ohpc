@@ -37,6 +37,11 @@ parser.add_argument(
         + "(defaults to openmpi5, mpich, mvapich2)"
     ),
 )
+parser.add_argument(
+    "--fail-fast",
+    help="exit after the first failed source fetch, SRPM, dependency, or RPM build",
+    action="store_true",
+)
 args = parser.parse_args()
 
 spec_found = False
@@ -398,6 +403,14 @@ total = 0
 docs_spec_executed = False
 tests_spec_executed = False
 
+
+def record_failure(message):
+    failed.append(message)
+    if args.fail_fast:
+        logging.error("--> %s failed" % message)
+        logging.error("ERROR")
+        sys.exit(1)
+
 # Determine the number of actual spec files to build
 specfiles = args.specfiles
 spec_count = sum(
@@ -463,7 +476,7 @@ for spec in specfiles:
     success, _ = run_command(command)
     if not success:
         logging.error("Running misc/get_source.sh failed")
-        failed.append(just_spec)
+        record_failure(just_spec)
         continue
 
     # cache spec file contents
@@ -489,7 +502,9 @@ for spec in specfiles:
                 mpi_family=family,
                 compiler_family=args.compiler_family,
             ):
-                failed.append("%s (%s, %s)" % (just_spec, args.compiler_family, family))
+                record_failure(
+                    "%s (%s, %s)" % (just_spec, args.compiler_family, family)
+                )
             else:
                 rebuild_success.append(
                     "%s (%s, %s)" % (just_spec, args.compiler_family, family)
@@ -506,7 +521,7 @@ for spec in specfiles:
                 compiler_family=args.compiler_family,
                 not_mpi_dependent=True,
             ):
-                failed.append("%s (%s)" % (just_spec, args.compiler_family))
+                record_failure("%s (%s)" % (just_spec, args.compiler_family))
             else:
                 rebuild_success.append("%s (%s)" % (just_spec, args.compiler_family))
 
@@ -517,13 +532,13 @@ for spec in specfiles:
             spec,
             compiler_family=args.compiler_family,
         ):
-            failed.append("%s (%s)" % (just_spec, args.compiler_family))
+            record_failure("%s (%s)" % (just_spec, args.compiler_family))
         else:
             rebuild_success.append("%s (%s)" % (just_spec, args.compiler_family))
 
     else:
         if not build_srpm_and_rpm(spec):
-            failed.append(just_spec)
+            record_failure(just_spec)
         else:
             rebuild_success.append(just_spec)
 

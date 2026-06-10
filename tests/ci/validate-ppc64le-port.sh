@@ -364,7 +364,7 @@ run_rpm_builds() {
 
 	ensure_build_user
 
-	command=(tests/ci/run_build.py "${BUILD_USER}" --compiler-family "${COMPILER_FAMILY}")
+	command=(tests/ci/run_build.py "${BUILD_USER}" --fail-fast --compiler-family "${COMPILER_FAMILY}")
 	if [[ ${MPI_FAMILY} != "all" ]]; then
 		command+=(--mpi-family "${MPI_FAMILY}")
 	fi
