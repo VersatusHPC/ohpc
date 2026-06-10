@@ -179,6 +179,14 @@ podman build -f Containerfile.ohpc-lint -t ghcr.io/openhpc/ohpc-lint:latest
 # Use in CI (automatic via GitHub Actions)
 ```
 
+### `Containerfile.ohpc-validate-*-ppc64le`
+**Purpose**: Native POWER container definitions for ppc64le package build and
+validation work.
+
+These images must be built on ppc64le hosts. They install the OS build
+dependencies needed to validate POWER RPM enablement without depending on
+downstream repository publication URLs.
+
 ## CI Workflow Integration
 
 These tools are designed to work together in CI pipelines:
