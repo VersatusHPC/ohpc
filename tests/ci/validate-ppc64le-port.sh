@@ -208,7 +208,7 @@ run_host() {
 		--rm
 		--user root
 		--workdir /workspace
-		--volume "${root}:/workspace"
+		--volume "${root}:/workspace:z"
 	)
 
 	if [[ ${PRIVILEGED} -eq 1 ]]; then
