@@ -45,6 +45,7 @@ The ppc64le source changes are mostly RPM spec and build-flag changes:
 | `pdtoolkit.spec` | Creates the expected `ibm64linux/bin` layout before configure |
 | `python-numpy.spec` | Applies the upstream NumPy VSX3 fix in `%prep` for a POWER9 baseline |
 | `mpich.spec` | Adds the missing hwloc build, runtime, and module dependency |
+| `ucx.spec` | Uses the real 1.20.0 release URL and disables unshipped Go bindings so native images with Go installed do not change the RPM build surface |
 | `meta-packages.spec` | Removes unsupported architecture-locked dependencies from POWER meta packages |
 | `gotcha.spec` | Skips the ppc64le-only failing unit test and avoids Sphinx where openEuler lacks it |
 
