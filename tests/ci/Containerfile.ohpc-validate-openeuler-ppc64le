@@ -85,10 +85,10 @@ RUN set -e; \
     for srpm in \
         lua-filesystem-1.8.0-1.oe2403.src.rpm \
         lua-posix-36.1-1.oe2403.src.rpm \
-        libfabric-1.20.0-1.src.rpm \
-        freeipmi-1.6.14-1.src.rpm \
-        libedit-3.1-1.src.rpm \
-        yaml-cpp-0.7.0-1.src.rpm \
+        libfabric-1.20.0-1.oe2403.src.rpm \
+        freeipmi-1.6.11-1.oe2403.src.rpm \
+        libedit-3.1-31.oe2403.src.rpm \
+        yaml-cpp-0.7.0-2.oe2403.src.rpm \
         libyaml-0.2.5-6.oe2403.src.rpm \
         libtirpc-1.3.4-2.oe2403.src.rpm \
         flex-2.6.4-5.oe2403.src.rpm \
