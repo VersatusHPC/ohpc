@@ -491,6 +491,57 @@ set -u
 mkdir -p "${smoke_dir}"
 cd "${smoke_dir}"
 
+checkpoint() {
+	printf '== smoke: %s\n' "${*}"
+}
+
+require_env_dir() {
+	local name=${1}
+	local value=${!name:-}
+
+	[[ -n ${value} ]] || {
+		printf 'missing environment variable: %s\n' "${name}" >&2
+		return 1
+	}
+	[[ -d ${value} ]] || {
+		printf 'missing directory for %s: %s\n' "${name}" "${value}" >&2
+		return 1
+	}
+	printf '%s=%s\n' "${name}" "${value}"
+}
+
+require_glob() {
+	local pattern=${1}
+	local match
+
+	match=$(compgen -G "${pattern}" | head -n 1 || true)
+	[[ -n ${match} ]] || {
+		printf 'no files matched: %s\n' "${pattern}" >&2
+		return 1
+	}
+	printf 'matched %s\n' "${match}"
+}
+
+require_help_output() {
+	local cmd=${1}
+	local pattern=${2}
+	local output=${smoke_dir}/${cmd}.help
+	local rc=0
+
+	command -v "${cmd}"
+	if "${cmd}" -h > "${output}" 2>&1; then
+		printf '%s -h exited 0\n' "${cmd}"
+	else
+		rc=$?
+		printf '%s -h exited %s; validating help output\n' "${cmd}" "${rc}"
+	fi
+	sed -n '1,20p' "${output}"
+	grep -Eiq "${pattern}" "${output}" || {
+		printf '%s help output did not match %s\n' "${cmd}" "${pattern}" >&2
+		return 1
+	}
+}
+
 cat > hello_mpi.c <<'CEOF'
 #include <mpi.h>
 #include <stdio.h>
@@ -538,12 +589,14 @@ FCEOF
 IFS=',' read -r -a mpis <<< "${mpi_list}"
 
 module purge
+checkpoint "compiler module ${compiler_family}"
 module load "${compiler_family}"
 gcc --version
 gfortran --version
 
 for mpi in "${mpis[@]}"; do
 	module purge
+	checkpoint "modules ${compiler_family}/${mpi}"
 	module load "${compiler_family}"
 	module load "${mpi}"
 	module load fftw
@@ -553,19 +606,23 @@ for mpi in "${mpis[@]}"; do
 		export OMPI_MCA_pml=ob1
 	fi
 
+	checkpoint "compile ${mpi}"
 	mpicc hello_mpi.c -o "hello-${mpi}-c"
 	mpif90 hello_mpi.f90 -o "hello-${mpi}-f"
 	mpicc fftw_mpi_smoke.c -I"${FFTW_INC}" -L"${FFTW_LIB}" -lfftw3_mpi -lfftw3 -o "fftw-${mpi}-c"
 
+	checkpoint "run ${mpi}"
 	mpirun -np 2 "./hello-${mpi}-c"
 	mpirun -np 2 "./hello-${mpi}-f"
 	mpirun -np 2 "./fftw-${mpi}-c"
 
+	checkpoint "ldd ${mpi}"
 	ldd "./hello-${mpi}-c" | grep -F /opt/ohpc
 	ldd "./fftw-${mpi}-c" | grep -F /opt/ohpc
 done
 
 module purge
+checkpoint "numpy openblas"
 module load "${compiler_family}"
 module load openblas
 module load py3-numpy
@@ -577,22 +634,26 @@ print(np.__version__)
 PYEOF
 
 module purge
+checkpoint "likwid"
 module load "${compiler_family}"
 module load likwid
-likwid-topology -h >/dev/null
-likwid-perfctr -h >/dev/null
+require_help_output likwid-topology 'likwid|topology'
+require_help_output likwid-perfctr 'likwid|perfctr|performance'
 
 module purge
+checkpoint "pdtoolkit"
 module load "${compiler_family}"
 module load pdtoolkit
-[[ -n ${PDTOOLKIT_BIN:-} ]]
-[[ -d ${PDTOOLKIT_BIN} ]]
+require_env_dir PDTOOLKIT_BIN
+require_env_dir PDTOOLKIT_LIB
+require_glob "${PDTOOLKIT_BIN}/*"
 
 module purge
+checkpoint "gotcha"
 module load "${compiler_family}"
 module load gotcha
-[[ -n ${GOTCHA_LIB:-} ]]
-[[ -d ${GOTCHA_LIB} ]]
+require_env_dir GOTCHA_LIB
+require_glob "${GOTCHA_LIB}/libgotcha.*"
 EOF
 	chmod 0755 "${smoke}"
 }
