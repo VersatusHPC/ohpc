@@ -66,6 +66,10 @@ sed -i 's/libcheck.a/libcheck.so/g' test/unit/CMakeLists.txt
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
 
+# CMake expects the compiler executable separately from launchers such as ccache.
+export CC=$(echo $CC | sed 's/^ccache //')
+export CXX=$(echo $CXX | sed 's/^ccache //')
+
 mkdir gotcha-build
 
 # CMAKE_CXX_FLAGS_DEBUG set to -O0 to prevent possible test failures
@@ -78,6 +82,10 @@ cmake \
     -DGOTCHA_ENABLE_TESTS=ON \
     -DCMAKE_C_COMPILER=${CC} \
     -DCMAKE_CXX_COMPILER=${CXX} \
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+%endif
     -DCMAKE_CXX_FLAGS_DEBUG="-O0" \
     -DDEPENDENCIES_PREINSTALLED=TRUE \
     -S . \
