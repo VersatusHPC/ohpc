@@ -31,6 +31,7 @@ BOOTSTRAP_SPECS=(
 	components/mpi-families/mvapich2/SPECS/mvapich2.spec
 	components/serial-libs/openblas/SPECS/openblas.spec
 	components/serial-libs/gotcha/SPECS/gotcha.spec
+	components/distro-packages/python-Cython/SPECS/python-Cython.spec
 	components/dev-tools/numpy/SPECS/python-numpy.spec
 	components/parallel-libs/fftw/SPECS/fftw.spec
 	components/parallel-libs/boost/SPECS/boost.spec
