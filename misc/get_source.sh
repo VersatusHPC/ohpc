@@ -28,7 +28,7 @@ cached_source_is_usable() {
 	if [[ ${OHPC_VERIFY_SOURCE_CACHE:-1} != "0" && ${url} != *"#"* ]] && command -v curl >/dev/null 2>&1; then
 		if remote_size=$(curl -fsSLI --max-time "${OHPC_WGET_TIMEOUT:-120}" "${url}" 2>/dev/null |
 			awk 'tolower($1) == "content-length:" { value=$2 } END { gsub("\r", "", value); print value }'); then
-			if [[ ${remote_size} =~ ^[0-9]+$ && ${remote_size} -gt 0 ]]; then
+			if [[ ${remote_size} =~ ^[0-9]+$ && ${remote_size} -gt 1024 ]]; then
 				local_size=$(wc -c < "${dest}" | tr -d '[:space:]')
 				if [[ ${local_size} != "${remote_size}" ]]; then
 					echo "Cached ${dest} size ${local_size} does not match remote Content-Length ${remote_size}; refreshing"
