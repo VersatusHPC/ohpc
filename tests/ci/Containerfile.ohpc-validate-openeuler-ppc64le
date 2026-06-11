@@ -85,7 +85,6 @@ RUN set -e; \
     for srpm in \
         lua-filesystem-1.8.0-1.oe2403.src.rpm \
         lua-posix-36.1-1.oe2403.src.rpm \
-        bats-1.10.0-1.oe2403.src.rpm \
         libfabric-1.20.0-1.src.rpm \
         freeipmi-1.6.14-1.src.rpm \
         libedit-3.1-1.src.rpm \
@@ -113,7 +112,6 @@ RUN set -e; \
         /root/rpmbuild/RPMS/ppc64le/patchelf-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/opensm-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/sysfsutils-*.rpm \
-        /root/rpmbuild/RPMS/noarch/bats-*.rpm \
         /root/rpmbuild/RPMS/noarch/flex-help-*.rpm; \
     dnf clean all
 
