@@ -77,6 +77,7 @@ mkdir gotcha-build
 # GOTCHA build.
 cmake \
     -DCMAKE_INSTALL_PREFIX=%{install_path} \
+    -DCMAKE_INSTALL_LIBDIR=lib \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
     -DGOTCHA_ENABLE_TESTS=ON \
