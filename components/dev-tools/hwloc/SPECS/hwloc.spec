@@ -26,8 +26,12 @@ Url:            http://www.open-mpi.org/projects/hwloc/
 Source0:        https://download.open-mpi.org/release/hwloc/v%{major}.%{minor}/%{pname}-%{version}.tar.bz2
 
 BuildRequires:  make
+%if !0%{?openEuler}
 BuildRequires:  doxygen
+%endif
+%if 0%{?sles_version} || 0%{?suse_version}
 BuildRequires:  fdupes
+%endif
 BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  cairo-devel
