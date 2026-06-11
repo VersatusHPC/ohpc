@@ -74,9 +74,13 @@ RUN cd /tmp && \
 ARG OE_SRC=${OE_MIRROR}/source/Packages
 
 RUN set -e; \
-    cd /tmp && \
+    cd /tmp; \
+    srpm=lua-5.4.6-1.oe2403.src.rpm; \
+    wget -q "${OE_SRC}/${srpm}"; \
+    rpmbuild --rebuild --nodeps "${srpm}"; \
+    rm -f "${srpm}"; \
+    dnf -y install /root/rpmbuild/RPMS/ppc64le/lua-devel-*.rpm; \
     for srpm in \
-        lua-5.4.6-1.oe2403.src.rpm \
         lua-filesystem-1.8.0-1.oe2403.src.rpm \
         lua-posix-36.1-1.oe2403.src.rpm \
         ccache-4.8.3-1.oe2403.src.rpm \
@@ -94,9 +98,8 @@ RUN set -e; \
             wget -q "${OE_SRC}/${srpm}"; \
             rpmbuild --rebuild --nodeps "${srpm}"; \
             rm -f "${srpm}"; \
-        done && \
+        done; \
     dnf -y install \
-        /root/rpmbuild/RPMS/ppc64le/lua-devel-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/lua-filesystem-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/lua-posix-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/ccache-*.rpm \
@@ -111,7 +114,7 @@ RUN set -e; \
         /root/rpmbuild/RPMS/ppc64le/opensm-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/sysfsutils-*.rpm \
         /root/rpmbuild/RPMS/noarch/bats-*.rpm \
-        /root/rpmbuild/RPMS/noarch/flex-help-*.rpm && \
+        /root/rpmbuild/RPMS/noarch/flex-help-*.rpm; \
     dnf clean all
 
 RUN useradd -m ohpc || true && \
