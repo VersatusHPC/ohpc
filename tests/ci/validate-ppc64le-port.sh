@@ -484,7 +484,9 @@ mpi_list=${1}
 compiler_family=${2}
 smoke_dir=${HOME}/ohpc-ppc64le-smoke
 
+set +u
 source /etc/profile.d/lmod.sh
+set -u
 
 mkdir -p "${smoke_dir}"
 cd "${smoke_dir}"
