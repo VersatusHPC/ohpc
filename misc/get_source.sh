@@ -25,7 +25,13 @@ cached_source_is_usable() {
 	[[ -s ${dest} ]] || return 1
 	[[ -z ${OHPC_REFRESH_SOURCES:-} ]] || return 1
 
-	if [[ ${OHPC_VERIFY_SOURCE_CACHE:-1} != "0" && ${url} != *"#"* ]] && command -v curl >/dev/null 2>&1; then
+	if [[ ${OHPC_VERIFY_SOURCE_CACHE:-1} != "0" ]] && ! cached_source_archive_is_valid "${dest}"; then
+		echo "Cached ${dest} failed archive integrity check; refreshing"
+		rm -f "${dest}"
+		return 1
+	fi
+
+	if [[ ${OHPC_VERIFY_SOURCE_SIZE:-0} == "1" && ${url} != *"#"* ]] && command -v curl >/dev/null 2>&1; then
 		if remote_size=$(curl -fsSLI --max-time "${OHPC_WGET_TIMEOUT:-120}" "${url}" 2>/dev/null |
 			awk 'tolower($1) == "content-length:" { value=$2 } END { gsub("\r", "", value); print value }'); then
 			if [[ ${remote_size} =~ ^[0-9]+$ && ${remote_size} -gt 1024 ]]; then
@@ -40,6 +46,32 @@ cached_source_is_usable() {
 	fi
 
 	return 0
+}
+
+cached_source_archive_is_valid() {
+	local dest=${1}
+
+	case "${dest}" in
+		*.tar.gz | *.tgz | *.gz)
+			command -v gzip >/dev/null 2>&1 || return 0
+			gzip -t "${dest}" >/dev/null 2>&1
+			;;
+		*.tar.xz | *.txz | *.xz)
+			command -v xz >/dev/null 2>&1 || return 0
+			xz -t "${dest}" >/dev/null 2>&1
+			;;
+		*.tar.bz2 | *.tbz2 | *.bz2)
+			command -v bzip2 >/dev/null 2>&1 || return 0
+			bzip2 -t "${dest}" >/dev/null 2>&1
+			;;
+		*.zip)
+			command -v unzip >/dev/null 2>&1 || return 0
+			unzip -tq "${dest}" >/dev/null 2>&1
+			;;
+		*)
+			return 0
+			;;
+	esac
 }
 
 find . -name "${PATTERN}" -print0 | while IFS= read -r -d '' file
