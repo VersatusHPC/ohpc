@@ -1,12 +1,41 @@
-FROM docker.io/openeuler/openeuler:24.03-lts
+FROM quay.io/almalinuxorg/almalinux:10 AS openeuler-rootfs
+
+ARG OE_MIRROR=https://repo.huaweicloud.com/openeuler/openEuler-24.03-LTS
+ARG OE_BASEARCH=ppc64le
+
+RUN mkdir -p /oe-rootfs/etc/yum.repos.d /oe-rootfs/etc/dnf/vars && \
+    printf '24.03\n' > /oe-rootfs/etc/dnf/vars/releasever && \
+    printf '[openEuler-OS]\nname=openEuler 24.03 LTS OS\nbaseurl=%s/OS/%s/\nenabled=1\ngpgcheck=0\n' \
+        "${OE_MIRROR}" "${OE_BASEARCH}" > /oe-rootfs/etc/yum.repos.d/openEuler.repo && \
+    dnf -y --installroot=/oe-rootfs \
+        --releasever=24.03 \
+        --nogpgcheck \
+        --setopt=install_weak_deps=False \
+        --setopt=reposdir=/oe-rootfs/etc/yum.repos.d \
+        install openEuler-release bash coreutils dnf ca-certificates && \
+    dnf -y --installroot=/oe-rootfs \
+        --releasever=24.03 \
+        --setopt=reposdir=/oe-rootfs/etc/yum.repos.d \
+        clean all && \
+    rm -rf /oe-rootfs/var/cache/dnf/*
+
+FROM scratch
+COPY --from=openeuler-rootfs /oe-rootfs /
 
 # Native POWER build container for openEuler 24.03 ppc64le validation. Build
 # this image on a ppc64le host; openEuler 24.03 ppc64le has a thin OS
-# repository, so several support packages are rebuilt from openEuler SRPMs.
+# repository and no official ppc64le Docker base image, so this container
+# bootstraps from the native ppc64le RPM repository and rebuilds several support
+# packages from openEuler SRPMs.
 
 RUN test "$(uname -m)" = "ppc64le"
 
-RUN sed -i "s@repo.openeuler.org@repo.huaweicloud.com/openeuler@g" /etc/yum.repos.d/openEuler.repo && \
+ARG OE_MIRROR=https://repo.huaweicloud.com/openeuler/openEuler-24.03-LTS
+ARG OE_BASEARCH=ppc64le
+RUN mkdir -p /etc/dnf/vars && \
+    printf '24.03\n' > /etc/dnf/vars/releasever && \
+    printf '[openEuler-OS]\nname=openEuler 24.03 LTS OS\nbaseurl=%s/OS/%s/\nenabled=1\ngpgcheck=0\n' \
+        "${OE_MIRROR}" "${OE_BASEARCH}" > /etc/yum.repos.d/openEuler.repo && \
     printf '\nbest=False\n' >> /etc/dnf/dnf.conf
 
 RUN dnf -y install \
@@ -43,7 +72,6 @@ RUN cd /tmp && \
     /usr/local/go/bin/go version && \
     rm -f go${GO_VERSION}.linux-ppc64le.tar.gz
 
-ARG OE_MIRROR=https://mirrors.huaweicloud.com/openeuler/openEuler-24.03-LTS
 ARG OE_SRC=${OE_MIRROR}/source/Packages
 
 RUN cd /tmp && \

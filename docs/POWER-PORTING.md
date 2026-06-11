@@ -93,6 +93,11 @@ They are intentionally repository-neutral. They install OS build dependencies
 and preserve the native POWER constraints without relying on downstream package
 publication URLs.
 
+The openEuler validation image does not use `openeuler/openeuler` as a base
+image because the official container manifest does not publish a ppc64le variant
+for 24.03 LTS. It bootstraps an openEuler ppc64le root filesystem from the
+official 24.03 LTS `OS/ppc64le` RPM repository instead.
+
 ## Deferred Follow-Ups
 
 The following work should be reviewed separately:
