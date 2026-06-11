@@ -35,7 +35,10 @@ BuildRequires:  python3-meson-python
 BuildRequires:  %{python_prefix}-pip
 BuildRequires:  ninja-build
 BuildRequires:  pkg-config
-BuildRequires:  fdupes gcc
+BuildRequires:  gcc
+%if 0%{?suse_version}
+BuildRequires:  fdupes
+%endif
 #!BuildIgnore: post-build-checks
 
 # Default library install path
