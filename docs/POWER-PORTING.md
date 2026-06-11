@@ -97,8 +97,8 @@ package repositories.
 The openEuler validation image does not use `openeuler/openeuler` as a base
 image because that image does not provide a ppc64le variant for 24.03 LTS. It
 bootstraps an openEuler ppc64le root filesystem from the official 24.03 LTS
-`OS/ppc64le` RPM repository instead. Where openEuler publishes required Python
-build frontends only as noarch RPMs under `everything/x86_64`, the image
+`OS/ppc64le` RPM repository instead. Where required Python build frontends are
+available only as noarch RPMs under `everything/x86_64`, the image
 installs those noarch RPMs directly and rebuilds native binary tools such as
 `ninja-build` from openEuler SRPMs.
 
