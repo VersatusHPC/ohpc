@@ -216,7 +216,9 @@ downstream repository publication URLs. Use `validate-ppc64le-port.sh` to build
 the container and run the non-OBS package build plus runtime smoke-test flow.
 The openEuler ppc64le image bootstraps its root filesystem from the official
 openEuler 24.03 LTS `OS/ppc64le` RPM repository because the official
-`openeuler/openeuler` container image does not provide a ppc64le manifest.
+`openeuler/openeuler` container image does not provide a ppc64le manifest. It
+rebuilds missing ppc64le support packages from official openEuler SRPMs inside
+the native validation image.
 
 ## CI Workflow Integration
 

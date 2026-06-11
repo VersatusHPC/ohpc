@@ -41,9 +41,9 @@ RUN mkdir -p /etc/dnf/vars && \
 RUN dnf -y install \
         rpm-build dnf-plugins-core createrepo_c \
         gcc gcc-c++ gcc-gfortran make autoconf automake libtool cmake \
-        bison flex patch file which hostname git wget curl jq \
+        bison flex patch file which hostname git wget curl \
         python3 python3-devel python3-setuptools python3-pip python3-packaging \
-        lua lua-devel perl perl-devel perl-Encode-devel \
+        lua perl perl-devel perl-Encode-devel \
         tcl tcl-devel tk tk-devel vala \
         bzip2 bzip2-devel xz xz-devel zstd zlib-devel \
         openssl-devel ncurses-devel readline-devel \
@@ -60,7 +60,6 @@ RUN dnf -y install \
         libffi-devel libstdc++-devel libquadmath-devel \
         libnl3-devel libpq-devel mariadb-connector-c-devel \
         check-devel systemtap-sdt-devel gettext-devel \
-        ccache bats \
     && dnf clean all
 
 ARG GO_VERSION=1.24.0
@@ -76,6 +75,12 @@ ARG OE_SRC=${OE_MIRROR}/source/Packages
 
 RUN cd /tmp && \
     for srpm in \
+        jq-1.6-4.oe2403.src.rpm \
+        lua-5.4.6-1.oe2403.src.rpm \
+        lua-filesystem-1.8.0-1.oe2403.src.rpm \
+        lua-posix-36.1-1.oe2403.src.rpm \
+        ccache-4.8.3-1.oe2403.src.rpm \
+        bats-1.10.0-1.oe2403.src.rpm \
         libfabric-1.20.0-1.src.rpm \
         freeipmi-1.6.14-1.src.rpm \
         libedit-3.1-1.src.rpm \
@@ -91,6 +96,11 @@ RUN cd /tmp && \
             rm -f "${srpm}"; \
         done && \
     dnf -y install \
+        /root/rpmbuild/RPMS/ppc64le/jq-*.rpm \
+        /root/rpmbuild/RPMS/ppc64le/lua-devel-*.rpm \
+        /root/rpmbuild/RPMS/ppc64le/lua-filesystem-*.rpm \
+        /root/rpmbuild/RPMS/ppc64le/lua-posix-*.rpm \
+        /root/rpmbuild/RPMS/ppc64le/ccache-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/libfabric-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/freeipmi-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/libedit-*.rpm \
@@ -101,6 +111,7 @@ RUN cd /tmp && \
         /root/rpmbuild/RPMS/ppc64le/patchelf-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/opensm-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/sysfsutils-*.rpm \
+        /root/rpmbuild/RPMS/noarch/bats-*.rpm \
         /root/rpmbuild/RPMS/noarch/flex-help-*.rpm && \
     dnf clean all
 
