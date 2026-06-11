@@ -73,9 +73,9 @@ RUN cd /tmp && \
 
 ARG OE_SRC=${OE_MIRROR}/source/Packages
 
-RUN cd /tmp && \
+RUN set -e; \
+    cd /tmp && \
     for srpm in \
-        jq-1.6-4.oe2403.src.rpm \
         lua-5.4.6-1.oe2403.src.rpm \
         lua-filesystem-1.8.0-1.oe2403.src.rpm \
         lua-posix-36.1-1.oe2403.src.rpm \
@@ -96,7 +96,6 @@ RUN cd /tmp && \
             rm -f "${srpm}"; \
         done && \
     dnf -y install \
-        /root/rpmbuild/RPMS/ppc64le/jq-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/lua-devel-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/lua-filesystem-*.rpm \
         /root/rpmbuild/RPMS/ppc64le/lua-posix-*.rpm \
