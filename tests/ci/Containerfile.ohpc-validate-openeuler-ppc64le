@@ -79,7 +79,9 @@ RUN set -e; \
     wget -q "${OE_SRC}/${srpm}"; \
     rpmbuild --rebuild --nodeps "${srpm}"; \
     rm -f "${srpm}"; \
-    dnf -y install /root/rpmbuild/RPMS/ppc64le/lua-devel-*.rpm; \
+    dnf -y install \
+        /root/rpmbuild/RPMS/ppc64le/lua-5*.rpm \
+        /root/rpmbuild/RPMS/ppc64le/lua-devel-*.rpm; \
     for srpm in \
         lua-filesystem-1.8.0-1.oe2403.src.rpm \
         lua-posix-36.1-1.oe2403.src.rpm \
