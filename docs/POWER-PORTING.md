@@ -2,7 +2,7 @@
 
 This note summarizes the ppc64le RPM work carried by the POWER port branch.
 It is intended as a starting point for upstream discussion and review, not as a
-release report for a downstream repository.
+release-channel report.
 
 ## Scope
 
@@ -13,9 +13,9 @@ The initial upstreamable scope is the little-endian POWER RPM target:
 - GNU15 with OpenMPI, MPICH, and MVAPICH2 where those package variants are
   available on POWER.
 
-The branch intentionally excludes downstream repository publication, downstream
-release metadata, Ubuntu/Debian `ppc64el` packaging, and package families that
-are inherently locked to another architecture.
+The branch intentionally excludes release repository metadata, Ubuntu/Debian
+`ppc64el` packaging, and package families that are inherently locked to another
+architecture.
 
 ## Architecture-Locked Exclusions
 
@@ -50,10 +50,10 @@ The ppc64le source changes are mostly RPM spec and build-flag changes:
 
 ## Built RPM Surface
 
-The downstream port exercised the architecture-portable OpenHPC stack on native
+The POWER port exercised the architecture-portable OpenHPC stack on native
 POWER builders before this upstream extraction. For upstream review, the branch
 now carries a repository-neutral validation path that can reproduce the relevant
-RPM build and runtime checks without OBS or downstream repository URLs:
+RPM build and runtime checks without OBS or site-specific repository URLs:
 
 ```bash
 tests/ci/validate-ppc64le-port.sh --base-ref origin/4.x
@@ -76,10 +76,10 @@ The expected evidence for upstream review is:
 | GNU15 plus MVAPICH2 | C and Fortran MPI smoke tests passed on POWER |
 | LIKWID | `likwid-topology` and `likwid-perfctr` start on POWER with `perf_event` |
 
-The branch does not claim that every downstream support rebuild belongs
-upstream. openEuler 24.03 ppc64le has a thin OS repository; some missing OS
-`-devel` packages must be rebuilt in the native builder image so OpenHPC specs
-can be tested.
+The branch does not claim that every support rebuild belongs upstream.
+openEuler 24.03 ppc64le has a thin OS repository; some missing OS `-devel`
+packages must be rebuilt in the native builder image so OpenHPC specs can be
+tested.
 
 ## Native Builder Images
 
@@ -90,13 +90,13 @@ environments:
 - `tests/ci/Containerfile.ohpc-validate-openeuler-ppc64le`
 
 They are intentionally repository-neutral. They install OS build dependencies
-and preserve the native POWER constraints without relying on downstream package
-publication URLs.
+and preserve the native POWER constraints without relying on site-specific
+package repositories.
 
 The openEuler validation image does not use `openeuler/openeuler` as a base
-image because the official container manifest does not publish a ppc64le variant
-for 24.03 LTS. It bootstraps an openEuler ppc64le root filesystem from the
-official 24.03 LTS `OS/ppc64le` RPM repository instead.
+image because that image does not provide a ppc64le variant for 24.03 LTS. It
+bootstraps an openEuler ppc64le root filesystem from the official 24.03 LTS
+`OS/ppc64le` RPM repository instead.
 
 ## Deferred Follow-Ups
 
@@ -106,5 +106,5 @@ The following work should be reviewed separately:
   `llvm-compilers` spec, so this branch does not reintroduce it.
 - Broad package-version and EL10/openEuler maintenance fixes that are not
   specifically POWER-scoped.
-- Release repository checks and downstream mirror cleanup.
+- Release repository checks and mirror cleanup.
 - Ubuntu 24.04 `ppc64el` Debian packaging.

@@ -1,7 +1,7 @@
 FROM docker.io/library/almalinux:10
 
 # Native POWER build container for EL10 ppc64le validation. Build this image on
-# a ppc64le host; it is intentionally independent of downstream package mirrors.
+# a ppc64le host; it is intentionally independent of site-specific package mirrors.
 
 RUN test "$(uname -m)" = "ppc64le"
 
