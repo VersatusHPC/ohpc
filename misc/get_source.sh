@@ -68,8 +68,21 @@ cached_source_archive_is_valid() {
 			command -v unzip >/dev/null 2>&1 || return 0
 			unzip -tq "${dest}" >/dev/null 2>&1
 			;;
+		*.tar)
+			# Uncompressed tarballs, plus GitHub "#/"-fragment URLs whose cached
+			# name ends in .tar while the body is actually gzip: tar -tf detects
+			# and decodes either form, so a .tar that fails to list is corrupt.
+			command -v tar >/dev/null 2>&1 || return 0
+			tar -tf "${dest}" >/dev/null 2>&1
+			;;
 		*)
-			return 0
+			# Unknown archive type: refuse to vouch for content we cannot inspect.
+			# Returning 1 forces a re-download rather than silently trusting a
+			# stale/corrupt cached file of the right name. Every Source0 in this
+			# tree is .tar.gz/.tar.bz2/.tar.xz/.tar, so this never rejects a real
+			# source; it only guards against an unexpected/new extension.
+			echo "Cannot verify cached archive of unrecognized type: ${dest}" >&2
+			return 1
 			;;
 	esac
 }
