@@ -12,7 +12,12 @@ DISTRO=almalinux
 IMAGE=
 INSIDE_CONTAINER=0
 MPI_FAMILY=all
-PRIVILEGED=1
+# This is an RPM build + install smoke test, not a host-tuning run. The mvapich2
+# smoke pins UCX_TLS=self,sm,tcp (shared-memory + TCP loopback) precisely so it
+# needs no RDMA device, elevated memlock, or host PID namespace. Default to an
+# unprivileged container; --privileged is explicit opt-in for the rare local run
+# that actually needs it.
+PRIVILEGED=0
 PROFILE=bootstrap
 RUN_BUILD=1
 RUN_RUNTIME=1
@@ -60,7 +65,9 @@ Options:
   --spec-list FILE        Spec list for --profile file
   --skip-build            Skip RPM builds and only run static/runtime checks
   --skip-runtime          Skip install/runtime smoke tests
-  --no-privileged         Do not pass --privileged to podman host mode
+  --privileged            Run the host-mode container with --privileged --pid=host
+                          (off by default; the smoke test needs no RDMA/memlock)
+  --no-privileged         Force the unprivileged default (kept for compatibility)
   -h, --help              Show this help
 
 Examples:
@@ -137,6 +144,10 @@ parse_args() {
 				;;
 			--skip-runtime)
 				RUN_RUNTIME=0
+				shift
+				;;
+			--privileged)
+				PRIVILEGED=1
 				shift
 				;;
 			--no-privileged)
@@ -420,32 +431,36 @@ mpi_modules() {
 
 runtime_packages() {
 	local mpi
+	# Track the selected --compiler-family rather than hardcoding gnu15, so the
+	# runtime repoquery matches the RPMs run_build.py actually produced for this
+	# family (a non-gnu15 family otherwise dies on the repoquery after a build).
+	local family=${COMPILER_FAMILY}
 	local packages=(
 		lmod-ohpc
 		ohpc-filesystem
-		gnu15-compilers-ohpc
+		"${family}-compilers-ohpc"
 		hwloc-ohpc
-		openblas-gnu15-ohpc
-		gotcha-gnu15-ohpc
-		python3-numpy-gnu15-ohpc
-		likwid-gnu15-ohpc
-		pdtoolkit-gnu15-ohpc
+		"openblas-${family}-ohpc"
+		"gotcha-${family}-ohpc"
+		"python3-numpy-${family}-ohpc"
+		"likwid-${family}-ohpc"
+		"pdtoolkit-${family}-ohpc"
 	)
 
 	while IFS= read -r mpi; do
 		case "${mpi}" in
 			openmpi5)
-				packages+=(ucx-ohpc ucx-ib-ohpc openmpi5-gnu15-ohpc)
+				packages+=(ucx-ohpc ucx-ib-ohpc "openmpi5-${family}-ohpc")
 				;;
 			mpich)
-				packages+=(mpich-ofi-gnu15-ohpc)
+				packages+=("mpich-ofi-${family}-ohpc")
 				;;
 			mvapich2)
-				packages+=(mvapich2-gnu15-ohpc)
+				packages+=("mvapich2-${family}-ohpc")
 				;;
 		esac
-		packages+=("fftw-gnu15-${mpi}-ohpc")
-		packages+=("boost-gnu15-${mpi}-ohpc")
+		packages+=("fftw-${family}-${mpi}-ohpc")
+		packages+=("boost-${family}-${mpi}-ohpc")
 	done < <(mpi_modules)
 
 	printf '%s\n' "${packages[@]}"
@@ -602,8 +617,13 @@ for mpi in "${mpis[@]}"; do
 	module load fftw
 	module load boost
 
+	unset UCX_TLS
 	if [[ ${mpi} == "openmpi5" ]]; then
 		export OMPI_MCA_pml=ob1
+	fi
+	if [[ ${mpi} == "mvapich2" ]]; then
+		# The smoke validates package wiring, not host RDMA/container memlock state.
+		export UCX_TLS=self,sm,tcp
 	fi
 
 	checkpoint "compile ${mpi}"
