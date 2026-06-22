@@ -99,7 +99,9 @@ This package was built from '' branch, commit c30b7da.
            --disable-debug \
            --disable-assertions \
            --disable-params-check \
+%ifarch ppc64le
            --with-go=no \
+%endif
 	   --libdir=%{install_path}/lib \
            %_enable_arg cma cma \
            %_with_arg cuda cuda \
