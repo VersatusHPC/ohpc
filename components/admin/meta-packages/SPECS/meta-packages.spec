@@ -393,20 +393,10 @@ Collection of server packages for SLURM
 
 %package -n %{PROJ_NAME}-warewulf
 Summary:   OpenHPC base packages for Warewulf
-%ifarch ppc64le
+# Warewulf 4.x ships as a single package; the warewulf3-style split packages
+# (warewulf-cluster/common/ipmi/provision/vnfs) are no longer built and are
+# Conflicted by warewulf >= 4, so require the unified package on every arch.
 Requires:  warewulf%{PROJ_DELIM}
-%else
-Requires:  warewulf-cluster%{PROJ_DELIM}
-Requires:  warewulf-common%{PROJ_DELIM}
-Requires:  warewulf-common%{PROJ_DELIM}-localdb
-Requires:  warewulf-ipmi%{PROJ_DELIM}
-Requires:  warewulf-ipmi%{PROJ_DELIM}-initramfs-%{_arch}
-Requires:  warewulf-provision%{PROJ_DELIM}-initramfs-%{_arch}
-Requires:  warewulf-provision%{PROJ_DELIM}
-Requires:  warewulf-provision%{PROJ_DELIM}-server
-Requires:  warewulf-provision%{PROJ_DELIM}-server-ipxe-%{_arch}
-Requires:  warewulf-vnfs%{PROJ_DELIM}
-%endif
 %description -n %{PROJ_NAME}-warewulf
 Collection of base packages for Warewulf provisioning
 
