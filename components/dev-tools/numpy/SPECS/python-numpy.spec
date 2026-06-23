@@ -81,8 +81,9 @@ sed -i 's|defined(NPY_HAVE_VSX3) && defined(vec_extract_fp_from_shorth)|defined(
 sed -i 's|defined(NPY_HAVE_VSX3) && defined(NPY_HAVE_VSX3_HALF_DOUBLE)|defined(NPY_HAVE_VSX3) \&\& defined(NPY_HAVE_VSX3_HALF_DOUBLE) \&\& defined(NPY__CPU_TARGET_VSX3)|g' numpy/_core/src/common/half.hpp
 _assert_patched numpy/_core/src/common/half.hpp "&& defined(NPY__CPU_TARGET_VSX3)"
 
-# numpy.distutils was removed in numpy 2.0; only patch ccompiler_opt.py when an older
-# tree still ships it. Its absence on >=2.0 is expected and not an error.
+# numpy/distutils/ccompiler_opt.py ships in some numpy layouts (incl. 2.4.4) but is not
+# guaranteed across versions; patch it only when this tree provides it so a future
+# relayout degrades to a no-op instead of a hard sed error.
 if [ -f numpy/distutils/ccompiler_opt.py ]; then
 	sed -i "s|flags=\"-mcpu=power8\", implies_detect=False|flags=\"-mcpu=power8 -mvsx\", implies_detect=False|" numpy/distutils/ccompiler_opt.py
 	_assert_patched numpy/distutils/ccompiler_opt.py 'flags="-mcpu=power8 -mvsx"'
