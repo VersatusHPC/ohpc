@@ -67,6 +67,10 @@ Requires: perl
 BuildRequires: zlib-devel make
 BuildRequires: libnl3-devel
 BuildRequires: numactl-devel
+%ifarch ppc64le
+BuildRequires: hwloc%{PROJ_DELIM}
+Requires: hwloc%{PROJ_DELIM}
+%endif
 
 %if "%{RMS_DELIM}" != "%{nil}"
 Provides: %{pname}-%{compiler_family}%{PROJ_DELIM}
@@ -158,6 +162,9 @@ prepend-path	LD_LIBRARY_PATH	    %{install_path}/lib
 prepend-path    MODULEPATH          %{OHPC_MODULEDEPS}/%{compiler_family}-%{pname}
 prepend-path    PKG_CONFIG_PATH     %{install_path}/lib/pkgconfig
 
+%ifarch ppc64le
+depends-on hwloc
+%endif
 %if 0%{with_ucx}
 depends-on ucx
 %endif
