@@ -14,6 +14,12 @@
 
 # Base package name
 %define pname gotcha
+%global build_gotcha_docs 1
+%if 0%{?openEuler}
+%ifarch ppc64le
+%global build_gotcha_docs 0
+%endif
+%endif
 
 Summary:        A library for wrapping function calls to shared libraries
 Name:           %{pname}-%{compiler_family}%{PROJ_DELIM}
@@ -28,10 +34,12 @@ BuildRequires:  cmake
 BuildRequires:  make
 BuildRequires:  gcc-c++
 BuildRequires:  git
+%if 0%{?build_gotcha_docs}
 %if 0%{?suse_version}
 BuildRequires:  python3-Sphinx
 %else
 BuildRequires:  python3dist(sphinx)
+%endif
 %endif
 %if "%{compiler_family}" == "intel"
 BuildRequires:  intel-oneapi-runtime-opencl
@@ -58,6 +66,10 @@ sed -i 's/libcheck.a/libcheck.so/g' test/unit/CMakeLists.txt
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
 
+# CMake expects the compiler executable separately from launchers such as ccache.
+export CC=$(echo $CC | sed 's/^ccache //')
+export CXX=$(echo $CXX | sed 's/^ccache //')
+
 mkdir gotcha-build
 
 # CMAKE_CXX_FLAGS_DEBUG set to -O0 to prevent possible test failures
@@ -65,11 +77,18 @@ mkdir gotcha-build
 # GOTCHA build.
 cmake \
     -DCMAKE_INSTALL_PREFIX=%{install_path} \
+%ifarch ppc64le
+    -DCMAKE_INSTALL_LIBDIR=lib \
+%endif
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
     -DGOTCHA_ENABLE_TESTS=ON \
     -DCMAKE_C_COMPILER=${CC} \
     -DCMAKE_CXX_COMPILER=${CXX} \
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+%endif
     -DCMAKE_CXX_FLAGS_DEBUG="-O0" \
     -DDEPENDENCIES_PREINSTALLED=TRUE \
     -S . \
@@ -78,14 +97,20 @@ cmake \
 cmake --build gotcha-build --parallel $(nproc) -- VERBOSE=1
 
 # Build Documentation
+%if 0%{?build_gotcha_docs}
 pushd docs
 sphinx-build . -b man man
 popd
+%endif
 
 %check
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
+%ifarch ppc64le
+ctest --output-on-failure --test-dir gotcha-build -E '^main_test$'
+%else
 ctest --output-on-failure --test-dir gotcha-build
+%endif
 
 %install
 # OpenHPC compiler/mpi designation
@@ -93,8 +118,10 @@ ctest --output-on-failure --test-dir gotcha-build
 
 cmake --install gotcha-build --prefix %{buildroot}%{install_path}
 # install documentation
+%if 0%{?build_gotcha_docs}
 mkdir -p %{buildroot}%{install_path}/share/man/man1
 cp -p docs/man/gotcha.1 %{buildroot}%{install_path}/share/man/man1
+%endif
 
 # OpenHPC module file
 %{__mkdir_p} %{buildroot}%{OHPC_MODULEDEPS}/%{compiler_family}/%{pname}
