@@ -37,11 +37,6 @@ parser.add_argument(
         + "(defaults to openmpi5, mpich, mvapich2)"
     ),
 )
-parser.add_argument(
-    "--fail-fast",
-    help="exit after the first failed source fetch, SRPM, dependency, or RPM build",
-    action="store_true",
-)
 args = parser.parse_args()
 
 spec_found = False
@@ -67,25 +62,22 @@ for row in reader:
     if key == "VERSION_ID":
         version_id = list(row.items())[0][1]
 
+# Enable ccache for CI builds
 os.makedirs("/etc/rpm", exist_ok=True)
-ccache_enabled = shutil.which("ccache") is not None
 with open("/etc/rpm/macros.ohpc-ci-conf", "w") as f:
-    f.write("%OHPC_USE_CCACHE yes\n" if ccache_enabled else "%OHPC_USE_CCACHE no\n")
+    f.write("%OHPC_USE_CCACHE yes\n")
 
-if ccache_enabled:
-    # Ensure ccache directory is owned by build user.
-    ccache_dir = "/var/cache/ccache"
-    os.makedirs(ccache_dir, exist_ok=True)
-    uid = pwd.getpwnam(build_user).pw_uid
-    gid = pwd.getpwnam(build_user).pw_gid
-    for root, dirs, files in os.walk(ccache_dir):
-        os.chown(root, uid, gid)
-        for d in dirs:
-            os.chown(os.path.join(root, d), uid, gid)
-        for f in files:
-            os.chown(os.path.join(root, f), uid, gid)
-else:
-    logging.info("ccache not found; disabling OHPC_USE_CCACHE for this build")
+# Ensure ccache directory is owned by build user
+ccache_dir = "/var/cache/ccache"
+os.makedirs(ccache_dir, exist_ok=True)
+uid = pwd.getpwnam(build_user).pw_uid
+gid = pwd.getpwnam(build_user).pw_gid
+for root, dirs, files in os.walk(ccache_dir):
+    os.chown(root, uid, gid)
+    for d in dirs:
+        os.chown(os.path.join(root, d), uid, gid)
+    for f in files:
+        os.chown(os.path.join(root, f), uid, gid)
 
 rpmbuild_rpms_dir = os.path.join(pwd.getpwnam(build_user).pw_dir, "rpmbuild", "RPMS")
 local_repo_configured = False
@@ -213,17 +205,6 @@ def get_build_order(specfiles):
     return sorted_specs
 
 
-def uses_compiler_family_argument(spec_path):
-    """Specs whose source build script selects the family by position."""
-    normalized = spec_path
-    while normalized.startswith("./"):
-        normalized = normalized[2:]
-    return (
-        normalized
-        == "components/compiler-families/gnu-compilers/SPECS/gnu-compilers.spec"
-    )
-
-
 def setup_local_repo():
     """Run createrepo_c on the rpmbuild RPMS directory and configure
     it as a local repository so that subsequent builds can use
@@ -265,32 +246,6 @@ def setup_local_repo():
             logging.info("Configured local zypper repository")
 
         local_repo_configured = True
-
-    if dnf_based:
-        success, _ = run_command(
-            [
-                "dnf",
-                "--disablerepo=*",
-                "--enablerepo=local-ohpc-ci",
-                "clean",
-                "metadata",
-            ]
-        )
-        if not success:
-            logging.error("Failed to clean local DNF repository metadata")
-            return False
-
-        success, _ = run_command(
-            [
-                "dnf",
-                "--disablerepo=*",
-                "--enablerepo=local-ohpc-ci",
-                "makecache",
-            ]
-        )
-        if not success:
-            logging.error("Failed to refresh local DNF repository metadata")
-            return False
 
     return True
 
@@ -406,14 +361,6 @@ total = 0
 docs_spec_executed = False
 tests_spec_executed = False
 
-
-def record_failure(message):
-    failed.append(message)
-    if args.fail_fast:
-        logging.error("--> %s failed" % message)
-        logging.error("ERROR")
-        sys.exit(1)
-
 # Determine the number of actual spec files to build
 specfiles = args.specfiles
 spec_count = sum(
@@ -479,7 +426,7 @@ for spec in specfiles:
     success, _ = run_command(command)
     if not success:
         logging.error("Running misc/get_source.sh failed")
-        record_failure(just_spec)
+        failed.append(just_spec)
         continue
 
     # cache spec file contents
@@ -505,9 +452,7 @@ for spec in specfiles:
                 mpi_family=family,
                 compiler_family=args.compiler_family,
             ):
-                record_failure(
-                    "%s (%s, %s)" % (just_spec, args.compiler_family, family)
-                )
+                failed.append("%s (%s, %s)" % (just_spec, args.compiler_family, family))
             else:
                 rebuild_success.append(
                     "%s (%s, %s)" % (just_spec, args.compiler_family, family)
@@ -524,24 +469,22 @@ for spec in specfiles:
                 compiler_family=args.compiler_family,
                 not_mpi_dependent=True,
             ):
-                record_failure("%s (%s)" % (just_spec, args.compiler_family))
+                failed.append("%s (%s)" % (just_spec, args.compiler_family))
             else:
                 rebuild_success.append("%s (%s)" % (just_spec, args.compiler_family))
 
-    elif "ohpc_compiler_dependent" in contents or uses_compiler_family_argument(
-        spec
-    ):
+    elif "ohpc_compiler_dependent" in contents:
         if not build_srpm_and_rpm(
             spec,
             compiler_family=args.compiler_family,
         ):
-            record_failure("%s (%s)" % (just_spec, args.compiler_family))
+            failed.append("%s (%s)" % (just_spec, args.compiler_family))
         else:
             rebuild_success.append("%s (%s)" % (just_spec, args.compiler_family))
 
     else:
         if not build_srpm_and_rpm(spec):
-            record_failure(just_spec)
+            failed.append(just_spec)
         else:
             rebuild_success.append(just_spec)
 

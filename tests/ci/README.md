@@ -98,33 +98,6 @@ This directory contains scripts, tools, and configurations used for OpenHPC's co
 ./setup_slurm_and_run_tests.sh ohpc-user gnu15 components/libs/fftw/SPECS/fftw.spec
 ```
 
-### `validate-ppc64le-port.sh`
-**Purpose**: Native POWER validation wrapper for ppc64le RPM enablement without
-OBS.
-
-**Features**:
-- Requires a native `ppc64le` host.
-- Builds one of the ppc64le validation containers in this directory.
-- Runs branch-relative static checks against a base ref.
-- Builds a bootstrap package set plus changed specs through `run_build.py`.
-- Creates a local RPM repository from the build output.
-- Installs the locally built RPMs and runs compiler, MPI, FFTW, NumPy, LIKWID,
-  PDToolkit, and GOTCHA smoke tests as the non-root build user.
-
-**Usage**:
-```bash
-# Full bootstrap validation on AlmaLinux 10 ppc64le
-tests/ci/validate-ppc64le-port.sh --base-ref origin/4.x
-
-# openEuler ppc64le validation limited to MPICH runtime variants
-tests/ci/validate-ppc64le-port.sh --distro openeuler --mpi-family mpich
-```
-
-Large immutable source tarballs can be preseeded under the relevant
-`components/*/SOURCES/` directory. `misc/get_source.sh` reuses existing source
-files by default; set `OHPC_REFRESH_SOURCES=1` to force timestamp checks and use
-`OHPC_WGET_TIMEOUT` or `OHPC_WGET_TRIES` to tune bounded downloads.
-
 ## Utility Scripts
 
 ### `cirrus_get_changed_files.sh`
@@ -205,20 +178,6 @@ podman build -f Containerfile.ohpc-lint -t ghcr.io/openhpc/ohpc-lint:latest
 
 # Use in CI (automatic via GitHub Actions)
 ```
-
-### `Containerfile.ohpc-validate-*-ppc64le`
-**Purpose**: Native POWER container definitions for ppc64le package build and
-validation work.
-
-These images must be built on ppc64le hosts. They install the OS build
-dependencies needed to validate POWER RPM enablement without depending on
-site-specific repository URLs. Use `validate-ppc64le-port.sh` to build the
-container and run the non-OBS package build plus runtime smoke-test flow.
-The openEuler ppc64le image bootstraps its root filesystem from the official
-openEuler 24.03 LTS `OS/ppc64le` RPM repository because the official
-`openeuler/openeuler` container image does not provide a ppc64le manifest. It
-rebuilds missing ppc64le support packages from official openEuler SRPMs inside
-the native validation image.
 
 ## CI Workflow Integration
 

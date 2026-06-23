@@ -77,9 +77,6 @@ for i in %{precision_list} ; do
 %ifarch aarch64
 		LOOPBASEFLAGS="${LOOPBASEFLAGS} --enable-neon"
 %endif
-%ifarch ppc64le
-		LOOPBASEFLAGS="${LOOPBASEFLAGS} --enable-vsx"
-%endif
 	fi
 	mkdir ${i}
 	cd ${i}

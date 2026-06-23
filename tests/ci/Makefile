@@ -15,7 +15,6 @@ codespell-lint:
 		tests/ci/check_spec.py \
 		tests/ci/integration-test.sh \
 		tests/ci/run_build.py \
-		tests/ci/validate-ppc64le-port.sh \
 		misc/build_order.py \
 		misc/build_order.sh \
 		misc/check_for_package_updates.py \
@@ -260,7 +259,6 @@ shellcheck-lint:
 		../../tests/ci/integration-test.sh \
 		../../tests/ci/prepare-ci-environment.sh \
 		../../tests/ci/setup_slurm_and_run_tests.sh \
-		../../tests/ci/validate-ppc64le-port.sh \
 		../../tests/common/functions \
 		../../components/OHPC_setup_compiler \
 		../../components/OHPC_setup_mpi \
@@ -452,7 +450,6 @@ shfmt-lint:
 		../../tests/ci/integration-test.sh \
 		../../tests/ci/prepare-ci-environment.sh \
 		../../tests/ci/setup_slurm_and_run_tests.sh \
-		../../tests/ci/validate-ppc64le-port.sh \
 		../../misc/build_order.sh \
 		../../misc/dist/count_avail_packages.sh \
 		../../tests/common/functions \
