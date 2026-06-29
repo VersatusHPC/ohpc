@@ -135,6 +135,8 @@ if [ "${arch}" == "x86_64" ]; then
 			ARCH_OPTS="${ARCH_OPTS} -march=x86-64-v3"
 		fi
 	fi
+elif [ "${arch}" == "ppc64le" ]; then
+	ARCH_OPTS="-mcpu=power9 -mtune=power9"
 fi
 
 if [ "${toolset}" == "gcc" ]; then
