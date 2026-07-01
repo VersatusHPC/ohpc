@@ -18,12 +18,13 @@
 
 Summary:   Scalable Performance Measurement Infrastructure for Parallel Codes
 Name:      %{pname}-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
-Version:   9.4
+Version:   10.0
 Release:   1%{?dist}
 License:   BSD
 Group:     %{PROJ_NAME}/perf-tools
 URL:       http://www.vi-hps.org/projects/score-p/
 Source0:   https://perftools.pages.jsc.fz-juelich.de/cicd/scorep/tags/scorep-%{version}/scorep-%{version}.tar.gz
+Patch1:    Score-P-10.0_fix-intel-mpi-linker-error.patch
 BuildRequires: automake
 BuildRequires: bison
 BuildRequires: binutils-devel
@@ -39,7 +40,7 @@ BuildRequires: gotcha-%{compiler_family}%{PROJ_DELIM}
 BuildRequires: libunwind-devel
 BuildRequires: make
 BuildRequires: opari2-%{compiler_family}%{PROJ_DELIM} >= 2.0.9
-BuildRequires: otf2-%{compiler_family}-%{mpi_family}%{PROJ_DELIM} >= 3.1
+BuildRequires: otf2-%{compiler_family}-%{mpi_family}%{PROJ_DELIM} >= 3.2
 %ifarch x86_64
 BuildRequires: papi%{PROJ_DELIM}
 %endif
@@ -51,7 +52,7 @@ Requires:      gotcha-%{compiler_family}%{PROJ_DELIM}
 Requires:      libunwind-devel
 Requires:      lmod%{PROJ_DELIM} >= 7.6.1
 Requires:      opari2-%{compiler_family}%{PROJ_DELIM} >= 2.0.9
-Requires:      otf2-%{compiler_family}-%{mpi_family}%{PROJ_DELIM} >= 3.1
+Requires:      otf2-%{compiler_family}-%{mpi_family}%{PROJ_DELIM} >= 3.2
 Requires:      papi%{PROJ_DELIM}
 
 #!BuildIgnore: post-build-checks
@@ -71,6 +72,7 @@ This is the %{compiler_family}-%{mpi_family} version.
 %prep
 
 %setup -q -n %{pname}-%{version}
+%patch -P 1 -p1
 
 %build
 
@@ -79,7 +81,7 @@ This is the %{compiler_family}-%{mpi_family} version.
 
 %ifarch x86_64
 module load papi
-CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --with-papi-header=${PAPI_INC} --with-papi-lib=${PAPI_LIB}"
+CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --with-libpapi-include=${PAPI_INC} --with-libpapi-lib=${PAPI_LIB}"
 %endif
 module load cubew
 module load cubelib
@@ -108,18 +110,32 @@ CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS --with-mpi=openmpi "
 %endif
 
 %if "%{mpi_family}" == "openmpi4"
-CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS --with-mpi=openmpi "
+CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS --with-mpi=openmpi3 "
 %endif
 
 %if "%{mpi_family}" == "openmpi5"
-CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS --with-mpi=openmpi "
+CONFIGURE_OPTIONS="$CONFIGURE_OPTIONS --with-mpi=openmpi3 "
 %endif
 
 # Work around static binutils in OpenSUSE Leap 15
 %if 0%{?suse_version}
-export LIBBFD_EXTRA_LIBS="-liberty -lz -ldl -lsframe"
-CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS}"
+export LIBBFD_EXTRA_LIBS="-liberty -lz -ldl"
 %endif
+
+# Strip ccache prefix from compiler variables; Score-P's configure passes
+# CC/CXX to MPI wrappers via -cc= which cannot handle "ccache gcc".
+# Instead, use PATH masquerade so the actual compiler invocations still
+# go through ccache during the build.
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+if command -v ccache >/dev/null 2>&1; then
+    CCACHE_WRAP_DIR=$(mktemp -d /tmp/ccache-wrap.XXXXXX)
+    ln -s "$(command -v ccache)" "${CCACHE_WRAP_DIR}/$(echo $CC | sed 's/^ccache //')"
+    ln -s "$(command -v ccache)" "${CCACHE_WRAP_DIR}/$(echo $CXX | sed 's/^ccache //')"
+    export PATH="${CCACHE_WRAP_DIR}:${PATH}"
+fi
+%endif
+export CC=$(echo $CC | sed 's/^ccache //')
+export CXX=$(echo $CXX | sed 's/^ccache //')
 
 export CFLAGS="$CFLAGS"
 export CXXFLAGS="$CFLAGS"
@@ -130,6 +146,7 @@ export CXXFLAGS="$CFLAGS"
             --enable-backend-test-runs \
             --with-platform=linux \
             --with-libgotcha=${GOTCHA_DIR} \
+            --disable-download-externals \
             CC="$CC" \
             CXX="$CXX" \
             F77="$F77" \
@@ -173,6 +190,11 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{install_path}/lib/*.la
 rm -f $RPM_BUILD_ROOT%{install_path}/lib/*.a
 rm -f $RPM_BUILD_ROOT%{install_path}/lib/scorep/*.la
+
+# symlink README.LICENSES.md to COPYING to work around broken scorep-info license in Score-P v10.0
+pushd $RPM_BUILD_ROOT%{install_path}/share/doc/scorep/
+ln -s README.LICENSES.md COPYING
+popd
 
 %if 0%{?suse_version}
 %fdupes -s %{buildroot}%{install_path}
@@ -233,4 +255,4 @@ EOF
 
 %files
 %{OHPC_PUB}
-%doc AUTHORS CITATION.cff ChangeLog COPYING INSTALL OPEN_ISSUES README.md THANKS
+%doc LICENSES/* CITATION.cff ChangeLog INSTALL OPEN_ISSUES README.LICENSES.md README.md REUSE.toml THANKS

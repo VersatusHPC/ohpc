@@ -14,23 +14,27 @@
 
 # Base package name
 %define pname gotcha
+%global build_gotcha_docs 1
+%if 0%{?openEuler}
+%ifarch ppc64le
+%global build_gotcha_docs 0
+%endif
+%endif
 
 Summary:        A library for wrapping function calls to shared libraries
 Name:           %{pname}-%{compiler_family}%{PROJ_DELIM}
-Version:        1.0.8
+Version:        1.0.10
 Release:        1%{?dist}
 License:        LGPL-2.1-only
 Group:          %{PROJ_NAME}/serial-libs
 URL:            https://github.com/llnl/gotcha
-Source0:        %{url}/archive/%{version}/%{pname}-%{version}.tar.gz
+Source0:        %{url}/archive/refs/tags/v%{version}.tar.gz
 BuildRequires:  check-devel
-BuildRequires:  cmake
+BuildRequires:  cmake%{PROJ_DELIM}
 BuildRequires:  make
 BuildRequires:  gcc-c++
 BuildRequires:  git
-%if 0%{?openEuler}
-# openEuler 24.03 ppc64le does not ship Sphinx in the OS repository.
-%else
+%if 0%{?build_gotcha_docs}
 %if 0%{?suse_version}
 BuildRequires:  python3-Sphinx
 %else
@@ -62,37 +66,31 @@ sed -i 's/libcheck.a/libcheck.so/g' test/unit/CMakeLists.txt
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
 
-mkdir gotcha-build
+module load cmake
 
-cmake_c_compiler="${CC}"
-cmake_cxx_compiler="${CXX}"
-cmake_c_launcher_args=
-cmake_cxx_launcher_args=
-case "${cmake_c_compiler}" in
-    ccache\ *)
-        cmake_c_compiler="${cmake_c_compiler#ccache }"
-        cmake_c_launcher_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache"
-        ;;
-esac
-case "${cmake_cxx_compiler}" in
-    ccache\ *)
-        cmake_cxx_compiler="${cmake_cxx_compiler#ccache }"
-        cmake_cxx_launcher_args="-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
-        ;;
-esac
+mkdir gotcha-build
 
 # CMAKE_CXX_FLAGS_DEBUG set to -O0 to prevent possible test failures
 # due to -O3 set in OHPC_setup_compiler. Does not affect actual
 # GOTCHA build.
+# Strip ccache prefix from compiler variables; pass it via launcher flags
+export CC=$(echo $CC | sed 's/^ccache //')
+export CXX=$(echo $CXX | sed 's/^ccache //')
+
 cmake \
     -DCMAKE_INSTALL_PREFIX=%{install_path} \
+%ifarch ppc64le
+    -DCMAKE_INSTALL_LIBDIR=lib \
+%endif
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
     -DGOTCHA_ENABLE_TESTS=ON \
-    -DCMAKE_C_COMPILER="${cmake_c_compiler}" \
-    -DCMAKE_CXX_COMPILER="${cmake_cxx_compiler}" \
-    ${cmake_c_launcher_args} \
-    ${cmake_cxx_launcher_args} \
+    -DCMAKE_C_COMPILER=${CC} \
+    -DCMAKE_CXX_COMPILER=${CXX} \
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+    -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+%endif
     -DCMAKE_CXX_FLAGS_DEBUG="-O0" \
     -DDEPENDENCIES_PREINSTALLED=TRUE \
     -S . \
@@ -101,7 +99,7 @@ cmake \
 cmake --build gotcha-build --parallel $(nproc) -- VERBOSE=1
 
 # Build Documentation
-%if !0%{?openEuler}
+%if 0%{?build_gotcha_docs}
 pushd docs
 sphinx-build . -b man man
 popd
@@ -110,19 +108,19 @@ popd
 %check
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
-%ifarch ppc64le
-ctest --output-on-failure --test-dir gotcha-build -E '^main_test$'
-%else
+module load cmake
+%if "%{compiler_family}" != "intel"
 ctest --output-on-failure --test-dir gotcha-build
 %endif
 
 %install
 # OpenHPC compiler/mpi designation
 %ohpc_setup_compiler
+module load cmake
 
 cmake --install gotcha-build --prefix %{buildroot}%{install_path}
 # install documentation
-%if !0%{?openEuler}
+%if 0%{?build_gotcha_docs}
 mkdir -p %{buildroot}%{install_path}/share/man/man1
 cp -p docs/man/gotcha.1 %{buildroot}%{install_path}/share/man/man1
 %endif

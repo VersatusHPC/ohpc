@@ -1,5 +1,0 @@
-llvm10-compilers-ohpc (10.0.1-1ohpc1~noble) noble; urgency=low
-
-  * Initial Debian packaging for OpenHPC Ubuntu port.
-
- -- VersatusHPC <packages@versatushpc.com.br>  Sun, 30 Mar 2026 18:00:00 +0000

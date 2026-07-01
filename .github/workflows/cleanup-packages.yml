@@ -29,7 +29,7 @@ jobs:
         with:
           package-name: ${{ github.event.repository.name }}
           package-type: container
-          min-versions-to-keep: 5
+          min-versions-to-keep: 20
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,7 +40,7 @@ jobs:
         with:
           package-name: ohpc-lint
           package-type: container
-          min-versions-to-keep: 3
+          min-versions-to-keep: 20
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -51,7 +51,7 @@ jobs:
         with:
           package-name: ohpc-analysis
           package-type: container
-          min-versions-to-keep: 3
+          min-versions-to-keep: 20
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,7 +62,7 @@ jobs:
         with:
           package-name: ohpc-validate-almalinux
           package-type: container
-          min-versions-to-keep: 3
+          min-versions-to-keep: 20
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -73,7 +73,18 @@ jobs:
         with:
           package-name: ohpc-validate-openeuler
           package-type: container
-          min-versions-to-keep: 3
+          min-versions-to-keep: 20
+          delete-only-untagged-versions: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete untagged ohpc-validate-leap images
+        id: cleanup-validate-leap
+        continue-on-error: true
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ohpc-validate-leap
+          package-type: container
+          min-versions-to-keep: 20
           delete-only-untagged-versions: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -85,6 +96,7 @@ jobs:
           echo "Analysis container cleanup: ${{ steps.cleanup-analysis.outcome }}"
           echo "Validate AlmaLinux container cleanup: ${{ steps.cleanup-validate-almalinux.outcome }}"
           echo "Validate openEuler container cleanup: ${{ steps.cleanup-validate-openeuler.outcome }}"
+          echo "Validate Leap container cleanup: ${{ steps.cleanup-validate-leap.outcome }}"
 
           if [[ "${{ steps.cleanup-main.outcome }}" == "failure" ]]; then
             echo "Warning: Main container cleanup failed - package may not exist yet"
@@ -104,6 +116,10 @@ jobs:
 
           if [[ "${{ steps.cleanup-validate-openeuler.outcome }}" == "failure" ]]; then
             echo "Warning: Validate openEuler container cleanup failed - package may not exist yet"
+          fi
+
+          if [[ "${{ steps.cleanup-validate-leap.outcome }}" == "failure" ]]; then
+            echo "Warning: Validate Leap container cleanup failed - package may not exist yet"
           fi
 
           echo "Cleanup workflow completed"

@@ -19,6 +19,7 @@
 %bcond_with    ugni
 %bcond_with    xpmem
 %bcond_with    java
+%bcond_with    go
 
 %include %{_sourcedir}/OHPC_macros
 %undefine _annotated_build
@@ -27,13 +28,15 @@
 %define pname ucx
 
 Name:    ucx%{PROJ_DELIM}
-Version: 1.20.0
+Version: 1.21.0
 Release: 1%{?dist}
 Summary: UCX is a communication library implementing high-performance messaging
 Group:   %{PROJ_NAME}/mpi-families
 License: BSD
 URL:     http://www.openucx.org
 Source0: https://github.com/openucx/%{pname}/releases/download/v%{version}/%{pname}-%{version}.tar.gz
+# https://github.com/openucx/ucx/pull/11608
+Patch0:  time-include-math.patch
 
 # UCX currently supports only the following architectures
 ExclusiveArch: aarch64 ppc64le x86_64
@@ -89,6 +92,7 @@ This package was built from '' branch, commit c30b7da.
 
 %prep
 %setup -q -n ucx-%{version}
+%patch -P0 -p1
 
 %build
 %define _with_arg()   %{expand:%%{?with_%{1}:--with-%{2}}%%{!?with_%{1}:--without-%{2}}}
@@ -99,7 +103,6 @@ This package was built from '' branch, commit c30b7da.
            --disable-debug \
            --disable-assertions \
            --disable-params-check \
-           --without-go \
 	   --libdir=%{install_path}/lib \
            %_enable_arg cma cma \
            %_with_arg cuda cuda \
@@ -111,6 +114,7 @@ This package was built from '' branch, commit c30b7da.
            %_with_arg xpmem xpmem \
            %_with_arg ugni ugni \
            %_with_arg java java \
+           %_with_arg go go \
            %{?configure_options}
 
 make %{?_smp_mflags} V=1

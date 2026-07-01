@@ -15,7 +15,7 @@ usage() {
 	echo " intel           Enable Intel OneAPI toolkit"
 }
 
-FACTORY_VERSION=4.1
+FACTORY_VERSION=4.2
 ENABLE_ONEAPI=""
 PRE_RELEASE=""
 
@@ -218,5 +218,4 @@ fi
 
 # Setup ccache
 echo "cache_dir=/var/cache/ccache" >/etc/ccache.conf
-mkdir -p /var/cache/ccache
-chown -R ohpc:ohpc /var/cache/ccache
+install -d -o ohpc -g ohpc /var/cache/ccache

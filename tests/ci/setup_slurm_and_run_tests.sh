@@ -46,15 +46,12 @@ fi
 "${PKG[@]}" install "${INSTALL_PKGS[@]}"
 
 # Install rebuilt packages (if any)
-mapfile -d '' REBUILT_RPMS < <(find /home/"${USER}"/rpmbuild/RPMS/ -name "*rpm" -print0)
-if [ "${#REBUILT_RPMS[@]}" -gt 0 ]; then
-	if ! "${PKG[@]}" install "${REBUILT_RPMS[@]}"; then
-		echo "Bulk install of rebuilt RPMs failed. Retrying individual RPM installs."
-		for rebuilt_rpm in "${REBUILT_RPMS[@]}"; do
-			"${PKG[@]}" install "${rebuilt_rpm}" || true
-		done
-	fi
+FIND_EXCLUDE=(! -name "*arm1*")
+if [ "${COMPILER_FAMILY}" != "intel" ]; then
+	FIND_EXCLUDE+=(! -name "*-intel-*")
 fi
+# shellcheck disable=SC2046 # (we want the words to be split)
+"${PKG[@]}" install $(find /home/"${USER}"/rpmbuild/RPMS/ -name "*rpm" "${FIND_EXCLUDE[@]}") || true
 
 # Remove OpenPBS, if it is installed as a dependency. The tests use Slurm Resource Manager
 "${PKG[@]}" remove openpbs-*-ohpc || true

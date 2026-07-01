@@ -13,11 +13,13 @@ codespell-lint:
 		containers \
 		tests/ci/check_gitignore_order.py \
 		tests/ci/check_spec.py \
+		tests/ci/integration-test.sh \
 		tests/ci/run_build.py \
 		misc/build_order.py \
 		misc/build_order.sh \
 		misc/check_for_package_updates.py \
 		misc/dist/count_avail_packages.sh \
+		misc/gen_sources_checksum.sh \
 		tests/ci/spec_to_test_mapping.py \
 		components/admin/prun/SOURCES/prun \
 		components/rms/slurm/SOURCES/slurm.epilog.clean \
@@ -108,7 +110,8 @@ codespell-lint:
 		tests/compilers/tests/version_match \
 		tests/compilers/tests/man_pages \
 		tests/compilers/tests/debugger \
-		tests/compilers/ohpc-tests/test_compiler_families
+		tests/compilers/ohpc-tests/test_compiler_families \
+		tests/modules/interactive_commands
 
 ruff-check-lint:
 	@echo "Running 'ruff check' on selected Python files"
@@ -147,6 +150,7 @@ whitespace-lint:
 		misc/build_order.sh \
 		misc/check_for_package_updates.py \
 		misc/dist/count_avail_packages.sh \
+		misc/gen_sources_checksum.sh \
 		components/admin/prun/SOURCES/prun \
 		components/compiler-families/intel-compilers-devel/SOURCES/ohpc-update-modules-intel \
 		components/mpi-families/impi-devel/SOURCES/ohpc-update-modules-impi \
@@ -241,6 +245,7 @@ whitespace-lint:
 		tests/compilers/tests/man_pages \
 		tests/compilers/tests/debugger \
 		tests/compilers/ohpc-tests/test_compiler_families \
+		tests/modules/interactive_commands \
 		containers/* \
 		\*.tex
 
@@ -250,9 +255,11 @@ shellcheck-lint:
 		-o require-variable-braces,quote-safe-variables,deprecate-which,avoid-nullary-conditions \
 		../../misc/build_srpm.sh \
 		../../misc/build_order.sh \
+		../../misc/gen_sources_checksum.sh \
 		../../misc/get_source.sh \
 		../../misc/shell-functions \
 		../../misc/dist/count_avail_packages.sh \
+		../../tests/ci/integration-test.sh \
 		../../tests/ci/prepare-ci-environment.sh \
 		../../tests/ci/setup_slurm_and_run_tests.sh \
 		../../tests/common/functions \
@@ -357,7 +364,8 @@ shellcheck-lint:
 		../../tests/compilers/tests/rm_execution \
 		../../tests/compilers/tests/version_match \
 		../../tests/compilers/tests/man_pages \
-		../../tests/compilers/tests/debugger
+		../../tests/compilers/tests/debugger \
+		../../tests/modules/interactive_commands
 
 shfmt-lint:
 
@@ -437,14 +445,17 @@ shfmt-lint:
 		../../tests/compilers/tests/rm_execution \
 		../../tests/compilers/tests/version_match \
 		../../tests/compilers/tests/man_pages \
-		../../tests/compilers/tests/debugger
+		../../tests/compilers/tests/debugger \
+		../../tests/modules/interactive_commands
 	shfmt -w -d \
 		../../tests/perf-tools/extrae/tests/tracec.sh \
 		../../tests/perf-tools/extrae/tests/tracef.sh \
+		../../tests/ci/integration-test.sh \
 		../../tests/ci/prepare-ci-environment.sh \
 		../../tests/ci/setup_slurm_and_run_tests.sh \
 		../../misc/build_order.sh \
 		../../misc/dist/count_avail_packages.sh \
+		../../misc/gen_sources_checksum.sh \
 		../../tests/common/functions \
 		../../tests/dev-tools/numpy/ohpc-tests/test_compiler_families \
 		../../tests/dev-tools/valgrind/ohpc-tests/test_compiler_families \

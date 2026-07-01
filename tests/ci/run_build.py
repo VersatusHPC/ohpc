@@ -80,6 +80,7 @@ for row in reader:
 os.makedirs("/etc/rpm", exist_ok=True)
 with open("/etc/rpm/macros.ohpc-ci-conf", "w") as f:
     f.write("%OHPC_USE_CCACHE yes\n")
+    f.write("%OHPC_BUILD 1\n")
 
 # Ensure ccache directory is owned by build user
 ccache_dir = "/var/cache/ccache"
@@ -231,6 +232,12 @@ def setup_local_repo():
     global local_repo_configured
 
     os.makedirs(rpmbuild_rpms_dir, exist_ok=True)
+    # Ensure all directories in the path are owned by the build user
+    for d in [
+        os.path.dirname(rpmbuild_rpms_dir),
+        rpmbuild_rpms_dir,
+    ]:
+        os.chown(d, uid, gid)
 
     logging.info("Running createrepo_c on %s" % rpmbuild_rpms_dir)
     success, _ = run_command(["createrepo_c", rpmbuild_rpms_dir])
@@ -434,6 +441,7 @@ failed = []
 rebuild_success = []
 total = 0
 docs_spec_executed = False
+tests_spec_executed = False
 
 # Determine the number of actual spec files to build
 specfiles = args.specfiles
@@ -442,8 +450,11 @@ spec_count = sum(
     for s in specfiles
     if s.endswith(".spec")
     or "components/admin/docs/SPECS/docs.spec" == s
-    or "docs/recipes/install/" in s
+    or "docs/install/" in s
     or "components/admin/docs/SOURCES/" in s
+    or "components/admin/test-suite/SPECS/tests.spec" == s
+    or "tests/" in s
+    or "components/admin/test-suite/SOURCES/" in s
 )
 multiple_specs = spec_count > 1
 build_order_used = None
@@ -461,11 +472,22 @@ for spec in specfiles:
             continue
         docs_spec_executed = True
     elif not docs_spec_executed and (
-        "docs/recipes/install/" in spec or "components/admin/docs/SOURCES/" in spec
+        "docs/install/" in spec or "components/admin/docs/SOURCES/" in spec
     ):
         docs_spec_executed = True
         spec = "components/admin/docs/SPECS/docs.spec"
     # END OF LOGIC FOR DOCS
+    # START OF LOGIC FOR TESTS
+    elif "components/admin/test-suite/SPECS/tests.spec" == spec:
+        if tests_spec_executed:
+            continue
+        tests_spec_executed = True
+    elif not tests_spec_executed and (
+        "tests/" in spec or "components/admin/test-suite/SOURCES/" in spec
+    ):
+        tests_spec_executed = True
+        spec = "components/admin/test-suite/SPECS/tests.spec"
+    # END OF LOGIC FOR TESTS
     elif not spec.endswith(".spec"):
         continue
     just_spec = os.path.basename(spec)

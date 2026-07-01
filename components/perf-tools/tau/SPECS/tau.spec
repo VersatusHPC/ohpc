@@ -24,6 +24,7 @@ Summary:   Tuning and Analysis Utilities Profiling Package
 License:   Tuning and Analysis Utilities License
 Group:     %{PROJ_NAME}/perf-tools
 Url:       http://www.cs.uoregon.edu/research/tau/home.php
+# upstream https certificate is broken, use http
 Source0:   http://www.cs.uoregon.edu/research/tau/tau_releases/tau-%{version}.tar.gz
 Patch1:    tau-2.34.1.patch
 

@@ -126,10 +126,22 @@ using python : %{python3_version} : %{__python3} : /usr/include/python%{python3_
 import os ;
 local RPM_OPT_FLAGS = [ os.environ RPM_OPT_FLAGS ] ;
 local RPM_LD_FLAGS = [ os.environ RPM_LD_FLAGS ] ;
+local MPI_DIR = [ os.environ MPI_DIR ] ;
 %if "%{compiler_family}" == "gnu14" || "%{compiler_family}" == "gnu15"
 using gcc : : : <compileflags>$(RPM_OPT_FLAGS) <linkflags>$(RPM_LD_FLAGS) ;
 %endif
+%if ("%{mpi_family}" == "mpich" || "%{mpi_family}" == "mvapich2") && "%{?OHPC_USE_CCACHE}" == "yes"
+# MPICH-derived wrappers built with ccache report "ccache g++ ..."; Boost.MPI strips
+# only one executable token when parsing wrapper output, so configure it
+# explicitly for these MPI families.
+using mpi : :
+    <include>$(MPI_DIR)/include
+    <library-path>$(MPI_DIR)/lib
+    <find-shared-library>mpicxx
+    <find-shared-library>mpi ;
+%else
 using mpi : $MPICXX ;
+%endif
 EOF
 
 # Generate b2
