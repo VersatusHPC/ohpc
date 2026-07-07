@@ -37,9 +37,6 @@ Requires:       python3
 
 BuildRequires:  make
 BuildRequires:  cmake
-%if !0%{?openEuler}
-BuildRequires:  doxygen
-%endif
 BuildRequires:  expat
 BuildRequires:  graphviz
 BuildRequires:  libxml2-devel
@@ -52,7 +49,6 @@ BuildRequires:  netcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 BuildRequires:  python3
 BuildRequires:  python3-devel
-Requires:       pnetcdf-%{compiler_family}-%{mpi_family}%{PROJ_DELIM}
 
 %if "%{compiler_family}" != "intel" && "%{compiler_family}" != "arm1"
 BuildRequires:  openblas-%{compiler_family}%{PROJ_DELIM}
@@ -107,20 +103,17 @@ export CXXFLAGS="${CXXFLAGS} -Wno-implicit-function-declaration"
 export CFLAGS="${CFLAGS} -Wno-deprecated-declarations"
 export CXXFLAGS="${CXXFLAGS} -Wno-deprecated-declarations"
 
-cmake_ccache_args=
-%if "%{?OHPC_USE_CCACHE}" == "yes"
-if command -v ccache >/dev/null 2>&1; then
-    cmake_ccache_args="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_Fortran_COMPILER_LAUNCHER=ccache"
-fi
-%endif
-
 mkdir build
 cd build
 cmake   -DCMAKE_INSTALL_PREFIX=%{install_path}                          \
         -DCMAKE_EXE_LINKER_FLAGS:STRING="-fPIC"                         \
         -DCMAKE_VERBOSE_MAKEFILE:BOOL=TRUE                              \
         -DCMAKE_BUILD_TYPE:STRING=RELEASE                               \
-        ${cmake_ccache_args}                                            \
+%if "%{?OHPC_USE_CCACHE}" == "yes"
+        -DCMAKE_C_COMPILER_LAUNCHER=ccache                              \
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache                            \
+        -DCMAKE_Fortran_COMPILER_LAUNCHER=ccache                        \
+%endif
         -DBUILD_SHARED_LIBS:BOOL=ON                                     \
         -DCMAKE_SKIP_INSTALL_RPATH:BOOL=ON                              \
         -DCMAKE_SKIP_RPATH:BOOL=ON                                      \
