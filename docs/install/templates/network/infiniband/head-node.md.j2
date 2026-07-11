@@ -10,7 +10,7 @@ drivers to the chosen *head node*.
 {{ pkg_group_install }} "InfiniBand Support"
 # Load IB services
 udevadm trigger --type=devices --action=add
-systemctl restart rdma-load-modules@infiniband.service
+systemctl restart rdma-load-modules@infiniband
 ```
 <!-- ohpc_fi -->
 <!-- ohpc_end -->
