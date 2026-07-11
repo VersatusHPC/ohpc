@@ -7,7 +7,7 @@ for OpenHPC installation recipes.
 
 - Make documentation easier to edit and contribute to
 - Normalize variable names and remove duplication
-- Support multiple provisioners (Warewulf, OpenCHAMI, Confluent) and schedulers (Slurm)
+- Support multiple provisioners (Warewulf, OpenCHAMI, Confluent, xCAT) and schedulers (Slurm)
 - Support multiple distros (Rocky, AlmaLinux, openEuler, SLES) and
   architectures (x86_64, aarch64)
 - Generate installation scripts directly from documentation
@@ -68,7 +68,8 @@ config/
 ├── provisioner/
 │   ├── warewulf.yaml            # is_warewulf: true, provisioner_name: "Warewulf"
 │   ├── openchami.yaml           # is_openchami: true, provisioner_name: "OpenCHAMI"
-│   └── confluent.yaml           # is_confluent: true, provisioner_name: "Confluent"
+│   ├── confluent.yaml           # is_confluent: true, provisioner_name: "Confluent"
+│   └── xcat.yaml                # is_xcat: true, provisioner_name: "xCAT"
 └── scheduler/
     └── slurm.yaml               # is_slurm: true, scheduler_name: "Slurm"
 ```
@@ -92,6 +93,8 @@ provisioners have fundamentally different workflows:
 - **Confluent**: boot nodes from Confluent → configure live nodes via nodeshell
 - **OpenCHAMI**: build layered container image (podman + yq) → cloud-init →
   boot nodes
+- **xCAT**: copycds ISO → genimage chroot → customize chroot → packimage →
+  define nodes → rsetboot/rpower
 
 Aggregator templates use `{% include %}` to compose sections:
 
@@ -217,12 +220,12 @@ yq -i '.packages += {{ packages | tojson }}' \
 These four macros abstract all provisioner differences for compute image
 operations. Templates use them without knowing which provisioner is active:
 
-| Macro | Warewulf | Confluent | OpenCHAMI |
-| ----- | -------- | --------- | --------- |
-| `compute_install(packages)` | `dnf install` in chroot | `nodeshell compute dnf install` | `yq` append to packages array |
-| `compute_sed(regex, file)` | `sed -i` on `$CHROOT/file` | `nodeshell compute sed -i` | `yq` append to cmds array |
-| `compute_echo(string, file)` | `echo` to `$CHROOT/file` | `nodeshell compute echo` | `yq` append to cmds array |
-| `compute_run(cmd)` | `wwctl image exec` | `nodeshell compute` | `yq` append to cmds array |
+| Macro | Warewulf | Confluent | OpenCHAMI | xCAT |
+| ----- | -------- | --------- | --------- | ---- |
+| `compute_install(packages)` | `dnf install` in chroot | `nodeshell compute dnf install` | `yq` append to packages array | `dnf install` in `$CHROOT` |
+| `compute_sed(regex, file)` | `sed -i` on `$CHROOT/file` | `nodeshell compute sed -i` | `yq` append to cmds array | `sed -i` on `${CHROOT}/file` |
+| `compute_echo(string, file)` | `echo` to `$CHROOT/file` | `nodeshell compute echo` | `yq` append to cmds array | `echo` to `${CHROOT}/file` |
+| `compute_run(cmd)` | `wwctl image exec` | `nodeshell compute` | `yq` append to cmds array | `chroot ${CHROOT} /bin/sh -c` |
 
 `head_install(packages)` installs packages on the head node (uses
 `pkg_install`, consistent across provisioners).
@@ -512,10 +515,12 @@ docs/install/
 │   │   ├── provisioner-warewulf.md.j2
 │   │   ├── provisioner-confluent.md.j2
 │   │   ├── provisioner-openchami.md.j2
+│   │   ├── provisioner-xcat.md.j2
 │   │   ├── customize.md.j2
 │   │   ├── deploy-warewulf.md.j2
 │   │   ├── deploy-confluent.md.j2
 │   │   ├── deploy-openchami.md.j2
+│   │   ├── deploy-xcat.md.j2
 │   │   ├── dev-tools.md.j2
 │   │   ├── test.md.j2
 │   │   ├── post.md.j2
@@ -527,7 +532,8 @@ docs/install/
 │   ├── provisioner/
 │   │   ├── warewulf/
 │   │   ├── confluent/
-│   │   └── openchami/
+│   │   ├── openchami/
+│   │   └── xcat/
 │   ├── scheduler/
 │   │   └── slurm/
 │   ├── network/
@@ -718,8 +724,8 @@ python3 tests/ci/run_build.py $USER components/admin/docs/SPECS/docs.spec
 ### Recipe Naming
 
 Recipes are named `{distro}{version}-{arch}-{provisioner}-{scheduler}.yaml`
-and live in `recipes/`. See existing recipes for examples. The 14 current
-recipes cover Warewulf, Confluent, and OpenCHAMI across Rocky, AlmaLinux,
+and live in `recipes/`. See existing recipes for examples. The 15 current
+recipes cover Warewulf, Confluent, OpenCHAMI, and xCAT across Rocky, AlmaLinux,
 and openEuler on x86\_64 and aarch64.
 
 ### Manifest Directory Naming

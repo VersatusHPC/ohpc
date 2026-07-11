@@ -1,0 +1,19 @@
+{# Provisioner Aggregator #}
+# Install xCAT Provisioner
+
+{% include "provisioner/provisioner.md.j2" %}
+
+This edition covers **stateless** (*netboot*) provisioning, where compute nodes
+boot a RAM-resident image served by the head node. Stateful (local disk)
+provisioning with xCAT is not covered by this guide.
+
+{% include "provisioner/xcat/xcat-repo.md.j2" %}
+{% include "provisioner/xcat/xcat-install.md.j2" %}
+{% include "provisioner/xcat/xcat-setup.md.j2" %}
+
+{% include "provisioner/xcat/osimage-init.md.j2" %}
+{% include "provisioner/xcat/chroot-install-ohpc.md.j2" %}
+
+{% include "provisioner/xcat/chroot-customize.md.j2" %}
+
+{% include "provisioner/xcat/synclists.md.j2" %}

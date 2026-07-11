@@ -1,0 +1,26 @@
+## Identify Files for Synchronization
+
+xCAT includes functionality to synchronize files from the head node to managed
+hosts via *synclists*. This is one way to distribute user credentials to compute
+nodes. Enable the synclist feature and register credential files:
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Import files -->
+```bash
+# Define path for xCAT synclist file
+mkdir -p /install/custom/netboot
+chdef -t osimage -o ${xcat_osimage} \
+    synclists="/install/custom/netboot/compute.synclist"
+
+# Add credential files to synclist
+echo "/etc/passwd  -> /etc/passwd"  >  /install/custom/netboot/compute.synclist
+echo "/etc/group   -> /etc/group"   >> /install/custom/netboot/compute.synclist
+echo "/etc/shadow  -> /etc/shadow"  >> /install/custom/netboot/compute.synclist
+echo "/etc/munge/munge.key -> /etc/munge/munge.key" \
+    >> /install/custom/netboot/compute.synclist
+```
+<!-- ohpc_end -->
+
+The `updatenode compute -F` command distributes changes made to any defined
+synchronization files. Use the uppercase `-F` flag; lowercase `-f` targets
+service nodes.

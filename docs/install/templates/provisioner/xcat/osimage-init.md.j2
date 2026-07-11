@@ -1,0 +1,51 @@
+## Define Compute Image for Provisioning
+
+### Build Initial Base OS Image
+
+The following steps build a minimal, default image for use with xCAT. A local
+copy of the distribution ISO is required; for this recipe the ISO is
+`{{ distro_iso_image }}`. Initialize image creation using `copycds`, assuming
+the ISO is available at `${iso_path}`:
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Initialize OS images for use with xCAT -->
+```bash
+: "${iso_path:?ERROR: iso_path not set}"
+
+copycds ${iso_path}/{{ distro_iso_image }}
+```
+<!-- ohpc_end -->
+
+`copycds` derives the OS image names from the distribution metadata inside the
+ISO, which encodes the minor version (for example a Rocky 10.0 x86_64 ISO
+creates `rocky10.0-x86_64-{install,netboot,statelite}-compute`). Query the
+created images and capture the stateless (*netboot*) image name for the
+following steps:
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Capture the netboot osimage name created by copycds -->
+```bash
+# Query available images
+lsdef -t osimage
+
+# Capture the stateless (netboot) compute image name
+xcat_osimage=$(lsdef -t osimage | awk '/netboot-compute/{print $1; exit}')
+echo ${xcat_osimage}
+```
+<!-- ohpc_end -->
+
+This recipe uses the stateless (*netboot*) image. Proceed by running `genimage`
+to initialize a chroot-based install:
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Create chroot-based compute image -->
+```bash
+# Save chroot location for the compute image
+CHROOT=$(lsdef -t osimage -o ${xcat_osimage} \
+    -i rootimgdir | awk -F= '/rootimgdir/{print $2}')/rootimg/
+export CHROOT
+
+# Build initial chroot image
+genimage ${xcat_osimage}
+```
+<!-- ohpc_end -->
