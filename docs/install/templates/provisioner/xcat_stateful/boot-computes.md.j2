@@ -1,0 +1,30 @@
+## Boot Compute Nodes
+
+Configure compute nodes to use PXE as their next boot mode, then power cycle
+them. The nodes boot the distribution installer over the network, perform an
+unattended install onto local disk, and reboot into the freshly installed OS.
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Set nodes to netboot and power cycle -->
+<!-- ohpc_if_set has_ipmi -->
+```bash
+# Set compute group to boot from network on next boot
+rsetboot compute net
+
+# Power cycle compute nodes
+rpower compute reset
+```
+<!-- ohpc_else -->
+<!-- ohpc_command # No BMC/IPMI available -- signal external reset handler -->
+<!-- ohpc_command for ((i=0; i<num_computes; i++)) ; do -->
+<!-- ohpc_command   echo "#<<< ohpc_reset:$i,${c_name[$i]},${c_bmc[$i]} >>>#" -->
+<!-- ohpc_command done -->
+<!-- ohpc_fi -->
+<!-- ohpc_end -->
+
+The stateful installation typically completes in 5 to 10 minutes, depending on
+BIOS post times and disk speed. Monitor provisioning with the `rcons` command,
+which displays the serial console for a selected node; the escape sequence to
+exit `rcons` is `Ctrl-e c .` typed sequentially. Deployment progress can also
+be queried with `nodestat compute`, which reports the installation state of
+each node until an `sshd` response indicates the node is up.

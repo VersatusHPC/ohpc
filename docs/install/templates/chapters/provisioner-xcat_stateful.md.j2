@@ -1,0 +1,26 @@
+{# Provisioner Aggregator #}
+# Install xCAT Provisioner
+
+{% include "provisioner/provisioner.md.j2" %}
+
+This edition covers **stateful** (local disk) provisioning, which is
+accomplished in two steps: first, a generic base OS is installed onto the local
+disk of the *compute* nodes, and then, once the nodes are up and running,
+OpenHPC components are added on top. Stateless (*netboot*) provisioning with
+xCAT is covered by a separate edition of this guide.
+
+{% include "provisioner/xcat_common/xcat-repo.md.j2" %}
+{% include "provisioner/xcat_common/xcat-install.md.j2" %}
+{% include "provisioner/xcat_common/xcat-setup.md.j2" %}
+
+{% include "provisioner/xcat_stateful/osimage-init.md.j2" %}
+{% include "provisioner/xcat_common/add-nodes.md.j2" %}
+{% include "provisioner/xcat_stateful/synclists.md.j2" %}
+
+{% include "provisioner/xcat_stateful/boot-computes.md.j2" %}
+{% include "provisioner/xcat_stateful/wait.md.j2" %}
+
+{% include "provisioner/xcat_stateful/compute-setup.md.j2" %}
+{% include "provisioner/xcat_stateful/compute-ohpc.md.j2" %}
+{% include "provisioner/xcat_stateful/compute-slurm.md.j2" %}
+{% include "provisioner/xcat_stateful/compute-nfs.md.j2" %}

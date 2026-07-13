@@ -1,0 +1,28 @@
+## Identify Files for Synchronization
+
+xCAT includes functionality to synchronize files from the head node to managed
+hosts via *synclists*. This is one way to distribute user credentials to compute
+nodes: the default `syncfiles` postscript applies the synclist during the
+stateful install, and changes can be pushed on demand afterwards with
+`updatenode`. Enable the synclist feature and register credential files:
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Import files -->
+```bash
+# Define path for xCAT synclist file
+mkdir -p /install/custom/install
+chdef -t osimage -o ${xcat_osimage} \
+    synclists="/install/custom/install/compute.synclist"
+
+# Add credential files to synclist
+echo "/etc/passwd  -> /etc/passwd"  >  /install/custom/install/compute.synclist
+echo "/etc/group   -> /etc/group"   >> /install/custom/install/compute.synclist
+echo "/etc/shadow  -> /etc/shadow"  >> /install/custom/install/compute.synclist
+echo "/etc/munge/munge.key -> /etc/munge/munge.key" \
+    >> /install/custom/install/compute.synclist
+```
+<!-- ohpc_end -->
+
+The `updatenode compute -F` command distributes changes made to any defined
+synchronization files. Use the uppercase `-F` flag; lowercase `-f` targets
+service nodes.

@@ -5,11 +5,11 @@
 
 This edition covers **stateless** (*netboot*) provisioning, where compute nodes
 boot a RAM-resident image served by the head node. Stateful (local disk)
-provisioning with xCAT is not covered by this guide.
+provisioning with xCAT is covered by a separate edition of this guide.
 
-{% include "provisioner/xcat_stateless/xcat-repo.md.j2" %}
-{% include "provisioner/xcat_stateless/xcat-install.md.j2" %}
-{% include "provisioner/xcat_stateless/xcat-setup.md.j2" %}
+{% include "provisioner/xcat_common/xcat-repo.md.j2" %}
+{% include "provisioner/xcat_common/xcat-install.md.j2" %}
+{% include "provisioner/xcat_common/xcat-setup.md.j2" %}
 
 {% include "provisioner/xcat_stateless/osimage-init.md.j2" %}
 {% include "provisioner/xcat_stateless/chroot-install-ohpc.md.j2" %}

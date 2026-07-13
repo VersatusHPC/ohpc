@@ -26,7 +26,7 @@ updates are pre-configured.
 ```bash
 {{ pkg_clean }}
 ```
-{% elif is_confluent %}
+{% elif is_confluent or is_xcat_stateful %}
 1. (Optional) Ensure repo metadata is current (on head node and compute nodes).
    Package managers will naturally do this on their own over time, but if you
    are wanting to access updates immediately after a new release, the following
@@ -80,7 +80,7 @@ podman run \
 
 After the image is rebuilt and published to S3, reboot the compute nodes to
 apply the changes.
-{% elif is_confluent %}
+{% elif is_confluent or is_xcat_stateful %}
 3. Upgrade packages on compute nodes
 
 ```bash

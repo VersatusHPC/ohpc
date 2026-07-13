@@ -48,7 +48,7 @@ Required variables:
 * `iso_path` - location of compute node base os dvd iso (default: `{{ distro_iso_image }}`)
 * `iso_url` - ISO download base URL (optional; overrides default upstream location)
 {% endif %}
-{% if is_xcat_stateless %}
+{% if is_xcat_stateless or is_xcat_stateful %}
 * `${domain_name}` - DNS domain name for cluster (e.g. `local`)
 * `iso_path` - path to directory containing the base OS dvd iso (`{{ distro_iso_image }}`)
 

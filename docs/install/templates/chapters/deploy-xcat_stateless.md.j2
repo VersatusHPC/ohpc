@@ -6,7 +6,7 @@
 {# Pack the image after the shared customize chapter has written into ${CHROOT} #}
 {% include "provisioner/xcat_stateless/packimage.md.j2" %}
 
-{% include "provisioner/xcat_stateless/add-nodes.md.j2" %}
+{% include "provisioner/xcat_common/add-nodes.md.j2" %}
 
 {# Slurm must start after nodes have been defined #}
 {% include "scheduler/slurm/startup.md.j2" %}

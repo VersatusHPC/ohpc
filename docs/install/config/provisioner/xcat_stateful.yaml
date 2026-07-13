@@ -1,0 +1,25 @@
+# xCAT stateful (diskful) provisioner configuration
+
+provisioner: "xcat_stateful"
+# Mirrors the OpenHPC 2.x guide split, where xCAT shipped as separate
+# "xCAT (stateless)" and "xCAT (stateful)" editions; this recipe is the
+# stateful (diskful) lineage.
+provisioner_name: "xCAT (stateful)"
+is_xcat_stateful: true
+
+# xCAT release tree to install from ("latest" tracks the current stable
+# series; set a versioned directory such as "2.18" to pin). The repo
+# definitions are written locally: the .repo files published on xcat.org
+# point at a retired "devel" tree and are not usable directly.
+xcat_release: "latest"
+xcat_repo_base: "https://xcat.org/files/xcat/repos/yum"
+# OS-family component of the xcat-dep repository path (EL10 -> rh10)
+xcat_dep_dist: "rh10"
+
+# Override chroot commands with xdsh equivalents. Compute nodes are
+# provisioned with the base OS before OpenHPC components are added, so
+# shared sections (infiniband, omnipath, nhc) act on live nodes.
+pkg_install_chroot: "xdsh compute dnf -y install"
+pkg_group_install_chroot: "xdsh compute dnf -y groupinstall"
+pkg_upgrade_chroot: "xdsh compute dnf -y upgrade"
+pkg_clean_chroot: "xdsh compute dnf clean expire-cache"

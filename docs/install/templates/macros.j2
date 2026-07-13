@@ -69,6 +69,28 @@ chroot ${CHROOT} /bin/sh -c \
 
 {% endif %}
 
+{# xCAT stateful Macros #}
+{# Compute nodes run the installed base OS before OpenHPC is added — act on live nodes via xdsh.
+   The remote command is wrapped in double quotes so it reaches the node as a single word with
+   inner single quotes intact; head-node variables (e.g. ${sms_ip}) expand before transmission. #}
+{% if is_xcat_stateful %}
+
+{%- macro compute_sed(regex, file) -%}
+xdsh compute "sed -i '{{ regex }}' \
+  '{{ file }}'"
+{%- endmacro -%}
+
+{%- macro compute_echo(string, file, append=true) -%}
+xdsh compute "echo '{{ string }}' {{ ">>" if append else ">" }} \
+  '{{ file }}'"
+{%- endmacro -%}
+
+{%- macro compute_run(cmd) -%}
+xdsh compute "{{ cmd }}"
+{%- endmacro -%}
+
+{% endif %}
+
 {# Confluent Macros #}
 {% if is_confluent %}
 

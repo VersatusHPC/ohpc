@@ -1,0 +1,23 @@
+Wait until every compute node has completed the installation and reports a
+running `sshd` service before proceeding:
+
+<!-- ohpc_begin -->
+<!-- ohpc_comment Wait for compute nodes to complete the stateful install -->
+<!-- ohpc_command while true; do -->
+<!-- ohpc_command     booted=$(nodestat compute | grep -c ": sshd" || true) -->
+<!-- ohpc_command     if [ "$booted" -eq "$num_computes" ]; then -->
+<!-- ohpc_command         break -->
+<!-- ohpc_command     fi -->
+<!-- ohpc_command     echo "$booted of $num_computes compute nodes ready" -->
+<!-- ohpc_command     sleep 30 -->
+<!-- ohpc_command done -->
+<!-- ohpc_end -->
+
+Once booted, verify access with a parallel command across the compute nodes
+using `xdsh`, xCAT's native distributed shell:
+
+```bash
+xdsh compute uptime
+c1:  12:56:50 up  4 min,  0 users,  load average: 0.00, 0.01, 0.04
+c2:  12:56:50 up  3 min,  0 users,  load average: 0.00, 0.02, 0.05
+```
