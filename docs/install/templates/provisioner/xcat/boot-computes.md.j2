@@ -26,17 +26,20 @@ The boot process typically completes in about 5 minutes. Monitor provisioning
 with the `rcons` command, which displays the serial console for a selected node.
 The escape sequence to exit `rcons` is `Ctrl-e c .` typed sequentially.
 
-Once booted, verify successful provisioning with parallel commands:
+Once booted, verify successful provisioning with a parallel command across the
+compute nodes. xCAT provides `xdsh`, its native distributed shell, which
+accepts xCAT node names and groups:
 
 ```bash
-psh compute uptime
+xdsh compute uptime
 c1:  12:56:50 up 14 min,  0 users,  load average: 0.00, 0.01, 0.04
 c2:  12:56:50 up 13 min,  0 users,  load average: 0.00, 0.02, 0.05
 c3:  12:56:50 up 14 min,  0 users,  load average: 0.00, 0.02, 0.05
 c4:  12:56:50 up 14 min,  0 users,  load average: 0.00, 0.01, 0.04
 ```
 
-The equivalent `pdsh` command is:
+The provisioner-independent `pdsh` utility, installed on the head node as part
+of the `ohpc-base` metapackage, may be used as well:
 
 ```bash
 pdsh -w ${compute_prefix}[1-${num_computes}] uptime
