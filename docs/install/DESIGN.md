@@ -69,7 +69,7 @@ config/
 │   ├── warewulf.yaml            # is_warewulf: true, provisioner_name: "Warewulf"
 │   ├── openchami.yaml           # is_openchami: true, provisioner_name: "OpenCHAMI"
 │   ├── confluent.yaml           # is_confluent: true, provisioner_name: "Confluent"
-│   └── xcat.yaml                # is_xcat: true, provisioner_name: "xCAT"
+│   └── xcat_stateless.yaml      # is_xcat_stateless: true, provisioner_name: "xCAT (stateless)"
 └── scheduler/
     └── slurm.yaml               # is_slurm: true, scheduler_name: "Slurm"
 ```
@@ -515,12 +515,12 @@ docs/install/
 │   │   ├── provisioner-warewulf.md.j2
 │   │   ├── provisioner-confluent.md.j2
 │   │   ├── provisioner-openchami.md.j2
-│   │   ├── provisioner-xcat.md.j2
+│   │   ├── provisioner-xcat_stateless.md.j2
 │   │   ├── customize.md.j2
 │   │   ├── deploy-warewulf.md.j2
 │   │   ├── deploy-confluent.md.j2
 │   │   ├── deploy-openchami.md.j2
-│   │   ├── deploy-xcat.md.j2
+│   │   ├── deploy-xcat_stateless.md.j2
 │   │   ├── dev-tools.md.j2
 │   │   ├── test.md.j2
 │   │   ├── post.md.j2
@@ -533,7 +533,7 @@ docs/install/
 │   │   ├── warewulf/
 │   │   ├── confluent/
 │   │   ├── openchami/
-│   │   └── xcat/
+│   │   └── xcat_stateless/
 │   ├── scheduler/
 │   │   └── slurm/
 │   ├── network/

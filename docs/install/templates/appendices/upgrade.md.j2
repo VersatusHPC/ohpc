@@ -110,7 +110,7 @@ restart is required on the compute nodes.
 ```bash
 wwvnfs --chroot $CHROOT
 ```
-{% elif is_xcat %}
+{% elif is_xcat_stateless %}
 ```bash
 xcat_osimage=$(lsdef -t osimage | awk '/netboot-compute/{print $1; exit}')
 packimage ${xcat_osimage}
