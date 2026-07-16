@@ -18,6 +18,34 @@ env:
     components/parallel-libs/trilinos/SPECS/trilinos.spec
 
 jobs:
+  classify_changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs_install_only: ${{ steps.classify.outputs.docs_install_only }}
+    steps:
+    - id: files
+      uses: Ana06/get-changed-files@v2.3.0
+      with:
+        format: json
+    - id: classify
+      name: Classify changes
+      env:
+        CHANGED_FILES: ${{ steps.files.outputs.all }}
+        PR_BODY: ${{ github.event.pull_request.body }}
+        RENAMED_FILES: ${{ steps.files.outputs.renamed }}
+      run: |
+        docs_install_only=false
+
+        # Preserve explicit full-test requests. The changed-files API caps
+        # responses at 300 files and does not expose a rename's previous path.
+        if [[ "${PR_BODY}" != *"[TESTS:ALL]"* ]] \
+          && jq -e 'type == "array" and length > 0 and length < 300 and all(.[]; type == "string" and startswith("docs/install/"))' <<< "${CHANGED_FILES}" > /dev/null \
+          && jq -e 'type == "array" and length == 0' <<< "${RENAMED_FILES}" > /dev/null; then
+          docs_install_only=true
+        fi
+
+        echo "docs_install_only=${docs_install_only}" >> "${GITHUB_OUTPUT}"
+
   check_spec:
     env:
       JOB_SKIP_CI_SPECS: |
@@ -38,6 +66,7 @@ jobs:
 
 
   build_on_rhel:
+    needs: classify_changes
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
@@ -97,7 +126,11 @@ jobs:
           export SKIP_CI_SPECS="${SKIP_CI_SPECS} components/perf-tools/likwid/SPECS/likwid.spec"
         fi
         . /etc/profile.d/lmod.sh
-        tests/ci/run_build.py ohpc ${{ steps.files.outputs.added_modified }} --compiler-family ${{ matrix.compiler }}
+        if [ "${{ needs.classify_changes.outputs.docs_install_only }}" == "true" ]; then
+          tests/ci/run_build.py ohpc components/admin/docs/SPECS/docs.spec --compiler-family ${{ matrix.compiler }}
+        else
+          tests/ci/run_build.py ohpc ${{ steps.files.outputs.added_modified }} --compiler-family ${{ matrix.compiler }}
+        fi
         touch /tmp/empty
     - uses: actions/upload-artifact@v7
       with:
@@ -121,6 +154,8 @@ jobs:
         key: ccache-rhel-${{ matrix.arch }}-${{ matrix.compiler }}-${{ github.sha }}-${{ github.run_id }}-build
 
   test_on_rhel:
+    needs: [classify_changes, build_on_rhel]
+    if: needs.classify_changes.outputs.docs_install_only != 'true'
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
@@ -144,7 +179,6 @@ jobs:
       volumes:
         - /usr:/host/usr
         - /opt:/host/opt
-    needs: build_on_rhel
     steps:
     - name: Delete unneeded tools on the host
       # Needed to have enough space to install the Intel compiler
@@ -278,6 +312,8 @@ jobs:
         limit-access-to-actor: true
 
   build_on_openEuler:
+    needs: classify_changes
+    if: needs.classify_changes.outputs.docs_install_only != 'true'
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
@@ -416,6 +452,8 @@ jobs:
 
   event_file:
     name: "Event File"
+    needs: classify_changes
+    if: needs.classify_changes.outputs.docs_install_only != 'true'
     runs-on: ubuntu-latest
     steps:
     - name: Upload
