@@ -20,7 +20,6 @@
 %define versionize_script() (sed -i 's,/env python,/env %1,g' %2)
 
 # Unfortunately this changes with every release
-%define package_file_id 290882913
 
 %{!?build_ldflags:%global build_ldflags %nil}
 
@@ -31,7 +30,7 @@ Release:   1%{?dist}
 License:   Apache-2.0
 Group:     %{PROJ_NAME}/runtimes
 URL:       https://charliecloud.io/
-Source0:   https://gitlab.com/charliecloud/charliecloud/-/package_files/%{package_file_id}/download#/charliecloud-%{version}.tar.gz
+Source0:   https://gitlab.com/-/project/62049685/uploads/0b54313f68bc9612bb0d3f3e91befa88/charliecloud-%{version}.tar.gz
 Source1:   Build
 
 BuildRequires: make
