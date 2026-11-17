@@ -16,14 +16,11 @@ is_xcat_stateful: true
 # a stateful deployment. Used to select and validate the image by provmethod.
 xcat_image_type: "install"
 
-# xCAT release tree to install from ("latest" tracks the current stable
-# series; set a versioned directory such as "2.18" to pin). The repo
-# definitions are written locally: the .repo files published on xcat.org
-# point at a retired "devel" tree and are not usable directly.
+# xCAT release tree that provides the xCAT-release package. The
+# repositories that this package configures follow the latest xCAT
+# release, whichever tree the package comes from.
 xcat_release: "latest"
 xcat_repo_base: "https://xcat.org/files/xcat/repos/yum"
-# OS-family component of the xcat-dep repository path (EL10 -> rh10)
-xcat_dep_dist: "rh10"
 
 # Compute package/config operations are accumulated into an otherpkgs pkglist and
 # an xCAT postscript on the head (paths set as shell variables by the "Stage the
